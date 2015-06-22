@@ -1,0 +1,755 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+module cuencas ! in cuencas.f90
+    real, allocatable,dimension(:,:) :: stream_temp
+    integer, allocatable,dimension(:,:) :: basin_temp
+    real :: nodata
+    real, allocatable,dimension(:,:) :: ppal_stream_temp
+    integer :: nrows
+    real :: dx
+    real :: dxp
+    real :: perimetro
+    real :: centrox
+    real :: centroy
+    real :: xll
+    integer :: ncols
+    real :: area
+    real, allocatable,dimension(:,:) :: perim_temp
+    real :: pend_media
+    integer, allocatable,dimension(:,:) :: sub_basins_temp
+    real, public :: qsortc
+    real :: yll
+    real, allocatable,dimension(:,:) :: netxy_temp
+    real :: elevacion
+    subroutine coord2fil_col(x,y,col,fil) ! in cuencas.f90:cuencas
+        real intent(in) :: x
+        real intent(in) :: y
+        integer intent(out) :: col
+        integer intent(out) :: fil
+    end subroutine coord2fil_col
+    subroutine read_ascii_hdr(ruta) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+    end subroutine read_ascii_hdr
+    subroutine read_float_ascii_dat(ruta,nc,nr,mat) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        integer intent(in) :: nc
+        integer intent(in) :: nr
+        real dimension(nc,nr),intent(out),depend(nc,nr) :: mat
+    end subroutine read_float_ascii_dat
+    subroutine read_int_ascii_dat(ruta,nc,nr,mat) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        integer intent(in) :: nc
+        integer intent(in) :: nr
+        integer dimension(nc,nr),intent(out),depend(nc,nr) :: mat
+    end subroutine read_int_ascii_dat
+    subroutine read_ascii_hdr_ng(ruta,nc,nr,xlln,ylln,dxn,nodatan) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        integer intent(out) :: nc
+        integer intent(out) :: nr
+        real intent(out) :: xlln
+        real intent(out) :: ylln
+        real intent(out) :: dxn
+        real intent(out) :: nodatan
+    end subroutine read_ascii_hdr_ng
+    subroutine read_float_ascii_ng(ruta,nc,nr,mat) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        integer intent(in) :: nc
+        integer intent(in) :: nr
+        real dimension(nc,nr),intent(out),depend(nc,nr) :: mat
+    end subroutine read_float_ascii_ng
+    subroutine read_int_ascii_ng(ruta,nc,nr,mat) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        integer intent(in) :: nc
+        integer intent(in) :: nr
+        integer dimension(nc,nr),intent(out),depend(nc,nr) :: mat
+    end subroutine read_int_ascii_ng
+    subroutine read_int_basin(ruta,records,vect,nrecords,nceldas) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        integer dimension(nrecords),intent(in) :: records
+        integer dimension(nrecords,nceldas),intent(out),depend(nrecords,nceldas) :: vect
+        integer, optional,intent(in),check(len(records)>=nrecords),depend(records) :: nrecords=len(records)
+        integer intent(in) :: nceldas
+    end subroutine read_int_basin
+    subroutine read_float_basin(ruta,records,vect,nrecords,nceldas) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        integer dimension(nrecords),intent(in) :: records
+        real dimension(nrecords,nceldas),intent(out),depend(nrecords,nceldas) :: vect
+        integer, optional,intent(in),check(len(records)>=nrecords),depend(records) :: nrecords=len(records)
+        integer intent(in) :: nceldas
+    end subroutine read_float_basin
+    subroutine write_float_ascii(ruta,mapa) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        real dimension(:,:),intent(in) :: mapa
+    end subroutine write_float_ascii
+    subroutine write_int_ascii(ruta,mapa) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        integer dimension(:,:),intent(in) :: mapa
+    end subroutine write_int_ascii
+    subroutine write_float_ascii_ng(ruta,mapa,cols,rows,xll_ng,yll_ng,dx_ng) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        real dimension(:,:),intent(in) :: mapa
+        integer intent(in) :: cols
+        integer intent(in) :: rows
+        real intent(in) :: xll_ng
+        real intent(in) :: yll_ng
+        real intent(in) :: dx_ng
+    end subroutine write_float_ascii_ng
+    subroutine write_int_ascii_ng(ruta,mapa,cols,rows,xll_ng,yll_ng,dx_ng) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        integer dimension(:,:),intent(in) :: mapa
+        integer intent(in) :: cols
+        integer intent(in) :: rows
+        real intent(in) :: xll_ng
+        real intent(in) :: yll_ng
+        real intent(in) :: dx_ng
+    end subroutine write_int_ascii_ng
+    subroutine write_int_basin(ruta,vect,record,nceldas,estado) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        integer dimension(nceldas),intent(in) :: vect
+        integer intent(in) :: record
+        integer, optional,intent(in),check(len(vect)>=nceldas),depend(vect) :: nceldas=len(vect)
+        character*7 intent(in) :: estado
+    end subroutine write_int_basin
+    subroutine write_float_basin(ruta,vect,record,nceldas,estado) ! in cuencas.f90:cuencas
+        character*255 intent(in) :: ruta
+        real dimension(nceldas),intent(in) :: vect
+        integer intent(in) :: record
+        integer, optional,intent(in),check(len(vect)>=nceldas),depend(vect) :: nceldas=len(vect)
+        character*7 intent(in) :: estado
+    end subroutine write_float_basin
+    subroutine stream_find(x,y,dem,dir,nc,nf,nceldas) ! in cuencas.f90:cuencas
+        real intent(in) :: x
+        real intent(in) :: y
+        real dimension(nc,nf),intent(in) :: dem
+        integer dimension(nc,nf),intent(in),depend(nc,nf) :: dir
+        integer, optional,intent(in),check(shape(dem,0)==nc),depend(dem) :: nc=shape(dem,0)
+        integer, optional,intent(in),check(shape(dem,1)==nf),depend(dem) :: nf=shape(dem,1)
+        integer intent(out) :: nceldas
+    end subroutine stream_find
+    subroutine stream_cut(nceldas,stream_f) ! in cuencas.f90:cuencas
+        integer intent(in) :: nceldas
+        real dimension(4,nceldas),intent(out),depend(nceldas) :: stream_f
+    end subroutine stream_cut
+    subroutine stream_kml(corr,ruta,nceldas) ! in cuencas.f90:cuencas
+        real dimension(4,nceldas),intent(in) :: corr
+        character*255 intent(in) :: ruta
+        integer, optional,intent(in),check(shape(corr,1)==nceldas),depend(corr) :: nceldas=shape(corr,1)
+    end subroutine stream_kml
+    subroutine stream_reset ! in cuencas.f90:cuencas
+    end subroutine stream_reset
+    subroutine basin_find(x,y,dir,nc,nr,nceldas) ! in cuencas.f90:cuencas
+        real intent(in) :: x
+        real intent(in) :: y
+        integer dimension(nc,nr),intent(in) :: dir
+        integer, optional,intent(in),check(shape(dir,0)==nc),depend(dir) :: nc=shape(dir,0)
+        integer, optional,intent(in),check(shape(dir,1)==nr),depend(dir) :: nr=shape(dir,1)
+        integer intent(out) :: nceldas
+    end subroutine basin_find
+    subroutine basin_cut(nceldas,basin_f) ! in cuencas.f90:cuencas
+        integer intent(in) :: nceldas
+        integer dimension(3,nceldas),intent(out),depend(nceldas) :: basin_f
+    end subroutine basin_cut
+    subroutine basin_basics(basin_f,dem,dir,nc,nf,nceldas,acum,long_bn,pend,elev) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        real dimension(nc,nf),intent(in) :: dem
+        integer dimension(nc,nf),intent(in),depend(nc,nf) :: dir
+        integer, optional,intent(in),check(shape(dem,0)==nc),depend(dem) :: nc=shape(dem,0)
+        integer, optional,intent(in),check(shape(dem,1)==nf),depend(dem) :: nf=shape(dem,1)
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+        integer dimension(nceldas),intent(out),depend(nceldas) :: acum
+        real dimension(nceldas),intent(out),depend(nceldas) :: long_bn
+        real dimension(nceldas),intent(out),depend(nceldas) :: pend
+        real dimension(nceldas),intent(out),depend(nceldas) :: elev
+    end subroutine basin_basics
+    subroutine basin_acum(basin_f,nceldas,acum) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+        integer dimension(nceldas),intent(out),depend(nceldas) :: acum
+    end subroutine basin_acum
+    subroutine basin_findlong(basin_f,nceldas,longmax,punto) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+        real intent(out) :: longmax
+        integer intent(out) :: punto
+    end subroutine basin_findlong
+    subroutine basin_time_to_out(basin_f,long_bn,speed,time,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        real dimension(nceldas),intent(in),depend(nceldas) :: long_bn
+        real dimension(nceldas),intent(in),depend(nceldas) :: speed
+        real dimension(nceldas),intent(out),depend(nceldas) :: time
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_time_to_out
+    subroutine basin_arc_slope(basin,dem,slope,nceldas,nc,nr) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin
+        real dimension(nc,nr),intent(in) :: dem
+        real dimension(nceldas),intent(out),depend(nceldas) :: slope
+        integer, optional,intent(in),check(shape(basin,1)==nceldas),depend(basin) :: nceldas=shape(basin,1)
+        integer, optional,intent(in),check(shape(dem,0)==nc),depend(dem) :: nc=shape(dem,0)
+        integer, optional,intent(in),check(shape(dem,1)==nr),depend(dem) :: nr=shape(dem,1)
+    end subroutine basin_arc_slope
+    subroutine basin_reset ! in cuencas.f90:cuencas
+    end subroutine basin_reset
+    subroutine basin_coordxy(basin_f,x,y,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        real dimension(nceldas),intent(out),depend(nceldas) :: x
+        real dimension(nceldas),intent(out),depend(nceldas) :: y
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_coordxy
+    subroutine basin_perim_find(basin_f,nperim,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer intent(out) :: nperim
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_perim_find
+    subroutine basin_perim_cut(nperim,basin_perim) ! in cuencas.f90:cuencas
+        integer intent(in) :: nperim
+        real dimension(2,nperim),intent(out),depend(nperim) :: basin_perim
+    end subroutine basin_perim_cut
+    subroutine basin_perim_kml(basin_p,ruta,nperim) ! in cuencas.f90:cuencas
+        real dimension(2,nperim),intent(in) :: basin_p
+        character*255 intent(in) :: ruta
+        integer, optional,intent(in),check(shape(basin_p,1)==nperim),depend(basin_p) :: nperim=shape(basin_p,1)
+    end subroutine basin_perim_kml
+    subroutine basin_float_var2map(basin_f,vect,mapa,nc,nf,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        real dimension(nceldas),intent(in),depend(nceldas) :: vect
+        real dimension(nc,nf),intent(out),depend(nc,nf) :: mapa
+        integer intent(in) :: nc
+        integer intent(in) :: nf
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_float_var2map
+    subroutine basin_int_var2map(basin_f,vect,mapa,nc,nf,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer dimension(nceldas),intent(in),depend(nceldas) :: vect
+        integer dimension(nc,nf),intent(out),depend(nc,nf) :: mapa
+        integer intent(in) :: nc
+        integer intent(in) :: nf
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_int_var2map
+    subroutine basin_int_map2var(basin_f,mapa,vect,nc,nf,xll_m,yll_m,dx_m,nodata_m,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer dimension(nc,nf),intent(in) :: mapa
+        integer dimension(nceldas),intent(out),depend(nceldas) :: vect
+        integer, optional,intent(in),check(shape(mapa,0)==nc),depend(mapa) :: nc=shape(mapa,0)
+        integer, optional,intent(in),check(shape(mapa,1)==nf),depend(mapa) :: nf=shape(mapa,1)
+        real intent(in) :: xll_m
+        real intent(in) :: yll_m
+        real intent(in) :: dx_m
+        integer intent(in) :: nodata_m
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_int_map2var
+    subroutine basin_float_map2var(basin_f,mapa,vect,nc,nf,xll_m,yll_m,dx_m,nodata_m,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        real dimension(nc,nf),intent(in) :: mapa
+        real dimension(nceldas),intent(out),depend(nceldas) :: vect
+        integer, optional,intent(in),check(shape(mapa,0)==nc),depend(mapa) :: nc=shape(mapa,0)
+        integer, optional,intent(in),check(shape(mapa,1)==nf),depend(mapa) :: nf=shape(mapa,1)
+        real intent(in) :: xll_m
+        real intent(in) :: yll_m
+        real intent(in) :: dx_m
+        integer intent(in) :: nodata_m
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_float_map2var
+    subroutine basin_map2basin(basin_f,nceldas,mapa,xllm,yllm,ncolsm,nrowsm,dxm,nodatam,opcion,vec) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+        real dimension(ncolsm,nrowsm),intent(in) :: mapa
+        real intent(in) :: xllm
+        real intent(in) :: yllm
+        integer, optional,intent(in),check(shape(mapa,0)==ncolsm),depend(mapa) :: ncolsm=shape(mapa,0)
+        integer, optional,intent(in),check(shape(mapa,1)==nrowsm),depend(mapa) :: nrowsm=shape(mapa,1)
+        real intent(in) :: dxm
+        real intent(in) :: nodatam
+        character*11 intent(in) :: opcion
+        real dimension(nceldas),intent(out),depend(nceldas) :: vec
+    end subroutine basin_map2basin
+    subroutine basin_2map_find(basin,map_ncols,map_nrows,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin
+        integer intent(out) :: map_ncols
+        integer intent(out) :: map_nrows
+        integer, optional,intent(in),check(shape(basin,1)==nceldas),depend(basin) :: nceldas=shape(basin,1)
+    end subroutine basin_2map_find
+    subroutine basin_2map(basin,var,mapa,map_ncols,map_nrows,map_xll,map_yll,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin
+        real dimension(nceldas),intent(in),depend(nceldas) :: var
+        real dimension(map_ncols,map_nrows),intent(out),depend(map_ncols,map_nrows) :: mapa
+        integer intent(in) :: map_ncols
+        integer intent(in) :: map_nrows
+        real intent(out) :: map_xll
+        real intent(out) :: map_yll
+        integer, optional,intent(in),check(shape(basin,1)==nceldas),depend(basin) :: nceldas=shape(basin,1)
+    end subroutine basin_2map
+    subroutine basin_point2var(basin_f,id_coord,xy_coord,res_coord,basin_pts,ncoord,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer dimension(ncoord),intent(in) :: id_coord
+        real dimension(2,ncoord),intent(in),depend(ncoord) :: xy_coord
+        integer dimension(ncoord),intent(out),depend(ncoord) :: res_coord
+        integer dimension(nceldas),intent(out),depend(nceldas) :: basin_pts
+        integer, optional,intent(in),check(len(id_coord)>=ncoord),depend(id_coord) :: ncoord=len(id_coord)
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_point2var
+    subroutine basin_stream_nod(basin_f,acum,nceldas,umbral,cauce,nodos,trazado,n_nodos,n_cauce) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer dimension(nceldas),intent(in),depend(nceldas) :: acum
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+        integer intent(in) :: umbral
+        integer dimension(nceldas),intent(out),depend(nceldas) :: cauce
+        integer dimension(nceldas),intent(out),depend(nceldas) :: nodos
+        integer dimension(nceldas),intent(out),depend(nceldas) :: trazado
+        integer intent(out) :: n_nodos
+        integer intent(out) :: n_cauce
+    end subroutine basin_stream_nod
+    subroutine basin_stream_slope(basin_f,basin_elev,basin_long,nodos,n_cauce,stream_s,stream_l,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        real dimension(nceldas),intent(in),depend(nceldas) :: basin_elev
+        real dimension(nceldas),intent(in),depend(nceldas) :: basin_long
+        integer dimension(nceldas),intent(in),depend(nceldas) :: nodos
+        integer intent(in) :: n_cauce
+        real dimension(nceldas),intent(out),depend(nceldas) :: stream_s
+        real dimension(nceldas),intent(out),depend(nceldas) :: stream_l
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_stream_slope
+    subroutine basin_stream_type(basin_f,acum,umbrales,stream_types,numbrales,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(nceldas),intent(in) :: basin_f
+        integer dimension(nceldas),intent(in),depend(nceldas) :: acum
+        integer dimension(numbrales),intent(in) :: umbrales
+        integer dimension(nceldas),intent(out),depend(nceldas) :: stream_types
+        integer, optional,intent(in),check(len(umbrales)>=numbrales),depend(umbrales) :: numbrales=len(umbrales)
+        integer, optional,intent(in),check(len(basin_f)>=nceldas),depend(basin_f) :: nceldas=len(basin_f)
+    end subroutine basin_stream_type
+    subroutine basin_stream_point2stream(basin_f,cauce,id_coord,xy_coord,res_coord,basin_pts,xy_new,ncoord,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer dimension(nceldas),intent(in),depend(nceldas) :: cauce
+        integer dimension(ncoord),intent(in) :: id_coord
+        real dimension(2,ncoord),intent(in),depend(ncoord) :: xy_coord
+        integer dimension(ncoord),intent(out),depend(ncoord) :: res_coord
+        integer dimension(nceldas),intent(out),depend(nceldas) :: basin_pts
+        real dimension(2,ncoord),intent(out),depend(ncoord) :: xy_new
+        integer, optional,intent(in),check(len(id_coord)>=ncoord),depend(id_coord) :: ncoord=len(id_coord)
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_stream_point2stream
+    subroutine basin_netxy_find(basin_f,nodos,caucehort,nceldas,netsize) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer dimension(nceldas),intent(in),depend(nceldas) :: nodos
+        integer dimension(nceldas),intent(in),depend(nceldas) :: caucehort
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+        integer intent(out) :: netsize
+    end subroutine basin_netxy_find
+    subroutine basin_netxy_cut(netsize,nceldas,net) ! in cuencas.f90:cuencas
+        integer intent(in) :: netsize
+        integer intent(in) :: nceldas
+        real dimension(3,netsize),intent(out),depend(netsize) :: net
+    end subroutine basin_netxy_cut
+    subroutine basin_ppalstream_find(basin_f,nodos,longceldas,elev,nceldas,ppal_nceldas,punto) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer dimension(nceldas),intent(in),depend(nceldas) :: nodos
+        real dimension(nceldas),intent(in),depend(nceldas) :: longceldas
+        real dimension(nceldas),intent(in),depend(nceldas) :: elev
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+        integer intent(out) :: ppal_nceldas
+        integer intent(out) :: punto
+    end subroutine basin_ppalstream_find
+    subroutine basin_ppalstream_cut(ppal_nceldas,nceldas,ppal_f) ! in cuencas.f90:cuencas
+        integer intent(in) :: ppal_nceldas
+        integer intent(in) :: nceldas
+        real dimension(4,ppal_nceldas),intent(out),depend(ppal_nceldas) :: ppal_f
+    end subroutine basin_ppalstream_cut
+    subroutine basin_ppal_hipsometric(basin_f,elev,ppal_punto,intervalos,nceldas,ppal_nceldas,ppal_hipso,basin_hipso) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        real dimension(nceldas),intent(in),depend(nceldas) :: elev
+        integer intent(in) :: ppal_punto
+        integer intent(in) :: intervalos
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+        integer intent(in) :: ppal_nceldas
+        real dimension(2,ppal_nceldas),intent(out),depend(ppal_nceldas) :: ppal_hipso
+        real dimension(2,intervalos),intent(out),depend(intervalos) :: basin_hipso
+    end subroutine basin_ppal_hipsometric
+    subroutine basin_qmed(acum,elev,precip,qmed,etr,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(nceldas),intent(in) :: acum
+        integer dimension(nceldas),intent(in),depend(nceldas) :: elev
+        real dimension(nceldas),intent(in),depend(nceldas) :: precip
+        real dimension(nceldas),intent(out),depend(nceldas) :: qmed
+        real dimension(nceldas),intent(out),depend(nceldas) :: etr
+        integer, optional,intent(in),check(len(acum)>=nceldas),depend(acum) :: nceldas=len(acum)
+    end subroutine basin_qmed
+    subroutine basin_qofer_qcap(basin_f,q_oferta,q_cap,qres,escazes,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        real dimension(nceldas),intent(in),depend(nceldas) :: q_oferta
+        real dimension(nceldas),intent(in),depend(nceldas) :: q_cap
+        real dimension(nceldas),intent(out),depend(nceldas) :: qres
+        real dimension(nceldas),intent(out),depend(nceldas) :: escazes
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_qofer_qcap
+    subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,nodos_fin,n_nodos) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer dimension(nceldas),intent(in),depend(nceldas) :: acum
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+        integer intent(in) :: umbral
+        integer dimension(nceldas),intent(out),depend(nceldas) :: cauce
+        integer dimension(nceldas),intent(out),depend(nceldas) :: nodos_fin
+        integer intent(out) :: n_nodos
+    end subroutine basin_subbasin_nod
+    subroutine basin_subbasin_cut(n_nodos,sub_basins) ! in cuencas.f90:cuencas
+        integer intent(in) :: n_nodos
+        integer dimension(2,n_nodos),intent(out),depend(n_nodos) :: sub_basins
+    end subroutine basin_subbasin_cut
+    subroutine basin_subbasin_horton(sub_basins,sub_horton,nod_horton,n_nodos,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(2,n_nodos),intent(in) :: sub_basins
+        integer dimension(n_nodos),intent(out),depend(n_nodos) :: sub_horton
+        integer dimension(nceldas),intent(out),depend(nceldas) :: nod_horton
+        integer, optional,intent(in),check(shape(sub_basins,1)==n_nodos),depend(sub_basins) :: n_nodos=shape(sub_basins,1)
+        integer intent(in) :: nceldas
+    end subroutine basin_subbasin_horton
+    subroutine basin_subbasin_find(basin_f,nodos,sub_pert,sub_basin,n_nodos,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer dimension(nceldas),intent(in),depend(nceldas) :: nodos
+        integer dimension(nceldas),intent(out),depend(nceldas) :: sub_pert
+        integer dimension(n_nodos),intent(out),depend(n_nodos) :: sub_basin
+        integer intent(in) :: n_nodos
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine basin_subbasin_find
+    subroutine basin_subbasin_long(sub_pert,cauce,long_bn,sub_basin,sub_horton,sub_basin_long,max_long,nodo_max_long,n_nodos,nceldas) ! in cuencas.f90:cuencas
+        integer dimension(nceldas),intent(in) :: sub_pert
+        integer dimension(nceldas),intent(in),depend(nceldas) :: cauce
+        integer dimension(nceldas),intent(in),depend(nceldas) :: long_bn
+        integer dimension(2,n_nodos),intent(in) :: sub_basin
+        integer dimension(n_nodos),intent(in),depend(n_nodos) :: sub_horton
+        real dimension(n_nodos),intent(out),depend(n_nodos) :: sub_basin_long
+        real intent(out) :: max_long
+        integer intent(out) :: nodo_max_long
+        integer, optional,intent(in),check(shape(sub_basin,1)==n_nodos),depend(sub_basin) :: n_nodos=shape(sub_basin,1)
+        integer, optional,intent(in),check(len(sub_pert)>=nceldas),depend(sub_pert) :: nceldas=len(sub_pert)
+    end subroutine basin_subbasin_long
+    subroutine geo_hand(basin_f,basin_elev,basin_long,cauce,nceldas,hand_model,hdnd_model) ! in cuencas.f90:cuencas
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        real dimension(nceldas),intent(in),depend(nceldas) :: basin_elev
+        real dimension(nceldas),intent(in),depend(nceldas) :: basin_long
+        integer dimension(nceldas),intent(in),depend(nceldas) :: cauce
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+        real dimension(nceldas),intent(out),depend(nceldas) :: hand_model
+        real dimension(nceldas),intent(out),depend(nceldas) :: hdnd_model
+    end subroutine geo_hand
+    subroutine geo_hand_global(dem,dir,red,hand,nc,nr) ! in cuencas.f90:cuencas
+        real dimension(nc,nr),intent(in) :: dem
+        integer dimension(nc,nr),intent(in),depend(nc,nr) :: dir
+        integer dimension(nc,nr),intent(in),depend(nc,nr) :: red
+        real dimension(nc,nr),intent(out),depend(nc,nr) :: hand
+        integer, optional,intent(in),check(shape(dem,0)==nc),depend(dem) :: nc=shape(dem,0)
+        integer, optional,intent(in),check(shape(dem,1)==nr),depend(dem) :: nr=shape(dem,1)
+    end subroutine geo_hand_global
+    subroutine dir_reclass(mat_in,mat_out,nc,nr) ! in cuencas.f90:cuencas
+        integer dimension(nc,nr),intent(in) :: mat_in
+        integer dimension(nc,nr),intent(out),depend(nc,nr) :: mat_out
+        integer, optional,intent(in),check(shape(mat_in,0)==nc),depend(mat_in) :: nc=shape(mat_in,0)
+        integer, optional,intent(in),check(shape(mat_in,1)==nr),depend(mat_in) :: nr=shape(mat_in,1)
+    end subroutine dir_reclass
+    subroutine qsortc(a) ! in cuencas.f90:cuencas
+        real dimension(:),intent(inout) :: a
+    end subroutine qsortc
+    subroutine partition(a,marker) ! in cuencas.f90:cuencas
+        real dimension(:),intent(inout) :: a
+        integer intent(out) :: marker
+    end subroutine partition
+end module cuencas
+subroutine find_xy_in_basin(basin_f,col,fil,posit,nceldas) ! in cuencas.f90
+    integer dimension(3,nceldas),intent(in) :: basin_f
+    integer intent(in) :: col
+    integer intent(in) :: fil
+    integer intent(out) :: posit
+    integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+end subroutine find_xy_in_basin
+subroutine drain_colfil(dir,col_obj,fil_obj) ! in cuencas.f90
+    integer intent(in) :: dir
+    integer intent(out) :: col_obj
+    integer intent(out) :: fil_obj
+end subroutine drain_colfil
+module lluvia ! in lluvia.f90
+    integer :: num_reg
+    real, allocatable,dimension(:,:) :: punt_coord
+    integer :: num_est
+    real, allocatable,dimension(:,:) :: punt_lluvia
+    integer, allocatable,dimension(:,:) :: tin_perte
+    integer, allocatable,dimension(:,:) :: tin
+    integer, allocatable,dimension(:) :: punt_ides
+    real :: nodata
+    subroutine read_rain_point(rutacoord,rutalluvia) ! in lluvia.f90:lluvia
+        character*255 intent(in) :: rutacoord
+        character*255 intent(in) :: rutalluvia
+    end subroutine read_rain_point
+    subroutine read_rain_lina(ruta) ! in lluvia.f90:lluvia
+        character*255 intent(in) :: ruta
+    end subroutine read_rain_lina
+    subroutine read_rain_radar(ruta_radar,n_reg,ndatos,mat) ! in lluvia.f90:lluvia
+        character*255 intent(in) :: ruta_radar
+        integer intent(in) :: n_reg
+        integer intent(in) :: ndatos
+        real dimension(ndatos,n_reg),intent(out),depend(ndatos,n_reg) :: mat
+    end subroutine read_rain_radar
+    subroutine read_rain_radar2(ruta_radar,n_reg,ndatos,mat) ! in lluvia.f90:lluvia
+        character*255 intent(in) :: ruta_radar
+        integer intent(in) :: n_reg
+        integer intent(in) :: ndatos
+        real dimension(n_reg,ndatos),intent(out),depend(n_reg,ndatos) :: mat
+    end subroutine read_rain_radar2
+    subroutine read_radar_byline(ruta_radar,line,nceldas,vec,read_stat) ! in lluvia.f90:lluvia
+        character*255 intent(in) :: ruta_radar
+        integer intent(in) :: line
+        integer intent(in) :: nceldas
+        real dimension(nceldas),intent(out),depend(nceldas) :: vec
+        integer intent(out) :: read_stat
+    end subroutine read_radar_byline
+    subroutine interpolation_idw(rain,x,y,n_reg,n_est,nceldas,pp,ruta,correccion) ! in lluvia.f90:lluvia
+        real dimension(n_reg,nceldas),intent(out),depend(n_reg,nceldas) :: rain
+        real dimension(nceldas),intent(in) :: x
+        real dimension(nceldas),intent(in),depend(nceldas) :: y
+        integer intent(in) :: n_reg
+        integer intent(in) :: n_est
+        integer, optional,intent(in),check(len(x)>=nceldas),depend(x) :: nceldas=len(x)
+        real intent(in) :: pp
+        character*255, optional,intent(in) :: ruta
+        character*3, optional,intent(in) :: correccion
+    end subroutine interpolation_idw
+    subroutine interpolation_idw_one(rain,x,y,intervalo,nceldas,pp,ruta,correccion) ! in lluvia.f90:lluvia
+        real dimension(nceldas),intent(out),depend(nceldas) :: rain
+        real dimension(nceldas),intent(in) :: x
+        real dimension(nceldas),intent(in),depend(nceldas) :: y
+        integer intent(in) :: intervalo
+        integer, optional,intent(in),check(len(x)>=nceldas),depend(x) :: nceldas=len(x)
+        real, optional,intent(in) :: pp
+        character*255, optional,intent(in) :: ruta
+        character*3, optional,intent(in) :: correccion
+    end subroutine interpolation_idw_one
+    subroutine interpolation_tin(rain,x,y,tin_perte,n_reg,nceldas,ruta,correccion) ! in lluvia.f90:lluvia
+        real dimension(n_reg,nceldas),intent(out),depend(n_reg,nceldas) :: rain
+        real dimension(nceldas),intent(in) :: x
+        real dimension(nceldas),intent(in),depend(nceldas) :: y
+        integer dimension(nceldas),intent(in),depend(nceldas) :: tin_perte
+        integer intent(in) :: n_reg
+        integer, optional,intent(in),check(len(x)>=nceldas),depend(x) :: nceldas=len(x)
+        character*255, optional,intent(in) :: ruta
+        character*3, optional,intent(in) :: correccion
+    end subroutine interpolation_tin
+    subroutine interpolation_tin_one(rain,x,y,intervalo,nceldas,ruta,correccion) ! in lluvia.f90:lluvia
+        real dimension(nceldas),intent(out),depend(nceldas) :: rain
+        real dimension(nceldas),intent(in) :: x
+        real dimension(nceldas),intent(in),depend(nceldas) :: y
+        integer intent(in) :: intervalo
+        integer, optional,intent(in),check(len(x)>=nceldas),depend(x) :: nceldas=len(x)
+        character*255, optional,intent(in) :: ruta
+        character*3, optional,intent(in) :: correccion
+    end subroutine interpolation_tin_one
+    subroutine field_correction(rain_in,nceldas,n_reg,rain_out,ruta) ! in lluvia.f90:lluvia
+        real dimension(n_reg,nceldas),intent(in) :: rain_in
+        integer, optional,intent(in),check(shape(rain_in,1)==nceldas),depend(rain_in) :: nceldas=shape(rain_in,1)
+        integer, optional,intent(in),check(shape(rain_in,0)==n_reg),depend(rain_in) :: n_reg=shape(rain_in,0)
+        real dimension(n_reg,nceldas),intent(out),depend(n_reg,nceldas) :: rain_out
+        character*255, optional,intent(in) :: ruta
+    end subroutine field_correction
+    subroutine pre_idw_points_select(basin_f,nrows,xll,yll,dx,n_est,xy_stat,idw_stations,resultado,n_est_cel,nceldas) ! in lluvia.f90:lluvia
+        integer dimension(3,nceldas),intent(in) :: basin_f
+        integer :: nrows
+        real intent(in) :: xll
+        real intent(in) :: yll
+        real intent(in) :: dx
+        integer, optional,intent(in),check(shape(xy_stat,1)==n_est),depend(xy_stat) :: n_est=shape(xy_stat,1)
+        real dimension(2,n_est),intent(in) :: xy_stat
+        integer dimension(n_est_cel,nceldas),intent(out),depend(n_est_cel,nceldas) :: idw_stations
+        integer intent(out) :: resultado
+        integer intent(in) :: n_est_cel
+        integer, optional,intent(in),check(shape(basin_f,1)==nceldas),depend(basin_f) :: nceldas=shape(basin_f,1)
+    end subroutine pre_idw_points_select
+    subroutine pre_tin_points_select(x,y,resultado,tin_stations,nceldas) ! in lluvia.f90:lluvia
+        real dimension(nceldas),intent(in) :: x
+        real dimension(nceldas),intent(in),depend(nceldas) :: y
+        integer intent(out) :: resultado
+        integer dimension(1,nceldas),intent(out),depend(nceldas) :: tin_stations
+        integer, optional,intent(in),check(len(x)>=nceldas),depend(x) :: nceldas=len(x)
+    end subroutine pre_tin_points_select
+end module lluvia
+module modelos ! in modelos.f90
+    real, allocatable,dimension(:,:) :: h3
+    real, allocatable,dimension(:,:) :: prus
+    real, allocatable,dimension(:,:) :: l_celda
+    real dimension(3) :: erot
+    real, allocatable,dimension(:,:) :: vd
+    real, allocatable,dimension(:,:) :: campo_medio
+    real :: dt
+    real, allocatable,dimension(:,:) :: pend_celda
+    integer, allocatable,dimension(:,:) :: guarda_cond
+    real :: exp1
+    integer, allocatable,dimension(:,:) :: tin_perte
+    integer, allocatable,dimension(:,:) :: tipo_celda
+    real, allocatable,dimension(:,:) :: vel_ladera
+    real, allocatable,dimension(:) :: voldepo
+    real, allocatable,dimension(:,:) :: acum_cel
+    real, allocatable,dimension(:,:) :: hu
+    integer :: nrows
+    real :: xll
+    real :: dx
+    real :: c1
+    real, allocatable,dimension(:,:) :: crus
+    integer, allocatable,dimension(:,:) :: drena
+    real :: b
+    real :: fhi
+    real :: epsilo
+    real dimension(3) :: dep
+    real, allocatable,dimension(:,:) :: vel_cauce
+    real, allocatable,dimension(:,:) :: coord
+    real dimension(3) :: dept
+    real, allocatable,dimension(:,:) :: vdc
+    real, allocatable,dimension(:,:) :: vs
+    real, allocatable,dimension(:,:) :: evp
+    real, allocatable,dimension(:,:) :: x
+    real dimension(3) :: ero
+    integer, allocatable,dimension(:,:) :: control
+    real dimension(2) :: alfa
+    real :: dxp
+    real, allocatable,dimension(:) :: volero
+    real :: w3
+    real :: w2
+    real :: w1
+    real dimension(3) :: diametro
+    real, allocatable,dimension(:,:) :: parliac
+    real, allocatable,dimension(:,:) :: lluvia
+    real, allocatable,dimension(:,:) :: pend_cauce
+    integer, allocatable,dimension(:,:) :: tin
+    real, allocatable,dimension(:,:) :: krus
+    real :: conver_ks
+    real :: conver_kp
+    real, allocatable,dimension(:,:) :: evp_p
+    integer :: ncols
+    real, allocatable,dimension(:,:) :: vsc
+    real dimension(3) :: wi
+    integer :: eval
+    real :: qskr
+    real :: omega
+    real, allocatable,dimension(:,:) :: man
+    real :: g
+    real, allocatable,dimension(:,:) :: campo
+    real :: k
+    integer :: nceldas
+    real, allocatable,dimension(:,:) :: ks
+    real, allocatable,dimension(:,:) :: s
+    real, allocatable,dimension(:,:) :: kp
+    real, allocatable,dimension(:,:) :: elev
+    real, allocatable,dimension(:,:) :: y
+    real :: yll
+    real :: nodata
+    real dimension(3) :: sigma
+    integer, allocatable,dimension(:,:) :: control_h
+    subroutine ocg_params ! in modelos.f90:modelos
+    end subroutine ocg_params
+    subroutine shia_verify ! in modelos.f90:modelos
+    end subroutine shia_verify
+    subroutine pre_tin_points_select(resultado,nceldas) ! in modelos.f90:modelos
+        integer intent(out) :: resultado
+        integer intent(in) :: nceldas
+    end subroutine pre_tin_points_select
+    subroutine read_float_basin(ruta,records,vect,res,nrecords,nceldas) ! in modelos.f90:modelos
+        character*255 intent(in) :: ruta
+        integer dimension(nrecords),intent(in) :: records
+        real dimension(nrecords,nceldas),intent(out),depend(nrecords,nceldas) :: vect
+        integer intent(out) :: res
+        integer, optional,intent(in),check(len(records)>=nrecords),depend(records) :: nrecords=len(records)
+        integer intent(in) :: nceldas
+    end subroutine read_float_basin
+    subroutine write_float_basin(ruta,vect,nrecords,nceldas) ! in modelos.f90:modelos
+        character*255 intent(in) :: ruta
+        real dimension(nrecords,nceldas),intent(in) :: vect
+        integer, optional,intent(in),check(shape(vect,0)==nrecords),depend(vect) :: nrecords=shape(vect,0)
+        integer, optional,intent(in),check(shape(vect,1)==nceldas),depend(vect) :: nceldas=shape(vect,1)
+    end subroutine write_float_basin
+    subroutine allocate_sed ! in modelos.f90:modelos
+    end subroutine allocate_sed
+    subroutine hillslope_sed(alfa,s2,v2,so,area_sec,celda,drena_id,tipo) ! in modelos.f90:modelos
+        real intent(in) :: alfa
+        real intent(in) :: s2
+        real intent(in) :: v2
+        real intent(in) :: so
+        real intent(in) :: area_sec
+        integer intent(in) :: celda
+        integer intent(in) :: drena_id
+        integer intent(in) :: tipo
+    end subroutine hillslope_sed
+    subroutine channel_sed(s5,v5,q5,so,area_sec,celda,drena_id,volsal) ! in modelos.f90:modelos
+        real intent(in) :: s5
+        real intent(in) :: v5
+        real intent(in) :: q5
+        real intent(in) :: so
+        real intent(in) :: area_sec
+        integer intent(in) :: celda
+        integer intent(in) :: drena_id
+        real dimension(3),intent(out) :: volsal
+    end subroutine channel_sed
+    subroutine shia_tin_lk_sed(calib,n_cel,n_cont,n_reg,si,q,qsed,balance,mean_rain,sp) ! in modelos.f90:modelos
+        real dimension(10),intent(in) :: calib
+        integer, optional,intent(in),check(shape(si,1)==n_cel),depend(si) :: n_cel=shape(si,1)
+        integer intent(in) :: n_cont
+        integer intent(in) :: n_reg
+        real dimension(5,n_cel),intent(in) :: si
+        real dimension(n_cont,n_reg),intent(out),depend(n_cont,n_reg) :: q
+        real dimension(3,n_cont,n_reg),intent(out),depend(n_cont,n_reg) :: qsed
+        real dimension(5,n_reg),intent(out),depend(n_reg) :: balance
+        real dimension(n_reg),intent(out),depend(n_reg) :: mean_rain
+        real dimension(5,n_cel),intent(out),depend(n_cel) :: sp
+    end subroutine shia_tin_lk_sed
+    subroutine shia_tin_lk(calib,n_cel,n_cont,n_reg,n_est,si,q,balance,mean_rain,sp,lluv_param,ruta_store) ! in modelos.f90:modelos
+        real dimension(9),intent(in) :: calib
+        integer, optional,intent(in),check(shape(si,1)==n_cel),depend(si) :: n_cel=shape(si,1)
+        integer intent(in) :: n_cont
+        integer, optional,intent(in),check(shape(lluv_param,1)==n_reg),depend(lluv_param) :: n_reg=shape(lluv_param,1)
+        integer, optional,intent(in),check(shape(lluv_param,0)==n_est),depend(lluv_param) :: n_est=shape(lluv_param,0)
+        real dimension(5,n_cel),intent(in) :: si
+        real dimension(n_cont,n_reg),intent(out),depend(n_cont,n_reg) :: q
+        real dimension(5,n_reg),intent(out),depend(n_reg) :: balance
+        real dimension(n_reg),intent(out),depend(n_reg) :: mean_rain
+        real dimension(5,n_cel),intent(out),depend(n_cel) :: sp
+        real dimension(n_est,n_reg),intent(in) :: lluv_param
+        character*255, optional,intent(in) :: ruta_store
+    end subroutine shia_tin_lk
+    subroutine shia_idw_lk(calib,n_cel,n_cont,n_reg,num_est,pp,si,q,balance,mean_rain,sp) ! in modelos.f90:modelos
+        real dimension(9),intent(in) :: calib
+        integer, optional,intent(in),check(shape(si,1)==n_cel),depend(si) :: n_cel=shape(si,1)
+        integer intent(in) :: n_cont
+        integer intent(in) :: n_reg
+        integer intent(in) :: num_est
+        real intent(in) :: pp
+        real dimension(5,n_cel),intent(in) :: si
+        real dimension(n_cont,n_reg),intent(out),depend(n_cont,n_reg) :: q
+        real dimension(5,n_reg),intent(out),depend(n_reg) :: balance
+        real dimension(n_reg),intent(out),depend(n_reg) :: mean_rain
+        real dimension(5,n_cel),intent(out),depend(n_cel) :: sp
+    end subroutine shia_idw_lk
+    subroutine shia_idw_klk(calib,n_cel,n_cont,n_conth,n_reg,num_est,pp,q,hum,etr,infiltra,mean_rain,sp) ! in modelos.f90:modelos
+        real dimension(10),intent(in) :: calib
+        integer intent(in) :: n_cel
+        integer intent(in) :: n_cont
+        integer intent(in) :: n_conth
+        integer intent(in) :: n_reg
+        integer intent(in) :: num_est
+        real intent(in) :: pp
+        real dimension(n_cont,n_reg),intent(out),depend(n_cont,n_reg) :: q
+        real dimension(n_conth,n_reg),intent(out),depend(n_conth,n_reg) :: hum
+        real dimension(n_conth,n_reg),intent(out),depend(n_conth,n_reg) :: etr
+        real dimension(n_conth,n_reg),intent(out),depend(n_conth,n_reg) :: infiltra
+        real dimension(n_reg),intent(out),depend(n_reg) :: mean_rain
+        real dimension(5,n_cel),intent(out),depend(n_cel) :: sp
+    end subroutine shia_idw_klk
+    subroutine shia_idw_kkk(calib,n_cel,n_cont,n_conth,n_reg,num_est,pp,q,hum,balance,mean_rain,sp) ! in modelos.f90:modelos
+        real dimension(10),intent(in) :: calib
+        integer intent(in) :: n_cel
+        integer intent(in) :: n_cont
+        integer intent(in) :: n_conth
+        integer intent(in) :: n_reg
+        integer intent(in) :: num_est
+        real intent(in) :: pp
+        real dimension(n_cont,n_reg),intent(out),depend(n_cont,n_reg) :: q
+        real dimension(n_conth,n_reg),intent(out),depend(n_conth,n_reg) :: hum
+        real intent(out) :: balance
+        real dimension(n_reg),intent(out),depend(n_reg) :: mean_rain
+        real dimension(5,n_cel),intent(out),depend(n_cel) :: sp
+    end subroutine shia_idw_kkk
+end module modelos
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/
