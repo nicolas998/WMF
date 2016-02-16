@@ -35,3 +35,34 @@ ___
 
 Reune todo el código y las funciones definicas en **cuencas**
 y en **modelos**
+
+## Instalación:
+___
+
+Para instalar el paquete se deben seguir los siguientes pasos:
+
+>1. Anclarse al repositorio: https://github.com/nicolas998/WMF.git
+o bien descargar el archivo **WMF-master.zip**.
+>2. En el caso de descargar el .zip este debe ser descomprimido, 
+luego se debe mover la terminal hasta el directorio 
+**cd ~/wmf**
+>3. se instala el paquete: **sudo python setup.py install**
+
+### Requerimientos:
+
+>- Compilador de fortran (gfortran probado).
+>- Python 2.7
+>- Sistema Unix (puede compilar en Windows con Cwing)
+>- Debe tener las siguiente dependencias de python.
+	- numpy 
+	- glob
+	- mpl_toolkits.basemap  
+	- scipy.ndimage
+	- netCDF4
+	- osgeo
+	- gdal
+	- scipy
+	- os
+	- pandas
+	- datetime
+	- matplotlib
