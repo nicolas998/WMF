@@ -40,7 +40,7 @@
 !Esrito por: Nicolas Velasquez Giron
 !email: nicolas.velasquezgiron@gmail.com
 
-module cuencas
+module cu
 
 !-----------------------------------------------------------------------
 !Variableses globales del tipo de mapa leido
@@ -62,6 +62,8 @@ real elevacion !Escalar: elevacion media de la cuenca
 real centroX,centroY !Escalares: coordenadas del centroide X y Y de la cuenca trazada
 !Para hacer sorting de cosas
 public :: QsortC
+!Para operaciones con matrices 
+real, allocatable :: col_fil_temp(:,:)
 !private :: Partition
 
 !-----------------------------------------------------------------------
@@ -85,6 +87,7 @@ subroutine coord2fil_col(x,y,col,fil) !Obtiene la fila columna a partir de un XY
     if (col.gt.ncols.or.col.le.0) col=-999
     if (fil.gt.nrows.or.fil.le.0) fil=-999
 end subroutine
+
 
 !-----------------------------------------------------------------------
 !Herramientas lectura de mapas
@@ -241,7 +244,6 @@ subroutine read_float_basin(ruta,records,vect,nrecords,nceldas) !Lee los datos f
     close(10)
 end subroutine
 
-
 !-----------------------------------------------------------------------
 !Herramientas de Escritura y conversion de mapas de mapas
 !-----------------------------------------------------------------------
@@ -388,34 +390,35 @@ subroutine stream_find(x,y,DEM,DIR,nc,nf,nceldas) !Encuentra la corriente
     call coord2fil_col(x,y,col,fil)
     dire=DIR(col,fil)
     do while (flag.eq.1)
-	do kf=1,3
-	    do kc=1,3
-		!evalua si esa es la direccion
-		envia=9-3*kf+kc
-		if (dire.eq.envia) then
-		    cont=cont+1
-		    !Guarda valores en el vector de la corriente
-		    stream_temp(1,cont)=xll+dx*(col-0.5)
-		    stream_temp(2,cont)=yll+dx*(nrows-fil+0.5)
-		    stream_temp(3,cont)=DEM(col,fil)
-		    !actualiza el valor de la fila columna a evaluar
-		    col=col+kc-2
-		    fil=fil+kf-2
-		    dire=DIR(col,fil)
-		    !calcula la distancia acumulada
-		    if (mod(envia,2).eq.0) then
-			distancia=distancia+dxP
-		    else
-			distancia=distancia+dxP*1.4
-		    endif
-		    stream_temp(4,cont)=distancia
+		do kf=1,3
+		    do kc=1,3
+			!evalua si esa es la direccion
+				envia=9-3*kf+kc
+				if (dire.eq.envia) then
+				    cont=cont+1
+				    !Guarda valores en el vector de la corriente
+				    stream_temp(1,cont)=xll+dx*(col-0.5)
+				    stream_temp(2,cont)=yll+dx*(nrows-fil+0.5)
+				    stream_temp(3,cont)=DEM(col,fil)
+				    !actualiza el valor de la fila columna a evaluar
+				    col=col+kc-2
+				    fil=fil+kf-2
+				    dire=DIR(col,fil)
+				    !calcula la distancia acumulada
+				    if (mod(envia,2).eq.0) then
+						distancia=distancia+dxP
+				    else
+						distancia=distancia+dxP*1.4
+				    endif
+				    stream_temp(4,cont)=distancia
+				endif
+		    enddo
+		enddo
+		!Evalua si puede seguir o n
+		if (col.gt.ncols.or.fil.gt.nrows.or.col.le.0 &
+			&.or.fil.le.0 .or.dire.eq.noData .or. dire .le. 0) then
+		    flag=0
 		endif
-	    enddo
-	enddo
-	!Evalua si puede seguir o n
-	if (col.gt.ncols.or.fil.gt.nrows.or.col.le.0 .or.fil.le.0 .or.dire.eq.noData) then
-	    flag=0
-	endif
     end do
     !copia el vector de salida
     nceldas=cont
@@ -705,13 +708,13 @@ subroutine basin_arc_slope(basin,DEM,slope,nceldas,nc,nr) !Calcula la pendiente 
 	col=col-1; fil=fil-1	
 	do i=0,2
 	    do j=0,2
-		if (col+j .le. nc .and. col+j .ge. 1 .and. fil+i .le. nr .and. fil+i .ge. 1) then
-		    if (DEM(col+j,fil+i).ne.noData) then
-			k(j+1,i+1)=DEM(col+j,fil+i)
-		    else
-			k(j+1,i+1)=DEM(col+1,fil+1)
-		    endif
-		endif
+			if (col+j .le. nc .and. col+j .ge. 1 .and. fil+i .le. nr .and. fil+i .ge. 1) then
+			    if (DEM(col+j,fil+i).ne.noData) then
+				k(j+1,i+1)=DEM(col+j,fil+i)
+			    else
+				k(j+1,i+1)=DEM(col+1,fil+1)
+			    endif
+			endif
 	    enddo
 	enddo
 	!Calcula la pendiente con el kernel 
@@ -796,7 +799,7 @@ subroutine basin_perim_find(basin_f,nperim,nceldas) !Encuentra los puntos X,Y de
 		!Incrementa el contador		
 		cont=cont+1		
     enddo    
-    print *, flag1,flag2,cont
+    !print *, flag1,flag2,cont
     !Si no encontro lados ortogonales evalua si hay lados diagonales
     if (flag2.eq.0) then
 		!Reinicia contador y bandera 1
@@ -1234,6 +1237,29 @@ subroutine basin_extract_var_by_point(basin_f,var,xy_coord,kernel,var_values,nco
 		endif
 	enddo
 end subroutine
+!subroutine basin_var2smooth(basin_f,var,varOut,nc,nf,nceldas,kernel=3)!Suaviza una variable tomando un tamano de kernel variable (kernel cuadrado)
+!	!Variables de entrada
+!	integer, intent(in) :: nf,nc,nceldas,kernel
+!	integer, intent(in) :: basin_f(3,nceldas)
+!	real, intent(in) :: var(nceldas)
+!	!variables de salida
+!	real, intent(out) :: varOut(nceldas)
+!	!f2py intent(in) :: nf,nc,nceldas,basin_f,var
+!	!f2py intent(out) :: varOut
+!	!Variables locales 
+!	integer i,j
+!	real mapa1(nc,nf), mapa2(nc,nf)
+!	!Convierte el vector a mapa
+!	call basin_float_var2map(basin_f,var,mapa1,nc,nf,nceldas)
+!	!itera sobre el mapa suavizando
+!	do i=1,nc
+!		do j=1,nf
+!			if ()
+!		enddo
+!	enddo
+!	!convierte el mapa suavizado en el vector de salida
+!	call basin_float_map2var(basin_f,mapa2,varOut,cu.ncols,cu.nrows,cu.xll,cu.yll,cu.dx,cu.noData,nceldas)
+!end	subroutine
 !Funciones de propiedades de corrientes
 subroutine basin_stream_nod(basin_f,acum,nceldas,umbral,cauce,nodos,trazado,n_nodos,n_cauce) !obtiene vectores: celdas cauce, nodos hidrologicos, puntos de trazado
     !variables de entrada
@@ -1416,7 +1442,8 @@ end subroutine
 subroutine basin_netxy_find(basin_f,nodos,cauceHort,nceldas,netsize) !Funcion para obtener las coordenadas de la red
 	!Variables de entrada
 	integer, intent(in) :: nceldas
-	integer, intent(in) :: cauceHort(nceldas),nodos(nceldas),basin_f(3,nceldas)
+	integer, intent(in) :: nodos(nceldas),basin_f(3,nceldas)
+	real, intent(in) :: cauceHort(nceldas)
 	!Variables de salida
 	integer, intent(out) :: netsize
 	!Variables locales
@@ -1661,7 +1688,7 @@ subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,nodos_fin,n_nodo
     !Determina quienes son los nodos
     where(nodos.lt.2) nodos=0 
     !Encuentra los nodos de verdad
-    nodos_fin=0; nodos_fin(nceldas)=1
+    nodos_fin=0; nodos_fin(nceldas)=1    
     do i=1,nceldas
 		!Verifica que la celda sea cauce
 		if (cauce(i).eq.1) then
@@ -1849,11 +1876,13 @@ subroutine basin_subbasin_long(sub_pert,cauce,long,sub_basin,sub_horton,sub_basi
 		endif
 	enddo
 end subroutine
-subroutine basin_subbasin_map2subbasin(sub_pert,basin_var,subbasin_var,n_nodos,nceldas) !Agrega una variable de la cuenca a laderas
+subroutine basin_subbasin_map2subbasin(sub_pert,basin_var,subbasin_var,&
+	&n_nodos,nceldas,cauce) !Agrega una variable de la cuenca a laderas
 	!Varialbes de entrada
 	integer, intent(in) :: n_nodos,nceldas
 	integer, intent(in) :: sub_pert(nceldas)
 	real, intent(in) :: basin_var(nceldas)
+	integer, intent(in), optional :: cauce(nceldas)
 	!Variables de salida
 	real, intent(out) :: subbasin_var(n_nodos)
 	!f2py intent(in) n_nodos,nceldas,sub_pert,basin_var
@@ -1864,8 +1893,15 @@ subroutine basin_subbasin_map2subbasin(sub_pert,basin_var,subbasin_var,n_nodos,n
 	!Localiza 
 	do i=1,n_nodos
 		posi=n_nodos-i+1
-		suma_valores=sum(basin_var,MASK=sub_pert.eq.posi)
-		cont_valores=count(sub_pert.eq.posi)
+		!Cambia las condiciones de acuerdo a si esta o no el cauce 
+		if (present(cauce)) then 
+			suma_valores=sum(basin_var,&
+				&MASK=sub_pert.eq.posi.and.cauce.eq.1)
+			cont_valores=count(sub_pert.eq.posi.and.cauce.eq.1)
+		else
+			suma_valores=sum(basin_var,MASK=sub_pert.eq.posi)
+			cont_valores=count(sub_pert.eq.posi)
+		endif
 		if (cont_valores .gt. 0.0) then
 			subbasin_var(i)=suma_valores/cont_valores
 		else
@@ -1873,19 +1909,44 @@ subroutine basin_subbasin_map2subbasin(sub_pert,basin_var,subbasin_var,n_nodos,n
 		endif
 	enddo
 end subroutine	
+subroutine basin_subbasin_stream_prop(sub_pert,cauce,long,slope,stream_slope &
+	&,stream_long,nceldas,n_nodos)
+	!Variables de entrada
+	integer, intent(in) :: nceldas, n_nodos
+	integer, intent(in) :: sub_pert(nceldas), cauce(nceldas)
+	real, intent(in) :: long(nceldas), slope(nceldas)
+	!Variables de salida
+	real, intent(out) :: stream_slope(n_nodos), stream_long(n_nodos)
+	!f2py intent(in) :: nceldas, n_nodos
+	!f2py intent(in) :: sub_pert,cauce, long, slope
+	!f2py intent(out) :: stream_slope, stream_long
+ 	!Variables locales 
+	integer i
+	real N	
+	!itera dersde 1 hasta el maxvar
+	do i = 1, n_nodos
+		!Para cada una encuentra 
+		stream_long(i) = sum(long, mask = (sub_pert .eq. i .and. cauce .eq. 1))
+		N = count(sub_pert .eq. i .and. cauce .eq. 1)
+		stream_slope(i) = sum(slope, mask = (sub_pert .eq. i &
+			&.and. cauce .eq. 1))/N
+	enddo	
+end subroutine
 
 !-----------------------------------------------------------------------
 !Geomorfologia a partir de cuenca
 !-----------------------------------------------------------------------
-subroutine geo_hand(basin_f,basin_elev,basin_long,cauce,nceldas,hand_model,hdnd_model) !Calcula: HAND: Height above the nearest drainage y HDND: Horizontal distance to the nearest drainage  
+subroutine geo_hand(basin_f,basin_elev,basin_long,cauce,nceldas,&
+	&hand_model,hdnd_model,a_quien) !Calcula: HAND: Height above the nearest drainage y HDND: Horizontal distance to the nearest drainage  
     !variables de entrada
     integer, intent(in) :: nceldas
     integer, intent(in) :: basin_f(3,nceldas),cauce(nceldas)
     real, intent(in) :: basin_elev(nceldas),basin_long(nceldas)
     !Variables de salida
     real, intent(out) :: hand_model(nceldas),hdnd_model(nceldas)
+    integer, intent(out) :: a_quien(nceldas)
     !f2py intent(in) :: nceldas,basin_f,basin_elev,basin_long
-    !f2py intent(out) :: hand_model,hdnd_model
+    !f2py intent(out) :: hand_model,hdnd_model,a_quien
     !Variables locales
     integer i,drenaid
     real L_sum
@@ -1905,10 +1966,12 @@ subroutine geo_hand(basin_f,basin_elev,basin_long,cauce,nceldas,hand_model,hdnd_
 		    flag=0
 		    hand_model(i)=basin_elev(i)-basin_elev(drenaid)
 		    hdnd_model(i)=L_sum
+		    a_quien(i)=drenaid
 		elseif (basin_f(1,drenaid).eq.0) then !dreno a la salida de la cuenca
 		    flag=0
 		    hand_model(i)=0
 		    hdnd_model(i)=0
+		    a_quien(i)=0
 		else !sigue drenando a celdas tipo ladera
 		    i_temp=drenaid
 		    L_sum=L_sum+basin_long(drenaid) 
@@ -2028,6 +2091,348 @@ subroutine Partition(A, marker) !subrutina utilizada por QsortC para hacer sort
      endif
   end do
 end subroutine
+
+!-----------------------------------------------------------------------
+!Herramientas para proceso de mapas (Experimental)
+!-----------------------------------------------------------------------
+subroutine find_colrow_inArg(mat,umbral1,umbral2,nc,nf,cont)
+	!Variables de entrada
+	integer, intent(in) :: nc,nf
+	real, intent(in) :: mat(:,:),umbral1,umbral2
+	!Variables de salida
+	integer, intent(out) :: cont
+	!f2py intent(in) :: nc,nf,umbral1,umbral2,mat
+	!f2py intent(out) :: cont
+	!variables locales
+	integer i,j
+	!Busca
+	if (.not. allocated(col_fil_temp)) allocate(col_fil_temp(2,nc*nf))
+	cont=0
+	do i=1,nc
+		do j=1,nf
+			if (mat(i,j).gt. umbral1 .and. mat(i,j) .lt. umbral2) then
+				cont=cont+1
+				col_fil_temp(1,cont)=xll+dx*(i-0.5)
+				col_fil_temp(2,cont)=yll+dx*(nrows-j+0.5)
+			endif
+		enddo
+	enddo
+end subroutine
+subroutine cut_colrow_inArg(cont,col_fil)
+	!variables de entrada
+	integer, intent(in) :: cont
+	!variables de salida 
+	real, intent(out) :: col_fil(2,cont)
+	!f2py intent(in) :: cont
+	!f2py intent(out) :: col_fil
+	!Opera	
+	if (allocated(col_fil_temp)) then 
+		col_fil=col_fil_temp(:,:cont)
+		deallocate(col_fil_temp)
+	endif
+end subroutine
+
+subroutine dem_detect_clouds(image,Grad,kerX,kerY,nc,nf) !detecta las nubes en un dem
+	!Variables de entrada
+	integer, intent(in) :: nc,nf
+	real, intent(in) :: KerX(3,3),KerY(3,3)
+	real, intent(in) :: image(nc,nf)
+	!variables de salida 
+	real, intent(out) :: Grad(nc,nf)
+	!f2py intent(in) :: nc,nf,image
+	!f2py intent(out) :: Grad
+	!Variables locales
+	integer i,j
+	real DifX(nc,nf),DifY(nc,nf),imageTemp(nc,nf),sumaX,sumaY
+	logical mascara(nc,nf)
+	!itera por todo el mapa calculando bordes
+	imageTemp=image
+	where(imageTemp .eq. nodata) imageTemp=0.0
+	mascara=.false.
+	where(imageTemp .eq. nodata) mascara=.true.
+	DifX=0; DifY=0
+	do i=2,nc-1
+		do j=2,nf-1
+			sumaX=0
+			sumaY=0
+			do ki=1,3
+				do kj=1,3
+					sumaX=sumaX+imageTemp(i-2+ki,j-2+kj)*KerX(ki,kj)
+					sumaY=sumaY+imageTemp(i-2+ki,j-2+kj)*KerY(ki,kj)
+				enddo
+			enddo
+			if (any(mascara(i-1:i+1,j-1:j+1))) then				
+				DifX(i,j)=0.0
+				DifY(i,j)=0.0
+			else	
+				DifX(i,j)=sumaX
+				DifY(i,j)=sumaY
+			endif
+		enddo
+	enddo
+	!Calcula el gradiente de diferencias 
+	Grad=sqrt(DifX**2+DifY**2)
+end subroutine
+subroutine dem_correct_dem_w_dem(dem_in,dem_out,dem_w,mask,nc,nf,nc_m,nf_m,xll_m,yll_m,dx_m)
+	!Variables de entrada
+	integer, intent(in) :: nc,nf,nc_m,nf_m
+	real, intent(in) ::	dem_w(nc_m,nf_m),xll_m,yll_m,dx_m
+	real, intent(in) :: dem_in(nc,nf)
+	integer, intent(in) :: mask(nc,nf)
+	!Variables de salida	
+	real, intent(out) :: dem_out(nc,nf)
+	!Declaracion f2py
+	!f2py intent(in) :: dem_w,nc,nf,xll_m,yll_m,dx_m,mask,dem_in
+	!f2py intent(out) :: dem_out
+	!Variables locales
+	integer i,j,fila,columna
+	!Itera sobre el mapa 
+	dem_out=dem_in
+	do i=1,ncols
+		do j=1,nrows
+			if (mask(i,j) .eq. 1.0) then
+				!Calcula la posicion
+				Xpos=xll+dx*(i-0.5)
+				Ypos=yll+dx*((nrows-j)+0.5)
+				!Evalua si la posicion esta por dentro del mapa
+				if (Xpos.gt.xll_m.and.Xpos.lt.(xll_m+dx_m*nc).and.Ypos.gt.yll_m.and.Ypos.lt.(yll_m+nf*dx_m)) then				
+				    !si esta por dentro le asigna el valor de la celda equivalente
+				    columna=ceiling((Xpos-xll_m)/dx_m)
+				    fila=ceiling((Ypos-yll_m)/dx_m)
+				    fila=nf_m-fila+1
+				    dem_out(i,j)=dem_w(columna,fila)
+				endif
+			endif
+		enddo
+	enddo
+end subroutine 
+
+subroutine DEM_Slope(DEM,nc,nf,Slope) !Calcula la pendiente
+	!Variables de entrada
+	integer, intent(in) :: nc,nf
+	real, intent(in) :: DEM(nc,nf)
+	!Variables de salida
+	real, intent(out) :: Slope(nc,nf)
+	!f2py intent(in) :: nc,nf,DEM
+	!f2py intent(out) :: Slope
+	!Variables locales
+	integer i,j,ki,kj
+	real x,y,s,st
+	!Recorre toda la matriz
+	Slope=nodata
+	do i=2,nc-1
+		do j=2,nf-1
+			!Recorre todo el kernel de 3x3 para cada celda
+			s=0
+			do ki=-1,1
+				do kj=-1,1
+					y=DEM(i,j)-DEM(i+ki,j+kj)
+					if (ki .ne. 0 .and. kj .ne. 0) x=1.42*dxp
+					st=y/x
+					if (st .gt. s) s=st
+				enddo
+			enddo
+			!Toma la mayor pendiente como la pend de la celda
+			Slope(i,j)=s
+		enddo
+	enddo
+end subroutine
+!subroutine DEM_Pitfill(DEM,nc,nf,DEMfill) !llena huecos en el DEM
+!	!Variables de entrada
+!	integer, intent(in) :: nc,nf
+!	real, intent(in) :: DEM(nc,nf)
+!	!Variables de salida
+!	real, intent(out) :: DEMfill(nc,nf)
+!	!f2py intent(in) :: nc,nf,DEM
+!	!f2py intent(out) :: DEMfill
+!	!Variables locales
+!	integer i,j
+!	real ValCel,MinCel,MinCelMask
+!	real DEMtemp(nc+2,nf+2)
+!	!Recorre toda la matriz
+!	DEMtemp(2:nc+1,2:nf+1)=DEM
+!	DEMfill=DEM
+!	do i=2,nc+1
+!		do j=2,nf+1
+!			!En cada punto mira si este es el mas bajo o hay iguales 
+!			!a el en ese punto
+!			ValCel=DEMtemp(i,j)
+!			MinCel=minval(DEMtemp(i-1:i+1,j-1:j+1))
+!			MinCelMask=minval(DEMtemp(i-1:i+1,j-1:j+1),&
+!			&mask=DEMtemp(i-1:i+1,j-1:j+1).ne.MinCel)
+!			if (ValCel .eq. MinCel) then
+!				DEMfill(i-1,j-1)=MinCelMask
+!			endif
+!		enddo
+!	enddo
+	
+!end subroutine
+!subroutine DEM_carve(DEM,nc,nf,DEMcarve,DIR,Pits) !Erosiona Soille, 2003
+!	!Variables de entrada
+!	integer, intent(in) :: nc,nf
+!	real, intent(in) :: DEM(nc,nf)
+!	!Variables de salida
+!	real, intent(out) :: DEMcarve(nc,nf)
+!	integer, intent(out) :: DIR(nc,nf),Pits(nc,nf)
+!	!f2py intent(in) :: nc,nf,DEM
+!	!f2py intent(out) :: DEMcarve,DIR,Pits
+!	!Variables locales
+!	integer i,j,z,ki,kj,cont,cont2,cont3,dirTemp,x,y,x2,y2
+!	real ValCel,MinCel,MinCelMask,ValMinN,ValMinV
+!	real DEMtemp(nc,nf),PitVal(nc*nf),PitListVal(nc)
+!	integer PitX(nc),PitY(nc),PitListX(nc),PitListY(nc)
+!	logical flag1
+!	!Copia matrices de trabajo
+!	DEMtemp=DEM
+!	DEMcarve=DEM
+!	Pits=0; PitX=-999; PitY=-999
+!	!Paso 1 Identifica PITS
+!	!Recorre toda la matriz buscando pits	
+!	cont=0
+!	do i=2,nc-1
+!		do j=2,nf-1
+!			!En cada punto mira si este es el mas bajo o hay iguales 
+!			!a el en ese punto
+!			ValCel=DEMtemp(i,j)
+!			MinCel=minval(DEMtemp(i-1:i+1,j-1:j+1))
+!			if (ValCel .eq. MinCel) then
+!				cont=cont+1
+!				Pits(i,j)=1
+!				PitX(cont)=i
+!				PitY(cont)=j
+!				PitVal(cont)=MinCel
+!			endif
+!		enddo
+!	enddo
+!!	!Paso 2 en cada pit hace el procedimiento de soille et al 2003
+!	PitListVal=0
+!	do i=1,cont
+!		!Copia para iniciar la lista de busqueda
+!		PitListX(1)=PitX(cont)
+!		PitListY(1)=PitY(cont)
+!		PitListVal(1)=PitVal(cont)
+!		flag1=.true.
+!		cont2=1		
+!		ValMinV=PitVal(cont)
+!		!Itera hasta encontrar una salida
+!		do z=1,10							
+!			do j=1,cont2
+!				x=PitListX(j); y=PitListY(j)
+!				!Encuentra el siguiente valor minimo del pit y 
+!				!cuantos hay con ese valor
+!				ValMinN=minval(DEMtemp(x-1:x+1,y-1:y+1),&
+!					&mask=DEMtemp(x-1:x+1,y-1:y+1).gt.ValMinV)								
+!				!Encuentra exactamente sus posiciones y busca
+!				! a ver si alguna de las nuevas drena fuera del pit	
+!				cont3=cont2
+!				do ki=-1,1
+!					do kj=-1,1
+!						if (DEMtemp(x+ki,y+kj).eq.ValMinN) then
+!							cont3=cont3+1
+!							PitListX(cont3)=x+ki
+!							PitListY(cont3)=y+kj
+!							PitListVal(cont3)=DEMtemp(x+ki,y+kj)
+!							!Busca si le drena a alguien
+!							x2=x+ki; y2=y+kj
+!							call kernel_DIR(DEMtemp(x2-1:x2+1,y2-1:y2+1),&
+!								&dirTemp)
+!							!Si drena por fuera termina la inundacion
+!							if (dirTemp.ne.0) then
+!								flag1=.false.
+!								Pits(x2,y2)=2
+!							endif									
+!						endif
+!					enddo
+!				enddo
+!				DEMtemp(x,y)=ValMinN			
+!				!finaliza la busqueda interna
+!			enddo			
+!			ValMinV=ValMinN
+!			!imprimer para revisar
+!			print *, '-------------------------'
+!			print *, ValMin
+!			print *, PitListVal(1:cont3)
+!			print *, flag1
+!			print *, cont2
+!			print *, cont3
+!			cont2=cont3
+!		enddo
+!		!Otro pit		
+!	enddo
+!end subroutine
+!subroutine kernel_DIR(DEMkernel,DIR)
+!	!variables de entrada
+!	real, intent(in) :: DEMkernel(3,3)
+!	!variables de salida
+!	integer, intent(out) :: DIR
+!	!Variables locales 
+!	integer i,j, directions(9),cont
+!	real y,x,s,st
+!	!busca una direccion
+!	s=0
+!	directions=(/7,4,1,8,0,2,9,6,3/)
+!	cont=1
+!	DIR=0
+!	do i=1,3
+!		do j=1,3
+!			y=DEMkernel(2,2)-DEMkernel(i,j)
+!			if (cont.eq.1 .or. cont.eq.3 .or. cont.eq.7 .or. cont .eq. 9) then
+!				x=1.41*x
+!			endif
+!			st=y/x
+!			cont=cont+1
+!			if (st .gt. s) then
+!				s=st
+!				DIR=directions(cont)
+!			endif
+!		enddo
+!	enddo
+!end subroutine
+
+
+!subroutine DEM_Process(DEM,nc,nf,DIR,Slope,DEMProc) !Subrutina 1 de procesamiento
+!	!Variables de entrada
+!	integer, intent(in) :: nc,nf
+!	real, intent(in) :: DEM(nc,nf)
+!	!Variables de salida
+!	real, intent(out) :: DEMProc(nc,nf),Slope(nc,nf)
+!	integer, intent(out) :: DIR(nc,nf)
+!	!f2py intent(in) :: nc,nf,DEM
+!	!f2py intent(out) :: DEMProc,DIR,Slope
+!	!Variables locales
+!	integer i,j,ki,kj
+!	real x,y,s,st
+!	integer directions(9),cont
+!	!Recorre toda la matriz
+!	directions=(/7,4,1,8,0,2,9,6,3/)
+!	DIR=nodata
+!	do i=2,nc-1
+!		do j=2,nf-1
+!			!Recorre todo el kernel de 3x3 para cada celda
+!			s=0; cont=0
+!			do ki=-1,1
+!				do kj=-1,1
+!					y=DEM(i,j)-DEM(i+ki,j+kj)
+!					x=dxp
+!					cont=cont+1	
+!					if (ki .ne. 0 .and. kj .ne. 0) x=1.41*dxp
+!					st=y/x
+!					if (st .gt. s) then						
+!						s=st
+!						DIR(i,j)=directions(cont)						
+!					endif									
+!				enddo
+!			enddo			
+!			Slope(i,j)=s			
+!		enddo
+!	enddo
+
+!end subroutine
+
+
+!--------------------------------------------------------------
+!Esneider
+
 
 end module
 
