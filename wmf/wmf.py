@@ -1,19 +1,16 @@
 from cu import *
 from models import *
 import numpy as np
-import glob
-from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid, cm
+#import glob
+#from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid, cm
 import pylab as pl
-import scipy.ndimage as nd
-from netCDF4 import Dataset  
+#import scipy.ndimage as nd
 import osgeo.ogr, osgeo.osr
 import gdal
 from scipy.spatial import Delaunay
 import os
-import pylab as pl
 import pandas as pd
 import datetime as datetime
-from matplotlib.colors import LogNorm
 
 #-----------------------------------------------------------------------
 #Lectura de informacion y mapas 
