@@ -56,8 +56,7 @@ luego se debe mover la terminal hasta el directorio
 >- Debe tener las siguiente dependencias de python.
 	- numpy 
 	- glob
-	- mpl_toolkits.basemap  
-	- scipy.ndimage
+	- mpl_toolkits.basemap  	
 	- netCDF4
 	- osgeo
 	- gdal

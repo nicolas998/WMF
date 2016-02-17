@@ -1035,7 +1035,7 @@ class SimuBasin(Basin):
 		#Determina el tipo de unidades del modelo 
 		if self.modelType is 'cells':
 			N = self.ncells
-		elif seld.modelType is 'hills':
+		elif self.modelType is 'hills':
 			N = self.nhills
 		#Obtiene el vector que va a alojar en el modelo
 		isVec=False
