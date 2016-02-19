@@ -367,7 +367,62 @@ class Basin:
 	#------------------------------------------------------
 	# Trabajo con datos puntuales puntos 
 	#------------------------------------------------------
-	
+	def Points_Points2Stream(self,coordXY,ids):
+		'Descripcion: toma las coordenadas de puntos XY y las mueve\n'\
+		'	hacia los cauces de la cuenca\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'coordXY : coordenadas de los puntos [2,Ncoord].\n'\
+		'ids : Identificacion de los puntos que se van a mover.\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'coordXYNew : Coordenadas transportadas a los cauces.\n'\
+		'basin_pts : Vector con la forma de la cuenca con los puntos.\n'\
+		'	donde quedaron localizadas las coordenadas.\n'\
+		'idsOrdered : El orden en que quedaron los Ids ingresados.\n'\
+		'Ver Tambien\n'\
+		'----------\n'\
+		'Points_Point2Basin\n'\
+		#Obtiene el cauce 
+		self.GetGeo_Cell_Basics()
+		#modifica los puntos
+		res_coord,basin_pts,xy_new = cu.basin_stream_point2stream(
+			self.structure,
+			self.CellCauce,
+			ids,
+			coordXY,
+			coordXY.shape[1],
+			self.ncells)
+		return xy_new, basin_pts, basin_pts[basin_pts<>0]
+	def Points_Points2Basin(self,coordXY,ids):
+		'Descripcion: toma las coordenadas de puntos XY y las pone\n'\
+		'	en la cuenca, no las mueve hacia los cuaces\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'coordXY : coordenadas de los puntos [2,Ncoord].\n'\
+		'ids : Identificacion de los puntos que se van a mover.\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'basin_pts : Vector con la forma de la cuenca con los puntos.\n'\
+		'	donde quedaron localizadas las coordenadas.\n'\
+		'idsOrdered : El orden en que quedaron los Ids ingresados.\n'\
+		'Ver Tambien\n'\
+		'----------\n'\
+		'Points_Point2Stream\n'\
+		#Obtiene el cauce 
+		self.GetGeo_Cell_Basics()
+		#modifica los puntos
+		res_coord,basin_pts = cu.basin_stream_point2var(
+			self.structure,
+			ids,
+			coordXY,
+			coordXY.shape[1],
+			self.ncells)
+		return basin_pts,basin_pts[basin_pts<>0]
 	#------------------------------------------------------
 	# Caudales de largo plazo y regionalizacion
 	#------------------------------------------------------
@@ -674,6 +729,9 @@ class SimuBasin(Basin):
 		models.max_gravita = np.ones((1,N))
 		models.storage = np.zeros((5,N))
 		models.dt = dt
+		#Define los puntos de control		
+		models.control = np.zeros((1,N))
+		models.control_h = np.zeros((1,N))
 		#Define las simulaciones que se van a hacer 
 		models.sim_sediments=0
 		if SimSed is 'si':
@@ -708,6 +766,7 @@ class SimuBasin(Basin):
 		'Retornos\n'\
 		'----------\n'\
 		'Guarda el binario, no hay retorno\n'\
+		'meanRain :  La serie de lluvia promedio interpolada para la cuenca\n'\
 		'\n'\
 		'Mirar Tambien\n'\
 		'----------\n'\
@@ -741,7 +800,7 @@ class SimuBasin(Basin):
 		TIN_perte = models.rain_pre_mit(xy_basin,TIN_mesh,coord,self.ncells,
 			TIN_mesh.shape[1],coord.shape[1]) 	 			
 		#Genera las interpolaciones para el rango de datos 		
-		models.rain_mit(xy_basin,coord,reg,TIN_mesh,
+		meanRain = models.rain_mit(xy_basin,coord,reg,TIN_mesh,
 			TIN_perte,ruta,self.ncells,coord.shape[1],
 			TIN_mesh.shape[1],reg.shape[1])
 		#Guarda un archivo con informacion de la lluvia 
@@ -756,6 +815,7 @@ class SimuBasin(Basin):
 			for c,d in enumerate(dates):
 				f.write('%d, %s \n' % (c,d.strftime('%Y-%m-%d-%H:%M')))
 		f.close()
+		return meanRain
 			
 	def rain_interpolate_idw(self,coord,registers,ruta,p=1):
 		'Descripcion: Interpola la lluvia mediante la metodologia\n'\
@@ -773,6 +833,7 @@ class SimuBasin(Basin):
 		'Retornos\n'\
 		'----------\n'\
 		'Guarda el binario, no hay retorno\n'\
+		'meanRain :  La serie de lluvia promedio interpolada para la cuenca\n'\
 		'\n'\
 		'Mirar Tambien\n'\
 		'----------\n'\
@@ -887,7 +948,7 @@ class SimuBasin(Basin):
 			models.stream_width = np.ones((1,N))*cu.basin_subbasin_map2subbasin(
 				self.hills_own,stream_width,self.hills.shape[1],self.ncells,self.CellCauce)
 			models.elem_area = np.ones((1,N))*np.array([self.hills_own[self.hills_own==i].shape[0] for i in range(1,self.hills.shape[1]+1)])*cu.dxp**2.0			
-	def set_speed_type(self,types=np.ones(3)):
+	def set_Speed_type(self,types=np.ones(3)):
 		'Descripcion: Especifica el tipo de velocidad a usar en cada \n'\
 		'	nivel del modelo. \n'\
 		'\n'\
@@ -968,47 +1029,7 @@ class SimuBasin(Basin):
 			models.max_capilar[0] = Vec
 		elif modelVarName is 'gravit':
 			models.max_gravita[0] = Vec
-	def set_record(self,controlQ=None,controlH=None,saveVec=None):
-		'Descripcion: Establece los puntos donde el modelo va  ahacer control\n'\
-		'	de los estados de humedad en el suelo y de caudal. \n'\
-		'\n'\
-		'Parametros\n'\
-		'----------\n'\
-		'self : Inicia las variables vacias.\n'\
-		'controlQ : Vector con los puntos de control para caudal [ncells, o nhills].\n'\
-		'controlH : Vector con los puntos de control para humedad [ncells, o nhills].\n'\
-		'\n'\
-		'Retornos\n'\
-		'----------\n'\
-		'self : Con la variable models.control y models.control_h especificadas.\n'\
-		#Determina en donde hace control de caudal 
-		if controlQ <> None:			
-			if self.modelType is 'cells':				
-				if controlQ.shape[0] == self.ncells:
-					models.control = np.ones((1,self.ncells))*controlQ					
-			elif self.modelType is 'hills':
-				if controlQ.shape[0] == self.nhills:
-					models.control = np.ones((1,self.nhills))*controlQ					
-		else:
-			if self.modelType is 'cells':
-				models.control = np.zeros((1,self.ncells))
-			elif self.modelType is 'hills':				
-				models.control = np.zeros((1,self.nhills))
-		models.control[0][-1]=1
-		#Determina en donde hace control de humedad
-		if controlH <> None:
-			if self.modelType is 'cells':
-				if controlH.shape[0] == self.ncells:
-					models.control_h = np.ones((1,self.ncells))*controlH
-			elif self.modelType is 'hills':
-				if controlH.shape[0] == self.nhills:
-					models.control_h = np.ones((1,self.nhills))*controlH
-		else:
-			if self.modelType is 'cells':
-				models.control_h = np.zeros((1,self.ncells))
-			elif self.modelType is 'hills':				
-				models.control_h = np.zeros((1,self.nhills))
-	def set_storage(self,var,pos):
+	def set_Storage(self,var,pos):
 		'Descripcion: \n'\
 		'	Establece el almacenamiento inicial del modelo\n'\
 		'	la variable puede ser un valor, una ruta o un vector.\n'\
@@ -1052,6 +1073,38 @@ class SimuBasin(Basin):
 			isVec=True
 		#Aloja ese almacenamiento en la cuenca 
 		models.storage[pos] = Vec
+	def set_Control(self,coordXY,ids,tipo = 'Q'):
+		'Descripcion: \n'\
+		'	Establece los puntos deonde se va a realizar control del caudal\n'\
+		'	y de la humedad simulada.\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'coordXY : Coordenadas de los puntos de control [2,Ncontrol].\n'\
+		'ids : Identificacion de los puntos de control.\n'\
+		'tipo: Control para caudal [Q] o para humedad [H].\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'Define los puntos de control en las variables:\n'\
+		'	- models.control : control de caudal y sedimentos.\n'\
+		'	- models.control_h : control de la humedad del suelo.\n'\
+		'\n'\
+		'Mirar Tambien\n'\
+		'----------\n'\
+		'set_record, set_storage.\n'\
+		#Obtiene los puntos donde hay coordenadas
+		if tipo is 'Q':
+			xyNew, basinPts, order = self.Points_Points2Stream(coordXY,ids)
+			if self.modelType is 'cells':
+				models.control = basinPts
+			#Falta el caso de las laderas
+		elif tipo is 'H':
+			basinPts, order = self.Points_Points2Basin(coordXY,ids)
+			if self.modelType is 'cells':
+				models.control_h = basinPts
+
+		return 
 		
 	#def set_sediments(self,var,varName):
 		

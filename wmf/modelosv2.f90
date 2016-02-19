@@ -402,12 +402,15 @@ subroutine rain_pre_mit(tin_perte,xy_basin,TIN,coord,nceldas,ntin,ncoord)
     enddo
 end subroutine
 
-subroutine rain_mit(xy_basin,coord,rain,tin,tin_perte,nceldas,ncoord,ntin,nreg,ruta)
+subroutine rain_mit(xy_basin,coord,rain,tin,tin_perte,nceldas,ncoord,&
+	&ntin,nreg,ruta,meanRain)
 	!Variables de entrada
 	integer, intent(in) :: nceldas, nreg, ncoord
 	integer, intent(in) :: ntin, tin(3,ntin), tin_perte(1,nceldas)
 	real, intent(in) :: xy_basin(2,nceldas), coord(2,ncoord), rain(ncoord,nreg)
 	character*255, intent(in) :: ruta
+	!Variables de salida 
+	real, intent(out) :: meanRain(nreg)
 	!Variables locales 
 	real ax(nceldas),ay(nceldas),bx(nceldas),by(nceldas)
 	real cx(nceldas),cy(nceldas),dx(nceldas),dy(nceldas)
@@ -438,6 +441,8 @@ subroutine rain_mit(xy_basin,coord,rain,tin,tin_perte,nceldas,ncoord,ntin,nreg,r
 			!Calcula la cantidad de lluvia
 			campo(celdas)=max(az-coef2/coef1(celdas),0.0)		
 		enddo
+		!Lluvia promedio en la cuenca 
+		meanRain(tiempo) = sum(campo)/count(campo .gt. 0)
 		!cuando termina de recorrer la cuenca guarda el resultado 
 		call write_float_basin(ruta,campo,tiempo,nceldas,1)
 	enddo
