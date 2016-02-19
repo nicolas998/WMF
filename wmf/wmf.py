@@ -416,7 +416,7 @@ class Basin:
 		#Obtiene el cauce 
 		self.GetGeo_Cell_Basics()
 		#modifica los puntos
-		res_coord,basin_pts = cu.basin_stream_point2var(
+		res_coord,basin_pts = cu.basin_point2var(
 			self.structure,
 			ids,
 			coordXY,
@@ -1089,6 +1089,7 @@ class SimuBasin(Basin):
 		'Define los puntos de control en las variables:\n'\
 		'	- models.control : control de caudal y sedimentos.\n'\
 		'	- models.control_h : control de la humedad del suelo.\n'\
+		'IdsControl : El orden en que quedaron los puntos de control al interior.\n'\
 		'\n'\
 		'Mirar Tambien\n'\
 		'----------\n'\
@@ -1097,14 +1098,26 @@ class SimuBasin(Basin):
 		if tipo is 'Q':
 			xyNew, basinPts, order = self.Points_Points2Stream(coordXY,ids)
 			if self.modelType is 'cells':
-				models.control = basinPts
-			#Falta el caso de las laderas
+				models.control[0] = basinPts
+				IdsConvert = basinPts[basinPts<>0]
+			elif self.modelType is 'hills':
+				unitario = basinPts / basinPts
+				pos = self.hills_own * self.CellCauce * unitario
+				posGrande = self.hills_own * self.CellCauce * basinPts
+				IdsConvert = posGrande[posGrande<>0] / pos[pos<>0]
+				models.control[0][pos[pos<>0].astype(int).tolist()] = IdsConvert 			
 		elif tipo is 'H':
 			basinPts, order = self.Points_Points2Basin(coordXY,ids)
 			if self.modelType is 'cells':
-				models.control_h = basinPts
-
-		return 
+				models.control_h[0] = basinPts
+				IdsConvert = basinPts[basinPts<>0]
+			elif self.modelType is 'hills':
+				unitario = basinPts / basinPts
+				pos = self.hills_own * unitario
+				posGrande = self.hills_own * basinPts
+				IdsConvert = posGrande[posGrande<>0] / pos[pos<>0]
+				models.control_h[0][pos[pos<>0].astype(int).tolist()] = IdsConvert 
+		return IdsConvert
 		
 	#def set_sediments(self,var,varName):
 		
@@ -1156,7 +1169,7 @@ class SimuBasin(Basin):
 		if np.count_nonzero(models.control) is 0 :
 			NcontrolQ = 1
 		else:
-			NcontrolQ = np.count_nonzero(models.control)
+			NcontrolQ = np.count_nonzero(models.control)+1
 		if np.count_nonzero(models.control_h) is 0 :
 			NcontrolH = 1
 		else:
