@@ -442,11 +442,13 @@ subroutine rain_mit(xy_basin,coord,rain,tin,tin_perte,nceldas,ncoord,ntin,nreg,r
 		call write_float_basin(ruta,campo,tiempo,nceldas,1)
 	enddo
 end subroutine 
-subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,ruta)
+subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,ruta,meanRain)
 	!Variables de entrada
 	integer, intent(in) :: nceldas,ncoord,nreg
 	character*255, intent(in) :: ruta
 	real, intent(in) :: xy_basin(2,nceldas),coord(2,ncoord),rain(ncoord,nreg),pp
+	!Variables de salida
+	real, intent(out) :: meanRain(nreg)
 	!Variables locales 
 	integer tiempo, celda, i
 	real W(ncoord,nceldas),Wr,campo(nceldas)
@@ -460,6 +462,7 @@ subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,ruta)
 			Wr=sum(W(:,celda)*rain(:,tiempo),mask=rain(:,tiempo).gt.0.0)
 			campo(celda)=max(Wr/sum(W(:,celda),mask=rain(:,tiempo).ge.0.0),0.0)				
 		enddo
+		meanRain(tiempo) = sum(campo)/count(campo .gt. 0)
 		!Guarda el campo interpolado para el tiempo		
 		call write_float_basin(ruta,campo,tiempo,nceldas,1)
 	enddo

@@ -170,6 +170,8 @@ class Basin:
 		Scue=slope.mean()*100
 		Hmin=Elev[-1]; Hmax=Elev[puntto]; Hmean=Elev.mean()
 		HCmax=Elev[punto]
+		x,y = cu.basin_coordxy(self.structure,self.ncells)
+		CentXY = [np.median(x),np.median(y)]
 		#Genera un diccionario con las propiedades de la cuenca 
 		self.GeoParameters={'Area[km2]': Area,
 			'Perimetro[km]':Perim,
@@ -180,7 +182,8 @@ class Basin:
 			'Hmax [m]':Hmax,
 			'Hmin [m]':Hmin,
 			'Hmean [m]':Hmean,
-			'H Cauce Max [m]':HCmax}
+			'H Cauce Max [m]':HCmax,
+			'Centro XY': CentXY}
 		#Calcula los tiempos de concentracion
 		Tiempos={}
 		Tc=0.3*(Lcau/(Scue**0.25))**0.75
@@ -787,7 +790,7 @@ class SimuBasin(Basin):
 		x,y = cu.basin_coordxy(self.structure,self.ncells)
 		xy_basin=np.vstack((x,y))	
 		#Interpola con idw 		
-		models.rain_idw(xy_basin,coord,reg,p,ruta,self.ncells,
+		meanRain = models.rain_idw(xy_basin,coord,reg,p,ruta,self.ncells,
 			coord.shape[1],reg.shape[1])
 		#Guarda un archivo con informacion de la lluvia 
 		f=open(ruta[:-3]+'hdr','w')
@@ -801,6 +804,7 @@ class SimuBasin(Basin):
 			for c,d in enumerate(dates):
 				f.write('%d, %s \n' % (c,d.strftime('%Y-%m-%d-%H:%M')))
 		f.close()
+		return meanRain
 	
 	def rain_radar2basin(self):
 		return 1
