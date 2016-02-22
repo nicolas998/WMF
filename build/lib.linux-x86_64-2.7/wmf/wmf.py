@@ -1,16 +1,15 @@
 from cu import *
 from models import *
 import numpy as np
-#import glob
 #from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid, cm
 import pylab as pl
-#import scipy.ndimage as nd
 import osgeo.ogr, osgeo.osr
 import gdal
 from scipy.spatial import Delaunay
 import os
 import pandas as pd
 import datetime as datetime
+import netcdf
 
 #-----------------------------------------------------------------------
 #Lectura de informacion y mapas 
@@ -19,7 +18,7 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None):
 	'Funcion: read_map\n'\
 	'Descripcion: Lee un mapa raster soportado por GDAL.\n'\
 	'Parametros Obligatorios:.\n'\
-	'	-ruta_map: Ruta donde se encuentra el mpaa.\n'\
+	'	-ruta_map: Ruta donde se encuentra el mapa.\n'\
 	'Parametros Opcionales:.\n'\
 	'	-isDEMorDIR: Pasa las propiedades de los mapas al modulo cuencas \n'\
 	'		escrito en fortran \n'\
@@ -88,6 +87,7 @@ def PotCritica(S,D,te = 0.056):
     ti = te * (D*1600*9.8)
     return ti *(8.2* (((ti/(1000*9.8*S))/D)**(1.0/6.0)) * np.sqrt(ti/1000.0))/9800.0
 	
+
 #-----------------------------------------------------------------------
 #Clase de cuencas
 #-----------------------------------------------------------------------
@@ -655,7 +655,7 @@ class SimuBasin(Basin):
 	
 	def __init__(self,lat,lon,DEM,DIR,name='NaN',stream=None,umbral=500,
 		noData=-999,modelType='cells',SimSed='no',SimSlides='no',dt=60,
-		SaveStorage='no',SaveSpeed='no'):
+		SaveStorage='no',SaveSpeed='no',rute = None):
 		'Descripcion: Inicia un objeto para simulacion \n'\
 		'	el objeto tiene las propieades de una cuenca con. \n'\
 		'	la diferencia de que inicia las variables requeridas. \n'\
@@ -684,68 +684,130 @@ class SimuBasin(Basin):
 		'dt : Tamano del intervlao de tiempo en que trabaj el modelo (defecto=60seg) [secs].\n'\
 		'SaveStorage : Guarda o no el almacenamiento.\n'\
 		'SaveSpeed : Guarda o no mapas de velocidad.\n'\
+		'rute : por defecto es None, si se coloca la ruta, el programa no.\n'\
+		'	hace una cuenca, si no que trata de leer una en el lugar especificado.\n'\
+		'	Ojo: la cuenca debió ser guardada con la funcion: Save_SimuBasin().\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
 		'self : Con las variables iniciadas.\n'\
-		#Si se entrega cauce corrige coordenadas
-		if stream<>None:
-			error=[]
-			for i in stream.structure.T:
-				error.append( np.sqrt((lat-i[0])**2+(lon-i[1])**2) )
-			loc=np.argmin(error)
-			lat=stream.structure[0,loc]
-			lon=stream.structure[1,loc]
-		#copia la direccion de los mapas de DEM y DIR, para no llamarlos mas
-		self.name=name
-		self.DEM=DEM
-		self.DIR=DIR
-		self.modelType=modelType
-		self.nodata=noData
-		self.umbral = umbral
-		#Traza la cuenca 
-		self.ncells = cu.basin_find(lat,lon,DIR,
-			cu.ncols,cu.nrows)
-		self.structure = cu.basin_cut(self.ncells)
-		#traza las sub-cuencas
-		acum=cu.basin_acum(self.structure,self.ncells)
-		cauce,nodos,self.nhills = cu.basin_subbasin_nod(self.structure
-			,acum,umbral,self.ncells)
-		self.hills_own,sub_basin = cu.basin_subbasin_find(self.structure,
-			nodos,self.nhills,self.ncells)
-		self.hills = cu.basin_subbasin_cut(self.nhills)
-		models.drena=self.structure		
-		#Determina la cantidad de celdas para alojar
-		if modelType=='cells':
-			N=self.ncells
-		elif modelType=='hills':
-			N=self.nhills
-		#aloja variables
-		models.v_coef = np.ones((4,N))
-		models.h_coef = np.ones((4,N))
-		models.v_exp = np.ones((4,N))
-		models.h_exp = np.ones((4,N))
-		models.max_capilar = np.ones((1,N))
-		models.max_gravita = np.ones((1,N))
-		models.storage = np.zeros((5,N))
-		models.dt = dt
-		#Define los puntos de control		
-		models.control = np.zeros((1,N))
-		models.control_h = np.zeros((1,N))
-		#Define las simulaciones que se van a hacer 
-		models.sim_sediments=0
-		if SimSed is 'si':
-			models.sim_sediments=1
-		models.sim_slides=0
-		if SimSlides is 'si':
-			models.sim_slides=1
-		models.save_storage=0
-		if SaveStorage is 'si':
-			models.save_storage=1
-		models.save_speed=0
-		if SaveSpeed is 'si':
-			models.save_speed=1
-			
+		#Si no hay ruta traza la cuenca
+		if rute is None:
+			#Si se entrega cauce corrige coordenadas
+			if stream<>None:
+				error=[]
+				for i in stream.structure.T:
+					error.append( np.sqrt((lat-i[0])**2+(lon-i[1])**2) )
+				loc=np.argmin(error)
+				lat=stream.structure[0,loc]
+				lon=stream.structure[1,loc]
+			#copia la direccion de los mapas de DEM y DIR, para no llamarlos mas
+			self.name=name
+			self.DEM=DEM
+			self.DIR=DIR
+			self.modelType=modelType
+			self.nodata=noData
+			self.umbral = umbral
+			#Traza la cuenca 
+			self.ncells = cu.basin_find(lat,lon,DIR,
+				cu.ncols,cu.nrows)
+			self.structure = cu.basin_cut(self.ncells)
+			#traza las sub-cuencas
+			acum=cu.basin_acum(self.structure,self.ncells)
+			cauce,nodos,self.nhills = cu.basin_subbasin_nod(self.structure
+				,acum,umbral,self.ncells)
+			self.hills_own,sub_basin = cu.basin_subbasin_find(self.structure,
+				nodos,self.nhills,self.ncells)
+			self.hills = cu.basin_subbasin_cut(self.nhills)
+			models.drena=self.structure		
+			#Determina la cantidad de celdas para alojar
+			if modelType=='cells':
+				N=self.ncells
+			elif modelType=='hills':
+				N=self.nhills
+			#aloja variables
+			models.v_coef = np.ones((4,N))
+			models.h_coef = np.ones((4,N))
+			models.v_exp = np.ones((4,N))
+			models.h_exp = np.ones((4,N))
+			models.max_capilar = np.ones((1,N))
+			models.max_gravita = np.ones((1,N))
+			models.storage = np.zeros((5,N))
+			models.dt = dt
+			#Define los puntos de control		
+			models.control = np.zeros((1,N))
+			models.control_h = np.zeros((1,N))
+			#Define las simulaciones que se van a hacer 
+			models.sim_sediments=0
+			if SimSed is 'si':
+				models.sim_sediments=1
+			models.sim_slides=0
+			if SimSlides is 'si':
+				models.sim_slides=1
+			models.save_storage=0
+			if SaveStorage is 'si':
+				models.save_storage=1
+			models.save_speed=0
+			if SaveSpeed is 'si':
+				models.save_speed=1
+		# si hay tura lee todo lo de la cuenca
+		elif rute is not None:
+			self.__Load_SimuBasin(rute)
+	
+	def __Load_SimuBasin(self,ruta):
+		'Descripcion: Lee una cuenca posteriormente guardada\n'\
+		'	La cuenca debio ser guardada con SimuBasin.save_SimuBasin\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'self : Inicia las variables vacias.\n'\
+		'ruta : ruta donde se encuentra ubicada la cuenca guardada\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'self : La cuenca con sus parametros ya cargada.\n'\
+		#Abre el archivo binario de la cuenca 
+		gr = netcdf.Dataset(ruta,'a')
+		#obtiene las prop de la cuenca
+		self.name = gr.nombre
+		self.modelType = gr.modelType.encode()
+		self.nodata = gr.noData
+		self.umbral = gr.umbral
+		self.ncells = gr.ncells
+		self.nhills = gr.nhills
+		models.dt = gr.dt
+		#Asigna dem y DIr a partir de la ruta 
+		try:
+			DEM = read_map_raster(gr.DEM,True,gr.dxp)
+			DIR = read_map_raster(gr.DIR,True,gr.dxp)
+			DIR[DIR<=0]=wmf.cu.nodata.astype(int)
+			DIR=wmf.cu.dir_reclass(DIR,cu.ncols,cu.nrows)
+			cu.nodata = -9999.0
+			self.DEM = DEM
+			self.DIR = DIR
+		except:
+			pass
+		#de acuerdo al tipo de modeloe stablece numero de elem
+		if self.modelType[0] is 'c':
+			N = self.ncells
+		elif self.modelType[0] is 'h':
+			N = self.nhills
+		#Obtiene las variables vectoriales 
+		self.structure = gr.variables['structure'][:]
+		self.hills = gr.variables['hills'][:]
+		self.hills_own = gr.variables['hills_own'][:]
+		#obtiene las propieades del modelo 
+		models.h_coef = gr.variables['h_coef'][:]
+		models.v_coef = gr.variables['v_coef'][:]
+		models.h_exp = gr.variables['h_exp'][:]
+		models.v_exp = gr.variables['v_exp'][:]
+		models.max_capilar = np.ones((1,N)) * gr.variables['h1_max'][:]
+		models.max_gravita = np.ones((1,N)) * gr.variables['h3_max'][:]
+		#propiedades de puntos de control
+		models.control = np.ones((1,N)) * gr.variables['control'][:]
+		models.control_h = np.ones((1,N)) * gr.variables['control_h'][:]
+		#Cierra el archivo 
+		gr.close()
+		
 	#------------------------------------------------------
 	# Subrutinas de lluvia, interpolacion, lectura, escritura
 	#------------------------------------------------------	
@@ -1118,11 +1180,82 @@ class SimuBasin(Basin):
 				IdsConvert = posGrande[posGrande<>0] / pos[pos<>0]
 				models.control_h[0][pos[pos<>0].astype(int).tolist()] = IdsConvert 
 		return IdsConvert
-		
+	
+	
 	#def set_sediments(self,var,varName):
 		
 		
 	#def set_slides(self,var,varName):
+
+	#------------------------------------------------------
+	# Guardado y Cargado de modelos de cuencas preparados 
+	#------------------------------------------------------	
+	def save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None):
+		'Descripcion: guarda una cuenca previamente ejecutada\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'ruta : Ruta donde la cuenca sera guardada.\n'\
+		'ruta_dem : direccion donde se aloja el DEM (se recomienda absoluta).\n'\
+		'ruta_dir : direccion donde se aloja el DIR (se recomienda absoluta).\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'self : Con las variables iniciadas.\n'\
+		#Guarda la cuenca
+		if self.modelType is 'cells':
+			N = self.ncells
+		elif self.modelType is 'hills':
+			N = self.nhills
+		#Determina las rutas
+		if ruta_dem is None:
+			ruta_dem = 'not rute'
+		if ruta_dir is None:
+			ruta_dir = 'not rute'
+		Dict = {'nombre':self.name,'DEM':ruta_dem,
+			'DIR':ruta_dir,
+		    'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
+		    'ncells':self.ncells,'nhills':self.nhills,
+		    'dt':models.dt,'Nelem':N,'dxp':cu.dxp}
+		#abre el archivo 
+		gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
+		#Establece tamano de las variables 
+		DimNcell = gr.createDimension('ncell',self.ncells)
+		DimNhill = gr.createDimension('nhills',self.nhills)
+		DimNelem = gr.createDimension('Nelem',N)
+		DimCol3 = gr.createDimension('col3',3)
+		DimCol2 = gr.createDimension('col2',2)
+		DimCol4 = gr.createDimension('col4',4)
+		#Crea variables
+		VarStruc = gr.createVariable('structure','i4',('col3','ncell'),zlib=True)
+		VarHills = gr.createVariable('hills','i4',('col2','nhills'),zlib=True)
+		VarHills_own = gr.createVariable('hills_own','i4',('ncell',),zlib=True)
+		VarH_coef = gr.createVariable('h_coef','f4',('col4','Nelem'),zlib=True)
+		VarV_coef = gr.createVariable('v_coef','f4',('col4','Nelem'),zlib=True)
+		VarH_exp = gr.createVariable('h_exp','f4',('col4','Nelem'),zlib=True)
+		VarV_exp = gr.createVariable('v_exp','f4',('col4','Nelem'),zlib=True)
+		Var_H1max = gr.createVariable('h1_max','f4',('Nelem',),zlib = True)
+		Var_H3max = gr.createVariable('h3_max','f4',('Nelem',),zlib = True)
+		Control = gr.createVariable('control','i4',('Nelem',),zlib = True)
+		ControlH = gr.createVariable('control_h','i4',('Nelem',),zlib = True)
+		#Asigna valores a las variables
+		VarStruc[:] = self.structure
+		VarHills[:] = self.hills
+		VarHills_own[:] = self.hills_own
+		VarH_coef[:] = models.h_coef
+		VarV_coef[:] = models.v_coef
+		VarH_exp[:] = models.h_exp
+		VarV_exp[:] = models.v_exp
+		Var_H1max[:] = models.max_capilar
+		Var_H3max[:] = models.max_gravita
+		Control[:] = models.control
+		ControlH[:] = models.control_h
+		#asigna las prop a la cuenca 
+		gr.setncatts(Dict)
+		#Cierra el archivo 
+		gr.close()
+		#Sale del programa
+		return 
 
 	#------------------------------------------------------
 	# Ejecucion del modelo
