@@ -340,6 +340,7 @@ end subroutine
 !Escritura archivos binarios en formato para modelo
 subroutine write_int_basin(ruta,vect,record,nceldas,estado)
     !Variables de entrada
+    integer, intent(in) :: nceldas
     character*255, intent(in) :: ruta
     character*7, intent(in) :: estado
     integer, intent(in) :: vect(nceldas)
@@ -352,6 +353,7 @@ subroutine write_int_basin(ruta,vect,record,nceldas,estado)
 end subroutine
 subroutine write_float_basin(ruta,vect,record,nceldas,estado)
     !Variables de entrada
+    integer, intent(in) :: nceldas
     character*255, intent(in) :: ruta
     character*7, intent(in) :: estado
     real, intent(in) :: vect(nceldas)
@@ -1587,8 +1589,8 @@ subroutine basin_qmed(acum,elev,precip,qmed,ETR,nceldas,etr_type &
     integer, intent(in) :: nceldas
     integer, intent(in) :: acum(nceldas),elev(nceldas)
     real, intent(in) :: precip(nceldas)
-    integer, intent(in), optional :: etr_type
-    real, intent(in), optional :: mu_choud
+    integer, intent(in) :: etr_type
+    real, intent(in) :: mu_choud
     !Variables de salida
     real, intent(out) :: qmed(nceldas),ETR(nceldas)
     !Variables locales 
