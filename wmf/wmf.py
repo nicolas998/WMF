@@ -779,12 +779,13 @@ class SimuBasin(Basin):
 		try:
 			DEM = read_map_raster(gr.DEM,True,gr.dxp)
 			DIR = read_map_raster(gr.DIR,True,gr.dxp)
-			DIR[DIR<=0]=wmf.cu.nodata.astype(int)
-			DIR=wmf.cu.dir_reclass(DIR,cu.ncols,cu.nrows)
 			cu.nodata = -9999.0
+			DIR[DIR<=0]=cu.nodata.astype(int)
+			DIR=cu.dir_reclass(DIR,cu.ncols,cu.nrows)			
 			self.DEM = DEM
 			self.DIR = DIR
 		except:
+			print 'me jodi'
 			pass
 		#de acuerdo al tipo de modeloe stablece numero de elem
 		if self.modelType[0] is 'c':
@@ -1043,8 +1044,8 @@ class SimuBasin(Basin):
 		'	- h_exp.\n'\
 		'	- v_coef.\n'\
 		'	- v_exp.\n'\
-		'	- max_capilar.\n'\
-		'	- Max_gravit.\n'\
+		'	- capilar.\n'\
+		'	- gravit.\n'\
 		'var : variable que ingresa en el modelo, esta puede ser:.\n'\
 		'	- Ruta: una ruta del tipo string.\n'\
 		'	- Escalar : Un valor escalar que se asignara a toda la cuenca.\n'\
