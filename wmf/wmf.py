@@ -87,6 +87,85 @@ def PotCritica(S,D,te = 0.056):
     ti = te * (D*1600*9.8)
     return ti *(8.2* (((ti/(1000*9.8*S))/D)**(1.0/6.0)) * np.sqrt(ti/1000.0))/9800.0
 	
+def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
+	DriverFormat='ESRI Shapefile'):
+	'Funcion: Save_Points2Map\n'\
+	'Descripcion: Guarda coordenadas X,Y en un mapa tipo puntos.\n'\
+	'Parametros Opcionales:.\n'\
+	'XY: Coordenadas de los puntos X,Y.\n'\
+	'ids: Numero que representa a cada punto.\n'\
+	'ruta: Ruta de escritura de los puntos.\n'\
+	'Opcionales:.\n'\
+	'EPSG : Codigo del tipo de proyeccion usada, defecto 4326 de WGS84.\n'\
+	'Dict : Diccionario con prop de los puntos, Defecto: None.\n'\
+	'DriverFormat : Formato del archivo vectorial, Defecto: ESRI Shapefile.\n'\
+	'Retorno:.\n'\
+	'	Escribe el mapa en la ruta especificada.\n'\
+	#Genera el shapefile
+	spatialReference = osgeo.osr.SpatialReference()
+	spatialReference.ImportFromEPSG(EPSG)
+	driver = osgeo.ogr.GetDriverByName(DriverFormat)
+	if os.path.exists(ruta):
+	     driver.DeleteDataSource(ruta)
+	shapeData = driver.CreateDataSource(ruta)
+	layer = shapeData.CreateLayer('layer1', spatialReference, osgeo.ogr.wkbPoint)
+	layerDefinition = layer.GetLayerDefn()
+	new_field=osgeo.ogr.FieldDefn('Estacion',osgeo.ogr.OFTInteger)
+	layer.CreateField(new_field)
+	if Dict is not None:
+		for p in Dict.keys():
+			tipo = type(Dict[p][0])
+			if tipo is np.float64:
+				new_field=osgeo.ogr.FieldDefn(p[:10],osgeo.ogr.OFTReal)
+			elif tipo is np.int64:
+				new_field=osgeo.ogr.FieldDefn(p[:10],osgeo.ogr.OFTInteger)
+			elif tipo is str:
+				new_field=osgeo.ogr.FieldDefn(p[:10],osgeo.ogr.OFTString)
+			layer.CreateField(new_field)
+	#Mete todos los puntos
+	featureIndex=0
+	contador=0
+    #Calcula el tamano de la muestra
+	N=np.size(XY,axis=1)
+	if N>1:
+		for i in XY.T:
+			if i[0]<>-9999.0 and i[1]<>-9999.0:
+				#inserta el punto 
+				point = osgeo.ogr.Geometry(osgeo.ogr.wkbPoint)
+				point.SetPoint(0, float(i[0]), float(i[1]))
+				feature = osgeo.ogr.Feature(layerDefinition)
+				feature.SetGeometry(point)
+				feature.SetFID(featureIndex)
+				feature.SetField('Estacion',ids[contador])
+				#Le coloca lo del diccionario
+				if Dict is not None:
+					for p in Dict.keys():		
+						tipo = type(Dict[p][0])
+						if tipo is np.float64:
+							feature.SetField(p[:10],float("%.2f" % Dict[p][contador]))
+						elif tipo is np.int64:
+							feature.SetField(p[:10],int("%d" % Dict[p][contador]))
+						elif tipo is str:
+							feature.SetField(p[:10],Dict[p][contador])
+				#Actualiza contadores
+				contador+=1
+				layer.CreateFeature(feature)
+				point.Destroy()
+				feature.Destroy()
+	else:
+		point = osgeo.ogr.Geometry(osgeo.ogr.wkbPoint)
+		point.SetPoint(0, float(XY[0,0]), float(XY[1,0]))
+		feature = osgeo.ogr.Feature(layerDefinition)
+		feature.SetGeometry(point)
+		feature.SetFID(featureIndex)
+		feature.SetField('Estacion',ids)
+		for p in Dict.keys():		
+			feature.SetField(p[:p.index('[')].strip()[:10],float("%.2f" % Param[p]))
+		contador+=1
+		layer.CreateFeature(feature)
+		point.Destroy()
+		feature.Destroy()
+	shapeData.Destroy()	
 
 #-----------------------------------------------------------------------
 #Clase de cuencas
@@ -686,7 +765,7 @@ class SimuBasin(Basin):
 		'SaveSpeed : Guarda o no mapas de velocidad.\n'\
 		'rute : por defecto es None, si se coloca la ruta, el programa no.\n'\
 		'	hace una cuenca, si no que trata de leer una en el lugar especificado.\n'\
-		'	Ojo: la cuenca debió ser guardada con la funcion: Save_SimuBasin().\n'\
+		'	Ojo: la cuenca debio ser guardada con la funcion: Save_SimuBasin().\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1160,16 +1239,17 @@ class SimuBasin(Basin):
 		#Obtiene los puntos donde hay coordenadas
 		if tipo is 'Q':
 			xyNew, basinPts, order = self.Points_Points2Stream(coordXY,ids)
-			if self.modelType is 'cells':
+			if self.modelType[0] is 'c':
 				models.control[0] = basinPts
 				IdsConvert = basinPts[basinPts<>0]
-			elif self.modelType is 'hills':
+			elif self.modelType[0] is 'h':
 				unitario = basinPts / basinPts
 				pos = self.hills_own * self.CellCauce * unitario
 				posGrande = self.hills_own * self.CellCauce * basinPts
 				IdsConvert = posGrande[posGrande<>0] / pos[pos<>0]
 				models.control[0][pos[pos<>0].astype(int).tolist()] = IdsConvert 			
 		elif tipo is 'H':
+			xyNew = coordXY
 			basinPts, order = self.Points_Points2Basin(coordXY,ids)
 			if self.modelType is 'cells':
 				models.control_h[0] = basinPts
@@ -1180,7 +1260,7 @@ class SimuBasin(Basin):
 				posGrande = self.hills_own * basinPts
 				IdsConvert = posGrande[posGrande<>0] / pos[pos<>0]
 				models.control_h[0][pos[pos<>0].astype(int).tolist()] = IdsConvert 
-		return IdsConvert
+		return IdsConvert,xyNew
 	
 	
 	#def set_sediments(self,var,varName):
