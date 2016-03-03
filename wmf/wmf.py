@@ -6,6 +6,7 @@ import pylab as pl
 import osgeo.ogr, osgeo.osr
 import gdal
 from scipy.spatial import Delaunay
+from scipy.stats import norm
 import os
 import pandas as pd
 import datetime as datetime
@@ -537,15 +538,90 @@ class Basin:
 		self.CellQmed,self.CellETR = cu.basin_qmed(
 			self.CellAcum,
 			self.CellHeight,
-			precip,
-			self.ncells,
-			etr_type=Tipo_ETR,
-			mu_choud = mu_choud)
+			precip,			
+			Tipo_ETR,
+			mu_choud,
+			self.ncells,)
 
 	#Caudales extremos
-	#def GetQ_Max(self,Precipitation):
-	#def GetQ_Min(self,Precipitation):
-
+	def GetQ_Max(self,Qmed,Coef=[6.71, 3.29], Expo= [0.82, 0.64], Cv = 0.5,
+		Tr = [2.33, 5, 10, 25, 50, 100], Dist = 'gumbel'):
+		'Descripcion: Calcula el caudal maximo para diferentes\n'\
+		'	periodos de retorno. Recibe como entrada el caudal medio \n'\
+		'	calculado con GetQ_Balance.\n'\
+		'	el calculo se hace a partir de la ecuacion:.\n'\
+		'	MedMax = Coef[0] * Qmed ** Exp[0] .\n'\
+		'	DesMax = Coef[1] * Qmed ** Exp[1] .\n'\
+		'	Qmax = MedMax + K(Tr) * DesMax.\n'\
+		'	Donde K es un coeficiente que depende de Tr y f(x).\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'Qmed : Caudal medio calculado con GetQ_Balance.\n'\
+		'Coef : Coeficientes para media y desviacion [6.71, 3.29].\n'\
+		'Expo : Exponentes para media y desviacion [0.82, 0.64].\n'\
+		'Cv : Coeficiente de escalamiento [0.5].\n'\
+		'Tr : Periodo de retorno [2.33, 5, 10, 25, 50, 100].\n'\
+		'Dist : Distrbucion [gumbel/lognorm].\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'CellQmax : Caudal maximo para los diferentes periodos.\n'\
+		# Calcula la media y desviacion
+		MedMax = Coef[0] * Qmed ** Expo[0]
+		DesMax = Coef[1] * Qmed ** Expo[1]
+		#Itera para todos los periodos de retorno
+		Qmax=[]
+		for t in Tr:
+			#Calcula k
+			if Dist is 'gumbel':
+				k=-1*(0.45+0.78*np.log(-1*np.log(1-1/float(t))))
+			elif Dist is 'lognorm':
+				Ztr=norm.ppf(1-1/float(t))
+				k=(np.exp(Ztr*np.sqrt(np.log(1+Cv**2))-0.5*np.log(1-Cv**2))-1)/Cv
+			#Calcula el caudal maximo
+			Qmax.append(list(MedMax+k*DesMax))
+		return np.array(Qmax)
+	
+	def GetQ_Min(self,Qmed,Coef=[0.4168, 0.2], Expo= [1.058, 0.98], Cv = 0.5,
+		Tr = [2.33, 5, 10, 25, 50, 100], Dist = 'gumbel'):
+		'Descripcion: Calcula el caudal minimo para diferentes\n'\
+		'	periodos de retorno. Recibe como entrada el caudal medio \n'\
+		'	calculado con GetQ_Balance.\n'\
+		'	el calculo se hace a partir de la ecuacion:.\n'\
+		'	MedMin = Coef[0] * Qmed ** Exp[0] .\n'\
+		'	DesMin = Coef[1] * Qmed ** Exp[1] .\n'\
+		'	Qmin = MedMin + K(Tr) * DesMin.\n'\
+		'	Donde K es un coeficiente que depende de Tr y f(x).\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'Qmed : Caudal medio calculado con GetQ_Balance.\n'\
+		'Coef : Coeficientes para media y desviacion [6.71, 3.29].\n'\
+		'Expo : Exponentes para media y desviacion [0.82, 0.64].\n'\
+		'Cv : Coeficiente de escalamiento [0.5].\n'\
+		'Tr : Periodo de retorno [2.33, 5, 10, 25, 50, 100].\n'\
+		'Dist : Distrbucion [gumbel/lognorm].\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'CellQmax : Caudal maximo para los diferentes periodos.\n'\
+		# Calcula la media y desviacion
+		MedMin = Coef[0] * Qmed ** Expo[0]
+		DesMin = Coef[1] * Qmed ** Expo[1]
+		#Itera para todos los periodos de retorno
+		Qmin=[]
+		for t in Tr:
+			#Calcula k
+			if Dist is 'gumbel':
+				k = (-1*np.sqrt(6)/np.pi)*(0.5772+np.log(-1*np.log(1/float(t))))
+			elif Dist is 'lognorm':
+				Ztr=norm.ppf(1/float(t))
+				k = (np.exp(Ztr*np.sqrt(np.log(1+Cv**2))-0.5*np.log(1-Cv**2))-1)/Cv
+			#Calcula el caudal maximo
+			Qmin.append(list(MedMin-k*DesMin))
+		return np.array(Qmin)
+		
 	#------------------------------------------------------
 	# Guardado shp de cuencas y redes hidricas 
 	#------------------------------------------------------
@@ -1373,9 +1449,9 @@ class SimuBasin(Basin):
 		'Qsim : Caudal simulado en los puntos de control.\n'\
 		'Hsim : Humedad simulada en los puntos de control.\n'\
 		# De acuerdo al tipo de modelo determina la cantidad de elementos
-		if self.modelType is 'cells':
+		if self.modelType[0] is 'c':
 			N = self.ncells
-		elif self.modelType is 'hills':
+		elif self.modelType[0] is 'h':
 			N = self.nhills
 		#prepara variables globales
 		models.rain_first_point = start_point
