@@ -1035,7 +1035,7 @@ class SimuBasin(Basin):
 		f.close()
 		return meanRain
 			
-	def rain_interpolate_idw(self,coord,registers,ruta,p=1):
+	def rain_interpolate_idw(self,coord,registers,ruta,p=1,umbral=0.0):
 		'Descripcion: Interpola la lluvia mediante la metodologia\n'\
 		'	del inverso de la distancia ponderado. \n'\
 		'\n'\
@@ -1047,6 +1047,10 @@ class SimuBasin(Basin):
 		'p :  exponente para la interpolacion de lluvia.\n'\
 		'ruta : Ruta con nombre en donde se guardara el binario con.\n'\
 		'	la informacion de lluvia.\n'\
+		'umbral : Umbral de suma total de lluvia bajo el cual se considera\n'\
+		'	que un intervalo tiene suficiente agua como para generar reaccion\n'\
+		'	(umbral = 0.0) a medida que incremente se generaran archivos mas\n'\
+		'	livianos, igualmente existe la posibilidad de borrar informacion.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1069,7 +1073,7 @@ class SimuBasin(Basin):
 		x,y = cu.basin_coordxy(self.structure,self.ncells)
 		xy_basin=np.vstack((x,y))	
 		#Interpola con idw 		
-		meanRain = models.rain_idw(xy_basin,coord,reg,p,ruta,self.ncells,
+		meanRain,posIds = models.rain_idw(xy_basin,coord,reg,p,ruta,umbral,self.ncells,
 			coord.shape[1],reg.shape[1])
 		#Guarda un archivo con informacion de la lluvia 
 		f=open(ruta[:-3]+'hdr','w')
@@ -1077,13 +1081,15 @@ class SimuBasin(Basin):
 		f.write('Numero de laderas: %d \n' % self.nhills)
 		f.write('Numero de registros: %d \n' % reg.shape[1])
 		f.write('Tipo de interpolacion: IDW, p= %.2f \n' % p)
-		f.write('Record, Fecha \n')
+		f.write('IDfecha, Record, Fecha \n')
 		if isPandas:
 			dates=registers.index.to_pydatetime()
-			for c,d in enumerate(dates):
-				f.write('%d, %s \n' % (c,d.strftime('%Y-%m-%d-%H:%M')))
+			c = 0
+			for d,pos in zip(dates,posIds):
+				f.write('%d, \t %d, %s \n' % (c,pos,d.strftime('%Y-%m-%d-%H:%M')))
+				c+=1
 		f.close()
-		return meanRain
+		return meanRain,posIds
 	
 	def rain_radar2basin(self):
 		return 1

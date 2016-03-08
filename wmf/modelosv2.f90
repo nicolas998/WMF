@@ -213,8 +213,8 @@ subroutine shia_v1(ruta,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				vflux(i+1)=min(vflux(i),vspeed(i+1,celda)) ![mm]
 				StoOut(i+1,celda)=StoOut(i+1,celda)+vflux(i)-vflux(i+1) ![mm]
 			enddo
-			StoOut(2,celda)=StoOut(2,celda)+max(0.0, StoOut(3,celda)&
-				&+vflux(3)-vflux(4)-H(2,celda)) ![mm]
+			!StoOut(2,celda)=StoOut(2,celda)+max(0.0, StoOut(3,celda)&
+			!	&+vflux(3)-vflux(4)-H(2,celda)) ![mm]
 			salidas=salidas+vflux(4) ![mm]
 			
 			!Calcula el flujo que sale de los tanques 2 a 4
@@ -447,29 +447,52 @@ subroutine rain_mit(xy_basin,coord,rain,tin,tin_perte,nceldas,ncoord,&
 		call write_float_basin(ruta,campo,tiempo,nceldas,1)
 	enddo
 end subroutine 
-subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,ruta,meanRain)
+subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,ruta,umbral,&
+	& meanRain, posIds)
 	!Variables de entrada
 	integer, intent(in) :: nceldas,ncoord,nreg
 	character*255, intent(in) :: ruta
-	real, intent(in) :: xy_basin(2,nceldas),coord(2,ncoord),rain(ncoord,nreg),pp
+	real, intent(in) :: xy_basin(2,nceldas),coord(2,ncoord),rain(ncoord,nreg),pp,umbral
 	!Variables de salida
 	real, intent(out) :: meanRain(nreg)
+	integer, intent(out) :: posIds(nreg)
 	!Variables locales 
-	integer tiempo, celda, i
-	real W(ncoord,nceldas),Wr,campo(nceldas)
+	integer tiempo, celda, i, cont
+	real W(ncoord,nceldas),Wr,campo(nceldas),valor
+	!Guarda un campo vacio que va a ser el usado en 
+	!los casos en que no tenga valores de lluvia sobre toda la cuenca
+	campo = 0.0
+	call write_float_basin(ruta,campo,1,nceldas,1)
 	!Calcula el peso 
 	do i=1,ncoord
-		W(i,:)=1.0/(sqrt(((coord(1,:)-xy_basin(1,:))**2+(coord(2,:)-xy_basin(2,:))**2)))**pp
+		W(i,:)=1.0/(sqrt(((coord(1,i)-xy_basin(1,:))**2+(coord(2,i)-xy_basin(2,:))**2)))**pp
     end do
 	!Itera para todos los tiempos para todas las celdas 
+	cont = 2
 	do tiempo=1,nreg
+		!Interpola para el intervalo de tiempo
 		do celda=1,nceldas
 			Wr=sum(W(:,celda)*rain(:,tiempo),mask=rain(:,tiempo).gt.0.0)
-			campo(celda)=max(Wr/sum(W(:,celda),mask=rain(:,tiempo).ge.0.0),0.0)				
+			valor = max(Wr/sum(W(:,celda),mask=rain(:,tiempo).ge.0.0),0.0)				
+			if (valor .eq. valor-1) then
+				campo(celda) = 0.0
+			else
+				campo(celda) = valor
+			endif
 		enddo
-		meanRain(tiempo) = sum(campo)/count(campo .gt. 0)
-		!Guarda el campo interpolado para el tiempo		
-		call write_float_basin(ruta,campo,tiempo,nceldas,1)
+		!Si el campo tiene algun valor diferente de cero lo mete en la media 
+		!Y tambien lo guarda.
+		if (sum(campo) .gt. umbral .and. count(campo .gt. umbral) .gt. 0) then
+			!Obtiene la media
+			meanRain(tiempo) = sum(campo)/count(campo .gt. 0)
+			!Guarda el campo interpolado para el tiempo		
+			call write_float_basin(ruta,campo,cont,nceldas,1)
+			posIds(tiempo) = cont
+			cont = cont+1			
+		else
+			meanRain(tiempo) = 0.0
+			posIds(tiempo) = 1
+		endif
 	enddo
 end subroutine 
 
