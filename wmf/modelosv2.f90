@@ -194,10 +194,15 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		StoAtras = sum(StoOut)
 		
 		!Lee la lluvia 
-		call read_int_basin(ruta_bin, posEvento(tiempo),&
-			& N_cel, RainInt, Res) 
+		if (posEvento(tiempo) .eq. 1) then
+			Rain = 0.0
+		else
+			call read_int_basin(ruta_bin, posEvento(tiempo),&
+				& N_cel, RainInt, Res) 
+			Rain = RainInt / 1000.0
+		endif
 		rain_sum = 0.0
-		Rain = RainInt / 1000.0
+		
 		
 		!Iter around the cells or hills
 		do celda=1,N_cel
