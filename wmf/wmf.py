@@ -10,7 +10,11 @@ from scipy.stats import norm
 import os
 import pandas as pd
 import datetime as datetime
-import netcdf
+try:
+	import netcdf
+except:
+	print 'No netcdf en esta maquina, se desabilita la funcion SimuBasin.save_SimuBasin'
+	pass
 
 #-----------------------------------------------------------------------
 #Lectura de informacion y mapas 
@@ -1080,13 +1084,14 @@ class SimuBasin(Basin):
 		f.write('Numero de celdas: %d \n' % self.ncells)
 		f.write('Numero de laderas: %d \n' % self.nhills)
 		f.write('Numero de registros: %d \n' % reg.shape[1])
+		f.write('Numero de campos no cero: %d \n' % posIds.max())
 		f.write('Tipo de interpolacion: IDW, p= %.2f \n' % p)
-		f.write('IDfecha, Record, Fecha \n')
+		f.write('IDfecha, Record, Lluvia, Fecha \n')
 		if isPandas:
 			dates=registers.index.to_pydatetime()
-			c = 0
-			for d,pos in zip(dates,posIds):
-				f.write('%d, \t %d, %s \n' % (c,pos,d.strftime('%Y-%m-%d-%H:%M')))
+			c = 1
+			for d,pos,m in zip(dates,posIds,meanRain):
+				f.write('%d, \t %d, \t %.2f, %s \n' % (c,pos,m,d.strftime('%Y-%m-%d-%H:%M')))
 				c+=1
 		f.close()
 		return meanRain,posIds
@@ -1454,6 +1459,16 @@ class SimuBasin(Basin):
 		'----------\n'\
 		'Qsim : Caudal simulado en los puntos de control.\n'\
 		'Hsim : Humedad simulada en los puntos de control.\n'\
+		#genera las rutas 
+		if rain_rute.endswith('.bin') is False and rain_rute.endswith('.hdr') is True:
+			rain_ruteBin = rain_rute[:-3] + 'bin'
+			rain_ruteHdr = rain_rute
+		elif rain_rute.endswith('.bin') is True and rain_rute.endswith('.hdr') is False:
+			rain_ruteBin = rain_rute
+			rain_ruteHdr = rain_rute[:-3] + 'hdr'
+		elif  rain_rute.endswith('.bin') is False and rain_rute.endswith('.hdr') is False:
+			rain_ruteBin = rain_rute[:-3] + 'bin'
+			rain_ruteHdr = rain_rute[:-3] + 'hdr'
 		# De acuerdo al tipo de modelo determina la cantidad de elementos
 		if self.modelType[0] is 'c':
 			N = self.ncells
@@ -1472,7 +1487,8 @@ class SimuBasin(Basin):
 			NcontrolH = np.count_nonzero(models.control_h)
 		# Ejecuta el modelo 
 		Qsim,Qsed,Humedad,Balance,Alm = models.shia_v1(
-			rain_rute,
+			rain_ruteBin,
+			rain_ruteHdr,
 			Calibracion,
 			N,
 			NcontrolQ,

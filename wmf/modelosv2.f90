@@ -35,6 +35,7 @@ integer nceldas !Cantidad de celdas que componen la cuenca
 
 !Variables de rutas para leer y escribir informacion
 !character*500 rute_rain !Lectura de archivos de lluvia, que tengan forma de la cuenca
+integer, allocatable :: idEvento(:), posEvento(:) !Id del evento y pos al interior del binario
 character*500 rute_speed !Escritura de mapas de velocidad [N_reg,4,Nceldas]
 character*500 rute_storage !Escritura de mapas de almacenamiento [N_reg,5,Nceldas]
 
@@ -103,13 +104,13 @@ contains
 !Modelo
 !-----------------------------------------------------------------------
 
-subroutine shia_v1(ruta,calib,N_cel,N_cont,N_contH,N_reg,Q,&
+subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	& Qsed, Hum, balance, StoOut)
     
 	!Variables de entrada
     integer, intent(in) :: N_cel,N_reg,N_cont,N_contH
     real, intent(in) :: calib(10)
-    character*500, intent(in) :: ruta
+    character*500, intent(in) :: ruta_bin, ruta_hdr
     
 	!Variables de salia
     real, intent(out) :: Hum(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !Control humedad en el suelo, Control caudales 
@@ -117,6 +118,7 @@ subroutine shia_v1(ruta,calib,N_cel,N_cont,N_contH,N_reg,Q,&
      
 	!Variables de la lluvia
 	real Rain(N_cel) !Lluvia leida en el intervalo de tiempo [mm] [1,N_cel]
+	integer*2 RainInt(N_cel)
 	integer Res !Dice si se leyo bien o no la lluvia 
 	real rain_sum
 	!Variables de iteracion
@@ -142,6 +144,8 @@ subroutine shia_v1(ruta,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	real Area_coef(nceldas) !Coeficiente para el calculo del lateral en cada celda del tanque 2 para calcuo de sedimentos
     real Vsal_sed(3) !Volumen de salida de cada fraccion de sedimentos [m3/seg]
 	
+	!Lee los vectores de estructura de guardado de la lluvia 
+	call rain_read_ascii_table(ruta_hdr,N_reg)
 	!Inicia la variable global de lluvia promedio sobre la cuenca
 	if (allocated(Mean_Rain)) deallocate(Mean_Rain)
 	allocate(Mean_Rain(1,N_reg))
@@ -190,9 +194,10 @@ subroutine shia_v1(ruta,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		StoAtras = sum(StoOut)
 		
 		!Lee la lluvia 
-		call read_float_basin(ruta, rain_first_point+tiempo-1,&
-			& N_cel, Rain, Res) 
+		call read_int_basin(ruta_bin, posEvento(tiempo),&
+			& N_cel, RainInt, Res) 
 		rain_sum = 0.0
+		Rain = RainInt / 1000.0
 		
 		!Iter around the cells or hills
 		do celda=1,N_cel
@@ -348,6 +353,23 @@ subroutine read_float_basin(ruta, record, N_cel, vect, Res)
 	close(10)
 end subroutine
 !Lee los datos flotantes de un binario de cuenca en los records ordenados
+subroutine read_int_basin(ruta, record, N_cel, vect, Res) 
+    !Variables de entrada
+    integer, intent(in) :: record, N_cel
+    character*500, intent(in) :: ruta
+    !Variables de salida
+    integer*2, intent(out) :: vect(N_cel)
+    integer, intent(out) :: Res
+    !f2py intent(in) :: record, N_cel, ruta
+    !f2py intent(out) :: vect, Res    
+    !Lectura 
+    open(10,file=ruta,form='unformatted',status='old',access='direct',&
+		& RECL=2*N_cel)
+	    read(10,rec=record,iostat=Res) vect
+	    if (Res.ne.0) print *, 'Error: Se ha tratado de leer un valor fuera del rango'
+	close(10)
+end subroutine
+!Escribe los datos flotantes de un binario de cuenca en los records ordenados
 subroutine write_float_basin(ruta,vect,record,N_cel,N_col) 
     !Variables de entrada
     integer, intent(in) :: record, N_cel, N_col
@@ -362,10 +384,64 @@ subroutine write_float_basin(ruta,vect,record,N_cel,N_col)
 		write(10,rec=record) vect
     close(10)
 end subroutine
+!Lee los datos flotantes de un binario de cuenca en los records ordenados
+subroutine write_int_basin(ruta,vect,record,N_cel,N_col) 
+    !Variables de entrada
+    integer, intent(in) :: record, N_cel, N_col
+    character*255, intent(in) :: ruta
+    integer*2, intent(in) :: vect(N_col,N_cel)
+    !Variables internas
+    character*10 estado
+    !Escritura     
+    estado='old'
+    if (record.eq.1) estado='replace'
+    open(10,file=ruta,form='unformatted',status=estado,access='direct',RECL=2*N_col*N_cel)
+		write(10,rec=record) vect
+    close(10)
+end subroutine
+
 
 !-----------------------------------------------------------------------
 !Subrutinas de interpolacion de lluvia
 !-----------------------------------------------------------------------
+!lee la tabla de informacion de la lluvia generada por las subrutinas.
+subroutine rain_read_ascii_table(ruta,Nintervals)
+	!variables de entrada 
+	character*255, intent(in) :: ruta
+	integer, intent(in) :: Nintervals
+	!Varuiables locales 
+	character*20 oe 
+	integer i,cont,Ntotal
+	!Configura variables globales de posiciones de los eventos 
+	if (allocated(idEvento)) deallocate(idEvento)
+	if (allocated(posEvento)) deallocate(posEvento)
+	allocate(idEvento(Nintervals),posEvento(Nintervals))
+	!Abre el archivo 
+	open(unit = 10,file = ruta,status='old',action='read')
+		!lee la cantidad de intervalos de evento y aloja las variables 
+		do i = 1,3
+			read(10,*) oe, oe, oe, Ntotal			
+		enddo		
+		read(10,*)
+		read(10,*)
+		!Solo lee si se cumple la condicion 
+		if (Nintervals + rain_first_point .le. Ntotal) then
+			!Salta lo necesario de acuerdo a rain_first_point		
+			if (rain_first_point .gt. 1) then 
+				do i = 1,rain_first_point
+					read(10,*)
+				enddo
+			endif
+			!Lee los ids de los eventos y las posiciones 		
+			cont = 1			
+			do i = 1,Nintervals
+				read(10,*) idEvento(cont), posEvento(cont), oe
+				cont = cont+1
+			enddo			
+		endif
+	close(10)
+end subroutine
+
 subroutine rain_pre_mit(tin_perte,xy_basin,TIN,coord,nceldas,ntin,ncoord) 
     !Variables de entrada
     integer, intent(in) :: ntin,nceldas,TIN(3,ntin),ncoord
@@ -459,6 +535,7 @@ subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,ruta,umbral,&
 	!Variables locales 
 	integer tiempo, celda, i, cont
 	real W(ncoord,nceldas),Wr,campo(nceldas),valor
+	integer*2 campoInt(nceldas)
 	!Guarda un campo vacio que va a ser el usado en 
 	!los casos en que no tenga valores de lluvia sobre toda la cuenca
 	campo = 0.0
@@ -486,7 +563,8 @@ subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,ruta,umbral,&
 			!Obtiene la media
 			meanRain(tiempo) = sum(campo)/count(campo .gt. 0)
 			!Guarda el campo interpolado para el tiempo		
-			call write_float_basin(ruta,campo,cont,nceldas,1)
+			campoInt = campo*1000
+			call write_int_basin(ruta,campoInt,cont,nceldas,1)
 			posIds(tiempo) = cont
 			cont = cont+1			
 		else
