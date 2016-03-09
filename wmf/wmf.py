@@ -11,10 +11,13 @@ import os
 import pandas as pd
 import datetime as datetime
 try:
-	import netcdf
+	import netcdf as netcdf
 except:
-	print 'No netcdf en esta maquina, se desabilita la funcion SimuBasin.save_SimuBasin'
-	pass
+	try:
+		import netCDF4 as netcdf
+	except:
+		print 'No netcdf en esta maquina, se desabilita la funcion SimuBasin.save_SimuBasin'
+		pass
 
 #-----------------------------------------------------------------------
 #Lectura de informacion y mapas 
@@ -956,12 +959,27 @@ class SimuBasin(Basin):
 		self.hills = gr.variables['hills'][:]
 		self.hills_own = gr.variables['hills_own'][:]
 		#obtiene las propieades del modelo 
-		models.h_coef = gr.variables['h_coef'][:]
-		models.v_coef = gr.variables['v_coef'][:]
-		models.h_exp = gr.variables['h_exp'][:]
-		models.v_exp = gr.variables['v_exp'][:]
+		models.h_coef = np.ones((4,N)) * gr.variables['h_coef'][:]
+		models.v_coef = np.ones((4,N)) * gr.variables['v_coef'][:]
+		models.h_exp = np.ones((4,N)) * gr.variables['h_exp'][:]
+		models.v_exp = np.ones((4,N)) * gr.variables['v_exp'][:]
 		models.max_capilar = np.ones((1,N)) * gr.variables['h1_max'][:]
 		models.max_gravita = np.ones((1,N)) * gr.variables['h3_max'][:]
+		
+		if self.modelType[0] is 'c':			
+			models.drena = np.ones((3,N)) *gr.variables['drena'][:]
+		elif self.modelType[0] is 'h':
+			models.drena = np.ones((1,N)) * gr.variables['drena'][:]			
+		models.unit_type = np.ones((1,N)) * gr.variables['unit_type'][:]
+		models.hill_long = np.ones((1,N)) * gr.variables['hill_long'][:]
+		models.hill_slope = np.ones((1,N)) * gr.variables['hill_slope'][:]
+		models.stream_long = np.ones((1,N)) * gr.variables['stream_long'][:]
+		models.stream_slope = np.ones((1,N)) * gr.variables['stream_slope'][:]
+		models.stream_width = np.ones((1,N)) * gr.variables['stream_width'][:]
+		models.elem_area = np.ones((1,N)) * gr.variables['elem_area'][:]
+		models.speed_type = np.ones((3)) * gr.variables['speed_type'][:]
+		models.storage = np.ones((5,N)) * gr.variables['storage'][:]
+		
 		#propiedades de puntos de control
 		models.control = np.ones((1,N)) * gr.variables['control'][:]
 		models.control_h = np.ones((1,N)) * gr.variables['control_h'][:]
@@ -1371,9 +1389,9 @@ class SimuBasin(Basin):
 		'----------\n'\
 		'self : Con las variables iniciadas.\n'\
 		#Guarda la cuenca
-		if self.modelType is 'cells':
+		if self.modelType[0] is 'c':
 			N = self.ncells
-		elif self.modelType is 'hills':
+		elif self.modelType[0] is 'h':
 			N = self.nhills
 		#Determina las rutas
 		if ruta_dem is None:
@@ -1394,6 +1412,7 @@ class SimuBasin(Basin):
 		DimCol3 = gr.createDimension('col3',3)
 		DimCol2 = gr.createDimension('col2',2)
 		DimCol4 = gr.createDimension('col4',4)
+		DimCol5 = gr.createDimension('col5',5)		
 		#Crea variables
 		VarStruc = gr.createVariable('structure','i4',('col3','ncell'),zlib=True)
 		VarHills = gr.createVariable('hills','i4',('col2','nhills'),zlib=True)
@@ -1406,6 +1425,20 @@ class SimuBasin(Basin):
 		Var_H3max = gr.createVariable('h3_max','f4',('Nelem',),zlib = True)
 		Control = gr.createVariable('control','i4',('Nelem',),zlib = True)
 		ControlH = gr.createVariable('control_h','i4',('Nelem',),zlib = True)
+		if self.modelType[0] is 'c':
+			drena = gr.createVariable('drena','i4',('col3','Nelem'),zlib = True)
+		elif self.modelType[0] is 'h':
+			drena = gr.createVariable('drena','i4',('Nelem'),zlib = True)
+		unitType = gr.createVariable('unit_type','i4',('Nelem',),zlib = True)
+		hill_long = gr.createVariable('hill_long','f4',('Nelem',),zlib = True)
+		hill_slope = gr.createVariable('hill_slope','f4',('Nelem',),zlib = True)
+		stream_long = gr.createVariable('stream_long','f4',('Nelem',),zlib = True)
+		stream_slope = gr.createVariable('stream_slope','f4',('Nelem',),zlib = True)
+		stream_width = gr.createVariable('stream_width','f4',('Nelem',),zlib = True)
+		elem_area = gr.createVariable('elem_area','f4',('Nelem',),zlib = True)
+		speed_type = gr.createVariable('speed_type','i4',('col3',),zlib = True)
+		storage = gr.createVariable('storage','i4',('col5','Nelem'),zlib = True)
+		
 		#Asigna valores a las variables
 		VarStruc[:] = self.structure
 		VarHills[:] = self.hills
@@ -1418,6 +1451,18 @@ class SimuBasin(Basin):
 		Var_H3max[:] = models.max_gravita
 		Control[:] = models.control
 		ControlH[:] = models.control_h
+		
+		drena[:] = models.drena
+		unitType[:] = models.unit_type
+		hill_long[:] = models.hill_long
+		hill_slope[:] = models.hill_slope
+		stream_long[:] = models.stream_long
+		stream_slope[:] = models.stream_slope
+		stream_width[:] = models.stream_width
+		elem_area[:] = models.elem_area
+		speed_type[:] = models.speed_type
+		storage[:] = models.storage
+		
 		#asigna las prop a la cuenca 
 		gr.setncatts(Dict)
 		#Cierra el archivo 
