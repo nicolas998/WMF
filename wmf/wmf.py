@@ -64,37 +64,39 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None):
 	else:
 		return Mapa.T,[ncols,nrows,xll,yll,dx,noData]
 
-def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],
-	c1=5.54,k=0.5,fhi=0.95,Omega=0.13,pend=None,area=None,
-	):
-	'Funcion: OCG_param\n'\
-	'Descripcion: Calcula los parametros de la onda cinematica.\n'\
-	'geomorfologica (Velez, 2001).\n'\
-	'Parametros Opcionales:.\n'\
-	'	-isDEMorDIR: Pasa las propiedades de los mapas al modulo cuencas \n'\
-	'		escrito en fortran \n'\
-	'Retorno:.\n'\
-	'	Parametros: B, w1, w2 y w3.\n'\
-	'		si se entregan los mapas de pend, aacum entrega h_coef(4,:) .\n' \
-	'		se asume que w1 corresponde a h_exp(4,:) .\n' \
-	#Calcula los parametros de la ecuacion de onda cinematica 
-	B = Omega*(c1*k**(alfa[0]-alfa[1]))**((2.0/3.0)-alfa[1])
-	eB=1.0/(1+alfa[1]*((2/3.0)-sigma[1]))
-	w1=((2/3.0)-sigma[1])*(1.0-alfa[1])*eB
-	w2=(1+alfa[1]*((2/3.0)-sigma[1]))/(fhi*((2/3.0)-sigma[1])*(alfa[0]-alfa[1])+sigma[0])
-	w2=(fhi*(0.667-sigma[1])*(alfa[1]-alfa[0])+sigma[0])*eB
-	w3=(0.5-sigma[2])*eB
-	B=B**(-eB)
-	if pend<>None and area<>None:
-		var = B*(pend**w2)*(area**w3)
-		return var,w1
-	else:
-		return B,w1,w2,w3		
+def read_map_points(ruta_map, ListAtr = None):
+    #Obtiene el acceso
+    dr = osgeo.ogr.Open(ruta_map)
+    l = dr.GetLayer()
+    #Lee las coordenadas
+    Cord = []
+    for i in range(l.GetFeatureCount()):
+        f = l.GetFeature(i)
+        g = f.GetGeometryRef()
+        pt = [g.GetX(),g.GetY()]
+        Cord.append(pt)
+    Cord = np.array(Cord).T
+    #Si hay atributos para buscar los lee y los m
+    if ListAtr is not None:
+        Dict = {}
+        for j in ListAtr:
+            #Busca si el atributo esta
+            pos = f.GetFieldIndex(j)
+            #Si esta lee la info del atributo
+            if pos is not -1:
+                vals = []
+                for i in range(l.GetFeatureCount()):
+                    f = l.GetFeature(i)
+                    vals.append(f.GetField(pos))
+                Dict.update({j:np.array(vals)})
+        #Cierra el mapa 
+        dr.Destroy()
+        return Cord, Dict
+    else:
+        #Cierra el mapa 
+        dr.Destroy()
+        return Cord
 
-def PotCritica(S,D,te = 0.056):
-    ti = te * (D*1600*9.8)
-    return ti *(8.2* (((ti/(1000*9.8*S))/D)**(1.0/6.0)) * np.sqrt(ti/1000.0))/9800.0
-	
 def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
 	DriverFormat='ESRI Shapefile'):
 	'Funcion: Save_Points2Map\n'\
@@ -174,6 +176,41 @@ def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
 		point.Destroy()
 		feature.Destroy()
 	shapeData.Destroy()	
+
+
+#-----------------------------------------------------------------------
+#Ecuaciones Que son de utilidad
+#-----------------------------------------------------------------------
+def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],
+	c1=5.54,k=0.5,fhi=0.95,Omega=0.13,pend=None,area=None,
+	):
+	'Funcion: OCG_param\n'\
+	'Descripcion: Calcula los parametros de la onda cinematica.\n'\
+	'geomorfologica (Velez, 2001).\n'\
+	'Parametros Opcionales:.\n'\
+	'	-isDEMorDIR: Pasa las propiedades de los mapas al modulo cuencas \n'\
+	'		escrito en fortran \n'\
+	'Retorno:.\n'\
+	'	Parametros: B, w1, w2 y w3.\n'\
+	'		si se entregan los mapas de pend, aacum entrega h_coef(4,:) .\n' \
+	'		se asume que w1 corresponde a h_exp(4,:) .\n' \
+	#Calcula los parametros de la ecuacion de onda cinematica 
+	B = Omega*(c1*k**(alfa[0]-alfa[1]))**((2.0/3.0)-alfa[1])
+	eB=1.0/(1+alfa[1]*((2/3.0)-sigma[1]))
+	w1=((2/3.0)-sigma[1])*(1.0-alfa[1])*eB
+	w2=(1+alfa[1]*((2/3.0)-sigma[1]))/(fhi*((2/3.0)-sigma[1])*(alfa[0]-alfa[1])+sigma[0])
+	w2=(fhi*(0.667-sigma[1])*(alfa[1]-alfa[0])+sigma[0])*eB
+	w3=(0.5-sigma[2])*eB
+	B=B**(-eB)
+	if pend<>None and area<>None:
+		var = B*(pend**w2)*(area**w3)
+		return var,w1
+	else:
+		return B,w1,w2,w3		
+
+def PotCritica(S,D,te = 0.056):
+    ti = te * (D*1600*9.8)
+    return ti *(8.2* (((ti/(1000*9.8*S))/D)**(1.0/6.0)) * np.sqrt(ti/1000.0))/9800.0
 
 #-----------------------------------------------------------------------
 #Clase de cuencas
