@@ -1639,26 +1639,50 @@ subroutine basin_qofer_qcap(basin_f,q_oferta,q_cap,qres,escazes,nceldas) !Resta 
     !Acumula caudal una ves retirado el caudal captado
     qres=q_oferta
     do i=1,nceldas
-	if (q_cap(i).gt.0) then
-	    drenaid=nceldas-basin_f(1,i)+1
-	    do while (drenaid.le.nceldas)
-		qres(drenaid)=qres(drenaid)-q_cap(i)
-		drenaid=nceldas-basin_f(1,drenaid)+1
-	    enddo
-	endif
+		if (q_cap(i).gt.0) then
+		    drenaid=nceldas-basin_f(1,i)+1
+		    do while (drenaid.le.nceldas)
+				qres(drenaid)=qres(drenaid)-q_cap(i)
+				drenaid=nceldas-basin_f(1,drenaid)+1
+		    enddo
+		endif
     enddo
     !Calcula el indice de escazes
     escazes=0
     do i=1,nceldas
-	if (q_cap(i).gt.0) then
-	    escazes(i)=100*(q_cap(i)/qres(i))
-	    drenaid=nceldas-basin_f(1,i)+1
-	    do while (drenaid.le.nceldas .and. q_cap(drenaid).eq.0.0)
-		escazes(drenaid)=100*(q_cap(i)/qres(drenaid))
-		drenaid=nceldas-basin_f(1,drenaid)+1
-	    enddo
-	endif
+		if (q_cap(i).gt.0) then
+		    escazes(i)=100*(q_cap(i)/qres(i))
+		    drenaid=nceldas-basin_f(1,i)+1
+		    do while (drenaid.le.nceldas .and. q_cap(drenaid).eq.0.0)
+				escazes(drenaid)=100*(q_cap(i)/qres(drenaid))
+				drenaid=nceldas-basin_f(1,drenaid)+1
+		    enddo
+		endif
     enddo
+end subroutine
+!Funciones de acumulacion de flujo 
+subroutine basin_propagate(basin_f,var,var_prop,nceldas)
+	!Variables de entrada
+	integer, intent(in) :: nceldas
+	integer, intent(in) :: basin_f(3,nceldas)
+	real, intent(in) :: var(nceldas)
+	!Variables de salida 
+	real, intent(out) :: var_prop(nceldas)
+	!f2py intent(in) :: nceldas, basin_f, var
+	!f2py intent(out) :: var_prop
+	!Variables locales 
+	integer i,drenaid
+	!Transito de la variable aguas abajo
+	var_prop = var
+	do i=1,nceldas
+		!propaga si hay algo que propagar
+		if (var_prop(i).gt.0) then 
+			drenaid=nceldas-basin_f(1,i)+1
+			if (drenaid .le. nceldas) then 
+				var_prop(drenaid) = var_prop(drenaid) + var_prop(i)
+			endif
+		endif
+	enddo
 end subroutine
 !funciones de sub-cuencas (nodos y laderas)
 subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,nodos_fin,n_nodos) !obtiene vectores: celdas cauce, nodos hidrologicos, puntos de trazado
