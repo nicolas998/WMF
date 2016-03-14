@@ -459,10 +459,10 @@ class Basin:
 		#Genera el mapa de basin vacio
 		CellMap = np.ones(self.ncells)
 		#itera por la cantidad de elementos y les va asignando
-		for i,k in enumerate(HillsMap):
+		for i,k in enumerate(HillsMap[::-1]):
 			CellMap[self.hills_own==i+1] = k
 		return CellMap
-	def Transform_Basin2Hills(self,CellMap,mask=None):
+	def Transform_Basin2Hills(self,CellMap,mask=None,sumORmean=0):
 		'Descripcion: A partir de un vector tipo Basin obtiene un\n'\
 		'	vector del tipo laderas, en donde las propiedades se \n'\
 		'	agregan para cada ladera. \n'\
@@ -471,6 +471,10 @@ class Basin:
 		'----------\n'\
 		'self : la cuenca misma.\n'\
 		'CellMap : Vector con las propiedades por celdas [ncells].\n'\
+		'mask : Celdas sobre las cuales se agrega la variable (1), y\n'\
+		'	sobre las que no (0).\n'\
+		'sumORmean : si la variable sera agregada como un promedio (0)\n'\
+		'	o como una suma (1).\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -486,7 +490,7 @@ class Basin:
 			Ma = np.ones(self.ncells)
 		#Pasa el mapa de celdas a mapa de laderas		
 		HillsMap = cu.basin_subbasin_map2subbasin(self.hills_own,
-			CellMap, self.nhills, self.ncells, Ma)
+			CellMap, self.nhills, sumORmean, self.ncells, Ma)
 		return HillsMap
 	#------------------------------------------------------
 	# Trabajo con datos puntuales puntos 
@@ -745,11 +749,11 @@ class Basin:
 			feature.SetField('Long[km]',(net[1,i+1:j].size*dx)/1000.0)
 			feature.SetField('Horton',int(net[0,i+1]))
 			if qmed<>None:	
-				feature.SetField('Qmed[m3s]',float(netQmed[0,j-1]))
+				feature.SetField('Qmed[m3s]',float(netQmed[0,i+1]))
 			if Dict<>None:
 				if type(Dict==dict):
 					for n,k in zip(netDict,Dict.keys()):					
-						feature.SetField(k[:10],float(n[0,j-1]))
+						feature.SetField(k[:10],float(n[0,i+1]))
 			#featureFID+=1
 			layer.CreateFeature(feature)
 			line.Destroy()
@@ -854,7 +858,7 @@ class SimuBasin(Basin):
 	
 	def __init__(self,lat,lon,DEM,DIR,name='NaN',stream=None,umbral=500,
 		noData=-999,modelType='cells',SimSed='no',SimSlides='no',dt=60,
-		SaveStorage='no',SaveSpeed='no',rute = None):
+		SaveStorage='no',SaveSpeed='no',rute = None, retorno = 0):
 		'Descripcion: Inicia un objeto para simulacion \n'\
 		'	el objeto tiene las propieades de una cuenca con. \n'\
 		'	la diferencia de que inicia las variables requeridas. \n'\
@@ -886,6 +890,8 @@ class SimuBasin(Basin):
 		'rute : por defecto es None, si se coloca la ruta, el programa no.\n'\
 		'	hace una cuenca, si no que trata de leer una en el lugar especificado.\n'\
 		'	Ojo: la cuenca debio ser guardada con la funcion: Save_SimuBasin().\n'\
+		'retorno : (defecto = 0), si es cero no se considera alm maximo en .\n'\
+		'	el tanque 3, si es 1, si se considera.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -933,6 +939,7 @@ class SimuBasin(Basin):
 			models.max_gravita = np.ones((1,N))
 			models.storage = np.zeros((5,N))
 			models.dt = dt
+			models.retorno = 0
 			#Define los puntos de control		
 			models.control = np.zeros((1,N))
 			models.control_h = np.zeros((1,N))
@@ -974,6 +981,7 @@ class SimuBasin(Basin):
 		self.ncells = gr.ncells
 		self.nhills = gr.nhills
 		models.dt = gr.dt
+		models.retorno = gr.retorno
 		#Asigna dem y DIr a partir de la ruta 
 		try:
 			DEM = read_map_raster(gr.DEM,True,gr.dxp)
@@ -1132,8 +1140,12 @@ class SimuBasin(Basin):
 		x,y = cu.basin_coordxy(self.structure,self.ncells)
 		xy_basin=np.vstack((x,y))	
 		#Interpola con idw 		
-		meanRain,posIds = models.rain_idw(xy_basin,coord,reg,p,ruta,umbral,self.ncells,
-			coord.shape[1],reg.shape[1])
+		if self.modelType[0] is 'h':	
+			meanRain,posIds = models.rain_idw(xy_basin, coord, reg, p, self.nhills,
+				ruta, umbral, self.hills_own, self.ncells, coord.shape[1],reg.shape[1])
+		elif self.modelType[0] is 'c':
+			meanRain,posIds = models.rain_idw(xy_basin, coord, reg, p, self.nhills,
+				ruta, umbral, np.ones(self.ncells), self.ncells, coord.shape[1],reg.shape[1])
 		#Guarda un archivo con informacion de la lluvia 
 		f=open(ruta[:-3]+'hdr','w')
 		f.write('Numero de celdas: %d \n' % self.ncells)
@@ -1439,7 +1451,7 @@ class SimuBasin(Basin):
 			'DIR':ruta_dir,
 		    'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
 		    'ncells':self.ncells,'nhills':self.nhills,
-		    'dt':models.dt,'Nelem':N,'dxp':cu.dxp}
+		    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno}
 		#abre el archivo 
 		gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
 		#Establece tamano de las variables 
