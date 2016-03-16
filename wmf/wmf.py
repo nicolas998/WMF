@@ -177,7 +177,34 @@ def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
 		feature.Destroy()
 	shapeData.Destroy()	
 
-
+def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
+	'Funcion: OCG_param\n'\
+	'Descripcion: Obtiene una lista con los nombres para leer datos de radar.\n'\
+	'Parametros:.\n'\
+	'	-FechaI, FechaF: Fechas inicial y final en formato datetime.\n'\
+	'	-fmt : Formato en el que se pasa FechaI a texto, debe couincidir con.\n'\
+	'		el del texto que se tenga en los archivos.\n'\
+	'	-exten : Extension de los archivos .asc, .nc, .bin ...\n'\
+	'	-string : texto antes de la fecha.\n'\
+	'	-dt : Intervalos de tiempo entre los eventos.\n'\
+	'Retorno:.\n'\
+	'	Lista : la lista de python con los nombres de los binarios.\n'\
+	#Crea lista de fechas y mira que archivos estan en esas fechas
+	Dates=[FechaI]; date=FechaI
+	while date<FechaF:
+		date+=datetime.timedelta(minutes=dt)
+		Dates.append(date)
+	#Mira que archivos estan en esas fechas
+	Lista=[]; L=os.listdir(ruta)
+	for i in Dates:
+		try:
+			stringB=string+i.strftime(fmt)+exten 
+			Pos=L.index(stringB)
+			Lista.append(L[Pos])
+		except: 
+			pass
+	return Lista,Dates
+	
 #-----------------------------------------------------------------------
 #Ecuaciones Que son de utilidad
 #-----------------------------------------------------------------------
@@ -1163,8 +1190,63 @@ class SimuBasin(Basin):
 		f.close()
 		return meanRain,posIds
 	
-	def rain_radar2basin(self):
-		return 1
+	def rain_radar2basin(self,ruta_in,ruta_out,fechaI,fechaF,dt,
+		pre_string,post_string,fmt = '%Y%m%d%H%M',conv_factor=1.0/12.0,
+		umbral = 0.0):			
+		#Edita la ruta de salida 
+		if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
+			ruta_bin = ruta_out[:-3]+'.bin'
+			ruta_hdr = ruta_out[:-3]+'.hdr'
+		else:
+			ruta_bin = ruta_out+'.bin'
+			ruta_hdr = ruta_out+'.hdr'
+		#Establece la cantidad de elementos de acuerdo al tipo de cuenca
+		if self.modelType[0] is 'c':
+			N = self.ncells
+		elif self.modelType[0] is 'h':
+			N = self.nhills
+		#Guarda la primera entrada como un mapa de ceros		
+		models.write_int_basin(ruta_bin,np.zeros((1,N)),1,N,1)
+		#Genera la lista de las fechas.
+		ListDates,dates = __ListaRadarNames__(ruta_in,
+			fechaI,fechaF,
+			fmt,post_string,pre_string,dt)
+		#Lee los mapas y los transforma 
+		cont = 1
+		meanRain = []
+		posIds = []
+		for l in ListDates:
+			Map,p = read_map_raster(ruta_in + l)
+			vec = self.Transform_Map2Basin(Map,p) * conv_factor
+			#Si el mapa tiene mas agua de un umbral 
+			if vec.sum() > umbral:
+				#Actualiza contador, lluvia media y pocisiones 
+				cont +=1
+				meanRain.append(vec.mean())
+				posIds.append(cont)
+				#Guarda el vector 
+				vec = vec*1000; vec = vec.astype(int)
+				models.write_int_basin(ruta_bin,np.zeros((1,N))+vec,cont,N,1)
+			else:
+				#lluvia media y pocisiones 
+				meanRain.append(0.0)
+				posIds.append(1)
+		posIds = np.array(posIds)
+		meanRain = np.array(meanRain)
+		#Guarda un archivo con informacion de la lluvia 
+		f=open(ruta_hdr[:-3]+'hdr','w')
+		f.write('Numero de celdas: %d \n' % self.ncells)
+		f.write('Numero de laderas: %d \n' % self.nhills)
+		f.write('Numero de registros: %d \n' % meanRain.shape[0])
+		f.write('Numero de campos no cero: %d \n' % posIds.max())
+		f.write('Tipo de interpolacion: radar \n')
+		f.write('IDfecha, Record, Lluvia, Fecha \n')
+		c = 1
+		for d,pos,m in zip(dates,posIds,meanRain):
+			f.write('%d, \t %d, \t %.2f, %s \n' % (c,pos,m,d.strftime('%Y-%m-%d-%H:%M')))
+			c+=1
+		f.close()
+		return np.array(meanRain),np.array(posIds)
 		
 	#------------------------------------------------------
 	# Subrutinas para preparar modelo 

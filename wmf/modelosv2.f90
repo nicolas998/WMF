@@ -17,10 +17,12 @@
 module models
 
 !La lluvia es controlada por el modulo lluvia.
-!use lluvia
+
+
 
 !Todas las variables tienen que ser definidas dentro del modulo
 implicit none
+
 
 !-----------------------------------------------------------------------
 !Variableses globales para la modelacion
@@ -55,6 +57,7 @@ real, allocatable :: h_coef(:,:) !Coeficientes de velocidades horizontales [L] [
 real, allocatable :: h_exp(:,:)  !Exponentes de velocidades horizontales, aplica en casos no lineales
 real, allocatable :: Max_capilar(:,:) !Maximo almacenamiento capilar [L] [1,Nceldas]
 real, allocatable :: Max_gravita(:,:) !Maximo almacenamiento gravitacional [L] [1,Nceldas]
+real retorno !Si es cero no se tiene en cuenta el retorno, si es 1 si.
 
 !Variables de control y configuracion del modelo 
 real dt !Delta del tiempo de modelacion
@@ -118,7 +121,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
      
 	!Variables de la lluvia
 	real Rain(N_cel) !Lluvia leida en el intervalo de tiempo [mm] [1,N_cel]
-	integer*2 RainInt(N_cel)
+	integer RainInt(N_cel)
 	integer Res !Dice si se leyo bien o no la lluvia 
 	real rain_sum
 	!Variables de iteracion
@@ -133,6 +136,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	!Variables de almacenamiento en tanques, flujo vertical y flujo horizontal
 	real vflux(4) !Flujo vertical [mm]
 	real hflux(4) !Flujo horizontal [mm]
+	real Ret !Retorno del tanque 3 al 2 [mm]
 	real Evp_loss !Salida por evaporcion del sistema [mm]
 	!Variables de velocidad vertical y horizontal
 	real vspeed(4,N_cel) !Velocidad vertical [cm/h]
@@ -217,15 +221,19 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 			StoOut(1,celda)=StoOut(1,celda)+Rain(celda)-vflux(1) ![mm]
 			Evp_loss=min(vspeed(1,celda)*(StoOut(1,celda)/H(1,celda))**0.6,&
 				&StoOut(1,celda)) ![mm]
-			StoOut(1,celda)=StoOut(1,celda)-Evp_loss ![mm]
-			!salidas=salidas+Evp_loss ![mm]
+			StoOut(1,celda)=StoOut(1,celda)-Evp_loss ![mm]			
 			do i=1,3
 				vflux(i+1)=min(vflux(i),vspeed(i+1,celda)) ![mm]
 				StoOut(i+1,celda)=StoOut(i+1,celda)+vflux(i)-vflux(i+1) ![mm]
 			enddo
-			!StoOut(2,celda)=StoOut(2,celda)+max(0.0, StoOut(3,celda)&
-			!	&+vflux(3)-vflux(4)-H(2,celda)) ![mm]
-			salidas=salidas+vflux(4) ![mm]
+			!Flujo de retorno del tanque 3 al tanque 2.
+			if (retorno .gt. 0) then
+				Ret = max(0.0 , StoOut(3,celda)+vflux(3)-vflux(4)-H(2,celda))
+				StoOut(2,celda) = StoOut(2,celda) + Ret ![mm]
+				StoOut(3,celda) = StoOut(3,celda) - Ret ![mm]
+			endif
+			!Actualiza la salida del balance por evaporacion y perdidas
+			salidas=salidas+vflux(4)+Evp_loss ![mm]			
 			
 			!Calcula el flujo que sale de los tanques 2 a 4
 			do i=1,3
@@ -245,7 +253,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				StoOut(i+1,celda)=StoOut(i+1,celda)-hflux(i)	
 			enddo	
 				
-!			!Envia los flujos que salieron de acuerdo al tipo de celda 
+			!Envia los flujos que salieron de acuerdo al tipo de celda 
 			if (unit_type(1,celda).eq.1) then
 				if (drena(1,celda).ne.0) then
 					StoOut(2:4,drenaid)=StoOut(2:4,drenaid)+hflux(1:3)
@@ -328,7 +336,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		endif
 		
 		!Actualiza balance 
-		balance(tiempo) = entradas-salidas-sum(StoOut)+StoAtras
+		balance(tiempo) = sum(StoOut)-StoAtras - entradas + salidas
 		entradas = 0
 		salidas = 0
 		
@@ -363,13 +371,13 @@ subroutine read_int_basin(ruta, record, N_cel, vect, Res)
     integer, intent(in) :: record, N_cel
     character*500, intent(in) :: ruta
     !Variables de salida
-    integer*2, intent(out) :: vect(N_cel)
+    integer, intent(out) :: vect(N_cel)
     integer, intent(out) :: Res
     !f2py intent(in) :: record, N_cel, ruta
     !f2py intent(out) :: vect, Res    
     !Lectura 
     open(10,file=ruta,form='unformatted',status='old',access='direct',&
-		& RECL=2*N_cel)
+		& RECL=4*N_cel)
 	    read(10,rec=record,iostat=Res) vect
 	    if (Res.ne.0) print *, 'Error: Se ha tratado de leer un valor fuera del rango'
 	close(10)
@@ -394,13 +402,13 @@ subroutine write_int_basin(ruta,vect,record,N_cel,N_col)
     !Variables de entrada
     integer, intent(in) :: record, N_cel, N_col
     character*255, intent(in) :: ruta
-    integer*2, intent(in) :: vect(N_col,N_cel)
+    integer, intent(in) :: vect(N_col,N_cel)
     !Variables internas
     character*10 estado
     !Escritura     
     estado='old'
     if (record.eq.1) estado='replace'
-    open(10,file=ruta,form='unformatted',status=estado,access='direct',RECL=2*N_col*N_cel)
+    open(10,file=ruta,form='unformatted',status=estado,access='direct',RECL=4*N_col*N_cel)
 		write(10,rec=record) vect
     close(10)
 end subroutine
@@ -427,6 +435,7 @@ subroutine rain_read_ascii_table(ruta,Nintervals)
 		do i = 1,3
 			read(10,*) oe, oe, oe, Ntotal			
 		enddo		
+		read(10,*)
 		read(10,*)
 		read(10,*)
 		!Solo lee si se cumple la condicion 
@@ -528,23 +537,40 @@ subroutine rain_mit(xy_basin,coord,rain,tin,tin_perte,nceldas,ncoord,&
 		call write_float_basin(ruta,campo,tiempo,nceldas,1)
 	enddo
 end subroutine 
-subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,ruta,umbral,&
-	& meanRain, posIds)
+subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,nhills,ruta,umbral,&
+	& meanRain, posIds,maskVector)	
 	!Variables de entrada
-	integer, intent(in) :: nceldas,ncoord,nreg
+	integer, intent(in) :: nceldas,ncoord,nreg,nhills
+	integer, intent(in) :: maskVector(nceldas)
 	character*255, intent(in) :: ruta
 	real, intent(in) :: xy_basin(2,nceldas),coord(2,ncoord),rain(ncoord,nreg),pp,umbral
 	!Variables de salida
 	real, intent(out) :: meanRain(nreg)
 	integer, intent(out) :: posIds(nreg)
 	!Variables locales 
-	integer tiempo, celda, i, cont
-	real W(ncoord,nceldas),Wr,campo(nceldas),valor
-	integer*2 campoInt(nceldas)
+	integer tiempo, celda, i, cont, celdas_hills
+	real W(ncoord,nceldas),Wr,campo(nceldas),valor,campoHill(nhills)
+	integer campoInt(nceldas),campoIntHill(nhills),mascara(nceldas)
+	!Mira si la cuenca es celdas o laderas 
+	if (sum(maskVector) .eq. nceldas) then
+		celdas_hills = 1 !celdas
+	else
+		celdas_hills = 2 !laderas
+	endif
 	!Guarda un campo vacio que va a ser el usado en 
 	!los casos en que no tenga valores de lluvia sobre toda la cuenca
-	campo = 0.0
-	call write_float_basin(ruta,campo,1,nceldas,1)
+	campoInt = 0
+	mascara = 1
+	if (celdas_hills .eq. 2) then
+		!Si es por laderas guarda la primera entrada como ceros		
+		call basin_subbasin_map2subbasin(maskVector,campo,campoHill,&
+			&nhills,nceldas,mascara,celdas_hills)
+		campoIntHill = campoHill
+		call write_int_basin(ruta,campoIntHill,1,nhills,1)
+	elseif (celdas_hills .eq. 1) then
+		!Si es por celdas guarda la primera como nceldas de ceros
+		call write_int_basin(ruta,campoInt,1,nceldas,1)
+	endif
 	!Calcula el peso 
 	do i=1,ncoord
 		W(i,:)=1.0/(sqrt(((coord(1,i)-xy_basin(1,:))**2+(coord(2,i)-xy_basin(2,:))**2)))**pp
@@ -566,10 +592,20 @@ subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,ruta,umbral,&
 		!Y tambien lo guarda.
 		if (sum(campo) .gt. umbral .and. count(campo .gt. umbral) .gt. 0) then
 			!Obtiene la media
-			meanRain(tiempo) = sum(campo)/count(campo .gt. 0)
+			meanRain(tiempo) = sum(campo)/count(campo .gt. 0)			
 			!Guarda el campo interpolado para el tiempo		
-			campoInt = campo*1000
-			call write_int_basin(ruta,campoInt,cont,nceldas,1)
+			if (celdas_hills .eq. 1) then 
+				!Caso de celdas 
+				campoInt = campo*1000
+				call write_int_basin(ruta,campoInt,cont,nceldas,1)
+			elseif (celdas_hills .eq. 2) then 
+				!Caso de laderas
+				call basin_subbasin_map2subbasin(maskVector,campo,campoHill,&
+				&nhills,nceldas,mascara,celdas_hills)
+				campoIntHill = campoHill*1000
+				call write_int_basin(ruta,campoIntHill,cont,nhills,1)
+			endif
+			!Actualiza el conteo de la posicion de los campos
 			posIds(tiempo) = cont
 			cont = cont+1			
 		else
@@ -880,5 +916,47 @@ subroutine slide_hill2gullie(cell) !Cuando una celda se vuelve en carcava asegur
 		enddo
 	endif
 end subroutine 
+
+!-----------------------------------------------------------------------
+!Subrutinas de cuencas
+!-----------------------------------------------------------------------
+subroutine basin_subbasin_map2subbasin(sub_pert,basin_var,subbasin_sum,&
+	&n_nodos,nceldas,cauce,sum_mean) !Agrega una variable de la cuenca a laderas
+	!Varialbes de entrada
+	integer, intent(in) :: n_nodos,nceldas,sum_mean
+	integer, intent(in) :: sub_pert(nceldas)
+	real, intent(in) :: basin_var(nceldas)
+	integer, intent(in), optional :: cauce(nceldas)
+	!Variables de salida
+	real, intent(out) :: subbasin_sum(n_nodos)
+	!f2py intent(in) n_nodos,nceldas,sub_pert,basin_var,sum_mean
+	!f2py intent(out) :: subbasin_var 
+	!Variables locales
+	integer i,posi,cont_valores 
+	real suma_valores
+	!Localiza 
+	do i=1,n_nodos
+		posi=n_nodos-i+1
+		!Cambia las condiciones de acuerdo a si esta o no el cauce 
+		if (present(cauce)) then 
+			suma_valores=sum(basin_var,&
+				&MASK=sub_pert.eq.posi.and.cauce.eq.1)
+			cont_valores=count(sub_pert.eq.posi.and.cauce.eq.1)
+		else
+			suma_valores=sum(basin_var,MASK=sub_pert.eq.posi)
+			cont_valores=count(sub_pert.eq.posi)
+		endif
+		if (cont_valores .gt. 0.0) then
+			if (sum_mean .eq. 1) then
+				subbasin_sum(i)=suma_valores/cont_valores
+			elseif (sum_mean .eq. 2) then 
+				subbasin_sum(i) = suma_valores
+			endif
+		else
+			subbasin_sum(i)=0.0
+		endif
+	enddo
+end subroutine
+
 
 end module
