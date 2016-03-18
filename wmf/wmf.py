@@ -1,7 +1,7 @@
 from cu import *
 from models import *
 import numpy as np
-#from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid, cm
+from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid, cm
 import pylab as pl
 import osgeo.ogr, osgeo.osr
 import gdal
@@ -196,14 +196,16 @@ def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
 		Dates.append(date)
 	#Mira que archivos estan en esas fechas
 	Lista=[]; L=os.listdir(ruta)
+	DatesFin = []
 	for i in Dates:
 		try:
 			stringB=string+i.strftime(fmt)+exten 
 			Pos=L.index(stringB)
 			Lista.append(L[Pos])
+			DatesFin.append(i)
 		except: 
 			pass
-	return Lista,Dates
+	return Lista,DatesFin
 	
 #-----------------------------------------------------------------------
 #Ecuaciones Que son de utilidad
@@ -841,44 +843,82 @@ class Basin:
 	#------------------------------------------------------
 	# Graficas de la cuenca
 	#------------------------------------------------------
-	def Plot_basin_fast(self,vec,Min=None,
+	def Plot_basin(self,vec=None,Min=None,
 		Max=None,ruta=None,mostrar='si',barra='si',figsize=(10,8),
-		ZeroAsNaN = 'no'):
-	    #Plotea en la terminal como mapa un vector de la cuenca
-	    'Funcion: write_proyect_int_ext\n'\
-	    'Descripcion: Genera un plot del mapa entrgeado.\n'\
-	    'del mismo en forma de mapa \n'\
-	    'Parametros Obligatorios:.\n'\
-	    '	-basin: Vector con la forma de la cuenca.\n'\
-	    '	-vec: Vector con los valores a plotear.\n'\
-	    'Parametros Opcionales:.\n'\
-	    '	-Min: Valor minimo del plot, determina el rango de colores.\n'\
-	    '	-Max: Valor maximo del plot, determina el rango de colores.\n'\
-	    '	-ruta: Ruta en la cual se guarda la grafica.\n'\
-	    '	-mostrar: Muestra o no la grafica, defecto: si.\n'\
-	    '	-barra: Muestra o no la barra de colores, defecto: si.\n'\
-	    '	-figsize: tamano de la ventana donde se muestra la cuenca.\n'\
-	    '	-ZeroAsNaN: Convierte los valores de cero en NaN.\n'\
-	    'Retorno:.\n'\
-	    '	Actualizacion del binario .int\n'\
-	    #Delimita el mapa
-	    Mcols,Mrows=cu.basin_2map_find(self.structure,self.ncells)
-	    m,mxll,myll=cu.basin_2map(self.structure,vec,Mcols,Mrows,
-			self.ncells)
-	    m[m==cu.nodata]=np.nan
-	    if ZeroAsNaN is 'si': m[m==0.0] = np.nan
-	    #Genera la figura 
-	    fig = pl.figure(figsize = figsize)
-	    if Min<>None and Max<>None:
-			pl.imshow(m.T,norm=LogNorm(vmin=Min,vmax=Max))
-	    else:
-			pl.imshow(m.T)
-	    if barra=='si':
-			pl.colorbar()
-	    if ruta<>None and type(ruta)==str:
-			pl.savefig(ruta,bbox_inches='tight')
-	    if mostrar=='si':
-			pl.show()
+		ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
+		xy=None,xycolor='b',colorTable=None,alpha=1.0):
+		#Plotea en la terminal como mapa un vector de la cuenca
+		'Funcion: write_proyect_int_ext\n'\
+		'Descripcion: Genera un plot del mapa entrgeado.\n'\
+		'del mismo en forma de mapa \n'\
+		'Parametros Obligatorios:.\n'\
+		'	-basin: Vector con la forma de la cuenca.\n'\
+		'	-vec: Vector con los valores a plotear.\n'\
+		'Parametros Opcionales:.\n'\
+		'	-Min: Valor minimo del plot, determina el rango de colores.\n'\
+		'	-Max: Valor maximo del plot, determina el rango de colores.\n'\
+		'	-ruta: Ruta en la cual se guarda la grafica.\n'\
+		'	-mostrar: Muestra o no la grafica, defecto: si.\n'\
+		'	-barra: Muestra o no la barra de colores, defecto: si.\n'\
+		'	-figsize: tamano de la ventana donde se muestra la cuenca.\n'\
+		'	-ZeroAsNaN: Convierte los valores de cero en NaN.\n'\
+		'Retorno:.\n'\
+		'	Actualizacion del binario .int\n'\
+		#Plot en basemap
+		Mcols,Mrows=cu.basin_2map_find(self.structure,self.ncells)
+		Map,mxll,myll=cu.basin_2map(self.structure,self.structure[0]
+			,Mcols,Mrows,self.ncells)
+		longs=np.array([mxll+0.5*cu.dx+i*cu.dx for i in range(Mcols)])
+		lats=np.array([myll+0.5*cu.dx+i*cu.dx for i in range(Mrows)])
+		X,Y=np.meshgrid(longs,lats)
+		Y=Y[::-1]
+		fig=pl.figure(figsize=figsize)		
+		m = Basemap(projection='merc',
+			llcrnrlat=lats.min()-extra_lat,
+			urcrnrlat=lats.max()+extra_lat,
+			llcrnrlon=longs.min()-extra_long,
+			urcrnrlon=longs.max()+extra_long,
+			resolution='c')
+		m.drawparallels(np.arange(lats.min(),
+			lats.max(),lines_spaces),
+			labels=[1,0,0,0],
+			fmt="%.2f",
+			rotation='vertical',
+			xoffset=0.1)
+		m.drawmeridians(np.arange(longs.min(),
+			longs.max(),lines_spaces),
+			labels=[0,0,1,0], 
+			fmt="%.2f",
+			yoffset=0.1)
+		Xm,Ym=m(X,Y)
+	    #Plotea el contorno de la cuenca y la red 
+		nperim = cu.basin_perim_find(self.structure,self.ncells)
+		perim = cu.basin_perim_cut(nperim)	
+		xp,yp=m(perim[0],perim[1])  
+		m.plot(xp, yp, color='r',lw=2)
+	    #Si hay una variable la monta
+		if vec<>None:
+			MapVec,mxll,myll=cu.basin_2map(self.structure,vec,Mcols,Mrows,
+				self.ncells)
+			MapVec[MapVec==cu.nodata]=np.nan
+			if ZeroAsNaN is 'si':
+				MapVec[MapVec == 0] = np.nan
+			if colorTable<>None:
+				cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,cmap=colorTable)
+			else:
+				cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha)
+			cbar = m.colorbar(cs,location='bottom',pad="5%")	
+		#Si hay coordenadas de algo las plotea
+		if xy<>None:
+			xc,yc=m(xy[0],xy[1])
+			m.scatter(xc,yc,color=xycolor,
+				s=30,
+				linewidth=0.5,
+				edgecolor='black')
+		#Guarda
+		if ruta<>None:
+			pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
+		pl.show()
 		
 
 class SimuBasin(Basin):

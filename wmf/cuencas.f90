@@ -1903,15 +1903,15 @@ subroutine basin_subbasin_long(sub_pert,cauce,long,sub_basin,sub_horton,sub_basi
 	enddo
 end subroutine
 subroutine basin_subbasin_map2subbasin(sub_pert,basin_var,subbasin_sum,&
-	&n_nodos,nceldas,cauce) !Agrega una variable de la cuenca a laderas
+	&n_nodos,nceldas,cauce,sum_mean) !Agrega una variable de la cuenca a laderas
 	!Varialbes de entrada
-	integer, intent(in) :: n_nodos,nceldas
+	integer, intent(in) :: n_nodos,nceldas,sum_mean
 	integer, intent(in) :: sub_pert(nceldas)
 	real, intent(in) :: basin_var(nceldas)
 	integer, intent(in), optional :: cauce(nceldas)
 	!Variables de salida
 	real, intent(out) :: subbasin_sum(n_nodos)
-	!f2py intent(in) n_nodos,nceldas,sub_pert,basin_var
+	!f2py intent(in) n_nodos,nceldas,sub_pert,basin_var,sum_mean
 	!f2py intent(out) :: subbasin_var 
 	!Variables locales
 	integer i,posi,cont_valores 
@@ -1929,7 +1929,11 @@ subroutine basin_subbasin_map2subbasin(sub_pert,basin_var,subbasin_sum,&
 			cont_valores=count(sub_pert.eq.posi)
 		endif
 		if (cont_valores .gt. 0.0) then
-			subbasin_sum(i)=suma_valores/cont_valores
+			if (sum_mean .eq. 0) then
+				subbasin_sum(i)=suma_valores/cont_valores
+			elseif (sum_mean .eq. 1) then 
+				subbasin_sum(i) = suma_valores
+			endif
 		else
 			subbasin_sum(i)=0.0
 		endif
