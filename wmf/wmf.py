@@ -18,6 +18,50 @@ except:
 	except:
 		print 'No netcdf en esta maquina, se desabilita la funcion SimuBasin.save_SimuBasin'
 		pass
+#-----------------------------------------------------------------------
+#Ploteo de variables
+#-----------------------------------------------------------------------
+def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
+	figsize=(8,4.5),ids=None,legend=True,
+	ylabel='Stream $[m^3/seg]$'):
+	fig=pl.figure(facecolor='w',edgecolor='w',figsize=figsize)
+	ax1=fig.add_subplot(111)
+	#Fechas
+	if Dates==None:
+		if len(Qs.shape)>1:
+			ejeX=range(len(Qs[0]))
+		else:
+			ejeX = range(len(Qs))
+	else:
+		ejeX=Dates
+	#Grafica la lluvia
+	if mrain<>None:
+		ax1AX=pl.gca()
+		ax2=ax1.twinx()
+		ax2AX=pl.gca()
+		ax2.fill_between(ejeX,0,mrain,alpha=0.4,color='blue',lw=0)
+		ax2.set_ylabel('Precipitation [$mm$]',size=14)
+		ax2AX.set_ylim(ax2AX.get_ylim() [::-1])    
+	#grafica las hidrografas
+	ColorSim=['r','g','k','c','y']
+	if len(Qs.shape)>1:
+		if ids is None:
+			ids = np.arange(1,Qs.shape[0]+1)
+		for i,c,d in zip(Qs,ColorSim,ids):
+			ax1.plot(ejeX,i,c,lw=1.5,label='Simulated '+str(d))    
+	else:
+		ax1.plot(ejeX,Qs,'r',lw=1.5,label='Simulated ')    
+	if Qo<>None: ax1.plot(ejeX,Qo,'b',lw=2,label='Observed')
+	#Pone elementos en la figura
+	ax1.set_xlabel('Time [$min$]',size=14)
+	ax1.set_ylabel(ylabel,size=14)
+	ax1.grid(True)
+	if legend:
+		lgn1=ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12),
+			fancybox=True, shadow=True, ncol=4)
+	if ruta<>None:
+		pl.savefig(ruta, bbox_inches='tight')
+	pl.show()
 
 #-----------------------------------------------------------------------
 #Lectura de informacion y mapas 
@@ -206,6 +250,19 @@ def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
 		except: 
 			pass
 	return Lista,DatesFin
+
+def read_mean_rain(ruta,Nintervals=None,FirstInt=None):
+	#Abrey cierra el archivo plano
+	Data = np.loadtxt('lluvia/Mayo_18_19.hdr',skiprows=6,usecols=(2,3),delimiter=',',dtype='str')
+	Rain = np.array([float(i[0]) for i in Data])
+	Dates = [datetime.datetime.strptime(i[1],' %Y-%m-%d-%H:%M  ') for i in Data]
+	#Obtiene el pedazo
+	if Nintervals is not None or FirstInt is not None:
+		Dates = Dates[FirstInt:FirstInt+Nintervals]
+		Rain = Rain[FirstInt:FirstInt+Nintervals]
+	#Regresa el resultado de la funcion
+	return pd.Series(Rain,index = pd.to_datetime(Dates))
+	
 	
 #-----------------------------------------------------------------------
 #Ecuaciones Que son de utilidad
@@ -846,7 +903,8 @@ class Basin:
 	def Plot_basin(self,vec=None,Min=None,
 		Max=None,ruta=None,mostrar='si',barra='si',figsize=(10,8),
 		ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
-		xy=None,xycolor='b',colorTable=None,alpha=1.0):
+		xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
+		colorbar=True):
 		#Plotea en la terminal como mapa un vector de la cuenca
 		'Funcion: write_proyect_int_ext\n'\
 		'Descripcion: Genera un plot del mapa entrgeado.\n'\
@@ -898,16 +956,23 @@ class Basin:
 		m.plot(xp, yp, color='r',lw=2)
 	    #Si hay una variable la monta
 		if vec<>None:
+			if vmin is None:
+				vmin = vec.min()
+			if vmax is None:
+				vmax = vec.max()
 			MapVec,mxll,myll=cu.basin_2map(self.structure,vec,Mcols,Mrows,
 				self.ncells)
 			MapVec[MapVec==cu.nodata]=np.nan
 			if ZeroAsNaN is 'si':
 				MapVec[MapVec == 0] = np.nan
 			if colorTable<>None:
-				cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,cmap=colorTable)
+				cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,cmap=colorTable,
+					vmin=vmin,vmax=vmax)
 			else:
-				cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha)
-			cbar = m.colorbar(cs,location='bottom',pad="5%")	
+				cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,
+					vmin=vmin,vmax=vmax)
+			if colorbar:
+				cbar = m.colorbar(cs,location='bottom',pad="5%")	
 		#Si hay coordenadas de algo las plotea
 		if xy<>None:
 			xc,yc=m(xy[0],xy[1])
@@ -1645,7 +1710,7 @@ class SimuBasin(Basin):
 	# Ejecucion del modelo
 	#------------------------------------------------------	
 	def run_shia(self,Calibracion,
-		rain_rute, N_intervals, start_point = 1):
+		rain_rute, N_intervals, start_point = 1, ruta_storage = None):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
 		'	variables requeridas . \n'\
@@ -1670,6 +1735,8 @@ class SimuBasin(Basin):
 		'start_point : Punto donde comienza a usar registros de lluvia.\n'\
 		'	los binarios generados por rain_* generan un archivo de texto.\n'\
 		'	que contiene fechas par aayudar a ubicar el punto de inicio deseado.\n'\
+		'ruta_storage : Ruta donde se guardan los estados del modelo en cada intervalo.\n'\
+		'	de tiempo, esta es opcional, solo se guardan si esta variable es asignada.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1701,6 +1768,11 @@ class SimuBasin(Basin):
 			NcontrolH = 1
 		else:
 			NcontrolH = np.count_nonzero(models.control_h)
+		#Prepara variables de guardado de variables 
+		if ruta_storage is not None:
+			models.save_storage = 1
+		else:
+			ruta_storage = 'no_guardo_nada.bin'
 		# Ejecuta el modelo 
 		Qsim,Qsed,Humedad,Balance,Alm = models.shia_v1(
 			rain_ruteBin,
@@ -1709,7 +1781,8 @@ class SimuBasin(Basin):
 			N,
 			NcontrolQ,
 			NcontrolH,
-			N_intervals)
+			N_intervals,
+			ruta_storage)
 		#Retorno de variables de acuerdo a lo simulado 
 		Retornos={'Qsim' : Qsim}
 		Retornos.update({'Balance' : Balance})

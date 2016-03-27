@@ -108,12 +108,13 @@ contains
 !-----------------------------------------------------------------------
 
 subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
-	& Qsed, Hum, balance, StoOut)
+	& Qsed, Hum, balance, StoOut, ruta_storage)
     
 	!Variables de entrada
     integer, intent(in) :: N_cel,N_reg,N_cont,N_contH
     real, intent(in) :: calib(10)
     character*500, intent(in) :: ruta_bin, ruta_hdr
+    character*500, intent(in), optional :: ruta_storage
     
 	!Variables de salia
     real, intent(out) :: Hum(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !Control humedad en el suelo, Control caudales 
@@ -329,10 +330,10 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		
 		!Mapas de velocidad del flujo, muestra la velocidad promedio 
 		if (save_storage .eq. 1) then
-			call write_float_basin(rute_storage,StoOut,tiempo,N_cel,5)
+			call write_float_basin(ruta_storage,StoOut,tiempo,N_cel,5)
 		endif
 		if (save_speed .eq. 1) then
-			call write_float_basin(rute_storage,hspeed,tiempo,N_cel,4)
+			call write_float_basin(rute_speed,hspeed,tiempo,N_cel,4)
 		endif
 		
 		!Actualiza balance 
