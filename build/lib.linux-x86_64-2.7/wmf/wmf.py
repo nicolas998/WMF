@@ -1527,7 +1527,7 @@ class SimuBasin(Basin):
 		'	- 0 :  alm cpailar.\n'\
 		'	- 1 :  alm superficial.\n'\
 		'	- 2 :  alm sub-superficial.\n'\
-		'	- 3 :  alm subterráneo.\n'\
+		'	- 3 :  alm subterraneo.\n'\
 		'	- 4 :  alm cauce.\n'\
 		'\n'\
 		'Retornos\n'\

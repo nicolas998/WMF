@@ -346,11 +346,15 @@ class Basin:
 		self.structure = cu.basin_cut(self.ncells)
 		self.umbral = umbral
 	#Parametros Geomorfologicos
-	def GetGeo_Parameters(self):
+	def GetGeo_Parameters(self,rutaParamASC=None,plotTc=False,
+		rutaTcPlot = None, figsize=(8,5)):
 		'Descripcion: Obtiene los parametros geomorfologicos de la cuenca \n'\
 		'	y los tiempos de concentracion calculados por diferentes metodologias. \n'\
 		'\n'\
 		'Parametros\n'\
+		'	rutaParamASC: ruta del ascii donde se escriben los param.\n'\
+		'	plotTc: Plotea o no los tiempos de concentracion.\n'\
+		'	rutaTcPlot: Si se da se guarda la figura de tiempos de concentracion.\n'\
 		'----------\n'\
 		'\n'\
 		'Retornos\n'\
@@ -413,6 +417,32 @@ class Basin:
 		Tc=0.3*(Lcau/(((HCmax-Hmin)/Lcau)*100)**0.25)**0.75
 		Tiempos.update({'Temez': Tc})
 		self.Tc=Tiempos
+		#Si se habilita la funcion para guardar el ascii de param lo hace 
+		if rutaParamASC is not None:
+			self.__WriteGeoParam__(rutaParamASC)
+		# Grafica Tc si se habilita
+		if plotTc is True:
+			self.Plot_Tc(ruta = rutaTcPlot, figsize=figsize)
+	#Funcion para escribir los parametros de la cuenca en un ascii
+	def __WriteGeoParam__(self,ruta):
+		f=open(ruta,'w')
+		f.write('------------------------------------------------------------ \n')
+		f.write('Parametros Cuenca \n')
+		f.write('------------------------------------------------------------ \n')
+		k=self.GeoParameters.keys()
+		for i in k:
+			v=self.GeoParameters[i]
+			if type(v) is not list:
+				f.write('%s : %.4f \n' % (i,v))
+		f.write('------------------------------------------------------------ \n')
+		f.write('Tiempos de concentracion \n')
+		f.write('------------------------------------------------------------ \n')
+		k=self.Tc.keys()
+		for i in k:
+			v=self.Tc[i]
+			f.write('%s : %.4f \n' % (i,v))
+		f.close()
+	
 	#Parametros por mapas (distribuidos)
 	def GetGeo_Cell_Basics(self):
 		'Descripcion: Obtiene: area acumulada, long de celdas, Pendiente \n'\
@@ -436,15 +466,16 @@ class Basin:
 		#Obtiene el canal en la cuenca 
 		self.CellCauce = np.zeros(self.ncells)
 		self.CellCauce[self.CellAcum>self.umbral]=1
-	def GetGeo_IsoChrones(self,Tc):
+	def GetGeo_IsoChrones(self,Tc,Niter=4):
 		'Descripcion: Obtiene el tiempo de viaje aproximado de cada  \n'\
 		'	celda a la salida de la cuenca, para eso usa el tiempo de . \n'\
 		'	concentracion obtenido por la funcion GetGeo_Parameters . \n'\
 		'\n'\
 		'Parametros\n'\
 		'----------\n'\
-		'self : no necesita nada es autocontenido.\n'\
-		'Tc : Valor escalar de tiempo de concentracion.\n'\
+		'	self : no necesita nada es autocontenido.\n'\
+		'	Tc : Valor escalar de tiempo de concentracion.\n'\
+		'	Niter: Cantidad de iteraciones para aproximar vel, defecto 4.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -453,7 +484,7 @@ class Basin:
 		acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
 			self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
 		rangos=[50,25,1]
-		for i in range(8):			
+		for i in range(Niter):			
 			times=[]
 			for r in rangos:
 				speed = r*S0**(0.5)
@@ -984,8 +1015,69 @@ class Basin:
 		if ruta<>None:
 			pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
 		pl.show()
+	# Grafica barras de tiempos de concentracion
+	def Plot_Tc(self,ruta=None,figsize=(8,6)):
+		keys=self.Tc.keys()
+		keys[2]=u'Carr Espana'
+		Media=np.array(self.Tc.values()).mean()
+		Desv=np.array(self.Tc.values()).std()
+		Mediana=np.percentile(self.Tc.values(),50)
+		rango=[Media-Desv,Media+Desv]
+		colores=[]
+		for t in self.Tc.values():
+			if t>rango[0] and t<rango[1]:
+				colores.append('b')
+			else:
+				colores.append('r')
+		fig=pl.figure(edgecolor='w',facecolor='w',figsize=figsize)
+		ax=fig.add_subplot(111)
+		box = ax.get_position()
+		ax.set_position([box.x0, box.y0 + box.height * 0.18,
+			box.width, box.height * 0.9])
+		ax.set_xlim(-0.4,len(keys)+1-0.8)
+		ax.bar(range(len(keys)),self.Tc.values(),color=colores)
+		ax.hlines(Media,-0.4,len(keys)+1-0.8,'k',lw=2)
+		ax.hlines(Mediana,-0.4,len(keys)+1-0.8,'r',lw=2)
+		ax.hlines(Media+Desv,-0.4,len(keys)+1-0.8,'b',lw=2)
+		Texto='%.2f' % Media
+		ax.text(len(keys)/3.0,Media+0.03,'$\\mu='+Texto+'$')
+		Texto='%.2f' % Desv
+		ax.text(len(keys)/2.0,Media+Desv+0.03,u'$\mu+\sigma='+Texto+'$')
+		Texto='%.2f' % Mediana
+		ax.text(len(keys)/2.0,Mediana+0.03,'$P_{50}='+Texto+'$')	
+		ax.set_xticks(list(np.arange(1,len(keys)+1)-0.8))
+		ax.set_xticklabels(keys,rotation=60)
+		ax.set_ylabel(u'Tiempo de concentracion $T_c[hrs]$',size=14)
+		ax.grid(True)
+		if ruta<>None:
+			pl.savefig(ruta,bbox_inches='tight')
+		pl.show()
+	#Plot de histograma de tiempos de viajes en la cuenca 
+	def Plot_Travell_Hist(self,ruta=None,Nint=10.0):
+		#comparacion histogramas de tiempos de respuestas
+		bins=np.arange(0,np.ceil(self.CellTravelTime.max()),
+			np.ceil(self.CellTravelTime.max())/Nint)
+		h_lib,b_lib=np.histogram(self.CellTravelTime,bins=bins) 
+		h_lib=h_lib.astype(float)/h_lib.sum()
+		b_lib=(b_lib[:-1]+b_lib[1:])/2.0
+		hc_lib=np.cumsum(h_lib)
+		fig=pl.figure(facecolor='w',edgecolor='w')
+		ax=fig.add_subplot(111)
+		ax.plot(b_lib,h_lib,'b',lw=2,label='Tiempos')
+		ax2=ax.twinx()
+		ax2.plot(b_lib,hc_lib,'r',lw=2)
+		ax2.set_ylim(0,1.1)
+		ax.set_xlim(0,np.ceil(self.CellTravelTime.max()))
+		ax.grid(True)
+		ax.set_xlabel('Tiempo $t [hrs]$',size=14)
+		ax.set_ylabel('$pdf[\%]$',size=14)
+		ax2.set_ylabel('$cdf[\%]$',size=14)
+		ax.set_xticks(b_lib)
+		ax.legend(loc=4)
+		if ruta<>None:
+			pl.savefig(ruta,bbox_inches='tight')
+		pl.show()
 		
-
 class SimuBasin(Basin):
 	
 	def __init__(self,lat,lon,DEM,DIR,name='NaN',stream=None,umbral=500,
