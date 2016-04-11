@@ -1,3 +1,19 @@
+#!Modelos: acoplado con cuencas presenta una serie de modelos hidrologicos distribuidos
+#!Copyright (C) <2016>  <Nicolas Velasquez Giron>
+
+#!This program is free software: you can redistribute it and/or modify
+#!it under the terms of the GNU General Public License as published by
+#!the Free Software Foundation, either version 3 of the License, or
+#!(at your option) any later version.
+
+#!This program is distributed in the hope that it will be useful,
+#!but WITHOUT ANY WARRANTY; without even the implied warranty of
+#!MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#!GNU General Public License for more details.
+
+#!You should have received a copy of the GNU General Public License
+#!along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from cu import *
 from models import *
 import numpy as np
@@ -253,7 +269,7 @@ def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
 
 def read_mean_rain(ruta,Nintervals=None,FirstInt=None):
 	#Abrey cierra el archivo plano
-	Data = np.loadtxt('lluvia/Mayo_18_19.hdr',skiprows=6,usecols=(2,3),delimiter=',',dtype='str')
+	Data = np.loadtxt(ruta,skiprows=6,usecols=(2,3),delimiter=',',dtype='str')
 	Rain = np.array([float(i[0]) for i in Data])
 	Dates = [datetime.datetime.strptime(i[1],' %Y-%m-%d-%H:%M  ') for i in Data]
 	#Obtiene el pedazo
@@ -506,6 +522,46 @@ class Basin:
 		tamano=np.array(tamano)
 		aportes=(tamano/float(self.ncells))*((self.ncells*cu.dxp**2)/1e6)	
 		self.CellTravelTime=time
+	def GetGeo_Ppal_Hipsometric(self,umbral=1000,
+		intervals = 30):
+		'Descripcion: Calcula y grafica la curva hipsometrica de\n'\
+		'	la cuenca.\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'umbral : cantidad minima de celdas para el trazado.\n'\
+		'intervals: Cantidad de intervalos en los cuales se haran .\n'\
+		'	los muestreos de la curva hipsometrica.\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'Hipso : Curva hipsometrica en formato vectorial, contiene.\n'\
+		'	- Curva sobre cauce ppal.\n'\
+		'	- Curva como histograma de la cuenca.\n'\
+		'Figura: Figura de ambas curvas.\n'\
+		# Obtiene los nodos de la red hidrica 
+		cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(
+			self.structure,
+			self.CellAcum,
+			umbral,
+			self.ncells)
+		# Obtiene el cauce ppal
+		ppal_nceldas,punto = cu.basin_ppalstream_find(
+			self.structure,
+			nodos,
+			self.CellLong,
+			self.CellHeight,
+			self.ncells)
+		self.ppal_stream = cu.basin_ppalstream_cut(ppal_nceldas,
+			self.ncells)
+		# Obtiene la curva hipsometrica 
+		self.hipso_ppal, self.hipso_basin = cu.basin_ppal_hipsometric(
+			self.structure,
+			self.CellHeight,
+			punto,
+			intervals,
+			ppal_nceldas)
+	
 	def GetGeo_HAND(self,umbral=1000):
 		'Descripcion: Calcula Height Above the Nearest Drainage (HAND) \n'\
 		'	y Horizontal Distance to the Nearest Drainage (HDND) (Renno, 2008). \n'\
@@ -782,9 +838,9 @@ class Basin:
 				k = (-1*np.sqrt(6)/np.pi)*(0.5772+np.log(-1*np.log(1/float(t))))
 			elif Dist is 'lognorm':
 				Ztr=norm.ppf(1/float(t))
-				k = (np.exp(Ztr*np.sqrt(np.log(1+Cv**2))-0.5*np.log(1-Cv**2))-1)/Cv
+				k = -1*(np.exp(Ztr*np.sqrt(np.log(1+Cv**2))-0.5*np.log(1-Cv**2))-1)/Cv
 			#Calcula el caudal maximo
-			Qmin.append(list(MedMin-k*DesMin))
+			Qmin.append(list(MedMin+k*DesMin))
 		return np.array(Qmin)
 		
 	#------------------------------------------------------
@@ -1077,12 +1133,47 @@ class Basin:
 		if ruta<>None:
 			pl.savefig(ruta,bbox_inches='tight')
 		pl.show()
-		
+	#Plot de curva hipsometrica 
+	def Plot_Hipsometric(self,ruta=None,ventana=10,normed=False,
+		figsize = (8,6)):
+		#Suaviza la elevacion en el cuace ppal
+		elevPpal=pd.Series(self.hipso_ppal[1])
+		elevBasin=self.hipso_basin[1]
+		if normed==True:
+			elevPpal=elevPpal-elevPpal.min()
+			elevPpal=(elevPpal/elevPpal.max())*100.0
+			elevBasin=elevBasin-elevBasin.min()
+			elevBasin=(elevBasin/elevBasin.max())*100.0
+		elevPpal=pd.rolling_mean(elevPpal,ventana)
+		ppal_acum=(self.hipso_ppal[0]/self.hipso_ppal[0,-1])*100
+		basin_acum=(self.hipso_basin[0]/self.hipso_basin[0,0])*100
+		#Genera el plot
+		fig=pl.figure(edgecolor='w',facecolor='w',figsize = figsize)
+		ax=fig.add_subplot(111)
+		box = ax.get_position()
+		ax.set_position([box.x0, box.y0 + box.height * 0.1,
+			box.width, box.height * 0.9])
+		ax.plot(ppal_acum,elevPpal,c='b',lw=2,label='Cacuce Principal')
+		ax.plot(basin_acum,elevBasin,c='r',lw=2,label='Cuenca')
+		ax.grid()
+		ax.set_xlabel('Porcentaje Area Acumulada $[\%]$',size=14)
+		if normed==False:
+			ax.set_ylabel('Elevacion $[m.s.n.m]$',size=14)
+		elif normed==True:
+			ax.set_ylabel('Elevacion $[\%]$',size=14)
+		lgn1=ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12),
+			fancybox=True, shadow=True, ncol=2)
+		if ruta<>None:
+			pl.savefig(ruta, bbox_inches='tight')
+			pl.close('all')
+		else:
+			pl.show()
 class SimuBasin(Basin):
 	
 	def __init__(self,lat,lon,DEM,DIR,name='NaN',stream=None,umbral=500,
 		noData=-999,modelType='cells',SimSed='no',SimSlides='no',dt=60,
-		SaveStorage='no',SaveSpeed='no',rute = None, retorno = 0):
+		SaveStorage='no',SaveSpeed='no',rute = None, retorno = 0,
+		SeparateFluxes = 'no'):
 		'Descripcion: Inicia un objeto para simulacion \n'\
 		'	el objeto tiene las propieades de una cuenca con. \n'\
 		'	la diferencia de que inicia las variables requeridas. \n'\
@@ -1116,6 +1207,7 @@ class SimuBasin(Basin):
 		'	Ojo: la cuenca debio ser guardada con la funcion: Save_SimuBasin().\n'\
 		'retorno : (defecto = 0), si es cero no se considera alm maximo en .\n'\
 		'	el tanque 3, si es 1, si se considera.\n'\
+		'SeparateFluxes : Separa el flujo en base, sub-superficial y escorrentia.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1180,6 +1272,9 @@ class SimuBasin(Basin):
 			models.save_speed=0
 			if SaveSpeed is 'si':
 				models.save_speed=1
+			models.separate_fluxes = 0
+			if SeparateFluxes is 'si':
+				models.separate_fluxes = 1
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
 			self.__Load_SimuBasin(rute)
@@ -1866,7 +1961,7 @@ class SimuBasin(Basin):
 		else:
 			ruta_storage = 'no_guardo_nada.bin'
 		# Ejecuta el modelo 
-		Qsim,Qsed,Humedad,Balance,Alm = models.shia_v1(
+		Qsim,Qsed,Qseparated,Humedad,Balance,Alm = models.shia_v1(
 			rain_ruteBin,
 			rain_ruteHdr,
 			Calibracion,
@@ -1881,8 +1976,10 @@ class SimuBasin(Basin):
 		Retornos.update({'Storage' : Alm})
 		if np.count_nonzero(models.control_h)>0:
 			Retornos.update({'Humedad' : Humedad})
-		if models.sim_sediments is 1:
+		if models.sim_sediments == 1:
 			Retornos.update({'Sediments' : Qsed})
+		if models.separate_fluxes == 1:
+			Retornos.update({'Fluxes' : Qseparated})
 		return Retornos
 		
 class Stream:
