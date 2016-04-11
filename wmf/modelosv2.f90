@@ -269,7 +269,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 					case(2)	
 						call calc_speed(StoOut(i+1,celda)*m3_mmHill(celda), h_coef(i,celda),&
 							& h_exp(i,celda), hill_long(1,celda), hspeed(i,celda), section_area)
-						hflux(i)=min(section_area*hspeed(i,celda)*dt/m3_mmHill(celda),&
+						hflux(i)=min(Calib(i+4)*section_area*hspeed(i,celda)*dt/m3_mmHill(celda),&
 							& StoOut(i+1,celda))![mm]
 				end select
 				!Actualiza el almacenamiento
