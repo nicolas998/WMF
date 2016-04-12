@@ -325,7 +325,7 @@ class Basin:
 	#------------------------------------------------------
 	#Inicia la cuenca
 	def __init__(self,lat,lon,DEM,DIR,name='NaN',stream=None,
-		umbral=1000):
+		umbral=1000, ruta = None):
 		'Descripcion: Inicia la variable de la cuenca, y la traza \n'\
 		'	obtiene las propiedades basicas de la cuenca. \n'\
 		'\n'\
@@ -340,27 +340,102 @@ class Basin:
 		'	en el punto mas cercano dentro de la corriente, este.\n'\
 		'	debe ser un objeto del tipo stream.\n'\
 		'umbral : umbral minimo para la creacion de cauce (defecto =1000).\n'\
+		'ruta : Ruta donde se encuentra un archivo binario de la cuenca.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
 		'self : Con las variables iniciadas.\n'\
 		#Si se entrega cauce corrige coordenadas
-		if stream<>None:
-			error=[]
-			for i in stream.structure.T:
-				error.append( np.sqrt((lat-i[0])**2+(lon-i[1])**2) )
-			loc=np.argmin(error)
-			lat=stream.structure[0,loc]
-			lon=stream.structure[1,loc]
-		#copia la direccion de los mapas de DEM y DIR, para no llamarlos mas
-		self.name=name
-		self.DEM=DEM
-		self.DIR=DIR
-		#Traza la cuenca 
-		self.ncells = cu.basin_find(lat,lon,DIR,
-			cu.ncols,cu.nrows)
-		self.structure = cu.basin_cut(self.ncells)
-		self.umbral = umbral
+		if ruta == None:
+			if stream<>None:
+				error=[]
+				for i in stream.structure.T:
+					error.append( np.sqrt((lat-i[0])**2+(lon-i[1])**2) )
+				loc=np.argmin(error)
+				lat=stream.structure[0,loc]
+				lon=stream.structure[1,loc]
+			#copia la direccion de los mapas de DEM y DIR, para no llamarlos mas
+			self.name=name
+			self.DEM=DEM
+			self.DIR=DIR
+			#Traza la cuenca 
+			self.ncells = cu.basin_find(lat,lon,DIR,
+				cu.ncols,cu.nrows)
+			self.structure = cu.basin_cut(self.ncells)
+			self.umbral = umbral
+		else:
+			self.__Load_BasinNc(ruta)
+	#Cargador de cuenca 
+	def __Load_BasinNc(self,ruta):
+		'Descripcion: Lee una cuenca posteriormente guardada\n'\
+		'	La cuenca debio ser guardada con Basin.Save_Basin2nc\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'self : Inicia las variables vacias.\n'\
+		'ruta : ruta donde se encuentra ubicada la cuenca guardada\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'self : La cuenca con sus parametros ya cargada.\n'\
+		#Abre el archivo binario de la cuenca 
+		gr = netcdf.Dataset(ruta,'a')
+		#obtiene las prop de la cuenca
+		self.name = gr.nombre
+		self.ncells = gr.ncells
+		self.umbral = gr.umbral
+		#Obtiene las prop de los mapas 
+		cu.ncols=gr.ncols
+		cu.nrows=gr.nrows
+		cu.nodata=gr.noData
+		cu.dx=gr.dx
+		cu.xll=gr.xll
+		cu.yll=gr.yll
+		cu.dxp=gr.dxp
+		#Obtiene las variables vectoriales 
+		self.structure = gr.variables['structure'][:]
+		#Cierra el archivo 
+		gr.close()
+
+	#Guardado de de la cuenca en nc 
+	def Save_Basin2nc(self,ruta):
+		'Descripcion: guarda una cuenca previamente ejecutada\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'ruta : Ruta donde la cuenca sera guardada.\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'self : Con las variables iniciadas.\n'\
+		#Diccionario con las propiedades 
+		Dict = {'nombre':self.name,
+			'noData':cu.nodata,
+			'ncells':self.ncells,
+			'umbral':self.umbral,
+			'dxp':cu.dxp,
+			'dx':cu.dx,
+			'xll':cu.xll,
+			'yll':cu.yll,
+			'ncols':cu.ncols,
+			'nrows':cu.nrows}
+		#abre el archivo 
+		gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
+		#Establece tamano de las variables 
+		DimNcell = gr.createDimension('ncell',self.ncells)
+		DimCol3 = gr.createDimension('col3',3)
+		#Crea variables
+		VarStruc = gr.createVariable('structure','i4',('col3','ncell'),zlib=True)
+		VarQmed = gr.createVariable('q_med','f4',('ncell',),zlib=True)
+		VarQ233 = gr.createVariable('q_233','f4',('ncell',),zlib=True)
+		VarQ5 = gr.createVariable('q_5','f4',('ncell',),zlib=True)
+		#Asigna valores a las variables
+		VarStruc[:] = self.structure
+		#asigna las prop a la cuenca 
+		gr.setncatts(Dict)
+		#Cierra el archivo 
+		gr.close()
+		#Sale del programa
+		return 
 	#Parametros Geomorfologicos
 	def GetGeo_Parameters(self,rutaParamASC=None,plotTc=False,
 		rutaTcPlot = None, figsize=(8,5)):
