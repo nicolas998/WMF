@@ -345,6 +345,9 @@ class Basin:
 		'Retornos\n'\
 		'----------\n'\
 		'self : Con las variables iniciadas.\n'\
+		#Relaciona con el DEM y el DIR
+		self.DEM=DEM
+		self.DIR=DIR
 		#Si se entrega cauce corrige coordenadas
 		if ruta == None:
 			if stream<>None:
@@ -356,8 +359,6 @@ class Basin:
 				lon=stream.structure[1,loc]
 			#copia la direccion de los mapas de DEM y DIR, para no llamarlos mas
 			self.name=name
-			self.DEM=DEM
-			self.DIR=DIR
 			#Traza la cuenca 
 			self.ncells = cu.basin_find(lat,lon,DIR,
 				cu.ncols,cu.nrows)
@@ -366,7 +367,7 @@ class Basin:
 		else:
 			self.__Load_BasinNc(ruta)
 	#Cargador de cuenca 
-	def __Load_BasinNc(self,ruta):
+	def __Load_BasinNc(self,ruta,Var2Search=None):
 		'Descripcion: Lee una cuenca posteriormente guardada\n'\
 		'	La cuenca debio ser guardada con Basin.Save_Basin2nc\n'\
 		'\n'\
@@ -397,12 +398,18 @@ class Basin:
 		gr.close()
 
 	#Guardado de de la cuenca en nc 
-	def Save_Basin2nc(self,ruta):
+	def Save_Basin2nc(self,ruta,qmed=None,q233=None,q5=None,
+		ExtraVar=None):
 		'Descripcion: guarda una cuenca previamente ejecutada\n'\
 		'\n'\
 		'Parametros\n'\
 		'----------\n'\
 		'ruta : Ruta donde la cuenca sera guardada.\n'\
+		'qmed : Matriz con caudal medio estimado.\n'\
+		'q233 : Matriz con caudal minimo de 2.33.\n'\
+		'q5 : Matriz con caudal minimo de 5.\n'\
+		'ExtraVar: Diccionario con variables extras que se quieran guardar,.\n'\
+		'	se guardan como flotantes.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -428,9 +435,20 @@ class Basin:
 		VarQmed = gr.createVariable('q_med','f4',('ncell',),zlib=True)
 		VarQ233 = gr.createVariable('q_233','f4',('ncell',),zlib=True)
 		VarQ5 = gr.createVariable('q_5','f4',('ncell',),zlib=True)
+		#Variables opcionales 
+		if type(ExtraVar) is dict:
+			for k in ExtraVar.keys():
+				Var = gr.createVariable(k,'f4',('ncell',),zlib=True)
+				Var[:] = ExtraVar[k]
 		#Asigna valores a las variables
 		VarStruc[:] = self.structure
-		#asigna las prop a la cuenca 
+		if qmed is not None:
+			VarQmed[:] = qmed
+		if q233 is not None:
+			VarQ233[:] = q233
+		if q5 is not None:
+			VarQ5[:] = q5
+		#asignlas prop a la cuenca 
 		gr.setncatts(Dict)
 		#Cierra el archivo 
 		gr.close()
@@ -488,7 +506,8 @@ class Basin:
 			'Hmin [m]':Hmin,
 			'Hmean [m]':Hmean,
 			'H Cauce Max [m]':HCmax,
-			'Centro XY': CentXY}
+			'Centro [X]': CentXY[0],
+			'Centro [Y]': CentXY[1]}
 		#Calcula los tiempos de concentracion
 		Tiempos={}
 		Tc=0.3*(Lcau/(Scue**0.25))**0.75
