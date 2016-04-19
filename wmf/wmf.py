@@ -851,7 +851,7 @@ class Basin:
 			precip = Precipitation
 		#Calcula el qmed
 		self.CellQmed,self.CellETR = cu.basin_qmed(
-			self.CellAcum,
+			self.structure,
 			self.CellHeight,
 			precip,			
 			Tipo_ETR,

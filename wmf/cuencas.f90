@@ -623,12 +623,12 @@ subroutine basin_acum(basin_f,nceldas,acum) !calcula: acumulada
     !Calcula Longitudes, acum y pendiente
     acum=1
     do i=1,nceldas
-	!Determina la celda a la que se drena
-	drenaid=nceldas-basin_f(1,i)+1
-	!Calcula el area acumulada
-	if (basin_f(1,i).ne.0) then
-	    acum(drenaid)=acum(drenaid)+acum(i)			    
-	endif	
+		!Determina la celda a la que se drena
+		drenaid=nceldas-basin_f(1,i)+1
+		!Calcula el area acumulada
+		if (basin_f(1,i).ne.0) then
+		    acum(drenaid)=acum(drenaid)+acum(i)			    
+		endif	
     end do
     !Calcula escalares genericos de la cuenca
     area=nceldas*dxp**2/1e6 
@@ -1097,23 +1097,23 @@ subroutine basin_map2basin(basin_f,nceldas,Mapa,xllM,yllM,ncolsM,nrowsM,dxM,noDa
     vec=noDataM
     cont=0
     do i=1,nceldas
-	!Calcula la pos de la celda
-	Xpos=xll+dx*(basin_f(2,i)-0.5)
-	Ypos=yll+dx*((nrows-basin_f(3,i))+0.5)
-	!Evalua si la posicion esta por dentro del mapa
-	if (Xpos.gt.xllM.and.Xpos.lt.(xllM+dxM*ncolsM).and.Ypos.gt.yllM.and.Ypos.lt.(yllM+nrowsM*dxM)) then
-	    !si esta por dentro le asigna la columna equivalente
-	    columna=ceiling((Xpos-xllM)/dxM)
-	    fila=ceiling((Ypos-yllM)/dxM)
-	    fila=nrowsM-fila+1
-	    vec(i)=Mapa(columna,fila)
-	    !Si esta adentro pero es un valor no data hace una de las dos opciones
-	    if (vec(i).eq.noDataM) then
-		if (opcion=='fill_mean') then !llena con la media de los valores del mapa
-		    vec(i)=mediaMapa
+		!Calcula la pos de la celda
+		Xpos=xll+dx*(basin_f(2,i)-0.5)
+		Ypos=yll+dx*((nrows-basin_f(3,i))+0.5)
+		!Evalua si la posicion esta por dentro del mapa
+		if (Xpos.gt.xllM.and.Xpos.lt.(xllM+dxM*ncolsM).and.Ypos.gt.yllM.and.Ypos.lt.(yllM+nrowsM*dxM)) then
+		    !si esta por dentro le asigna la columna equivalente
+		    columna=ceiling((Xpos-xllM)/dxM)
+		    fila=ceiling((Ypos-yllM)/dxM)
+		    fila=nrowsM-fila+1
+		    vec(i)=Mapa(columna,fila)
+		    !Si esta adentro pero es un valor no data hace una de las dos opciones
+		    if (vec(i).eq.noDataM) then
+				!if (opcion=='fill_mean') then !llena con la media de los valores del mapa
+					vec(i)=mediaMapa
+				!endif
+		    endif
 		endif
-	    endif
-	endif
     enddo
 end subroutine
 subroutine basin_2map_find(basin,map_ncols,map_nrows,nceldas) !Determina los limites y la cantidad de filas y columnas de un mapa enmarcando la cuenca trazada
@@ -1583,19 +1583,20 @@ subroutine basin_ppal_hipsometric(basin_f,elev,ppal_punto,intervalos,nceldas,ppa
 	enddo
 end subroutine
 !Funciones de balance y regionalizacion
-subroutine basin_qmed(acum,elev,precip,qmed,ETR,nceldas,etr_type &
+subroutine basin_qmed(basin_f,elev,precip,qmed,ETR,nceldas,etr_type &
 	&, mu_choud) !Calcula el caudal medio de largo plazo por el metodo de turc
     !Variables de entrada
     integer, intent(in) :: nceldas
-    integer, intent(in) :: acum(nceldas),elev(nceldas)
+    integer, intent(in) :: basin_f(3,nceldas),elev(nceldas)
     real, intent(in) :: precip(nceldas)
     integer, intent(in) :: etr_type
     real, intent(in) :: mu_choud
     !Variables de salida
     real, intent(out) :: qmed(nceldas),ETR(nceldas)
     !Variables locales 
-    real temp(nceldas),L(nceldas),razon(nceldas), area_real(nceldas)
+    real temp(nceldas),L(nceldas),razon(nceldas)
     real ETP(nceldas), Rn(nceldas),alpha,mu
+    integer drenaid,i
     !f2py intent(in) :: nceldas, basin_f,precip,acum,elev
     !f2py intent(in), optional :: etr_type
     
@@ -1622,8 +1623,18 @@ subroutine basin_qmed(acum,elev,precip,qmed,ETR,nceldas,etr_type &
 		ETR=precip/(1+(precip/Rn)**1.91)**(1/1.91)	
 	endif
     !Calula el caudal
-    area_real=acum*dxp**2 !Area en mts2
-    qmed=area_real*(precip-ETR)/31536000000.0 !Pasa mm/ano a m/seg y mult por m2
+    !area_real=acum*dxp**2 !Area en mts2
+    !qmed=area_real*(precip-ETR)/31536000000.0 !Pasa mm/ano a m/seg y mult por m2
+    qmed = (dxp**2)*(precip-ETR)/31536000000.0
+	do i=1,nceldas
+		!Determina la celda a la que se drena
+		drenaid=nceldas-basin_f(1,i)+1
+		!Calcula el area acumulada
+		if (basin_f(1,i).ne.0) then
+		    qmed(drenaid)=qmed(drenaid)+qmed(i)			    
+		endif	
+    end do
+    !qmed=qmed*(dxp**2)/31536000000.0
 end subroutine
 subroutine basin_qofer_qcap(basin_f,q_oferta,q_cap,qres,escazes,nceldas) !Resta el cadual de captacion al oferta
     !Variables de entrada
@@ -1634,27 +1645,30 @@ subroutine basin_qofer_qcap(basin_f,q_oferta,q_cap,qres,escazes,nceldas) !Resta 
     real, intent(out) :: qres(nceldas),escazes(nceldas)
     !Variables locales 
     integer i,drenaid
+    real es
     !f2py intent(in) :: nceldas, basin_f,q_oferta,q_cap
     !f2py intent(out) :: qres,escazes
     !Acumula caudal una ves retirado el caudal captado
     qres=q_oferta
-    do i=1,nceldas
-		if (q_cap(i).gt.0) then
-		    drenaid=nceldas-basin_f(1,i)+1
-		    do while (drenaid.le.nceldas)
-				qres(drenaid)=qres(drenaid)-q_cap(i)
-				drenaid=nceldas-basin_f(1,drenaid)+1
-		    enddo
-		endif
-    enddo
+!    do i=1,nceldas
+!		if (q_cap(i).gt.0) then
+!		    drenaid=nceldas-basin_f(1,i)+1
+!		    do while (drenaid.le.nceldas)
+!				qres(drenaid)=qres(drenaid)-q_cap(i)
+!				drenaid=nceldas-basin_f(1,drenaid)+1
+!		    enddo
+!		endif
+!    enddo
     !Calcula el indice de escazes
     escazes=0
     do i=1,nceldas
 		if (q_cap(i).gt.0) then
-		    escazes(i)=100*(q_cap(i)/qres(i))
+		    es = 100*(q_cap(i)/qres(i))
+		    if (es .le. 100) escazes(i) = es		   
 		    drenaid=nceldas-basin_f(1,i)+1
 		    do while (drenaid.le.nceldas .and. q_cap(drenaid).eq.0.0)
-				escazes(drenaid)=100*(q_cap(i)/qres(drenaid))
+				es=100*(q_cap(i)/qres(drenaid))
+				if (es .le. 100) escazes(drenaid) = es
 				drenaid=nceldas-basin_f(1,drenaid)+1
 		    enddo
 		endif
