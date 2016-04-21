@@ -1623,8 +1623,6 @@ subroutine basin_qmed(basin_f,elev,precip,qmed,ETR,nceldas,etr_type &
 		ETR=precip/(1+(precip/Rn)**1.91)**(1/1.91)	
 	endif
     !Calula el caudal
-    !area_real=acum*dxp**2 !Area en mts2
-    !qmed=area_real*(precip-ETR)/31536000000.0 !Pasa mm/ano a m/seg y mult por m2
     qmed = (dxp**2)*(precip-ETR)/31536000000.0
 	do i=1,nceldas
 		!Determina la celda a la que se drena
