@@ -315,6 +315,37 @@ def PotCritica(S,D,te = 0.056):
     return ti *(8.2* (((ti/(1000*9.8*S))/D)**(1.0/6.0)) * np.sqrt(ti/1000.0))/9800.0
 
 #-----------------------------------------------------------------------
+#Transformacion de datos
+#-----------------------------------------------------------------------
+def __ModifyElevErode__(X,slope=0.01,d2 = 0.03, window = 25):
+	# Obtiene la corriente quitando los puntos en donde se eleva
+	Pos = []
+	Y = np.copy(X)
+	c = 1
+	for i,j in zip(X[:-1],X[1:]):
+		if j>i:
+			Flag = True
+			c2 = c
+			c3 = 0
+			while Flag:    
+				if i<Y[c2]:
+					Y[c2] = i-slope*c3
+					c2+=1
+					c3+=1
+					if c2 >= Y.size: Flag = False 
+				else:
+					Flag=False
+					Pos.append(c2)
+		c+=1
+	# Obtiene la segunda derivada de la corriente corregida 
+	Y = pd.rolling_mean(Y,window)
+	l = Y[np.isnan(Y)].shape[0]
+	Y[:l]=Y[l+1]
+	slope = np.diff(Y,1)
+	slope = np.hstack([slope,slope[-1]])
+	return Y,np.abs(slope)
+
+#-----------------------------------------------------------------------
 #Clase de cuencas
 #-----------------------------------------------------------------------
 
@@ -648,6 +679,8 @@ class Basin:
 			self.ncells)
 		self.ppal_stream = cu.basin_ppalstream_cut(ppal_nceldas,
 			self.ncells)
+		#Corrige el perfil del cauce ppal
+		self.ppal_stream[0],self.ppal_slope = __ModifyElevErode__(self.ppal_stream[0])
 		# Obtiene la curva hipsometrica 
 		self.hipso_ppal, self.hipso_basin = cu.basin_ppal_hipsometric(
 			self.structure,
@@ -655,6 +688,7 @@ class Basin:
 			punto,
 			intervals,
 			ppal_nceldas)
+		self.hipso_ppal[1],self.hipso_ppal_slope = __ModifyElevErode__(self.hipso_ppal[1])
 	
 	def GetGeo_HAND(self,umbral=1000):
 		'Descripcion: Calcula Height Above the Nearest Drainage (HAND) \n'\
