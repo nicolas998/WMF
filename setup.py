@@ -9,7 +9,7 @@ ext2 = Extension(name = 'models',
 
 setup(
     name='wmf',
-    version='0.2.1',
+    version='0.2.3',
     author='Nicolas Velasquez G',
     author_email='nicolas.velasquezgiron@gmail.com',    
     packages=['wmf'],
@@ -18,11 +18,7 @@ setup(
     license='LICENSE.txt',
     description='.',
     long_description=open('README.txt').read(),
-    install_requires=[
-        "numpy >= 1.6.1",
-        "osgeo >= 2.7.3",
-	"matplotlib >= 0.15",
-    ],
+    install_requires=[ ],
     ext_modules=[ext1, ext2],
 	)
 

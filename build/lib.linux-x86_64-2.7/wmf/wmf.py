@@ -180,7 +180,7 @@ def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
 	shapeData = driver.CreateDataSource(ruta)
 	layer = shapeData.CreateLayer('layer1', spatialReference, osgeo.ogr.wkbPoint)
 	layerDefinition = layer.GetLayerDefn()
-	new_field=osgeo.ogr.FieldDefn('Estacion',osgeo.ogr.OFTInteger)
+	new_field=osgeo.ogr.FieldDefn('Estacion',osgeo.ogr.OFTReal)
 	layer.CreateField(new_field)
 	if Dict is not None:
 		for p in Dict.keys():
@@ -1236,6 +1236,40 @@ class Basin:
 		if ruta<>None:
 			pl.savefig(ruta,bbox_inches='tight')
 		pl.show()
+	#Plot de cuace ppal
+	def PlotPpalStream(self,ruta = None, figsize = (8,6)):
+		fig = pl.figure(figsize = figsize, edgecolor = 'w',
+			facecolor = 'w')
+		ax = fig.add_subplot(111)
+		pl.scatter(self.ppal_stream[1]/1000.0,
+			self.ppal_stream[0],
+			c = self.ppal_slope,
+			linewidth = 0)
+		ax.grid(True)
+		ax.set_xlabel('Distancia $[km]$',size = 16)
+		ax.set_ylabel(u'Elevacion $[m.s.n.m]$',size = 16)
+		pl.colorbar()
+		if ruta<>None:
+			pl.savefig(ruta,bbox_inches='tight')
+		pl.show()
+	#Plot de hidtograma de pendientes 
+	def PlotSlopeHist(self,ruta=None,bins=[0,2,0.2],
+		Nsize=1000, figsize = (8,6)):
+		if Nsize>self.ncells:
+			Nsize = self.ncells
+		pos = np.random.choice(self.ncells,Nsize)
+		h,b=np.histogram(self.CellSlope[pos],bins=np.arange(bins[0],bins[1],bins[2]))
+		b=(b[:-1]+b[1:])/2.0
+		h=h.astype(float)/h.astype(float).sum()
+		fig=pl.figure(figsize = figsize, edgecolor='w',facecolor='w')
+		ax=fig.add_subplot(111)
+		ax.plot(b,h,lw=2)
+		ax.grid(True)
+		ax.set_xlabel('Pendiente',size=14)
+		ax.set_ylabel('$pdf [\%]$',size=14)
+		if ruta<>None:
+			pl.savefig(ruta,bbox_inches='tight')
+		pl.show()
 	#Plot de histograma de tiempos de viajes en la cuenca 
 	def Plot_Travell_Hist(self,ruta=None,Nint=10.0):
 		#comparacion histogramas de tiempos de respuestas
@@ -1340,6 +1374,11 @@ class SimuBasin(Basin):
 		'Retornos\n'\
 		'----------\n'\
 		'self : Con las variables iniciadas.\n'\
+		#Variables de radar
+		self.radarDates = []
+		self.radarPos = []
+		self.radarMeanRain = []
+		self.__radarCont = 1
 		#Si no hay ruta traza la cuenca
 		if rute is None:
 			#Si se entrega cauce corrige coordenadas
@@ -1610,9 +1649,29 @@ class SimuBasin(Basin):
 		f.close()
 		return meanRain,posIds
 	
-	def rain_radar2basin(self,ruta_in,ruta_out,fechaI,fechaF,dt,
+	def rain_radar2basin_from_asc(self,ruta_in,ruta_out,fechaI,fechaF,dt,
 		pre_string,post_string,fmt = '%Y%m%d%H%M',conv_factor=1.0/12.0,
-		umbral = 0.0):			
+		umbral = 0.0):
+		'Descripcion: Genera campos de lluvia a partir de archivos asc. \n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'self : .\n'\
+		'ruta_in: Ruta donde se encuentran loas .asc.\n'\
+		'ruta_out: Ruta donde escribe el binario con la lluvia.\n'\
+		'fechaI: Fecha de inicio de registros.\n'\
+		'fechaF: Fecha de finalizacion de registros.\n'\
+		'dt: Intervalo de tiempo entre registros.\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'Guarda el binario, no hay retorno\n'\
+		'meanRain :  La serie de lluvia promedio.\n'\
+		'meanRain :  La serie de lluvia promedio.\n'\
+		'\n'\
+		'Mirar Tambien\n'\
+		'----------\n'\
+		'rain_interpolate_idw: interpola campos mediante la metodologia idw.\n'\
+		'rain_radar2basin_from_array: Mete campos de lluvia mediante multiples arrays.\n'\
 		#Edita la ruta de salida 
 		if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
 			ruta_bin = ruta_out[:-3]+'.bin'
@@ -1667,6 +1726,78 @@ class SimuBasin(Basin):
 			c+=1
 		f.close()
 		return np.array(meanRain),np.array(posIds)
+	def rain_radar2basin_from_array(self,vec=None,ruta_out=None,fecha=None,dt=None,
+		status='update',umbral = 0.01):
+		'Descripcion: Genera campos de lluvia a partir de archivos array\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'self : .\n'\
+		'vec: Array en forma de la cuenca con la informacion.\n'\
+		'ruta_out: Ruta donde escribe el binario con la lluvia.\n'\
+		'fecha: Fecha del registro actual.\n'\
+		'dt: Intervalo de tiempo entre registros.\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'Guarda el binario, no hay retorno\n'\
+		'meanRain :  La serie de lluvia promedio.\n'\
+		'\n'\
+		'Mirar Tambien\n'\
+		'----------\n'\
+		'rain_interpolate_idw: interpola campos mediante la metodologia idw.\n'\
+		'rain_radar2basin_from_asc: Mete campos de lluvia mediante multiples arrays.\n'\
+		#Edita la ruta de salida 
+		if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
+			ruta_bin = ruta_out[:-3]+'.bin'
+			ruta_hdr = ruta_out[:-3]+'.hdr'
+		else:
+			ruta_bin = ruta_out+'.bin'
+			ruta_hdr = ruta_out+'.hdr'
+		#Establece la cantidad de elementos de acuerdo al tipo de cuenca
+		if self.modelType[0] is 'c':
+			N = self.ncells
+		elif self.modelType[0] is 'h':
+			N = self.nhills
+			if vec.shape[0]  == self.ncells:
+				vec = self.Transform_Basin2Hills(vec,sumORmean=1)
+		#Entrada 1 es la entrada de campos sin lluvia 
+		if len(self.radarDates) == 0:
+			models.write_int_basin(ruta_bin,np.zeros((1,N)),1,N,1)
+		# De acerudo al estado actualiza las variables o guarda el 
+		# binario final 
+		if status == 'update':
+			if vec.mean() > umbral:
+				#Actualiza contador, lluvia media y pocisiones 
+				self.__radarCont +=1
+				self.radarMeanRain.append(vec.mean())
+				self.radarPos.append(self.__radarCont)
+				#Guarda el vector 
+				vec = vec*1000; vec = vec.astype(int)
+				models.write_int_basin(ruta_bin,np.zeros((1,N))+vec,
+					self.__radarCont,N,1)
+			else:
+				#lluvia media y pocisiones 
+				self.radarMeanRain.append(0.0)
+				self.radarPos.append(1)
+			self.radarDates.append(fecha)
+		#Si ya no va a agregar nada, no agrega mas campos y genera el .hdr 
+		elif status == 'close':
+			self.radarMeanRain = np.array(self.radarMeanRain)
+			self.radarPos = np.array(self.radarPos)
+			#Guarda un archivo con informacion de la lluvia 
+			f=open(ruta_hdr[:-3]+'hdr','w')
+			f.write('Numero de celdas: %d \n' % self.ncells)
+			f.write('Numero de laderas: %d \n' % self.nhills)
+			f.write('Numero de registros: %d \n' % self.radarMeanRain.shape[0])
+			f.write('Numero de campos no cero: %d \n' % self.radarPos.max())
+			f.write('Tipo de interpolacion: radar \n')
+			f.write('IDfecha, Record, Lluvia, Fecha \n')
+			c = 1
+			for d,pos,m in zip(self.radarDates,
+				self.radarPos,self.radarMeanRain):
+				f.write('%d, \t %d, \t %.2f, %s \n' % (c,pos,m,d.strftime('%Y-%m-%d-%H:%M')))
+				c+=1
+			f.close()
 		
 	#------------------------------------------------------
 	# Subrutinas para preparar modelo 
@@ -1927,7 +2058,7 @@ class SimuBasin(Basin):
 	#------------------------------------------------------
 	# Guardado y Cargado de modelos de cuencas preparados 
 	#------------------------------------------------------	
-	def save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None):
+	def Save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None):
 		'Descripcion: guarda una cuenca previamente ejecutada\n'\
 		'\n'\
 		'Parametros\n'\
