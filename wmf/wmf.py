@@ -1765,6 +1765,7 @@ class SimuBasin(Basin):
 			models.write_int_basin(ruta_bin,np.zeros((1,N)),1,N,1)
 		# De acerudo al estado actualiza las variables o guarda el 
 		# binario final 
+		actualizo = 1
 		if status == 'update':
 			if vec.mean() > umbral:
 				#Actualiza contador, lluvia media y pocisiones 
@@ -1775,6 +1776,7 @@ class SimuBasin(Basin):
 				vec = vec*1000; vec = vec.astype(int)
 				models.write_int_basin(ruta_bin,np.zeros((1,N))+vec,
 					self.__radarCont,N,1)
+				actualizo = 0
 			else:
 				#lluvia media y pocisiones 
 				self.radarMeanRain.append(0.0)
@@ -1798,6 +1800,7 @@ class SimuBasin(Basin):
 				f.write('%d, \t %d, \t %.2f, %s \n' % (c,pos,m,d.strftime('%Y-%m-%d-%H:%M')))
 				c+=1
 			f.close()
+		return actualizo 
 		
 	#------------------------------------------------------
 	# Subrutinas para preparar modelo 
