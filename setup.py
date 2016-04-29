@@ -9,7 +9,7 @@ ext2 = Extension(name = 'models',
 
 setup(
     name='wmf',
-    version='0.2.4',
+    version='0.2.5',
     author='Nicolas Velasquez G',
     author_email='nicolas.velasquezgiron@gmail.com',    
     packages=['wmf'],
