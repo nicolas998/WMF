@@ -180,7 +180,7 @@ def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
 	shapeData = driver.CreateDataSource(ruta)
 	layer = shapeData.CreateLayer('layer1', spatialReference, osgeo.ogr.wkbPoint)
 	layerDefinition = layer.GetLayerDefn()
-	new_field=osgeo.ogr.FieldDefn('Estacion',osgeo.ogr.OFTReal)
+	new_field=osgeo.ogr.FieldDefn('Estacion',osgeo.ogr.OFTInteger)
 	layer.CreateField(new_field)
 	if Dict is not None:
 		for p in Dict.keys():
@@ -718,267 +718,7 @@ class Basin:
 		self.CellHAND_class=handC
 		self.CellHDND=hdnd
 		self.CellHAND_drainCell=hand_destiny
-	#------------------------------------------------------
-	# Subrutinas para el calculo de extremos mediante hidrografa unitaria sintetica 
-	#------------------------------------------------------
-	def GetHU_Snyder(self,Area,Tc,Cp=0.8,Fc=2.9,pequena='si'):
-		'Descripcion: Obtiene HU segun Snyder.\n'\
-		'\n'\
-		'Parametros\n'\
-		'----------\n'\
-		'Area: area de la cuenca en km2.\n'\
-		'Tc: Tiempo de concentracion en Horas.\n'\
-		'Cp : Factor de escalamiento [0.8].\n'\
-		'Fc : Factor de escalamiento [2.9].\n'\
-		'\n'\
-		'Retornos\n'\
-		'----------\n'\
-		'Tiempo : Tiempo total de duracion [M].\n'\
-		'Q : Caudal unitario.\n'\
-		'HU : Reglas del hidrograma unitario.\n'\
-		#Calcula parametros para la hidrografa
-		Tr=0.6*Tc # [h]
-		T=0.1*Tc # [h]
-		Ts=Tr/5.5 # [h]
-		up=Cp*640/(Tr+(T-Ts)/4) #pie3/s/mi2/Pulg
-		Up=up*0.386*Area
-		Up=Up*(0.3048)**3.0/25.4
-		Tp=T/2+Tr # horas
-		Tb=3+3*Tr/24 # dias
-		W50=770/up**1.08
-		W75=440/up**1.08
-		# Factor de multiplicacion
-		tb=Tp*Fc #horas
-		#obtiene las coordenadas del hidrograma
-		HU=[[0,0]]
-		At=(Tp-W50/3)*60; Aq=0.5*Up; HU.append([At,Aq])
-		Bt=(Tp-W75/3)*60; Bq=0.75*Up; HU.append([Bt,Bq])
-		Tpt=Tp*60; Tpq=Up; HU.append([Tpt,Tpq])
-		Dt=(Tp+2*W75/3)*60; Dq=0.75*Up; HU.append([Dt,Dq])
-		Et=(Tp+2*W50/3)*60; Eq=0.5*Up; HU.append([Et,Eq])
-		if pequena=='si':
-			Tbt=tb*60
-		else:
-			Tbt=Tb*60
-		HU.append([Tbt,0])
-		HU=np.array(HU).T
-		#Obtiene los intervalod de tiempo
-		Dt=Tc*0.1*60 #min
-		Tiempo=np.arange(0,Tbt+Dt,Dt)
-		#Obtiene la HU para los intervalos de tiempo necesarios
-		Q=np.zeros(Tiempo.size)
-		for cont,t in enumerate(Tiempo):
-			for h1,h2 in zip(HU.T[:-1],HU.T[1:]):
-				if t>h1[0] and t<h2[0]:
-					p=np.polyfit([h1[0],h2[0]],[h1[1],h2[1]],1)
-					Q[cont]=t*p[0]+p[1]
-		AreaBajoCurva=Q.sum()*Dt*60/1000.0		
-		Diferencia=100*((Area-AreaBajoCurva)/Area)
-		#Devuelve el hu y la diferencia
-		return Tiempo,Q,HU,Diferencia
-	def GetHU_Williams(self,Area,LongCuenca,PendCauce,Tc):
-		'Descripcion: Obtiene HU segun Williams.\n'\
-		'\n'\
-		'Parametros\n'\
-		'----------\n'\
-		'Area: area de la cuenca en km2.\n'\
-		'LongCuenca: Longitu de la cuenca en km.\n'\
-		'PendCauce: Pendiente del cauce en m/m.\n'\
-		'Tc: Tiempo de concentracion en Horas.\n'\
-		'\n'\
-		'Retornos\n'\
-		'----------\n'\
-		'Tiempo : Tiempo total de duracion [M].\n'\
-		'Q : Caudal unitario.\n'\
-		'HU : Reglas del hidrograma unitario.\n'\
-		#Cambio de unidades en area y longitu de cuenca
-		Area=Area*0.386; LongCuenca=LongCuenca*0.62
-		#Calculo parametros hidrograma
-		w=(Area)/(LongCuenca) #millas
-		Lw=(LongCuenca)/w #adim
-		tp=4.63*(Area**0.422)*(PendCauce**-0.46)*(Lw**0.133)
-		k=27*(Area**0.231)*(PendCauce**-0.777)*(Lw**0.124)
-		ktp=k/tp
-		n=1+((0.5/ktp) + ((0.25/ktp**2) + (1.0/ktp))**0.5)**2.0
-		B=262.9*np.log(n)+35.723
-		fc=0.3048**3
-		to=tp*(1+1/(n-1)**0.5); t1=to+2*k
-		HU=[]; HU.append([tp,B*0.0394*(Area/tp)])
-		HU.append([to,HU[0][1]*(to/tp)**(n-1)*np.exp((1-n)*((to/tp)-1))])
-		HU.append([t1,HU[1][1]*np.exp((to-t1)/k)])
-		HU=np.array(HU).T; HU[1,:]=HU[1,:]*fc
-		#Obtiene los intervalos de tiempo
-		Dt=Tc*0.1*60 #min
-		Tiempo=np.arange(0,3*t1*60+Dt,Dt)/60.0
-		ttp=(Tiempo)/tp
-		Q=np.zeros(Tiempo.size)
-		for cont,t in enumerate(zip(ttp,Tiempo)):
-			if t[1]<to:
-				Q[cont]=HU[1,0]*(t[0]**(n-1))*np.exp((1-n)*(t[0]-1))
-			if t[1]>t1:
-				Q[cont]=HU[1,2]*np.exp((t1-t[1])/(3*k))
-			if t[1]<t1 and t[1]>to:
-				Q[cont]=HU[1,1]*np.exp((to-t[1])/k)
-		return Tiempo*60,Q,HU	
-	def GetHU_SCS(self,AreaCuenca,Tc,N=25):
-		'Descripcion: Obtiene HU segun SCS.\n'\
-		'\n'\
-		'Parametros\n'\
-		'----------\n'\
-		'AreaCuenca: area de la cuenca en km2.\n'\
-		'Tc: Tiempo de concentracion en Horas.\n'\
-		'\n'\
-		'Retornos\n'\
-		'----------\n'\
-		'Tiempo : Tiempo total de duracion [M].\n'\
-		'Q : Caudal unitario.\n'\
-		'HU : Reglas del hidrograma unitario.\n'\
-		#Parametros fijos
-		ttp=np.array([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,
-		1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.2,2.4,2.6,2.8,3.0,3.2,
-		3.4,3.6,3.8,4.0,4.5,5.0])
-		UUp=np.array([0.0,0.03,0.1,0.19,0.31,0.47,0.66,0.82,0.93,0.99,1.0,0.99,0.93,0.86,
-		0.78,0.68,0.56,0.46,0.39,0.33,0.28,0.21,0.15,0.11,0.08,0.06,0.04,0.03,0.02,0.02,0.01,
-		0.01,0.0])
-		#Parametros de la hidrografa
-		Trezago=(3.0/5.0)*float(Tc)
-		Tlluvia=0.133*Tc
-		Tpico=Tlluvia/2.0+Trezago
-		Upa=484.0*AreaCuenca*0.386/Tpico
-		Upm=Upa*0.3048**3/25.4
-		#Obtiene el HU
-		HU=[]
-		for t,u in zip(ttp,UUp):
-			uTemp=u*Upa
-			HU.append([t*Tpico,uTemp*0.3048**3/25.4])  
-		HU=np.array(HU)
-		#Obtiene los intervalod de tiempo
-		Dt=Tc*0.1*60 #min
-		#Obtiene la HU para los intervalos de tiempo necesarios
-		Q=[]; flag=True
-		Tiempo=[];t=0.0
-		for i in range(N):
-			for h1,h2 in zip(HU[:-1],HU[1:]):
-				if t>=h1[0] and t<h2[0]:
-					p=np.polyfit([h1[0],h2[0]],[h1[1],h2[1]],1)
-					Q.append(t*p[0]+p[1])
-					Tiempo.append(t*60.0)
-					t+=Dt/60.0
-		return np.array(Tiempo),np.array(Q),HU.T
-	# Funcion Tormenta de diseno
-	def GetHU_DesingStorm(self,IntTr,Dur,CN=70,plot='no',ruta=None,Tr=None,
-		CurvaHuff=np.array([0.18,0.47,0.65,0.74,0.80,0.85,0.89,0.92,0.94,1.0])):	
-		'Descripcion: Obtiene la tormenta de diseno a partir de una tormenta\n'\
-		'\n'\
-		'Parametros\n'\
-		'----------\n'\
-		'IntTr : Intensidades de precipitacion para diferentes Tr [Ntr].\n'\
-		'Dur : Duracion del evento de tormenta.\n'\
-		'CN: Numero de curva para el calculo de abstracciones.\n'\
-		'\n'\
-		'Retornos\n'\
-		'----------\n'\
-		'Qtr : Hidrografa para cada periodo de retorno [M, Tr].\n'\
-		'QmaxTr : Caudal maximo para cada periodo de retorno [Tr].\n'\
-		'Tiempo : Tiempo total de duracion [M].\n'\
-		#Calcula la lamina para cada periodo de retorno
-		lluviaTrAcum=[]
-		for P in IntTr*Dur:
-			lluviaTrAcum.append([c*P for c in CurvaHuff])
-		lluviaTrAcum=np.array(lluviaTrAcum)
-		lluviaTr=[]
-		for l in lluviaTrAcum:
-			a=np.copy(l)
-			a[1:]=l[1:]-l[:-1]
-			lluviaTr.append(a)
-		lluviaTr=np.array(lluviaTr)
-		#si se da el valor de CN lo calcula
-		if CN<>None:
-			S=(1000.0/float(CN)-10.0)*25.4; Ia=0.2*S
-			lluviaTrTemp=[]
-			for l in lluviaTrAcum:			
-				L=[]
-				for i in l:
-					if i>0:
-						L.append(((i-Ia)**2)/(i-Ia+S))
-					else:
-						L.append(0)				
-				lluviaTrTemp.append(L)
-			lluviaTrTemp=np.array(lluviaTrTemp)
-			lluviaTrEfect=lluviaTrTemp[:,1:]-lluviaTrTemp[:,:-1]
-			lluviaTrEfect[lluviaTrEfect<0]=0
-			lluviaTrEfect=np.insert(lluviaTrEfect,0,lluviaTrTemp[:,0],axis=1)
-		if plot=='si':
-			#if Tr==None or len(Tr)<>IntTr.size():
-			#	Lista=[2.33,5,10,25,50,100,500,1000]
-			#	Tr=[l for l in Lista[:IntTr.size]]			
-			fig=pl.figure(edgecolor='w',facecolor='w')
-			ax=fig.add_subplot(111)
-			X=np.linspace(0,Dur,lluviaTrEfect.shape[1])
-			Grosor=np.arange(0.5,4,0.2)
-			for l,le,t,g in zip(lluviaTr,lluviaTrEfect,Tr,Grosor):	
-				ax.plot(X,l,c='b',lw=g,label=str(t))
-			if CN<>None:
-				for l,le,t,g in zip(lluviaTr,lluviaTrEfect,Tr,Grosor):	
-					ax.plot(X,le,c='r',lw=g,label=str(t))
-			ax.set_xlabel('Tiempo $[h]$',size=14)
-			ax.set_ylabel('Precipitacion $[mm]$',size=14)	
-			ax.grid(True)
-			pl.legend(loc=0,ncol=2)
-			if ruta<>None:
-				pl.savefig(ruta,bbox_inches='tight')
-			pl.show()
-		if CN<>None:
-			return lluviaTr,np.array(lluviaTrEfect),S
-		else:
-			return lluviaTr
-	#Convolucion de la tormenta de diseno
-	def GetHU_Convolution(self,Tiempo,Qhu,lluvEfect):
-		'Descripcion: Realia la convolucion de los hidrogramas unitarios \n'\
-		'\n'\
-		'Parametros\n'\
-		'----------\n'\
-		'Tiempo : Vector de la duracion de la hidrografa unitaria [Nt].\n'\
-		'Qhu : Valores del caudal unitario de la hidrografa unitaria [Nt].\n'\
-		'lluvEfect : Lluvia efectiva en un evento de tormenta cualquiera [Nt, Tr].\n'\
-		'\n'\
-		'Retornos\n'\
-		'----------\n'\
-		'Qtr : Hidrografa para cada periodo de retorno [M, Tr].\n'\
-		'QmaxTr : Caudal maximo para cada periodo de retorno [Tr].\n'\
-		'Tiempo : Tiempo total de duracion [M].\n'\
-		#Calcula el caudal convulucionado
-		Qtr=[]; QmaxTr=[]
-		for le in lluvEfect:
-			Qi=np.array([i*Qhu for i in le])
-			Qconv=np.zeros(Qhu.size+lluvEfect.shape[1]-1)
-			for cont,q in enumerate(Qi):
-				Qconv[cont:cont+Qhu.size]=Qconv[cont:cont+Qhu.size]+q
-			Qtr.append(Qconv)
-			QmaxTr.append(Qconv.max())
-		#Calcula el tiempo para toda la hidrografa
-		Dt=Tiempo[1]-Tiempo[0]; Tlast=Tiempo[-1]
-		T=list(Tiempo)
-		for i in range(1,lluvEfect.shape[1]):
-			T.append(Tlast+i*Dt)
-		return np.array(Qtr), np.array(QmaxTr),np.array(T)
-	#Grafica los hidrogramas sinteticos 
-	def PlotHU_Synthetic(self,DictHU,ruta = None):
-		fig=pl.figure(edgecolor='w',facecolor='w')
-		ax=fig.add_subplot(111)
-		colors = ['b','r','k','g','m']
-		for co,k in enumerate(DictHU.keys()):
-			ax.plot(DictHU[k]['time'],
-				DictHU[k]['HU'],
-				c=colors[co],lw=1.5,label=k)
-		ax.grid(True)
-		ax.set_xlabel('Tiempo $[min]$',size=14)
-		ax.set_ylabel('HU $[m^3/seg/mm]$',size=14)
-		ax.legend(loc=0)
-		if ruta<>None:
-			pl.savefig(ruta,bbox_inches='tight')
-		pl.show()
-	
+					
 	#------------------------------------------------------
 	# Trabajo con mapas externos y variables fisicas
 	#------------------------------------------------------
@@ -1226,7 +966,7 @@ class Basin:
 				k = (-1*np.sqrt(6)/np.pi)*(0.5772+np.log(-1*np.log(1/float(t))))
 			elif Dist is 'lognorm':
 				Ztr=norm.ppf(1/float(t))
-				k = 1*(np.exp(Ztr*np.sqrt(np.log(1+Cv**2))-0.5*np.log(1-Cv**2))-1)/Cv
+				k = -1*(np.exp(Ztr*np.sqrt(np.log(1+Cv**2))-0.5*np.log(1-Cv**2))-1)/Cv
 			#Calcula el caudal maximo
 			Qmin.append(list(MedMin+k*DesMin))
 		return np.array(Qmin)
@@ -1634,11 +1374,6 @@ class SimuBasin(Basin):
 		'Retornos\n'\
 		'----------\n'\
 		'self : Con las variables iniciadas.\n'\
-		#Variables de radar
-		self.radarDates = []
-		self.radarPos = []
-		self.radarMeanRain = []
-		self.__radarCont = 1
 		#Si no hay ruta traza la cuenca
 		if rute is None:
 			#Si se entrega cauce corrige coordenadas
@@ -1909,29 +1644,9 @@ class SimuBasin(Basin):
 		f.close()
 		return meanRain,posIds
 	
-	def rain_radar2basin_from_asc(self,ruta_in,ruta_out,fechaI,fechaF,dt,
+	def rain_radar2basin(self,ruta_in,ruta_out,fechaI,fechaF,dt,
 		pre_string,post_string,fmt = '%Y%m%d%H%M',conv_factor=1.0/12.0,
-		umbral = 0.0):
-		'Descripcion: Genera campos de lluvia a partir de archivos asc. \n'\
-		'\n'\
-		'Parametros\n'\
-		'----------\n'\
-		'self : .\n'\
-		'ruta_in: Ruta donde se encuentran loas .asc.\n'\
-		'ruta_out: Ruta donde escribe el binario con la lluvia.\n'\
-		'fechaI: Fecha de inicio de registros.\n'\
-		'fechaF: Fecha de finalizacion de registros.\n'\
-		'dt: Intervalo de tiempo entre registros.\n'\
-		'Retornos\n'\
-		'----------\n'\
-		'Guarda el binario, no hay retorno\n'\
-		'meanRain :  La serie de lluvia promedio.\n'\
-		'meanRain :  La serie de lluvia promedio.\n'\
-		'\n'\
-		'Mirar Tambien\n'\
-		'----------\n'\
-		'rain_interpolate_idw: interpola campos mediante la metodologia idw.\n'\
-		'rain_radar2basin_from_array: Mete campos de lluvia mediante multiples arrays.\n'\
+		umbral = 0.0):			
 		#Edita la ruta de salida 
 		if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
 			ruta_bin = ruta_out[:-3]+'.bin'
@@ -1986,81 +1701,6 @@ class SimuBasin(Basin):
 			c+=1
 		f.close()
 		return np.array(meanRain),np.array(posIds)
-	def rain_radar2basin_from_array(self,vec=None,ruta_out=None,fecha=None,dt=None,
-		status='update',umbral = 0.01):
-		'Descripcion: Genera campos de lluvia a partir de archivos array\n'\
-		'\n'\
-		'Parametros\n'\
-		'----------\n'\
-		'self : .\n'\
-		'vec: Array en forma de la cuenca con la informacion.\n'\
-		'ruta_out: Ruta donde escribe el binario con la lluvia.\n'\
-		'fecha: Fecha del registro actual.\n'\
-		'dt: Intervalo de tiempo entre registros.\n'\
-		'Retornos\n'\
-		'----------\n'\
-		'Guarda el binario, no hay retorno\n'\
-		'meanRain :  La serie de lluvia promedio.\n'\
-		'\n'\
-		'Mirar Tambien\n'\
-		'----------\n'\
-		'rain_interpolate_idw: interpola campos mediante la metodologia idw.\n'\
-		'rain_radar2basin_from_asc: Mete campos de lluvia mediante multiples arrays.\n'\
-		#Edita la ruta de salida 
-		if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
-			ruta_bin = ruta_out[:-3]+'.bin'
-			ruta_hdr = ruta_out[:-3]+'.hdr'
-		else:
-			ruta_bin = ruta_out+'.bin'
-			ruta_hdr = ruta_out+'.hdr'
-		#Establece la cantidad de elementos de acuerdo al tipo de cuenca
-		if self.modelType[0] is 'c':
-			N = self.ncells
-		elif self.modelType[0] is 'h':
-			N = self.nhills
-			if vec.shape[0]  == self.ncells:
-				vec = self.Transform_Basin2Hills(vec,sumORmean=1)
-		#Entrada 1 es la entrada de campos sin lluvia 
-		if len(self.radarDates) == 0:
-			models.write_int_basin(ruta_bin,np.zeros((1,N)),1,N,1)
-		# De acerudo al estado actualiza las variables o guarda el 
-		# binario final 
-		actualizo = 1
-		if status == 'update':
-			if vec.mean() > umbral:
-				#Actualiza contador, lluvia media y pocisiones 
-				self.__radarCont +=1
-				self.radarMeanRain.append(vec.mean())
-				self.radarPos.append(self.__radarCont)
-				#Guarda el vector 
-				vec = vec*1000; vec = vec.astype(int)
-				models.write_int_basin(ruta_bin,np.zeros((1,N))+vec,
-					self.__radarCont,N,1)
-				actualizo = 0
-			else:
-				#lluvia media y pocisiones 
-				self.radarMeanRain.append(0.0)
-				self.radarPos.append(1)
-			self.radarDates.append(fecha)
-		#Si ya no va a agregar nada, no agrega mas campos y genera el .hdr 
-		elif status == 'close':
-			self.radarMeanRain = np.array(self.radarMeanRain)
-			self.radarPos = np.array(self.radarPos)
-			#Guarda un archivo con informacion de la lluvia 
-			f=open(ruta_hdr[:-3]+'hdr','w')
-			f.write('Numero de celdas: %d \n' % self.ncells)
-			f.write('Numero de laderas: %d \n' % self.nhills)
-			f.write('Numero de registros: %d \n' % self.radarMeanRain.shape[0])
-			f.write('Numero de campos no cero: %d \n' % self.radarPos.max())
-			f.write('Tipo de interpolacion: radar \n')
-			f.write('IDfecha, Record, Lluvia, Fecha \n')
-			c = 1
-			for d,pos,m in zip(self.radarDates,
-				self.radarPos,self.radarMeanRain):
-				f.write('%d, \t %d, \t %.2f, %s \n' % (c,pos,m,d.strftime('%Y-%m-%d-%H:%M')))
-				c+=1
-			f.close()
-		return actualizo 
 		
 	#------------------------------------------------------
 	# Subrutinas para preparar modelo 
@@ -2321,7 +1961,7 @@ class SimuBasin(Basin):
 	#------------------------------------------------------
 	# Guardado y Cargado de modelos de cuencas preparados 
 	#------------------------------------------------------	
-	def Save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None):
+	def save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None):
 		'Descripcion: guarda una cuenca previamente ejecutada\n'\
 		'\n'\
 		'Parametros\n'\
