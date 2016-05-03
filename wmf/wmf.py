@@ -2146,7 +2146,7 @@ class SimuBasin(Basin):
 		if stream_width==None:
 			stream_width=np.ones(self.ncells)
 		#De acuerdo a si el modelo es por laderas o por celdas agrega lass varaibeles 
-		if self.modelType=='cells':
+		if self.modelType[0]=='c':
 			models.drena = np.ones((1,self.ncells))*self.structure
 			models.nceldas = self.ncells
 			models.unit_type = np.ones((1,self.ncells))*unit_type
@@ -2156,7 +2156,7 @@ class SimuBasin(Basin):
 			models.stream_slope = np.ones((1,self.ncells))*pend
 			models.stream_width = np.ones((1,self.ncells))*stream_width
 			models.elem_area = np.ones((1,self.ncells))*cu.dxp**2.0
-		elif self.modelType=='hills':
+		elif self.modelType[0]=='h':
 			N=self.hills.shape[1]
 			models.drena = np.ones((1,N))*self.hills[1]
 			models.nceldas = self.hills.shape[1]
@@ -2166,7 +2166,7 @@ class SimuBasin(Basin):
 			models.stream_long = np.ones((1,N))*stream_long
 			models.stream_slope = np.ones((1,N))*stream_slope
 			models.stream_width = np.ones((1,N))*cu.basin_subbasin_map2subbasin(
-				self.hills_own,stream_width,self.hills.shape[1],self.ncells,self.CellCauce)
+				self.hills_own,stream_width,self.nhills,0,self.ncells,self.CellCauce)
 			models.elem_area = np.ones((1,N))*np.array([self.hills_own[self.hills_own==i].shape[0] for i in range(1,self.hills.shape[1]+1)])*cu.dxp**2.0			
 	def set_Speed_type(self,types=np.ones(3)):
 		'Descripcion: Especifica el tipo de velocidad a usar en cada \n'\
