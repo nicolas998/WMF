@@ -1638,7 +1638,7 @@ class SimuBasin(Basin):
 		self.radarDates = []
 		self.radarPos = []
 		self.radarMeanRain = []
-		self.__radarCont = 1
+		self.radarCont = 1
 		#Si no hay ruta traza la cuenca
 		if rute is None:
 			#Si se entrega cauce corrige coordenadas
@@ -1997,6 +1997,11 @@ class SimuBasin(Basin):
 		'ruta_out: Ruta donde escribe el binario con la lluvia.\n'\
 		'fecha: Fecha del registro actual.\n'\
 		'dt: Intervalo de tiempo entre registros.\n'\
+		'status: Estado en el cual se encuentra el binario que se va a pasar a campo.\n'\
+		'	update: (Defecto) Con este estado se genera un binario y se agregan nuevos campos.\n'\
+		'	old: Estado para abrir y tomar las propiedades de self.radar.. para la generacion de un binario.\n'\
+		'	close: Cierra un binario que se ha generado mediante update.\n'\
+		'	reset: Reinicia las condiciones de self.radar... para la creacion de un campo nuevo.\n'\
 		'Retornos\n'\
 		'----------\n'\
 		'Guarda el binario, no hay retorno\n'\
@@ -2007,12 +2012,13 @@ class SimuBasin(Basin):
 		'rain_interpolate_idw: interpola campos mediante la metodologia idw.\n'\
 		'rain_radar2basin_from_asc: Mete campos de lluvia mediante multiples arrays.\n'\
 		#Edita la ruta de salida 
-		if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
-			ruta_bin = ruta_out[:-3]+'.bin'
-			ruta_hdr = ruta_out[:-3]+'.hdr'
-		else:
-			ruta_bin = ruta_out+'.bin'
-			ruta_hdr = ruta_out+'.hdr'
+		if ruta_out <> None:
+			if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
+				ruta_bin = ruta_out[:-3]+'.bin'
+				ruta_hdr = ruta_out[:-3]+'.hdr'
+			else:
+				ruta_bin = ruta_out+'.bin'
+				ruta_hdr = ruta_out+'.hdr'
 		#Establece la cantidad de elementos de acuerdo al tipo de cuenca
 		if self.modelType[0] is 'c':
 			N = self.ncells
@@ -2029,13 +2035,13 @@ class SimuBasin(Basin):
 		if status == 'update':
 			if vec.mean() > umbral:
 				#Actualiza contador, lluvia media y pocisiones 
-				self.__radarCont +=1
+				self.radarCont +=1
 				self.radarMeanRain.append(vec.mean())
-				self.radarPos.append(self.__radarCont)
+				self.radarPos.append(self.radarCont)
 				#Guarda el vector 
 				vec = vec*1000; vec = vec.astype(int)
 				models.write_int_basin(ruta_bin,np.zeros((1,N))+vec,
-					self.__radarCont,N,1)
+					self.radarCont,N,1)
 				actualizo = 0
 			else:
 				#lluvia media y pocisiones 
@@ -2060,6 +2066,28 @@ class SimuBasin(Basin):
 				f.write('%d, \t %d, \t %.2f, %s \n' % (c,pos,m,d.strftime('%Y-%m-%d-%H:%M')))
 				c+=1
 			f.close()
+			#Vuelve las variables listas de nuevo 
+			self.radarMeanRain = self.radarMeanRain.tolist()
+			self.radarPos = self.radarPos.tolist()
+		elif status == 'reset':
+			#Variables de radar
+			self.radarDates = []
+			self.radarPos = []
+			self.radarMeanRain = []
+			self.radarCont = 1
+		elif status == 'old':
+			#si es un archivo viejo, lo abre para tomar las variables y continuar en ese punto 
+			f=open(ruta_hdr[:-3]+'hdr','r')
+			Lista = f.readlines()
+			self.radarCont = int(Lista[3].split()[-1])
+			f.close()
+			#Abre con numpy para simplificar las cosas 
+			a = np.loadtxt(ruta_hdr,skiprows=6,dtype='str').T
+			self.radarPos = [int(i.split(',')[0]) for i in a[1]]
+			self.radarMeanRain = [float(i.split(',')[0]) for i in a[2]]
+			for i in a[3]:
+				d = datetime.datetime.strptime(i,'%Y-%m-%d-%H:%M')
+				self.radarDates.append(d)
 		return actualizo 
 		
 	#------------------------------------------------------
@@ -2247,9 +2275,9 @@ class SimuBasin(Basin):
 		'----------\n'\
 		'save_storage(slef,storage).\n'\
 		#Determina el tipo de unidades del modelo 
-		if self.modelType is 'cells':
+		if self.modelType[0] is 'c':
 			N = self.ncells
-		elif self.modelType is 'hills':
+		elif self.modelType[0] is 'h':
 			N = self.nhills
 		#Obtiene el vector que va a alojar en el modelo
 		isVec=False
