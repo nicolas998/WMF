@@ -133,6 +133,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	real rain_sum
 	!Variables de iteracion
 	integer celda,tiempo !Iteradores para la cantidad de celdas y los intervalos de tiempo
+	real tiempo_r !Version real del tiempo, sirve solo para verbose 
     integer drenaid !Vector con el id a donde drena cada celda
     integer control_cont, controlh_cont, i
     !Variables para el balance
@@ -391,7 +392,8 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		
 		!Si se indica que imprima en pantalla lo va haciendo 
 		if (verbose .eq. 1) then 
-			print *, tiempo/N_reg
+			tiempo_r = tiempo
+			print *, tiempo_r/N_reg
 		endif
 	enddo
 	

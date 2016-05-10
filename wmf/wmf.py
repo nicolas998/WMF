@@ -1688,6 +1688,7 @@ class SimuBasin(Basin):
 			models.storage = np.zeros((5,N))
 			models.dt = dt
 			models.retorno = 0
+			models.verbose = 0
 			#Define los puntos de control		
 			models.control = np.zeros((1,N))
 			models.control_h = np.zeros((1,N))
