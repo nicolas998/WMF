@@ -16,7 +16,7 @@ setup(
     package_data={'wmf':['cu.so','models.so']},
     url='https://github.com/nicolas998/WMF.git',
     license='LICENSE.txt',
-    description='.',
+    description='Watershed Modelling Framework',
     long_description=open('README.txt').read(),
     install_requires=[ ],
     ext_modules=[ext1, ext2],
