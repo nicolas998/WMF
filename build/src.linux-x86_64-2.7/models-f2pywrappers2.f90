@@ -8,7 +8,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -38,7 +38,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -68,7 +68,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -98,7 +98,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -128,7 +128,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -158,7 +158,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -188,7 +188,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -218,7 +218,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -248,7 +248,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -278,7 +278,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -308,7 +308,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -338,7 +338,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -368,7 +368,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -398,7 +398,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -428,7 +428,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -458,7 +458,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -488,7 +488,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -518,7 +518,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -548,7 +548,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -578,7 +578,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -608,7 +608,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -638,7 +638,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -669,7 +669,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -699,7 +699,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -729,7 +729,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -759,7 +759,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -789,7 +789,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -819,7 +819,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -849,7 +849,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -879,7 +879,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -909,7 +909,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -939,7 +939,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -969,7 +969,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -999,7 +999,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -1029,7 +1029,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -1059,7 +1059,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -1089,7 +1089,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -1119,7 +1119,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -1149,7 +1149,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -1179,7 +1179,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -1209,7 +1209,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -1239,7 +1239,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -1269,7 +1269,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -1299,7 +1299,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -1328,6 +1328,7 @@
       use models, only : posevento
       use models, only : control
       use models, only : zmax
+      use models, only : verbose
       use models, only : h_coef
       use models, only : zmin
       use models, only : prus
@@ -1463,32 +1464,32 @@
       external f2py_models_getdims_v_coef
       external f2py_models_getdims_control_h
       call f2pysetupfunc(f2py_models_getdims_posevento,f2py_models_getdi&
-     &ms_control,f2py_models_getdims_zmax,f2py_models_getdims_h_coef,f2p&
-     &y_models_getdims_zmin,f2py_models_getdims_prus,f2py_models_getdims&
-     &_hill_long,f2py_models_getdims_frictionangle,sim_sediments,erot,f2&
-     &py_models_getdims_fluxes,gullienogullie,rute_storage,f2py_models_g&
-     &etdims_max_capilar,f2py_models_getdims_elem_area,f2py_models_getdi&
-     &ms_guarda_cond,f2py_models_getdims_vs,f2py_models_getdims_h_exp,f2&
-     &py_models_getdims_retorned,f2py_models_getdims_hill_slope,f2py_mod&
-     &els_getdims_riskvector,separate_fluxes,f2py_models_getdims_voldepo&
-     &,nrows,dx,rute_speed,dt,f2py_models_getdims_crus,f2py_models_getdi&
-     &ms_drena,xll,dep,dept,f2py_models_getdims_vdc,f2py_models_getdims_&
-     &vsc,f2py_models_getdims_slideocurrence,ero,f2py_models_getdims_ide&
-     &vento,f2py_models_getdims_vd,dxp,f2py_models_getdims_volero,sim_sl&
-     &ides,speed_type,diametro,f2py_models_getdims_v_exp,sed_factor,f2py&
-     &_models_getdims_parliac,f2py_models_getdims_max_gravita,f2py_model&
-     &s_getdims_storage,f2py_models_getdims_unit_type,f2py_models_getdim&
-     &s_mean_rain,f2py_models_getdims_krus,retorno,f2py_models_getdims_z&
-     &s,save_storage,gammaw,fs,f2py_models_getdims_gammas,ncols,f2py_mod&
-     &els_getdims_zcrit,rain_first_point,f2py_models_getdims_bo,wi,f2py_&
-     &models_getdims_speed_map,qskr,save_speed,f2py_models_getdims_strea&
-     &m_slope,f2py_models_getdims_stream_width,f2py_models_getdims_strea&
-     &m_long,g,nceldas,f2py_models_getdims_cohesion,f2py_models_getdims_&
-     &v_coef,yll,nodata,f2py_models_getdims_control_h,shia_v1,read_float&
-     &_basin,read_int_basin,write_float_basin,write_int_basin,rain_read_&
-     &ascii_table,rain_pre_mit,rain_mit,rain_idw,calc_speed,sed_allocate&
-     &,sed_hillslope,sed_channel,slide_allocate,slide_ocurrence,slide_hi&
-     &ll2gullie,basin_subbasin_map2subbasin)
+     &ms_control,f2py_models_getdims_zmax,verbose,f2py_models_getdims_h_&
+     &coef,f2py_models_getdims_zmin,f2py_models_getdims_prus,f2py_models&
+     &_getdims_hill_long,f2py_models_getdims_frictionangle,sim_sediments&
+     &,erot,f2py_models_getdims_fluxes,gullienogullie,rute_storage,f2py_&
+     &models_getdims_max_capilar,f2py_models_getdims_elem_area,f2py_mode&
+     &ls_getdims_guarda_cond,f2py_models_getdims_vs,f2py_models_getdims_&
+     &h_exp,f2py_models_getdims_retorned,f2py_models_getdims_hill_slope,&
+     &f2py_models_getdims_riskvector,separate_fluxes,f2py_models_getdims&
+     &_voldepo,nrows,dx,rute_speed,dt,f2py_models_getdims_crus,f2py_mode&
+     &ls_getdims_drena,xll,dep,dept,f2py_models_getdims_vdc,f2py_models_&
+     &getdims_vsc,f2py_models_getdims_slideocurrence,ero,f2py_models_get&
+     &dims_idevento,f2py_models_getdims_vd,dxp,f2py_models_getdims_voler&
+     &o,sim_slides,speed_type,diametro,f2py_models_getdims_v_exp,sed_fac&
+     &tor,f2py_models_getdims_parliac,f2py_models_getdims_max_gravita,f2&
+     &py_models_getdims_storage,f2py_models_getdims_unit_type,f2py_model&
+     &s_getdims_mean_rain,f2py_models_getdims_krus,retorno,f2py_models_g&
+     &etdims_zs,save_storage,gammaw,fs,f2py_models_getdims_gammas,ncols,&
+     &f2py_models_getdims_zcrit,rain_first_point,f2py_models_getdims_bo,&
+     &wi,f2py_models_getdims_speed_map,qskr,save_speed,f2py_models_getdi&
+     &ms_stream_slope,f2py_models_getdims_stream_width,f2py_models_getdi&
+     &ms_stream_long,g,nceldas,f2py_models_getdims_cohesion,f2py_models_&
+     &getdims_v_coef,yll,nodata,f2py_models_getdims_control_h,shia_v1,re&
+     &ad_float_basin,read_int_basin,write_float_basin,write_int_basin,ra&
+     &in_read_ascii_table,rain_pre_mit,rain_mit,rain_idw,calc_speed,sed_&
+     &allocate,sed_hillslope,sed_channel,slide_allocate,slide_ocurrence,&
+     &slide_hill2gullie,basin_subbasin_map2subbasin)
       end subroutine f2pyinitmodels
 
 

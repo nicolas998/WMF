@@ -991,6 +991,11 @@ class Basin:
 		'self : Inicia las variables vacias.\n'\
 		'Map : Matriz con la informacion del mapa.\n'\
 		'MapProp : Propiedades del mapa.\n'\
+		'	1. Ncols Mapa.\n'\
+		'	2. Nrows Mapa.\n'\
+		'	3. Xll Mapa.\n'\
+		'	4. Yll Mapa.\n'\
+		'	5. dx Mapa.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -2024,8 +2029,11 @@ class SimuBasin(Basin):
 			N = self.ncells
 		elif self.modelType[0] is 'h':
 			N = self.nhills
-			if vec.shape[0]  == self.ncells:
-				vec = self.Transform_Basin2Hills(vec,sumORmean=1)		
+			try:
+				if vec.shape[0]  == self.ncells:
+					vec = self.Transform_Basin2Hills(vec,sumORmean=1)		
+			except:
+				pass
 		# De acerudo al estado actualiza las variables o guarda el 
 		# binario final 
 		actualizo = 1

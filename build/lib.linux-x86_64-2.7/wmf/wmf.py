@@ -991,6 +991,11 @@ class Basin:
 		'self : Inicia las variables vacias.\n'\
 		'Map : Matriz con la informacion del mapa.\n'\
 		'MapProp : Propiedades del mapa.\n'\
+		'	1. Ncols Mapa.\n'\
+		'	2. Nrows Mapa.\n'\
+		'	3. Xll Mapa.\n'\
+		'	4. Yll Mapa.\n'\
+		'	5. dx Mapa.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -2024,15 +2029,18 @@ class SimuBasin(Basin):
 			N = self.ncells
 		elif self.modelType[0] is 'h':
 			N = self.nhills
-			if vec.shape[0]  == self.ncells:
-				vec = self.Transform_Basin2Hills(vec,sumORmean=1)
-		#Entrada 1 es la entrada de campos sin lluvia 
-		if len(self.radarDates) == 0:
-			models.write_int_basin(ruta_bin,np.zeros((1,N)),1,N,1)
+			try:
+				if vec.shape[0]  == self.ncells:
+					vec = self.Transform_Basin2Hills(vec,sumORmean=1)		
+			except:
+				pass
 		# De acerudo al estado actualiza las variables o guarda el 
 		# binario final 
 		actualizo = 1
 		if status == 'update':
+			#Entrada 1 es la entrada de campos sin lluvia 
+			if len(self.radarDates) == 0:
+				models.write_int_basin(ruta_bin,np.zeros((1,N)),1,N,1)
 			if vec.mean() > umbral:
 				#Actualiza contador, lluvia media y pocisiones 
 				self.radarCont +=1
@@ -2077,7 +2085,7 @@ class SimuBasin(Basin):
 			self.radarCont = 1
 		elif status == 'old':
 			#si es un archivo viejo, lo abre para tomar las variables y continuar en ese punto 
-			f=open(ruta_hdr[:-3]+'hdr','r')
+			f=open(ruta_hdr[:-3]+'.hdr','r')
 			Lista = f.readlines()
 			self.radarCont = int(Lista[3].split()[-1])
 			f.close()

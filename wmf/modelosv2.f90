@@ -34,6 +34,7 @@ real dx !Largo del mapa leido
 real dxP !largo proyectado del mapa, debe ser indicado si no se cononce
 integer ncols,nrows !cantidad de columnas y filas del mapa
 integer nceldas !Cantidad de celdas que componen la cuenca
+integer verbose !Determina si el modelo dice lo que esta ocurriendo o no 
 
 !Variables de rutas para leer y escribir informacion
 !character*500 rute_rain !Lectura de archivos de lluvia, que tengan forma de la cuenca
@@ -388,6 +389,10 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		entradas = 0
 		salidas = 0
 		
+		!Si se indica que imprima en pantalla lo va haciendo 
+		if (verbose .eq. 1) then 
+			print *, tiempo/N_reg
+		endif
 	enddo
 	
 end subroutine
