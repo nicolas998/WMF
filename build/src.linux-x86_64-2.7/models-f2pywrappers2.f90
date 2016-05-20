@@ -152,8 +152,38 @@
       flag = 1
       call f2pysetdata(d,allocated(d))
       end subroutine f2py_models_getdims_zmin
-      subroutine f2py_models_getdims_prus(r,s,f2pysetdata,flag)
-      use models, only: d => prus
+      subroutine f2py_models_getdims_posstra(r,s,f2pysetdata,flag)
+      use models, only: d => posstra
+
+      integer flag
+      external f2pysetdata
+      logical ns
+      integer r,i
+      integer(8) s(*)
+      ns = .FALSE.
+      if (allocated(d)) then
+         do i=1,r
+            if ((size(d,i).ne.s(i)).and.(s(i).ge.0)) then
+               ns = .TRUE.
+            end if
+         end do
+         if (ns) then
+            deallocate(d)
+         end if
+      end if
+      if ((.not.allocated(d)).and.(s(1).ge.1)) then
+       allocate(d(s(1)))
+      end if
+      if (allocated(d)) then
+         do i=1,r
+            s(i) = size(d,i)
+         end do
+      end if
+      flag = 1
+      call f2pysetdata(d,allocated(d))
+      end subroutine f2py_models_getdims_posstra
+      subroutine f2py_models_getdims_radslope(r,s,f2pysetdata,flag)
+      use models, only: d => radslope
 
       integer flag
       external f2pysetdata
@@ -181,7 +211,7 @@
       end if
       flag = 1
       call f2pysetdata(d,allocated(d))
-      end subroutine f2py_models_getdims_prus
+      end subroutine f2py_models_getdims_radslope
       subroutine f2py_models_getdims_hill_long(r,s,f2pysetdata,flag)
       use models, only: d => hill_long
 
@@ -422,8 +452,8 @@
       flag = 1
       call f2pysetdata(d,allocated(d))
       end subroutine f2py_models_getdims_h_exp
-      subroutine f2py_models_getdims_retorned(r,s,f2pysetdata,flag)
-      use models, only: d => retorned
+      subroutine f2py_models_getdims_zcrit(r,s,f2pysetdata,flag)
+      use models, only: d => zcrit
 
       integer flag
       external f2pysetdata
@@ -451,7 +481,7 @@
       end if
       flag = 1
       call f2pysetdata(d,allocated(d))
-      end subroutine f2py_models_getdims_retorned
+      end subroutine f2py_models_getdims_zcrit
       subroutine f2py_models_getdims_hill_slope(r,s,f2pysetdata,flag)
       use models, only: d => hill_slope
 
@@ -542,6 +572,96 @@
       flag = 1
       call f2pysetdata(d,allocated(d))
       end subroutine f2py_models_getdims_voldepo
+      subroutine f2py_models_getdims_stream_width(r,s,f2pysetdata,flag)
+      use models, only: d => stream_width
+
+      integer flag
+      external f2pysetdata
+      logical ns
+      integer r,i
+      integer(8) s(*)
+      ns = .FALSE.
+      if (allocated(d)) then
+         do i=1,r
+            if ((size(d,i).ne.s(i)).and.(s(i).ge.0)) then
+               ns = .TRUE.
+            end if
+         end do
+         if (ns) then
+            deallocate(d)
+         end if
+      end if
+      if ((.not.allocated(d)).and.(s(1).ge.1)) then
+       allocate(d(s(1),s(2)))
+      end if
+      if (allocated(d)) then
+         do i=1,r
+            s(i) = size(d,i)
+         end do
+      end if
+      flag = 1
+      call f2pysetdata(d,allocated(d))
+      end subroutine f2py_models_getdims_stream_width
+      subroutine f2py_models_getdims_storage_stra(r,s,f2pysetdata,flag)
+      use models, only: d => storage_stra
+
+      integer flag
+      external f2pysetdata
+      logical ns
+      integer r,i
+      integer(8) s(*)
+      ns = .FALSE.
+      if (allocated(d)) then
+         do i=1,r
+            if ((size(d,i).ne.s(i)).and.(s(i).ge.0)) then
+               ns = .TRUE.
+            end if
+         end do
+         if (ns) then
+            deallocate(d)
+         end if
+      end if
+      if ((.not.allocated(d)).and.(s(1).ge.1)) then
+       allocate(d(s(1),s(2)))
+      end if
+      if (allocated(d)) then
+         do i=1,r
+            s(i) = size(d,i)
+         end do
+      end if
+      flag = 1
+      call f2pysetdata(d,allocated(d))
+      end subroutine f2py_models_getdims_storage_stra
+      subroutine f2py_models_getdims_prus(r,s,f2pysetdata,flag)
+      use models, only: d => prus
+
+      integer flag
+      external f2pysetdata
+      logical ns
+      integer r,i
+      integer(8) s(*)
+      ns = .FALSE.
+      if (allocated(d)) then
+         do i=1,r
+            if ((size(d,i).ne.s(i)).and.(s(i).ge.0)) then
+               ns = .TRUE.
+            end if
+         end do
+         if (ns) then
+            deallocate(d)
+         end if
+      end if
+      if ((.not.allocated(d)).and.(s(1).ge.1)) then
+       allocate(d(s(1),s(2)))
+      end if
+      if (allocated(d)) then
+         do i=1,r
+            s(i) = size(d,i)
+         end do
+      end if
+      flag = 1
+      call f2pysetdata(d,allocated(d))
+      end subroutine f2py_models_getdims_prus
       subroutine f2py_models_getdims_crus(r,s,f2pysetdata,flag)
       use models, only: d => crus
 
@@ -572,6 +692,36 @@
       flag = 1
       call f2pysetdata(d,allocated(d))
       end subroutine f2py_models_getdims_crus
+      subroutine f2py_models_getdims_storage_conv(r,s,f2pysetdata,flag)
+      use models, only: d => storage_conv
+
+      integer flag
+      external f2pysetdata
+      logical ns
+      integer r,i
+      integer(8) s(*)
+      ns = .FALSE.
+      if (allocated(d)) then
+         do i=1,r
+            if ((size(d,i).ne.s(i)).and.(s(i).ge.0)) then
+               ns = .TRUE.
+            end if
+         end do
+         if (ns) then
+            deallocate(d)
+         end if
+      end if
+      if ((.not.allocated(d)).and.(s(1).ge.1)) then
+       allocate(d(s(1),s(2)))
+      end if
+      if (allocated(d)) then
+         do i=1,r
+            s(i) = size(d,i)
+         end do
+      end if
+      flag = 1
+      call f2pysetdata(d,allocated(d))
+      end subroutine f2py_models_getdims_storage_conv
       subroutine f2py_models_getdims_drena(r,s,f2pysetdata,flag)
       use models, only: d => drena
 
@@ -1053,36 +1203,6 @@
       flag = 1
       call f2pysetdata(d,allocated(d))
       end subroutine f2py_models_getdims_gammas
-      subroutine f2py_models_getdims_zcrit(r,s,f2pysetdata,flag)
-      use models, only: d => zcrit
-
-      integer flag
-      external f2pysetdata
-      logical ns
-      integer r,i
-      integer(8) s(*)
-      ns = .FALSE.
-      if (allocated(d)) then
-         do i=1,r
-            if ((size(d,i).ne.s(i)).and.(s(i).ge.0)) then
-               ns = .TRUE.
-            end if
-         end do
-         if (ns) then
-            deallocate(d)
-         end if
-      end if
-      if ((.not.allocated(d)).and.(s(1).ge.1)) then
-       allocate(d(s(1),s(2)))
-      end if
-      if (allocated(d)) then
-         do i=1,r
-            s(i) = size(d,i)
-         end do
-      end if
-      flag = 1
-      call f2pysetdata(d,allocated(d))
-      end subroutine f2py_models_getdims_zcrit
       subroutine f2py_models_getdims_bo(r,s,f2pysetdata,flag)
       use models, only: d => bo
 
@@ -1173,8 +1293,8 @@
       flag = 1
       call f2pysetdata(d,allocated(d))
       end subroutine f2py_models_getdims_stream_slope
-      subroutine f2py_models_getdims_stream_width(r,s,f2pysetdata,flag)
-      use models, only: d => stream_width
+      subroutine f2py_models_getdims_retorned(r,s,f2pysetdata,flag)
+      use models, only: d => retorned
 
       integer flag
       external f2pysetdata
@@ -1202,7 +1322,7 @@
       end if
       flag = 1
       call f2pysetdata(d,allocated(d))
-      end subroutine f2py_models_getdims_stream_width
+      end subroutine f2py_models_getdims_retorned
       subroutine f2py_models_getdims_stream_long(r,s,f2pysetdata,flag)
       use models, only: d => stream_long
 
@@ -1233,6 +1353,66 @@
       flag = 1
       call f2pysetdata(d,allocated(d))
       end subroutine f2py_models_getdims_stream_long
+      subroutine f2py_models_getdims_posconv(r,s,f2pysetdata,flag)
+      use models, only: d => posconv
+
+      integer flag
+      external f2pysetdata
+      logical ns
+      integer r,i
+      integer(8) s(*)
+      ns = .FALSE.
+      if (allocated(d)) then
+         do i=1,r
+            if ((size(d,i).ne.s(i)).and.(s(i).ge.0)) then
+               ns = .TRUE.
+            end if
+         end do
+         if (ns) then
+            deallocate(d)
+         end if
+      end if
+      if ((.not.allocated(d)).and.(s(1).ge.1)) then
+       allocate(d(s(1)))
+      end if
+      if (allocated(d)) then
+         do i=1,r
+            s(i) = size(d,i)
+         end do
+      end if
+      flag = 1
+      call f2pysetdata(d,allocated(d))
+      end subroutine f2py_models_getdims_posconv
+      subroutine f2py_models_getdims_mean_storage(r,s,f2pysetdata,flag)
+      use models, only: d => mean_storage
+
+      integer flag
+      external f2pysetdata
+      logical ns
+      integer r,i
+      integer(8) s(*)
+      ns = .FALSE.
+      if (allocated(d)) then
+         do i=1,r
+            if ((size(d,i).ne.s(i)).and.(s(i).ge.0)) then
+               ns = .TRUE.
+            end if
+         end do
+         if (ns) then
+            deallocate(d)
+         end if
+      end if
+      if ((.not.allocated(d)).and.(s(1).ge.1)) then
+       allocate(d(s(1),s(2)))
+      end if
+      if (allocated(d)) then
+         do i=1,r
+            s(i) = size(d,i)
+         end do
+      end if
+      flag = 1
+      call f2pysetdata(d,allocated(d))
+      end subroutine f2py_models_getdims_mean_storage
       subroutine f2py_models_getdims_cohesion(r,s,f2pysetdata,flag)
       use models, only: d => cohesion
 
@@ -1331,29 +1511,36 @@
       use models, only : verbose
       use models, only : h_coef
       use models, only : zmin
-      use models, only : prus
+      use models, only : posstra
+      use models, only : radslope
       use models, only : hill_long
       use models, only : frictionangle
       use models, only : sim_sediments
       use models, only : erot
       use models, only : fluxes
       use models, only : gullienogullie
+      use models, only : show_storage
       use models, only : rute_storage
       use models, only : max_capilar
       use models, only : elem_area
       use models, only : guarda_cond
       use models, only : vs
       use models, only : h_exp
-      use models, only : retorned
+      use models, only : zcrit
       use models, only : hill_slope
       use models, only : riskvector
       use models, only : separate_fluxes
       use models, only : voldepo
+      use models, only : stream_width
+      use models, only : separate_rain
+      use models, only : storage_stra
       use models, only : nrows
+      use models, only : prus
       use models, only : dx
       use models, only : rute_speed
       use models, only : dt
       use models, only : crus
+      use models, only : storage_conv
       use models, only : drena
       use models, only : xll
       use models, only : dep
@@ -1384,7 +1571,6 @@
       use models, only : fs
       use models, only : gammas
       use models, only : ncols
-      use models, only : zcrit
       use models, only : rain_first_point
       use models, only : bo
       use models, only : wi
@@ -1392,9 +1578,11 @@
       use models, only : qskr
       use models, only : save_speed
       use models, only : stream_slope
-      use models, only : stream_width
+      use models, only : retorned
       use models, only : stream_long
       use models, only : g
+      use models, only : posconv
+      use models, only : mean_storage
       use models, only : nceldas
       use models, only : cohesion
       use models, only : v_coef
@@ -1407,6 +1595,7 @@
       use models, only : write_float_basin
       use models, only : write_int_basin
       use models, only : rain_read_ascii_table
+      use models, only : rain_read_ascii_table_separate
       use models, only : rain_pre_mit
       use models, only : rain_mit
       use models, only : rain_idw
@@ -1424,7 +1613,8 @@
       external f2py_models_getdims_zmax
       external f2py_models_getdims_h_coef
       external f2py_models_getdims_zmin
-      external f2py_models_getdims_prus
+      external f2py_models_getdims_posstra
+      external f2py_models_getdims_radslope
       external f2py_models_getdims_hill_long
       external f2py_models_getdims_frictionangle
       external f2py_models_getdims_fluxes
@@ -1433,11 +1623,15 @@
       external f2py_models_getdims_guarda_cond
       external f2py_models_getdims_vs
       external f2py_models_getdims_h_exp
-      external f2py_models_getdims_retorned
+      external f2py_models_getdims_zcrit
       external f2py_models_getdims_hill_slope
       external f2py_models_getdims_riskvector
       external f2py_models_getdims_voldepo
+      external f2py_models_getdims_stream_width
+      external f2py_models_getdims_storage_stra
+      external f2py_models_getdims_prus
       external f2py_models_getdims_crus
+      external f2py_models_getdims_storage_conv
       external f2py_models_getdims_drena
       external f2py_models_getdims_vdc
       external f2py_models_getdims_vsc
@@ -1454,42 +1648,47 @@
       external f2py_models_getdims_krus
       external f2py_models_getdims_zs
       external f2py_models_getdims_gammas
-      external f2py_models_getdims_zcrit
       external f2py_models_getdims_bo
       external f2py_models_getdims_speed_map
       external f2py_models_getdims_stream_slope
-      external f2py_models_getdims_stream_width
+      external f2py_models_getdims_retorned
       external f2py_models_getdims_stream_long
+      external f2py_models_getdims_posconv
+      external f2py_models_getdims_mean_storage
       external f2py_models_getdims_cohesion
       external f2py_models_getdims_v_coef
       external f2py_models_getdims_control_h
       call f2pysetupfunc(f2py_models_getdims_posevento,f2py_models_getdi&
      &ms_control,f2py_models_getdims_zmax,verbose,f2py_models_getdims_h_&
-     &coef,f2py_models_getdims_zmin,f2py_models_getdims_prus,f2py_models&
-     &_getdims_hill_long,f2py_models_getdims_frictionangle,sim_sediments&
-     &,erot,f2py_models_getdims_fluxes,gullienogullie,rute_storage,f2py_&
-     &models_getdims_max_capilar,f2py_models_getdims_elem_area,f2py_mode&
-     &ls_getdims_guarda_cond,f2py_models_getdims_vs,f2py_models_getdims_&
-     &h_exp,f2py_models_getdims_retorned,f2py_models_getdims_hill_slope,&
-     &f2py_models_getdims_riskvector,separate_fluxes,f2py_models_getdims&
-     &_voldepo,nrows,dx,rute_speed,dt,f2py_models_getdims_crus,f2py_mode&
-     &ls_getdims_drena,xll,dep,dept,f2py_models_getdims_vdc,f2py_models_&
-     &getdims_vsc,f2py_models_getdims_slideocurrence,ero,f2py_models_get&
-     &dims_idevento,f2py_models_getdims_vd,dxp,f2py_models_getdims_voler&
-     &o,sim_slides,speed_type,diametro,f2py_models_getdims_v_exp,sed_fac&
-     &tor,f2py_models_getdims_parliac,f2py_models_getdims_max_gravita,f2&
-     &py_models_getdims_storage,f2py_models_getdims_unit_type,f2py_model&
-     &s_getdims_mean_rain,f2py_models_getdims_krus,retorno,f2py_models_g&
-     &etdims_zs,save_storage,gammaw,fs,f2py_models_getdims_gammas,ncols,&
-     &f2py_models_getdims_zcrit,rain_first_point,f2py_models_getdims_bo,&
-     &wi,f2py_models_getdims_speed_map,qskr,save_speed,f2py_models_getdi&
-     &ms_stream_slope,f2py_models_getdims_stream_width,f2py_models_getdi&
-     &ms_stream_long,g,nceldas,f2py_models_getdims_cohesion,f2py_models_&
-     &getdims_v_coef,yll,nodata,f2py_models_getdims_control_h,shia_v1,re&
-     &ad_float_basin,read_int_basin,write_float_basin,write_int_basin,ra&
-     &in_read_ascii_table,rain_pre_mit,rain_mit,rain_idw,calc_speed,sed_&
-     &allocate,sed_hillslope,sed_channel,slide_allocate,slide_ocurrence,&
-     &slide_hill2gullie,basin_subbasin_map2subbasin)
+     &coef,f2py_models_getdims_zmin,f2py_models_getdims_posstra,f2py_mod&
+     &els_getdims_radslope,f2py_models_getdims_hill_long,f2py_models_get&
+     &dims_frictionangle,sim_sediments,erot,f2py_models_getdims_fluxes,g&
+     &ullienogullie,show_storage,rute_storage,f2py_models_getdims_max_ca&
+     &pilar,f2py_models_getdims_elem_area,f2py_models_getdims_guarda_con&
+     &d,f2py_models_getdims_vs,f2py_models_getdims_h_exp,f2py_models_get&
+     &dims_zcrit,f2py_models_getdims_hill_slope,f2py_models_getdims_risk&
+     &vector,separate_fluxes,f2py_models_getdims_voldepo,f2py_models_get&
+     &dims_stream_width,separate_rain,f2py_models_getdims_storage_stra,n&
+     &rows,f2py_models_getdims_prus,dx,rute_speed,dt,f2py_models_getdims&
+     &_crus,f2py_models_getdims_storage_conv,f2py_models_getdims_drena,x&
+     &ll,dep,dept,f2py_models_getdims_vdc,f2py_models_getdims_vsc,f2py_m&
+     &odels_getdims_slideocurrence,ero,f2py_models_getdims_idevento,f2py&
+     &_models_getdims_vd,dxp,f2py_models_getdims_volero,sim_slides,speed&
+     &_type,diametro,f2py_models_getdims_v_exp,sed_factor,f2py_models_ge&
+     &tdims_parliac,f2py_models_getdims_max_gravita,f2py_models_getdims_&
+     &storage,f2py_models_getdims_unit_type,f2py_models_getdims_mean_rai&
+     &n,f2py_models_getdims_krus,retorno,f2py_models_getdims_zs,save_sto&
+     &rage,gammaw,fs,f2py_models_getdims_gammas,ncols,rain_first_point,f&
+     &2py_models_getdims_bo,wi,f2py_models_getdims_speed_map,qskr,save_s&
+     &peed,f2py_models_getdims_stream_slope,f2py_models_getdims_retorned&
+     &,f2py_models_getdims_stream_long,g,f2py_models_getdims_posconv,f2p&
+     &y_models_getdims_mean_storage,nceldas,f2py_models_getdims_cohesion&
+     &,f2py_models_getdims_v_coef,yll,nodata,f2py_models_getdims_control&
+     &_h,shia_v1,read_float_basin,read_int_basin,write_float_basin,write&
+     &_int_basin,rain_read_ascii_table,rain_read_ascii_table_separate,ra&
+     &in_pre_mit,rain_mit,rain_idw,calc_speed,sed_allocate,sed_hillslope&
+     &,sed_channel,slide_allocate,slide_ocurrence,slide_hill2gullie,basi&
+     &n_subbasin_map2subbasin)
       end subroutine f2pyinitmodels
 
 

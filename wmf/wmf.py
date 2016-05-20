@@ -267,6 +267,18 @@ def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
 			pass
 	return Lista,DatesFin
 
+def __Add_hdr_bin_2route__(rute):
+	if rute.endswith('.bin') is False and rute.endswith('.hdr') is True:
+		ruteBin = rute[:-3] + 'bin'
+		ruteHdr = rute
+	elif rute.endswith('.bin') is True and rute.endswith('.hdr') is False:
+		ruteBin = rute
+		ruteHdr = rute[:-3] + 'hdr'
+	elif  rute.endswith('.bin') is False and rute.endswith('.hdr') is False:
+		ruteBin = rute + '.bin'
+		ruteHdr = rute + '.hdr'
+	return ruteBin,ruteHdr
+
 def read_mean_rain(ruta,Nintervals=None,FirstInt=None):
 	#Abrey cierra el archivo plano
 	Data = np.loadtxt(ruta,skiprows=6,usecols=(2,3),delimiter=',',dtype='str')
@@ -1358,7 +1370,8 @@ class Basin:
 		layer = shapeData.CreateLayer('layer1', spatialReference, osgeo.ogr.wkbPolygon)
 		layerDefinition = layer.GetLayerDefn()
 		for p in Param.keys():
-			new_field=osgeo.ogr.FieldDefn(p[:p.index('[')].strip()[:10],osgeo.ogr.OFTReal)
+			#new_field=osgeo.ogr.FieldDefn(p[:p.index('[')].strip()[:10],osgeo.ogr.OFTReal)
+			new_field=osgeo.ogr.FieldDefn(p,osgeo.ogr.OFTReal)
 			layer.CreateField(new_field)
 		#Calcula el tamano de la muestra
 		ring = osgeo.ogr.Geometry(osgeo.ogr.wkbLinearRing)
@@ -1370,7 +1383,8 @@ class Basin:
 		feature.SetGeometry(poly)
 		feature.SetFID(0)
 		for p in Param.keys():		
-			feature.SetField(p[:p.index('[')].strip()[:10],float("%.2f" % Param[p]))
+			#feature.SetField(p[:p.index('[')].strip()[:10],float("%.2f" % Param[p]))
+			feature.SetField(p,float("%.2f" % Param[p]))
 		layer.CreateFeature(feature)
 		poly.Destroy()
 		ring.Destroy()
@@ -1635,6 +1649,8 @@ class SimuBasin(Basin):
 		'retorno : (defecto = 0), si es cero no se considera alm maximo en .\n'\
 		'	el tanque 3, si es 1, si se considera.\n'\
 		'SeparateFluxes : Separa el flujo en base, sub-superficial y escorrentia.\n'\
+		'SeparateRain : Separa el flujo proveniente de convectivas y de estratiformes.\n'\
+		'ShowStorage : Muestra en la salida del modelo el alm promedio en cada uno de los tanques.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1708,6 +1724,12 @@ class SimuBasin(Basin):
 			models.separate_fluxes = 0
 			if SeparateFluxes is 'si':
 				models.separate_fluxes = 1
+			models.separate_rain = 0
+			if SeparateRain is 'si':
+				models.separate_rain = 1
+			models.show_storage = 0 
+			if ShowStorage is 'si':
+				models.show_storage = 1
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
 			self.__Load_SimuBasin(rute)
@@ -2243,7 +2265,7 @@ class SimuBasin(Basin):
 			Vec = var
 			isVec=True
 		#Si el modelo es tipo ladera agrega la variable 
-		if self.modelType is 'hills':
+		if self.modelType[0] is 'h':
 			Vec = self.Transform_Basin2Hills(Vec,mask=mask)
 		#finalmente mete la variable en el modelo
 		if modelVarName is 'h_coef':
@@ -2353,8 +2375,59 @@ class SimuBasin(Basin):
 	#def set_sediments(self,var,varName):
 		
 		
-	#def set_slides(self,var,varName):
-
+	def set_slides(self,var,VarName):
+		'Descripcion: Alojas las variables requeridas para la ejecucion\n'\
+		'	del modelo de sedimentos.\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'var : Variable que describe la propiedad (constante, ruta, mapa o vector).\n'\
+		'varName: Nombre de la variable a ingresar en el modelo.\n'\
+		'	Zs : Profundidad del suelo.\n'\
+		'	GammaSoil: Densidad del suelo.\n'\
+		'	Cohesion: Cohesion del suelo.\n'\
+		'	FrictionAngle : Angulo de friccion del suelo.\n'\
+		'	FS: Factor de Seguridad, en este caso se envia una constante.\n'\
+		'	RadSlope : .\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'self : variables iniciadas en el modelo bajo los nombres de:.\n'\
+		'	wmf.models.gammas.\n'\
+		'	wmf.models.cohesion.\n'\
+		'	wmf.models.frictionangle.\n'\
+		'	wmf.models.zs.\n'\
+		#Obtiene el vector que va a alojar en el modelo
+		if VarName <> 'FS':
+			isVec=False
+			if type(var) is str:
+				#Si es un string lee el mapa alojado en esa ruta 
+				Map,Pp = read_map_raster(var)
+				Vec = self.Transform_Map2Basin(Map,Pp)
+				isVec=True
+			elif type(var) is int or float:
+				Vec = np.ones((1,self.ncells))*var
+				isVec=True
+			elif type(var) is np.ndarray and var.shape[0] == self.ncells:			
+				Vec = var
+				isVec=True
+		#Si el modelo es tipo ladera agrega la variable 
+		if self.modelType[0] == 'h':
+			return 'El modelo por laderas no simula deslizamientos.'
+		#finalmente mete la variable en el modelo
+		N = self.ncells
+		if VarName is 'GammaSoil' :
+			models.gammas = np.ones((1,N))*Vec
+		elif VarName is 'Cohesion':
+			models.cohesion = np.ones((1,N))*Vec
+		elif VarName is 'FrictionAngle':
+			models.frictionangle = np.ones((1,N))*Vec
+		elif VarName is 'Zs':
+			models.zs = np.ones((1,N))*Vec
+		elif VarName is 'FS':
+			models.fs = var
+		elif Varname is 'Slope':
+			models.radslope = np.ones((1,N))*Vec
 	#------------------------------------------------------
 	# Guardado y Cargado de modelos de cuencas preparados 
 	#------------------------------------------------------	
@@ -2456,7 +2529,8 @@ class SimuBasin(Basin):
 	# Ejecucion del modelo
 	#------------------------------------------------------	
 	def run_shia(self,Calibracion,
-		rain_rute, N_intervals, start_point = 1, ruta_storage = None):
+		rain_rute, N_intervals, start_point = 1, ruta_storage = None,
+		ruta_conv = None, ruta_stra = None):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
 		'	variables requeridas . \n'\
@@ -2483,21 +2557,15 @@ class SimuBasin(Basin):
 		'	que contiene fechas par aayudar a ubicar el punto de inicio deseado.\n'\
 		'ruta_storage : Ruta donde se guardan los estados del modelo en cada intervalo.\n'\
 		'	de tiempo, esta es opcional, solo se guardan si esta variable es asignada.\n'\
+		'ruta_conv : Ruta al binario y hdr indicando las nubes que son convectivas.\n'\
+		'ruta_stra : Ruta al binario y hdr indicando las nubes que son estratiformes.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
 		'Qsim : Caudal simulado en los puntos de control.\n'\
 		'Hsim : Humedad simulada en los puntos de control.\n'\
 		#genera las rutas 
-		if rain_rute.endswith('.bin') is False and rain_rute.endswith('.hdr') is True:
-			rain_ruteBin = rain_rute[:-3] + 'bin'
-			rain_ruteHdr = rain_rute
-		elif rain_rute.endswith('.bin') is True and rain_rute.endswith('.hdr') is False:
-			rain_ruteBin = rain_rute
-			rain_ruteHdr = rain_rute[:-3] + 'hdr'
-		elif  rain_rute.endswith('.bin') is False and rain_rute.endswith('.hdr') is False:
-			rain_ruteBin = rain_rute[:-3] + 'bin'
-			rain_ruteHdr = rain_rute[:-3] + 'hdr'
+		rain_ruteBin,rain_ruteHdr = __Add_hdr_bin_2route__(rain_rute)
 		# De acuerdo al tipo de modelo determina la cantidad de elementos
 		if self.modelType[0] is 'c':
 			N = self.ncells
@@ -2506,11 +2574,11 @@ class SimuBasin(Basin):
 		#prepara variables globales
 		models.rain_first_point = start_point
 		#Prepara terminos para control
-		if np.count_nonzero(models.control) is 0 :
+		if np.count_nonzero(models.control) == 0 :
 			NcontrolQ = 1
 		else:
 			NcontrolQ = np.count_nonzero(models.control)+1
-		if np.count_nonzero(models.control_h) is 0 :
+		if np.count_nonzero(models.control_h) == 0 :
 			NcontrolH = 1
 		else:
 			NcontrolH = np.count_nonzero(models.control_h)
@@ -2519,8 +2587,19 @@ class SimuBasin(Basin):
 			models.save_storage = 1
 		else:
 			ruta_storage = 'no_guardo_nada.bin'
+		#Variables de separacion de flujo por tipo de lluvia 
+		if models.separate_rain == 1 and ruta_conv <> None and ruta_stra <> None:
+			ruta_binConv,ruta_hdrConv = __Add_hdr_bin_2route__(ruta_conv)
+			ruta_binStra,ruta_hdrStra = __Add_hdr_bin_2route__(ruta_stra)
+		else:
+			models.separate_rain = 0
+			ruta_binConv = 'none'
+			ruta_hdrConv = 'none'
+			ruta_binStra = 'none'
+			ruta_hdrStra = 'none'
+			
 		# Ejecuta el modelo 
-		Qsim,Qsed,Qseparated,Humedad,Balance,Alm = models.shia_v1(
+		Qsim,Qsed,Qseparated,Humedad,Balance,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
 			rain_ruteHdr,
 			Calibracion,
@@ -2528,7 +2607,11 @@ class SimuBasin(Basin):
 			NcontrolQ,
 			NcontrolH,
 			N_intervals,
-			ruta_storage)
+			ruta_storage,
+			ruta_binConv,
+			ruta_binStra,
+			ruta_hdrConv,
+			ruta_hdrStra)
 		#Retorno de variables de acuerdo a lo simulado 
 		Retornos={'Qsim' : Qsim}
 		Retornos.update({'Balance' : Balance})
@@ -2539,6 +2622,10 @@ class SimuBasin(Basin):
 			Retornos.update({'Sediments' : Qsed})
 		if models.separate_fluxes == 1:
 			Retornos.update({'Fluxes' : Qseparated})
+		if models.separate_rain == 1:
+			Retornos.update({'Rain_sep' : Qsep_byrain})
+		if models.show_storage == 1:
+			Retornos.update({'Mean_Storage' : np.copy(models.mean_storage)})
 		return Retornos
 		
 class Stream:

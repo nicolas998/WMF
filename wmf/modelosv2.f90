@@ -39,6 +39,9 @@ integer verbose !Determina si el modelo dice lo que esta ocurriendo o no
 !Variables de rutas para leer y escribir informacion
 !character*500 rute_rain !Lectura de archivos de lluvia, que tengan forma de la cuenca
 integer, allocatable :: idEvento(:), posEvento(:) !Id del evento y pos al interior del binario
+!Variables para separacion de flujos por lluvia 
+integer, allocatable :: posConv(:) !posicion convectiva 
+integer, allocatable :: posStra(:) !posicion estratidforme
 character*500 rute_speed !Escritura de mapas de velocidad [N_reg,4,Nceldas]
 character*500 rute_storage !Escritura de mapas de almacenamiento [N_reg,5,Nceldas]
 
@@ -68,7 +71,9 @@ integer sim_sediments !Simula (1) o no (0) sedimentos
 integer sim_slides !Simula (1) o no (0) deslizamientos
 integer save_storage !Guarda (1) o no (0) almacenamiento de los tanques en cada intervalo.
 integer save_speed !Guarda (1) o no (0) las velocidades en cada intervalo
+integer show_storage !(1)Calcula el alm medio en la cuenca para cada tanque y lo muestra en la salida. (0) no lo hace.
 integer separate_fluxes !Separa (1) o no (0) los flujos que componen el caudal (base, sub-superficial y runoff)
+integer separate_rain !Separa (1) o no (0) los flujos de acuerdo al tipo de lluvia (convectiva, estratiforme)
 integer speed_type(3) !Tipo de velocidad para tanque 1, 2 y 3: 1: lineal, 2: Cinematica Potencial, de momento no hay mas implementadas 
 integer, allocatable :: control(:,:) !Celdas de la cuenca que tienen puntos de control
 integer, allocatable :: control_h(:,:) !Celdas de la cuenca que son puntos de control de humedad
@@ -79,6 +84,9 @@ real, allocatable :: Storage(:,:) !Almacenamiento de los 5 tanques del modelo
 real, allocatable :: Speed_map(:,:) !Mapa de velocidades en los tanques, solo se activa si se da la opcion save_speed
 real, allocatable :: Mean_Rain(:,:) !Serie de lluvia promedio en la cuenca [mm]
 real, allocatable :: Fluxes(:,:) !Matriz de flujos separados (3,nelem), 1: Superficial, 2: sub-superficial, 3: subterraneo
+real, allocatable :: Storage_conv(:,:) !Almacenamuiento solo lluvia convectiva 
+real, allocatable :: Storage_stra(:,:) !Almacenamiento solo lluvia stratiforme
+real, allocatable :: mean_storage(:,:) !Almacenamiento promedio en cada intervalo para toda la cuenca. (5,n_reg)
 
 !variables de sedimentos Par aalojar volumens y demas
 real sed_factor !factor para calibrar el modelo de sedimentos
@@ -104,6 +112,7 @@ real GammaW !Densidad del agua, es un solo valor
 real, allocatable :: GammaS(:,:) !Densidad del suelo 
 real, allocatable :: Cohesion(:,:) !Cohesion del suelo [Kpa]
 real, allocatable :: FrictionAngle(:,:) !Angulo de friccion [rad]
+real, allocatable :: RadSlope(:,:) !Angulo de la pendiente del suelo [rad]
 
 contains
 
@@ -113,22 +122,29 @@ contains
 !-----------------------------------------------------------------------
 
 subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
-	& Qsed, Qseparated, Hum, balance, StoOut, ruta_storage)
+	& Qsed, Qseparated, Hum, balance, StoOut, ruta_storage,&
+	& ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain)
     
+    !--------------------------------------------------------------------------
+    !DECLARACION DE VARIABLES
+    !--------------------------------------------------------------------------
 	!Variables de entrada
     integer, intent(in) :: N_cel,N_reg,N_cont,N_contH
     real, intent(in) :: calib(10)
     character*500, intent(in) :: ruta_bin, ruta_hdr
     character*500, intent(in), optional :: ruta_storage
+    character*500, intent(in), optional :: ruta_binConv, ruta_hdrConv, ruta_binStra, ruta_hdrStra
     
 	!Variables de salia
     real, intent(out) :: Hum(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !Control humedad en el suelo, Control caudales 
-    real, intent(out) :: Qseparated(N_cont,3,N_reg) !Si se habilita la funcion de separar flujos, los entrega separados en los puntos de control 
+    real, intent(out) :: Qseparated(N_cont,3,N_reg) !Si se habilita la funcion de separar flujos, los entrega separados en los puntos de control
+    real, intent(out) :: Qsep_byrain(N_cont,2,N_reg) !Si se habilita el separado por tipo de lluvia  
     real, intent(out) :: StoOut(5,N_cel),balance(N_reg) !Almacenamiento en tanques, balance total de la modelacion
      
 	!Variables de la lluvia
 	real Rain(N_cel) !Lluvia leida en el intervalo de tiempo [mm] [1,N_cel]
 	integer RainInt(N_cel)
+	integer Conv(N_cel),Stra(N_cel),Co,St !Unos o ceros si hay o no lluvia conv o strati en cada celda en un intervalo
 	integer Res !Dice si se leyo bien o no la lluvia 
 	real rain_sum
 	!Variables de iteracion
@@ -144,6 +160,8 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	!Variables de almacenamiento en tanques, flujo vertical y flujo horizontal
 	real vflux(4) !Flujo vertical [mm]
 	real hflux(4) !Flujo horizontal [mm]
+	real hflux_c(4) !Flujo horizontal para separacion por tipo lluvia
+	real hflux_s(4) !Flujo horizontal para separacion por tipo lluvia
 	real Ret !Retorno del tanque 3 al 2 [mm]
 	real Evp_loss !Salida por evaporcion del sistema [mm]
 	real QfluxesOut(3) !Caudal que sale separado por flujos en la opcion "separate_fluxes"
@@ -157,6 +175,9 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	real Area_coef(nceldas) !Coeficiente para el calculo del lateral en cada celda del tanque 2 para calcuo de sedimentos
     real Vsal_sed(3) !Volumen de salida de cada fraccion de sedimentos [m3/seg]
 	
+	!--------------------------------------------------------------------------
+    !PREPARACION BASICA DEL MODELO
+    !--------------------------------------------------------------------------
 	!Lee los vectores de estructura de guardado de la lluvia 
 	call rain_read_ascii_table(ruta_hdr,N_reg)
 	!Inicia la variable global de lluvia promedio sobre la cuenca
@@ -183,6 +204,9 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	H(1,:)=Max_capilar(1,:)*Calib(9)
 	H(2,:)=Max_gravita(1,:)*Calib(10)
 	
+	!--------------------------------------------------------------------------
+    !PREPARACION OPCIONAL DEL MODELO 
+    !--------------------------------------------------------------------------
 	!Si hay retorno aloja la matriz donde guarda cuando ocurren los retornos
 	if (retorno .eq. 1) then 
 		if (allocated(Retorned)) deallocate(Retorned)
@@ -196,12 +220,12 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	endif
 	!Si va a ejecutar sedimentos, aloja variables y arregla coeficientes
 	if (sim_sediments.eq.1) then 
-		call sed_allocate
+		call sed_allocate(N_cel)
 		Qsed=0  
 	endif
 	!Si va a ejecutar deslizamientos, aloja variables y arregla coeficientes 
 	if (sim_slides .eq. 1) then 
-		call slide_allocate
+		call slide_allocate(N_cel)
 	endif
 	!Si va a registrar flujos por separado:
 	if (separate_fluxes .eq. 1) then
@@ -209,7 +233,31 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		allocate(Fluxes(3,N_cel))
 		Fluxes = 0.0
 	endif
+	!Preparacion del modelo para caso en que se separa por tipo de lluvia 
+	if (separate_rain .eq. 1) then 
+		!Almacenamiento de las lluvias separadas en cada tanque
+		if (allocated(Storage_conv)) deallocate(Storage_conv)
+		if (allocated(Storage_stra)) deallocate(Storage_stra)
+		allocate(Storage_conv(5,N_cel), Storage_stra(5,N_cel))
+		Storage_conv = 0.0
+		Storage_stra = 0.0
+		hflux_c = 0
+		hflux_s = 0
+		Conv = 0
+		Stra = 0
+		!Lectura de posiciones de eventos en el tiempo de cada caso.
+		call rain_read_ascii_table_separate(ruta_hdrConv,ruta_hdrStra,N_reg)
+	endif
+	!Preparacion para el caso en que se muestra en la salida el alm promedio por tanque 
+	if (show_storage .eq. 1) then 
+		if (allocated(mean_storage)) deallocate(mean_storage)
+		allocate(mean_storage(5,N_reg))
+		mean_storage = 0
+	endif
 	
+	!--------------------------------------------------------------------------
+    !EJECUCION DEL MODELO 
+    !--------------------------------------------------------------------------
 	!Iter in the time
 	do tiempo=1,N_reg
 		
@@ -220,6 +268,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		!Determina el almacenamiento en el paso anterior 
 		StoAtras = sum(StoOut)
 		
+		!--------------------------------------------------------------------------
 		!Lee la lluvia 
 		if (posEvento(tiempo) .eq. 1) then
 			Rain = 0.0
@@ -227,10 +276,18 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 			call read_int_basin(ruta_bin, posEvento(tiempo),&
 				& N_cel, RainInt, Res) 
 			Rain = RainInt / 1000.0
+			!Si se habilita la funcion de separacion de flujos por lluvia, 
+			!lee los tipos de lluvia 
+			if (separate_rain .eq. 1) then 
+				call read_int_basin(ruta_binConv, posConv(tiempo),&
+				& N_cel, Conv, Res)
+				call read_int_basin(ruta_binStra, posStra(tiempo),&
+				& N_cel, Stra, Res)
+			endif
 		endif
 		rain_sum = 0.0
 		
-		
+		!--------------------------------------------------------------------------
 		!Iter around the cells or hills
 		do celda=1,N_cel
 			
@@ -238,12 +295,25 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 			drenaid = N_cel-drena(1,celda)+1
 			entradas = entradas+Rain(celda)
 			rain_sum = rain_sum+Rain(celda)
+			if (separate_rain .eq. 1) then 
+				Co = Conv(celda)/1000
+				St = Stra(celda)/1000
+			endif
 			
+			!--------------------------------------------------------------------------
 			!Determina el flujo vertical entre tanques
 			vflux(1) = max(0.0, Rain(celda)-H(1,celda)+StoOut(1,celda)) ![mm]
-			StoOut(1,celda)=StoOut(1,celda)+Rain(celda)-vflux(1) ![mm]
+			StoOut(1,celda)=StoOut(1,celda)+Rain(celda)-vflux(1) ![mm]			
+			!Evaporacion y retira evaporado
 			Evp_loss=min(vspeed(1,celda)*(StoOut(1,celda)/H(1,celda))**0.6,&
-				&StoOut(1,celda)) ![mm]
+				&StoOut(1,celda)) ![mm]			
+			!---------------------------------------
+			!SEP_LLUVIA
+			if (separate_rain .eq. 1) then
+				Storage_conv(1,celda) = max(0.0, Storage_conv(1,celda) - Evp_loss*Storage_conv(1,celda)/StoOut(1,celda))
+				Storage_stra(1,celda) = max(0.0, Storage_stra(1,celda) - Evp_loss*Storage_stra(1,celda)/StoOut(1,celda))
+			endif
+			!Actualiza almacenamiento
 			StoOut(1,celda)=StoOut(1,celda)-Evp_loss ![mm]			
 			do i=1,3
 				vflux(i+1)=min(vflux(i),vspeed(i+1,celda)) ![mm]
@@ -256,9 +326,30 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				StoOut(3,celda) = StoOut(3,celda) - Ret ![mm]
 				Retorned(1,celda) = Retorned(1,celda) + Ret
 			endif
+			!---------------------------------------
+			!SEP_LLUVIA
+			!Flujos separados por tipo de lluvia 
+			if (separate_rain .eq. 1) then 
+				!Actualiza lo que entra de lluvia en el capilar
+				Storage_conv(1,celda) = Storage_conv(1,celda)+(Rain(celda)-vflux(1))*Co
+				Storage_stra(1,celda) = Storage_stra(1,celda)+(Rain(celda)-vflux(1))*St				
+				!Actualiza los demas rtanques
+				do i=1,3
+					Storage_conv(i+1,celda)=Storage_conv(i+1,celda)+(vflux(i)-vflux(i+1))*Co ![mm]
+					Storage_stra(i+1,celda)=Storage_stra(i+1,celda)+(vflux(i)-vflux(i+1))*St ![mm]
+				enddo
+				!Actualiza si hay retorno 
+				if (Ret .ne. 0.0) then 
+					Storage_conv(2,celda) = Storage_conv(2,celda) + Ret*Co ![mm]
+					Storage_conv(3,celda) = Storage_conv(3,celda) - Ret*Co ![mm]
+					Storage_stra(2,celda) = Storage_stra(2,celda) + Ret*St ![mm]
+					Storage_stra(3,celda) = Storage_stra(3,celda) - Ret*St ![mm]
+				endif
+			endif
 			!Actualiza la salida del balance por evaporacion y perdidas
 			salidas=salidas+vflux(4)+Evp_loss ![mm]			
 			
+			!--------------------------------------------------------------------------
 			!Calcula el flujo que sale de los tanques 2 a 4
 			do i=1,3
 				!calcula la velocidad de transferencia
@@ -274,14 +365,38 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 						hflux(i)=min(Calib(i+4)*section_area*hspeed(i,celda)*dt/m3_mmHill(celda),&
 							& StoOut(i+1,celda))![mm]
 				end select
+				!---------------------------------------
+				!SEP_LLUVIA
+				!Si hay separacion por lluvia, actualiza 
+				if (separate_rain .eq. 1) then 
+					!Flujos que salen de cada tanque lo hacen en proporcion a la cantidad de agua de cada tipo
+					if (StoOut(i+1,celda).gt.0) then
+						hflux_c(i) = hflux(i)*Storage_conv(i+1,celda)/StoOut(i+1,celda)
+						hflux_s(i) = hflux(i)*Storage_stra(i+1,celda)/StoOut(i+1,celda)
+					else
+						hflux_c(i) = 0
+						hflux_s(i) = 0
+					endif
+					!Actualiza almacenamiento 
+					Storage_conv(i+1,celda) = Storage_conv(i+1,celda) - hflux_c(i)
+					Storage_stra(i+1,celda) = Storage_stra(i+1,celda) - hflux_s(i)
+				endif
 				!Actualiza el almacenamiento
 				StoOut(i+1,celda)=StoOut(i+1,celda)-hflux(i)	
 			enddo	
-				
+			
+			!--------------------------------------------------------------------------	
 			!Envia los flujos que salieron de acuerdo al tipo de celda 
 			if (unit_type(1,celda).eq.1) then
 				if (drena(1,celda).ne.0) then
 					StoOut(2:4,drenaid)=StoOut(2:4,drenaid)+hflux(1:3)
+					!---------------------------------------
+					!SEP_LLUVIA
+					!Separacion flujos de lluvia 
+					if (separate_rain .eq. 1) then 
+						Storage_conv(2:4,drenaid) = Storage_conv(2:4,drenaid) + hflux_c(1:3)
+						Storage_stra(2:4,drenaid) = Storage_stra(2:4,drenaid) + hflux_s(1:3)
+					endif
 				else
 					Q(1,tiempo)=Q(1,tiempo)+sum(hflux(1:3))*m3_mmHill(celda) ![m3/s]
 					salidas=salidas+sum(hflux(1:3))
@@ -294,6 +409,14 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 					&(3-unit_type(1,celda)) !celda tipo 3 esta ec se anula
 				StoOut(5,celda)=StoOut(5,celda)+sum(hflux(1:2))+&
 					& hflux(3)*(unit_type(1,celda)-2) !celda tipo 2 se anula el flujo del tanque 4
+				!---------------------------------------
+				!SEP_LLUVIA
+				if (separate_rain .eq. 1) then 
+					Storage_conv(4,drenaid) = Storage_conv(4,drenaid)+hflux_c(3)*(3-unit_type(1,celda))
+					Storage_stra(4,drenaid) = Storage_stra(4,drenaid)+hflux_s(3)*(3-unit_type(1,celda))
+					Storage_conv(5,celda) = Storage_conv(5,celda)+sum(hflux_c(1:2))+hflux_c(3)*(unit_type(1,celda)-2)
+					Storage_stra(5,celda) = Storage_stra(5,celda)+sum(hflux_s(1:2))+hflux_s(3)*(unit_type(1,celda)-2)
+				endif
 				
 				!Resuelve el transporte en el canal 
 				call calc_speed(StoOut(5,celda)*m3_mmRivers(celda), h_coef(4,celda),&
@@ -301,10 +424,26 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				hflux(4)=min(section_area*hspeed(4,celda)*dt*Calib(8)/m3_mmRivers(celda),&
 					&StoOut(5,celda)) ![mm]				
 				
+				!---------------------------------------
+				!SEP_LLUVIA
+				if (separate_rain .eq. 1) then 
+					if (StoOut(5,celda) .ne. 0) then 
+						hflux_c(4) = hflux(4)*Storage_conv(5,celda)/StoOut(5,celda)
+						hflux_s(4) = hflux(4)*Storage_stra(5,celda)/StoOut(5,celda)
+					else
+						hflux_c(4) = 0
+						hflux_s(4) = 0
+					endif
+					Storage_conv(5,celda) = Storage_conv(5,celda) - hflux_c(4)
+					Storage_stra(5,celda) = Storage_stra(5,celda) - hflux_s(4)
+				endif
+				
 				!!!!!!! Separacion de flujo (solo funciona si la activan) !!!!!!!!
 				if (separate_fluxes .eq. 1) then
 					Fluxes(1:3,celda) = Fluxes(1:3,celda) + hflux(1:3)
-					Fluxes(1:3,celda) = Fluxes(1:3,celda) - Fluxes(1:3,celda) * (hflux(4)/StoOut(5,celda))
+					if (StoOut(5,celda) .gt. 0) then 
+						Fluxes(1:3,celda) = Fluxes(1:3,celda) - Fluxes(1:3,celda) * (hflux(4)/StoOut(5,celda))					
+					endif
 				endif
 				
 				!Actualiza el almacenamiento en el cauce 
@@ -313,20 +452,36 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				!Envia el flujo en el cauce aguas abajo
 				if (drena(1,celda).ne.0) then
 					StoOut(5,drenaid) = StoOut(5,drenaid)+hflux(4)					
+					!Actualizacion de flujos separados por tipo de almacenamiento 
 					if (separate_fluxes .eq. 1) then
 						Fluxes(1:3,drenaid) = Fluxes(1:3,drenaid) + Fluxes(1:3,celda) * (hflux(4)/StoOut(5,celda))
+					endif
+					!---------------------------------------
+					!SEP_LLUVIA
+					if (separate_rain .eq. 1) then 
+						Storage_conv(5,drenaid) = Storage_conv(5,drenaid) + hflux_c(4)
+						Storage_stra(5,drenaid) = Storage_stra(5,drenaid) + hflux_s(4)
 					endif
 				else
 					Q(1,tiempo)=hflux(4)*m3_mmRivers(celda)/dt ![m3/s]      
 					salidas=salidas+hflux(4) ![mm]
+					!Registro de flujos separados por tipo de almacenamiento
 					if (separate_fluxes .eq. 1) then
 						Qseparated(1,:,tiempo) = Fluxes(1:3,celda) &
 							&* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
+					endif
+					!---------------------------------------
+					!SEP_LLUVIA					
+					!Registro de flujos de lluvia separados por tipo de lluvia 
+					if (separate_rain .eq. 1) then 
+						Qsep_byrain(1,1,tiempo) = hflux_c(4)*m3_mmRivers(celda)/dt
+						Qsep_byrain(1,2,tiempo) = hflux_s(4)*m3_mmRivers(celda)/dt
 					endif
 				endif
 				
 			endif
 			
+			!--------------------------------------------------------------------------
 			!Si evalua tte de sedimentos calcula el tte en ladera y cauce
 			if (sim_sediments .eq. 1) then
 				Area_coef=m3_mmHill(celda)/(hill_long(1,celda)+hspeed(1,celda)*dt)
@@ -345,10 +500,12 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				endif
 			endif
 			
+			!--------------------------------------------------------------------------
 			!Si evalua deslizamientos
-			if (sim_slides.eq.1) call slide_ocurrence(celda, StoOut(3,celda)&
+			if (sim_slides.eq.1) call slide_ocurrence(N_cel,celda, StoOut(3,celda)&
 				&, H(2,celda))
 			
+			!--------------------------------------------------------------------------
 			!Record de variables y resultados del modelo
 			!Caudales en el punto de control
 			if (control(1,celda).ne.0) then
@@ -358,6 +515,12 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 					Qseparated(control_cont,:,tiempo) = Fluxes(1:3,celda) &
 						&* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
 				endif
+				!---------------------------------------
+				!SEP_LLUVIA
+				if (separate_rain .eq. 1) then 
+					Qsep_byrain(control_cont,1,tiempo) = hflux_c(4)*m3_mmRivers(celda)/dt ![m3/s]      
+					Qsep_byrain(control_cont,2,tiempo) = hflux_s(4)*m3_mmRivers(celda)/dt ![m3/s]      
+				endif	
 				!Si se simularon sedimentos los guarda 
 				if (sim_sediments.eq.1) then
 					do i=1,3
@@ -374,6 +537,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				
 		enddo
 		
+		!--------------------------------------------------------------------------
 		!Obtiene la lluvia promedio para el intervalo de tiempo
 		Mean_Rain(1,tiempo)=rain_sum/N_cel
 		
@@ -383,6 +547,11 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		endif
 		if (save_speed .eq. 1) then
 			call write_float_basin(rute_speed,hspeed,tiempo,N_cel,4)
+		endif
+		
+		!Genera un promedio de cada tanque en caso de que se indique que lo haga  
+		if (show_storage .eq. 1) then 
+			mean_storage(:,tiempo) = sum(StoOut,dim=2) / N_cel
 		endif
 		
 		!Actualiza balance 
@@ -505,6 +674,70 @@ subroutine rain_read_ascii_table(ruta,Nintervals)
 			cont = 1			
 			do i = 1,Nintervals
 				read(10,*) idEvento(cont), posEvento(cont), oe
+				cont = cont+1
+			enddo			
+		endif
+	close(10)
+end subroutine
+!lee la tabla de informacion de la categorizacion de lluvia 
+subroutine rain_read_ascii_table_separate(rutaConv,rutaStra,Nintervals)
+	!variables de entrada 
+	character*255, intent(in) :: rutaConv,rutaStra
+	integer, intent(in) :: Nintervals
+	!Varuiables locales 
+	character*20 oe 
+	integer i,cont,Ntotal
+	!Configura variables globales de posiciones de los eventos 
+	!if (allocated(idEvento)) deallocate(idEvento)
+	if (allocated(posConv)) deallocate(posConv)
+	if (allocated(posStra)) deallocate(posStra)
+	allocate(posConv(Nintervals),posStra(Nintervals))
+	!Lee las posicion convectivas
+	open(unit = 10,file = rutaConv,status='old',action='read')
+		!lee la cantidad de intervalos de evento y aloja las variables 
+		do i = 1,3
+			read(10,*) oe, oe, oe, Ntotal			
+		enddo		
+		read(10,*)
+		read(10,*)
+		read(10,*)
+		!Solo lee si se cumple la condicion 
+		if (Nintervals + rain_first_point .le. Ntotal) then
+			!Salta lo necesario de acuerdo a rain_first_point		
+			if (rain_first_point .gt. 1) then 
+				do i = 1,rain_first_point
+					read(10,*)
+				enddo
+			endif
+			!Lee los ids de los eventos y las posiciones 		
+			cont = 1			
+			do i = 1,Nintervals
+				read(10,*) oe, posConv(cont), oe
+				cont = cont+1
+			enddo			
+		endif
+	close(10)
+	!Lee las posicion stratiformes
+	open(unit = 10,file = rutaStra,status='old',action='read')
+		!lee la cantidad de intervalos de evento y aloja las variables 
+		do i = 1,3
+			read(10,*) oe, oe, oe, Ntotal			
+		enddo		
+		read(10,*)
+		read(10,*)
+		read(10,*)
+		!Solo lee si se cumple la condicion 
+		if (Nintervals + rain_first_point .le. Ntotal) then
+			!Salta lo necesario de acuerdo a rain_first_point		
+			if (rain_first_point .gt. 1) then 
+				do i = 1,rain_first_point
+					read(10,*)
+				enddo
+			endif
+			!Lee los ids de los eventos y las posiciones 		
+			cont = 1			
+			do i = 1,Nintervals
+				read(10,*) oe, posStra(cont), oe
 				cont = cont+1
 			enddo			
 		endif
@@ -695,14 +928,15 @@ end subroutine
 !-----------------------------------------------------------------------
 !Subrutinas de sedimentos
 !-----------------------------------------------------------------------
-subroutine sed_allocate !Funcion para alojar variables si se van a calcular sed
+subroutine sed_allocate(N_cel) !Funcion para alojar variables si se van a calcular sed
+    integer, intent(in) :: N_cel
     !Tamaño a los vectores de sedimentos en suspención y depositads
-    if (allocated(VS) .eqv. .false.) allocate(VS(3,nceldas))
-    if (allocated(VD) .eqv. .false.) allocate(VD(3,nceldas))
-    if (allocated(VolERO) .eqv. .false.) allocate(VolERO(nceldas))
-    if (allocated(VolDEPo) .eqv. .false.) allocate(VolDEPo(nceldas))
-    if (allocated(VSc) .eqv. .false.) allocate(VSc(3,nceldas))
-    if (allocated(VDc) .eqv. .false.) allocate(VDc(3,nceldas))    
+    if (allocated(VS) .eqv. .false.) allocate(VS(3,N_cel))
+    if (allocated(VD) .eqv. .false.) allocate(VD(3,N_cel))
+    if (allocated(VolERO) .eqv. .false.) allocate(VolERO(N_cel))
+    if (allocated(VolDEPo) .eqv. .false.) allocate(VolDEPo(N_cel))
+    if (allocated(VSc) .eqv. .false.) allocate(VSc(3,N_cel))
+    if (allocated(VDc) .eqv. .false.) allocate(VDc(3,N_cel))    
     !estado inicial del almacenamiento de sedimentos
     VS=0 ![m3]
     VD=0![m3]
@@ -892,15 +1126,17 @@ end subroutine
 !-----------------------------------------------------------------------
 !Subrutinas de deslizamientos
 !-----------------------------------------------------------------------
-subroutine slide_allocate !Funcion para alojar variables de deslizamientos
+subroutine slide_allocate(N_cel) !Funcion para alojar variables de deslizamientos
+	integer, intent(in) :: N_cel
+	print *, 'hola'
 	!Aloja variables de umbrales para deslizamientos
-	if (allocated(Zmin) .eqv. .false.) allocate(Zmin(1,nceldas))
-	if (allocated(Zmax) .eqv. .false.) allocate(Zmax(1,nceldas))
-	if (allocated(Zcrit) .eqv. .false.) allocate(Zcrit(1,nceldas))
-	if (allocated(Bo) .eqv. .false.) allocate(Bo(1,nceldas))
-	!Aloja variables de resultados
-	if (allocated(SlideOcurrence) .eqv. .false.) allocate(SlideOcurrence(1,nceldas))
-	if (allocated(RiskVector) .eqv. .false.) allocate(RiskVector(1,nceldas))
+	if (allocated(Zmin)) deallocate(Zmin)
+	if (allocated(Zmax)) deallocate(Zmax)
+	if (allocated(Zcrit)) deallocate(Zcrit)
+	if (allocated(Bo)) deallocate(Bo)
+	if (allocated(SlideOcurrence)) deallocate(SlideOcurrence)
+	if (allocated(RiskVector)) deallocate(RiskVector)
+	allocate(Zmin(1,N_cel),Zmax(1,N_cel),Zcrit(1,N_cel),Bo(1,N_cel),SlideOcurrence(1,N_cel),RiskVector(1,N_cel))
 	!Calcula variables de acuerdo a las propiedades fisicas del suelo 
 	!Profundidad critica de inmunidad
 	Zmin = Cohesion/((GammaW*(COS(hill_slope))**2*TAN(FrictionAngle))&
@@ -919,10 +1155,10 @@ subroutine slide_allocate !Funcion para alojar variables de deslizamientos
 	!Inicia en cero el vector de deslizamientos, como si no ocurrieran
 	SlideOcurrence=0
 end subroutine 
-subroutine slide_ocurrence(cell,StorageT3,MaxStoT3) !Evalua la ocurrencia o no de deslizamientos
+subroutine slide_ocurrence(N_cel,cell,StorageT3,MaxStoT3) !Evalua la ocurrencia o no de deslizamientos
 	!Variables de entrada
 	real StorageT3, MaxStoT3
-	integer, intent(in) :: cell
+	integer, intent(in) :: cell, N_cel
 	!Variables locales
 	real Zw,Num,Den !Profunidad perched
 	!Evalua si el suelo es suceptible 
@@ -934,7 +1170,7 @@ subroutine slide_ocurrence(cell,StorageT3,MaxStoT3) !Evalua la ocurrencia o no d
 			!En caso afirmativo hay falla en el suelo 
 			SlideOcurrence(1,cell)=1
 			!Actualiza el tipo de celda y aguas abajo
-			if (GullieNoGullie .eq. 1) call slide_hill2gullie(cell)
+			if (GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell)
 		else 
 			Num=Cohesion(1,cell)+(GammaS(1,cell)*Zs(1,cell)-Zw*GammaW)&
 				&*(cos(hill_slope(1,cell)))**2*TAN(FrictionAngle(1,cell))
@@ -944,14 +1180,14 @@ subroutine slide_ocurrence(cell,StorageT3,MaxStoT3) !Evalua la ocurrencia o no d
 				!Si esta vaiana es mas baja que el factor de seguridad desliza 
 				SlideOcurrence(1,cell)=2
 				!Actualiza el tipo de celdas aguasd abajo
-				if (GullieNoGullie .eq. 1) call slide_hill2gullie(cell)
+				if (GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell)
 			endif
 		endif
 	endif
 end subroutine
-subroutine slide_hill2gullie(cell) !Cuando una celda se vuelve en carcava asegura que aguas abajo tambien lo sea
+subroutine slide_hill2gullie(N_cel,cell) !Cuando una celda se vuelve en carcava asegura que aguas abajo tambien lo sea
 	!Variables de entrada
-	integer, intent(in) :: cell	
+	integer, intent(in) :: cell,N_cel	
 	!Variables locales 
 	logical Flag
 	integer localCell,direction
@@ -961,7 +1197,7 @@ subroutine slide_hill2gullie(cell) !Cuando una celda se vuelve en carcava asegur
 		flag=.True.
 		localCell=cell
 		do while (flag)
-			direction=nceldas-drena(1,localCell)+1
+			direction=N_cel-drena(1,localCell)+1
 			if (unit_type(1,direction) .ge. unit_type(1,localCell)) then
 				flag=.False.
 			else
