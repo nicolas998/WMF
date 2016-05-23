@@ -1178,8 +1178,8 @@ subroutine slide_ocurrence(N_cel,cell,StorageT3,MaxStoT3) !Evalua la ocurrencia 
 			if (GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell)
 		else 
 			Num=Cohesion(1,cell)+(GammaS(1,cell)*Zs(1,cell)-Zw*GammaW)&
-				&*(cos(hill_slope(1,cell)))**2*TAN(FrictionAngle(1,cell))
-			Den=GammaS(1,cell)*Zs(1,cell)*sin(hill_slope(1,cell))*cos(hill_slope(1,cell))
+				&*(cos(RadSlope(1,cell)))**2*TAN(FrictionAngle(1,cell))
+			Den=GammaS(1,cell)*Zs(1,cell)*sin(RadSlope(1,cell))*cos(RadSlope(1,cell))
 			!Prueba si es menor al factorde seguridad 
 			if (Num/Den .le. FS) then 
 				!Si esta vaiana es mas baja que el factor de seguridad desliza 
