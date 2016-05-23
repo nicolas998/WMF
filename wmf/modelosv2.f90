@@ -1139,19 +1139,24 @@ subroutine slide_allocate(N_cel) !Funcion para alojar variables de deslizamiento
 	allocate(Zmin(1,N_cel),Zmax(1,N_cel),Zcrit(1,N_cel),Bo(1,N_cel),SlideOcurrence(1,N_cel),RiskVector(1,N_cel))
 	!Calcula variables de acuerdo a las propiedades fisicas del suelo 
 	!Profundidad critica de inmunidad
-	Zmin = Cohesion/((GammaW*(COS(hill_slope))**2*TAN(FrictionAngle))&
-		&+(GammaS*(COS(hill_slope))**2*(TAN(hill_slope)-TAN(FrictionAngle))))	
+	Zmin = Cohesion/((GammaW*(COS(RadSlope))**2.0*TAN(FrictionAngle))&
+		&+(GammaS*(COS(RadSlope))**2.0*(TAN(RadSlope)-TAN(FrictionAngle))))	
 	!Calculating the minimum value of landslide-triggering saturated depth
-	Zcrit = (GammaS/GammaW)*Zs*(1.0-(TAN(hill_slope)/TAN(FrictionAngle)))&
-		&+(Cohesion/(GammaW*(COS(hill_slope))**2*TAN(FrictionAngle)))
+	Zcrit = (GammaS/GammaW)*Zs*(1.0-(TAN(RadSlope)/TAN(FrictionAngle)))&
+		&+(Cohesion/(GammaW*(COS(RadSlope))**2*TAN(FrictionAngle)))
 	!Calculating soil thickness for unstable conditions
-	Zmax = Cohesion/((GammaS*(COS(hill_slope))**2)*(TAN(hill_slope)-TAN(FrictionAngle)))
+	Zmax = Cohesion/((GammaS*(COS(RadSlope))**2)*(TAN(RadSlope)-&
+		&TAN(FrictionAngle)))
 	!Calculating slope angle for unconditional stable conditions
 	Bo = ATAN(-TAN(FrictionAngle*(GammaW-GammaS)/GammaS))
 	!Calcula el mapa de suceptibilidad 
-	RiskVector=0 !Se asume todo el vector estable
-	where(hill_slope.gt.Bo .and. Zs .gt. Zmin) RiskVector=1 ! Condicionado
-	where(hill_slope.gt.Bo .and. Zs .gt. Zmax) RiskVector=2 ! Inestable
+	RiskVector=1 !Se asume todo el vector condicionado
+	where(RadSlope .lt. Bo) RiskVector = 0 !estable
+	where(Zs .lt. Zmin .and. RadSlope .ge. Bo) RiskVector = 0 !estable
+	where(Zs .lt. Zmax .and. RadSlope .ge. Bo) RiskVector = 2 !inestable
+	
+	!where(hill_slope.gt.Bo .and. Zs .gt. Zmin) RiskVector=1 ! Condicionado
+	!where(hill_slope.gt.Bo .and. Zs .gt. Zmax) RiskVector=2 ! Inestable
 	!Inicia en cero el vector de deslizamientos, como si no ocurrieran
 	SlideOcurrence=0
 end subroutine 
@@ -1162,7 +1167,7 @@ subroutine slide_ocurrence(N_cel,cell,StorageT3,MaxStoT3) !Evalua la ocurrencia 
 	!Variables locales
 	real Zw,Num,Den !Profunidad perched
 	!Evalua si el suelo es suceptible 
-	if (RiskVector(1,cell) .eq. 1 .and. SlideOcurrence(1,cell) .ne. 1) then
+	if (RiskVector(1,cell) .eq. 1 .and. SlideOcurrence(1,cell) .eq. 0) then
 		!Calcula la profundidad encharcada en el tanque gravitacional
 		Zw=Zs(1,cell)*(StorageT3/MaxStoT3)
 		!Evalua si la profundida emparamada es mayor o igual a la critica

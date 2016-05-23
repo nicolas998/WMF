@@ -1614,7 +1614,7 @@ class SimuBasin(Basin):
 	def __init__(self,lat,lon,DEM,DIR,name='NaN',stream=None,umbral=500,
 		noData=-999,modelType='cells',SimSed='no',SimSlides='no',dt=60,
 		SaveStorage='no',SaveSpeed='no',rute = None, retorno = 0,
-		SeparateFluxes = 'no'):
+		SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no'):
 		'Descripcion: Inicia un objeto para simulacion \n'\
 		'	el objeto tiene las propieades de una cuenca con. \n'\
 		'	la diferencia de que inicia las variables requeridas. \n'\
@@ -2375,7 +2375,7 @@ class SimuBasin(Basin):
 	#def set_sediments(self,var,varName):
 		
 		
-	def set_slides(self,var,VarName):
+	def set_Slides(self,var,VarName):
 		'Descripcion: Alojas las variables requeridas para la ejecucion\n'\
 		'	del modelo de sedimentos.\n'\
 		'\n'\
@@ -2421,13 +2421,13 @@ class SimuBasin(Basin):
 		elif VarName is 'Cohesion':
 			models.cohesion = np.ones((1,N))*Vec
 		elif VarName is 'FrictionAngle':
-			models.frictionangle = np.ones((1,N))*Vec
+			models.frictionangle = np.ones((1,N))*np.deg2rad(Vec)
 		elif VarName is 'Zs':
 			models.zs = np.ones((1,N))*Vec
 		elif VarName is 'FS':
 			models.fs = var
-		elif Varname is 'Slope':
-			models.radslope = np.ones((1,N))*Vec
+		elif VarName is 'Slope':
+			models.radslope = np.ones((1,N))*np.arctan(Vec)
 	#------------------------------------------------------
 	# Guardado y Cargado de modelos de cuencas preparados 
 	#------------------------------------------------------	
