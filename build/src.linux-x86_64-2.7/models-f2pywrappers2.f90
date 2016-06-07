@@ -1591,6 +1591,7 @@
       use models, only : control_h
       use models, only : shia_v1
       use models, only : read_float_basin
+      use models, only : read_float_basin_ncol
       use models, only : read_int_basin
       use models, only : write_float_basin
       use models, only : write_int_basin
@@ -1684,11 +1685,11 @@
      &,f2py_models_getdims_stream_long,g,f2py_models_getdims_posconv,f2p&
      &y_models_getdims_mean_storage,nceldas,f2py_models_getdims_cohesion&
      &,f2py_models_getdims_v_coef,yll,nodata,f2py_models_getdims_control&
-     &_h,shia_v1,read_float_basin,read_int_basin,write_float_basin,write&
-     &_int_basin,rain_read_ascii_table,rain_read_ascii_table_separate,ra&
-     &in_pre_mit,rain_mit,rain_idw,calc_speed,sed_allocate,sed_hillslope&
-     &,sed_channel,slide_allocate,slide_ocurrence,slide_hill2gullie,basi&
-     &n_subbasin_map2subbasin)
+     &_h,shia_v1,read_float_basin,read_float_basin_ncol,read_int_basin,w&
+     &rite_float_basin,write_int_basin,rain_read_ascii_table,rain_read_a&
+     &scii_table_separate,rain_pre_mit,rain_mit,rain_idw,calc_speed,sed_&
+     &allocate,sed_hillslope,sed_channel,slide_allocate,slide_ocurrence,&
+     &slide_hill2gullie,basin_subbasin_map2subbasin)
       end subroutine f2pyinitmodels
 
 

@@ -541,12 +541,13 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		!Obtiene la lluvia promedio para el intervalo de tiempo
 		Mean_Rain(1,tiempo)=rain_sum/N_cel
 		
-		!Mapas de velocidad del flujo, muestra la velocidad promedio 
+		!Guarda campo de estados del modelo 
 		if (save_storage .eq. 1) then
 			call write_float_basin(ruta_storage,StoOut,tiempo,N_cel,5)
 		endif
+		!Guarda campo de velocidades del modelo
 		if (save_speed .eq. 1) then
-			call write_float_basin(rute_speed,hspeed,tiempo,N_cel,4)
+			call write_float_basin(rute_speed,hspeed,tiempo,N_cel,5)
 		endif
 		
 		!Genera un promedio de cada tanque en caso de que se indique que lo haga  
@@ -585,6 +586,24 @@ subroutine read_float_basin(ruta, record, N_cel, vect, Res)
     !Lectura 
     open(10,file=ruta,form='unformatted',status='old',access='direct',&
 		& RECL=4*N_cel)
+	    read(10,rec=record,iostat=Res) vect
+	    if (Res.ne.0) print *, 'Error: Se ha tratado de leer un valor fuera del rango'
+	close(10)
+end subroutine
+!Lee los datos flotantes de un binario de cuenca en los records ordenados
+!Esta version lee de binarios con multiples entradas
+subroutine read_float_basin_Ncol(ruta, record, N_cel, N_col, vect, Res) 
+    !Variables de entrada
+    integer, intent(in) :: record, N_cel, N_col
+    character*500, intent(in) :: ruta
+    !Variables de salida
+    real, intent(out) :: vect(N_col,N_cel)
+    integer, intent(out) :: Res
+    !f2py intent(in) :: record, N_cel, ruta
+    !f2py intent(out) :: vect, Res    
+    !Lectura 
+    open(10,file=ruta,form='unformatted',status='old',access='direct',&
+		& RECL=4*N_cel*N_col)
 	    read(10,rec=record,iostat=Res) vect
 	    if (Res.ne.0) print *, 'Error: Se ha tratado de leer un valor fuera del rango'
 	close(10)
@@ -1162,7 +1181,7 @@ subroutine slide_allocate(N_cel) !Funcion para alojar variables de deslizamiento
 end subroutine 
 subroutine slide_ocurrence(N_cel,cell,StorageT3,MaxStoT3) !Evalua la ocurrencia o no de deslizamientos
 	!Variables de entrada
-	real StorageT3, MaxStoT3
+	real, intent(in) :: StorageT3, MaxStoT3
 	integer, intent(in) :: cell, N_cel
 	!Variables locales
 	real Zw,Num,Den !Profunidad perched
@@ -1181,12 +1200,12 @@ subroutine slide_ocurrence(N_cel,cell,StorageT3,MaxStoT3) !Evalua la ocurrencia 
 				&*(cos(RadSlope(1,cell)))**2*TAN(FrictionAngle(1,cell))
 			Den=GammaS(1,cell)*Zs(1,cell)*sin(RadSlope(1,cell))*cos(RadSlope(1,cell))
 			!Prueba si es menor al factorde seguridad 
-			if (Num/Den .le. FS) then 
+			!if (Num/Den .le. FS) then 
 				!Si esta vaiana es mas baja que el factor de seguridad desliza 
-				SlideOcurrence(1,cell)=2
+			!	SlideOcurrence(1,cell)=2
 				!Actualiza el tipo de celdas aguasd abajo
-				if (GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell)
-			endif
+			!	if (GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell)
+			!endif
 		endif
 	endif
 end subroutine

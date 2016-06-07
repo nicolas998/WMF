@@ -2249,36 +2249,36 @@ subroutine dem_correct_dem_w_dem(dem_in,dem_out,dem_w,mask,nc,nf,nc_m,nf_m,xll_m
 	enddo
 end subroutine 
 
-subroutine DEM_Slope(DEM,nc,nf,Slope) !Calcula la pendiente
-	!Variables de entrada
-	integer, intent(in) :: nc,nf
-	real, intent(in) :: DEM(nc,nf)
-	!Variables de salida
-	real, intent(out) :: Slope(nc,nf)
-	!f2py intent(in) :: nc,nf,DEM
-	!f2py intent(out) :: Slope
-	!Variables locales
-	integer i,j,ki,kj
-	real x,y,s,st
-	!Recorre toda la matriz
-	Slope=nodata
-	do i=2,nc-1
-		do j=2,nf-1
-			!Recorre todo el kernel de 3x3 para cada celda
-			s=0
-			do ki=-1,1
-				do kj=-1,1
-					y=DEM(i,j)-DEM(i+ki,j+kj)
-					if (ki .ne. 0 .and. kj .ne. 0) x=1.42*dxp
-					st=y/x
-					if (st .gt. s) s=st
-				enddo
-			enddo
-			!Toma la mayor pendiente como la pend de la celda
-			Slope(i,j)=s
-		enddo
-	enddo
-end subroutine
+!subroutine DEM_Slope(DEM,nc,nf,Slope) !Calcula la pendiente
+!	!Variables de entrada
+!	integer, intent(in) :: nc,nf
+!	real, intent(in) :: DEM(nc,nf)
+!	!Variables de salida
+!	real, intent(out) :: Slope(nc,nf)
+!	!f2py intent(in) :: nc,nf,DEM
+!	!f2py intent(out) :: Slope
+!	!Variables locales
+!	integer i,j,ki,kj
+!	real x,y,s,st
+!	!Recorre toda la matriz
+!	Slope=nodata
+!	do i=2,nc-1
+!		do j=2,nf-1
+!			!Recorre todo el kernel de 3x3 para cada celda
+!			s=0
+!			do ki=-1,1
+!				do kj=-1,1
+!					y=DEM(i,j)-DEM(i+ki,j+kj)
+!					if (ki .ne. 0 .and. kj .ne. 0) x=1.42*dxp
+!					st=y/x
+!					if (st .gt. s) s=st
+!				enddo
+!			enddo
+!			!Toma la mayor pendiente como la pend de la celda
+!			Slope(i,j)=s
+!		enddo
+!	enddo
+!end subroutine
 !subroutine DEM_Pitfill(DEM,nc,nf,DEMfill) !llena huecos en el DEM
 !	!Variables de entrada
 !	integer, intent(in) :: nc,nf
@@ -2430,49 +2430,7 @@ end subroutine
 !		enddo
 !	enddo
 !end subroutine
-
-
-!subroutine DEM_Process(DEM,nc,nf,DIR,Slope,DEMProc) !Subrutina 1 de procesamiento
-!	!Variables de entrada
-!	integer, intent(in) :: nc,nf
-!	real, intent(in) :: DEM(nc,nf)
-!	!Variables de salida
-!	real, intent(out) :: DEMProc(nc,nf),Slope(nc,nf)
-!	integer, intent(out) :: DIR(nc,nf)
-!	!f2py intent(in) :: nc,nf,DEM
-!	!f2py intent(out) :: DEMProc,DIR,Slope
-!	!Variables locales
-!	integer i,j,ki,kj
-!	real x,y,s,st
-!	integer directions(9),cont
-!	!Recorre toda la matriz
-!	directions=(/7,4,1,8,0,2,9,6,3/)
-!	DIR=nodata
-!	do i=2,nc-1
-!		do j=2,nf-1
-!			!Recorre todo el kernel de 3x3 para cada celda
-!			s=0; cont=0
-!			do ki=-1,1
-!				do kj=-1,1
-!					y=DEM(i,j)-DEM(i+ki,j+kj)
-!					x=dxp
-!					cont=cont+1	
-!					if (ki .ne. 0 .and. kj .ne. 0) x=1.41*dxp
-!					st=y/x
-!					if (st .gt. s) then						
-!						s=st
-!						DIR(i,j)=directions(cont)						
-!					endif									
-!				enddo
-!			enddo			
-!			Slope(i,j)=s			
-!		enddo
-!	enddo
-
-!end subroutine
-
-
-!--------------------------------------------------------------
+!s--------------------------------------------------------------
 !Esneider
 
 

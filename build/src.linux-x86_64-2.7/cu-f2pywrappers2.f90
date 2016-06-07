@@ -8,7 +8,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -38,7 +38,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -68,7 +68,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -98,7 +98,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -128,7 +128,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -158,7 +158,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -188,7 +188,7 @@
       integer flag
       external f2pysetdata
       logical ns
-      integer r,i,j
+      integer r,i
       integer(8) s(*)
       ns = .FALSE.
       if (allocated(d)) then
@@ -370,6 +370,9 @@
       use cu, only : dem_detect_clouds
       use cu, only : dem_correct_dem_w_dem
       use cu, only : dem_slope
+      use cu, only : kernel_dir
+      use cu, only : dem_process
+      use cu, only : dem_high_points
       interface 
       subroutine f2pywrap_cu_write_float_ascii (ruta, mapa, f2py_mapa_d0&
      &, f2py_mapa_d1)
@@ -461,7 +464,8 @@
      &g,basin_subbasin_map2subbasin,basin_subbasin_stream_prop,geo_hand,&
      &geo_hand_global,dir_reclass,f2pywrap_cu_qsortc,f2pywrap_cu_partiti&
      &on,f2pywrap_cu_find_colrow_inarg,cut_colrow_inarg,dem_detect_cloud&
-     &s,dem_correct_dem_w_dem,dem_slope)
+     &s,dem_correct_dem_w_dem,dem_slope,kernel_dir,dem_process,dem_high_&
+     &points)
       end subroutine f2pyinitcu
 
 
