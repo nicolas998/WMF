@@ -2108,7 +2108,7 @@ class SimuBasin(Basin):
 			self.radarCont = 1
 		elif status == 'old':
 			#si es un archivo viejo, lo abre para tomar las variables y continuar en ese punto 
-			f=open(ruta_hdr[:-3]+'.hdr','r')
+			f=open(ruta_hdr[:-3]+'hdr','r')
 			Lista = f.readlines()
 			self.radarCont = int(Lista[3].split()[-1])
 			f.close()
