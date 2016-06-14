@@ -2379,8 +2379,7 @@ class SimuBasin(Basin):
 				Vec,res = models.read_float_basin_ncol(var_bin,posFecha+1,N,5)
 			isVec=True
 			for p in range(5):
-				models.storage[p] = Vec[p]
-			return Fechas[posFecha]
+				models.storage[p] = Vec[p]			
 		elif type(var) is int or float:
 			Vec = np.ones((1,N))*var
 			isVec=True
