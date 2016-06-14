@@ -267,16 +267,36 @@ def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
 			pass
 	return Lista,DatesFin
 
-def __Add_hdr_bin_2route__(rute):
-	if rute.endswith('.bin') is False and rute.endswith('.hdr') is True:
-		ruteBin = rute[:-3] + 'bin'
-		ruteHdr = rute
-	elif rute.endswith('.bin') is True and rute.endswith('.hdr') is False:
-		ruteBin = rute
-		ruteHdr = rute[:-3] + 'hdr'
-	elif  rute.endswith('.bin') is False and rute.endswith('.hdr') is False:
-		ruteBin = rute + '.bin'
-		ruteHdr = rute + '.hdr'
+def __Add_hdr_bin_2route__(rute,storage=False):
+	if storage == False:
+		if rute.endswith('.bin') is False and rute.endswith('.hdr') is True:
+			ruteBin = rute[:-3] + 'bin'
+			ruteHdr = rute
+		elif rute.endswith('.bin') is True and rute.endswith('.hdr') is False:
+			ruteBin = rute
+			ruteHdr = rute[:-3] + 'hdr'
+		elif  rute.endswith('.bin') is False and rute.endswith('.hdr') is False:
+			ruteBin = rute + '.bin'
+			ruteHdr = rute + '.hdr'
+	else:
+		if rute.endswith('.StObin') is False and rute.endswith('.StOhdr') is True:
+			ruteBin = rute[:-6] + 'StObin'
+			ruteHdr = rute[:-6] + 'StOhdr'
+		elif rute.endswith('.StObin') is True and rute.endswith('.StOhdr') is False:
+			ruteBin = rute[:-6] + 'StObin'
+			ruteHdr = rute[:-6] + 'StOhdr'
+		elif  rute.endswith('.StObin') is False and rute.endswith('.StOhdr') is False:
+			ruteBin = rute + '.StObin'
+			ruteHdr = rute + '.StOhdr'
+		elif rute.endswith('.bin') is False and rute.endswith('.hdr') is True:
+			ruteBin = rute[:-3] + 'StObin'
+			ruteHdr = rute[:-3] + 'StOhdr'
+		elif rute.endswith('.bin') is True and rute.endswith('.hdr') is False:
+			ruteBin = rute[:-3] + 'StObin'
+			ruteHdr = rute[:-3] + 'StOhdr'
+		elif  rute.endswith('.bin') is False and rute.endswith('.hdr') is False:
+			ruteBin = rute + '.StObin'
+			ruteHdr = rute + '.StOhdr'
 	return ruteBin,ruteHdr
 
 def read_mean_rain(ruta,Nintervals=None,FirstInt=None):
@@ -291,6 +311,27 @@ def read_mean_rain(ruta,Nintervals=None,FirstInt=None):
 	#Regresa el resultado de la funcion
 	return pd.Series(Rain,index = pd.to_datetime(Dates))
 	
+def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
+	Mean_Storage = None):
+	#Lee fechas para el intervalo de tiempo
+	S = read_mean_rain(rute_rain,Nintervals,FirstInt)
+	#Escribe el encabezado del archivo 
+	f=open(rute,'w')
+	f.write('Numero de celdas: %d \n' % cuenca.ncells)
+	f.write('Numero de laderas: %d \n' % cuenca.nhills)
+	f.write('Numero de registros: %d \n' % Nintervals)
+	f.write('Tipo Modelo: %s \n' % cuenca.modelType)
+	f.write('IDfecha, Tanque 1, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
+	c = 1
+	#Si no hay almacenamiento medio lo coloca en -9999 
+	if Mean_Storage == None:
+		Mean_Storage = np.ones((Nintervals,5))*-9999
+	#Escribe registros medios y fechas de lo almacenamientos 
+	for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
+		f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
+			(c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
+		c+=1
+	f.close()
 	
 #-----------------------------------------------------------------------
 #Ecuaciones Que son de utilidad
@@ -2108,7 +2149,7 @@ class SimuBasin(Basin):
 			self.radarCont = 1
 		elif status == 'old':
 			#si es un archivo viejo, lo abre para tomar las variables y continuar en ese punto 
-			f=open(ruta_hdr[:-3]+'.hdr','r')
+			f=open(ruta_hdr[:-3]+'hdr','r')
 			Lista = f.readlines()
 			self.radarCont = int(Lista[3].split()[-1])
 			f.close()
@@ -2280,14 +2321,14 @@ class SimuBasin(Basin):
 			models.max_capilar[0] = Vec
 		elif modelVarName is 'gravit':
 			models.max_gravita[0] = Vec
-	def set_Storage(self,var,pos):
+	def set_Storage(self,var,pos,hour_scale=False):
 		'Descripcion: \n'\
 		'	Establece el almacenamiento inicial del modelo\n'\
 		'	la variable puede ser un valor, una ruta o un vector.\n'\
 		'\n'\
 		'Parametros\n'\
 		'----------\n'\
-		'var : Variable conla cual se va a iniciar el almancenamiento.\n'\
+		'var : Variable con la cual se va a iniciar el almancenamiento.\n'\
 		'	- ruta : es una ruta a un archivo binario de almacenamiento.\n'\
 		'	- escalar : valor de almacenamiento constate para toda la cuenca.\n'\
 		'	- vector : Vector con valores para cadda unidad de la cuenca.\n'\
@@ -2297,6 +2338,10 @@ class SimuBasin(Basin):
 		'	- 2 :  alm sub-superficial.\n'\
 		'	- 3 :  alm subterraneo.\n'\
 		'	- 4 :  alm cauce.\n'\
+		'	- fecha: en caso de que var sea la ruta a StOhdr:\n'\
+		'		- valor: puede ser un entero con la posicion.\n'\
+		'		- str fecha: puede ser un srint con la fecha: YYYY-MM-DD-HH:MM :\n'\
+		'hour_scale: Buscar fechas a escala horaria o minutos?.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -2313,17 +2358,40 @@ class SimuBasin(Basin):
 		#Obtiene el vector que va a alojar en el modelo
 		isVec=False
 		if type(var) is str:
-			#Si es un string lee el binario de almacenamiento alojado en esa ruta 
-			Vec,res = models.read_float_basin(var,pos+1,N)
+			var_bin,var_hdr = __Add_hdr_bin_2route__(var,storage = True)
+			if type(pos) is not str:
+				#Si es un string lee el binario de almacenamiento alojado en esa ruta 
+				Vec,res = models.read_float_basin_ncol(var_bin,pos+1,N,5)
+			if type(pos) == str:
+				# Lee las fechas
+				L = np.loadtxt(var_hdr,skiprows = 5, usecols = (0,6), dtype = str)
+				if hour_scale == False:
+					Fechas = [datetime.datetime.strptime(i[1], '%Y-%m-%d-%H:%M') for i in L]
+				else:
+					Fechas = [datetime.datetime.strptime(i[1][:-3], '%Y-%m-%d-%H') for i in L]
+				try:
+					if hour_scale == False:
+						posFecha = Fechas.index(datetime.datetime.strptime(pos, '%Y-%m-%d-%H:%M'))
+					else:
+						posFecha = Fechas.index(datetime.datetime.strptime(pos[:-3], '%Y-%m-%d-%H'))
+				except:
+					print 'Error: no se encuentra la fecha especificada en el archivo '+var
+				Vec,res = models.read_float_basin_ncol(var_bin,posFecha+1,N,5)
 			isVec=True
+			for p in range(5):
+				models.storage[p] = Vec[p]
+			return Fechas[posFecha]
 		elif type(var) is int or float:
 			Vec = np.ones((1,N))*var
 			isVec=True
+			models.storage[pos] = Vec
 		elif type(var) is np.ndarray and var.shape[0] == N:			
 			Vec = var
 			isVec=True
-		#Aloja ese almacenamiento en la cuenca 
-		models.storage[pos] = Vec
+			models.storage[pos] = Vec
+		
+		
+			
 	def set_Control(self,coordXY,ids,tipo = 'Q'):
 		'Descripcion: \n'\
 		'	Establece los puntos deonde se va a realizar control del caudal\n'\
@@ -2585,8 +2653,11 @@ class SimuBasin(Basin):
 		#Prepara variables de guardado de variables 
 		if ruta_storage is not None:
 			models.save_storage = 1
+			ruta_sto_bin, ruta_sto_hdr = __Add_hdr_bin_2route__(ruta_storage,
+				storage = True)
 		else:
-			ruta_storage = 'no_guardo_nada.bin'
+			ruta_sto_bin = 'no_guardo_nada.StObin'
+			ruta_sto_hdr = 'no_guardo_nada.StOhdr'
 		#Variables de separacion de flujo por tipo de lluvia 
 		if models.separate_rain == 1 and ruta_conv <> None and ruta_stra <> None:
 			ruta_binConv,ruta_hdrConv = __Add_hdr_bin_2route__(ruta_conv)
@@ -2607,7 +2678,7 @@ class SimuBasin(Basin):
 			NcontrolQ,
 			NcontrolH,
 			N_intervals,
-			ruta_storage,
+			ruta_sto_bin,
 			ruta_binConv,
 			ruta_binStra,
 			ruta_hdrConv,
@@ -2626,6 +2697,16 @@ class SimuBasin(Basin):
 			Retornos.update({'Rain_sep' : Qsep_byrain})
 		if models.show_storage == 1:
 			Retornos.update({'Mean_Storage' : np.copy(models.mean_storage)})
+		if models.save_storage == 1:
+			rutaStorageHdr = __Add_hdr_bin_2route__(ruta_storage)
+			#Caso en el que no se registra el alm medio 
+			if models.show_storage == 1:
+				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
+					start_point,self,Mean_Storage = np.copy(models.mean_storage))
+			#Caso en el que no hay alm medio para cada uno de los 
+			else:
+				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
+					start_point,self)
 		return Retornos
 		
 class Stream:
