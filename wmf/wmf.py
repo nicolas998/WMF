@@ -325,8 +325,8 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
 	c = 1
 	#Si no hay almacenamiento medio lo coloca en -9999 
 	if Mean_Storage == None:
-		Mean_Storage = np.ones((Nintervals,5))*-9999
-	#Escribe registros medios y fechas de lo almacenamientos 
+		Mean_Storage = np.ones((5,Nintervals))*-9999
+	#Escribe registros medios y fechas de los almacenamientos 
 	for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
 		f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
 			(c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
