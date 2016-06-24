@@ -99,20 +99,28 @@ real, allocatable :: VSc(:,:),Vdc(:,:)
 real, allocatable :: Krus(:,:),Crus(:,:),Prus(:,:) !Factores de la RUSLE
 real, allocatable :: PArLiAc(:,:) !Porcentaje de arenas, limos y arcillas
 
-!Variables del modelo de deslizamientos
+!Variables del modelo de deslizamientos (Edier, 2011)
+!-----------------------------------------------------------
+!Notas:
+!1. Estas variables se encuentran denotadas por el inicio "sl_"
+!2. Las variables: gammas, cohesion, frictionangle, fs, radslope y zs se inician con SimuBasin.set_Slides
+!3. Las variables: Zcrit, Zmin, Zmax, Bo, RiskVector, son iniciadas y calculadas por slide_allocate
+!4. El modelo ejecuta bajo la subrutina: slide_ocurrence, y edita sobre la variable SlideOcurrence 
+!-----------------------------------------------------------
 !Factores de seguridad, mapas de riesgos y de deslizamientos
-integer GullieNoGullie !Determina si se usa (0) o no se usa (1) el transporte en Gullie aguas abajo
-real FS !Factor de seguridad, por defecto se deja en 1.
-real, allocatable :: RiskVector(:,:) !Vector de riesgos: 1. No riesgo, 2. Evaluable, 3. Siempre en riesgo.
-real, allocatable :: SlideOcurrence(:,:) !Vector con las ocurrencias de deslizamientos de acuerdo al modelo.
-real, allocatable :: Zcrit(:,:), Zmin(:,:), Zmax(:,:), Bo(:,:) !Profundiad critica, minima, maxima [mts] y angulo critico [rad]
+integer sl_GullieNoGullie !Determina si se usa (0) o no se usa (1) el transporte en Gullie aguas abajo
+real sl_FS !Factor de seguridad, por defecto se deja en 1.
+real, allocatable :: sl_RiskVector(:,:) !Vector de riesgos: 1. No riesgo, 2. Evaluable, 3. Siempre en riesgo.
+real, allocatable :: sl_SlideOcurrence(:,:) !Vector con las ocurrencias de deslizamientos de acuerdo al modelo.
+integer, allocatable :: sl_SlideNcellTime(:) !Vector con la cantidad de celdas que se deslizan en cada intervalo de tiempo
+real, allocatable :: sl_Zcrit(:,:), sl_Zmin(:,:), sl_Zmax(:,:), sl_Bo(:,:) !Profundiad critica, minima, maxima [mts] y angulo critico [rad]
 !Propiedades fisicas del suelo 
-real, allocatable :: Zs(:,:) !Profundidad del suelo [mm]
-real GammaW !Densidad del agua, es un solo valor
-real, allocatable :: GammaS(:,:) !Densidad del suelo 
-real, allocatable :: Cohesion(:,:) !Cohesion del suelo [Kpa]
-real, allocatable :: FrictionAngle(:,:) !Angulo de friccion [rad]
-real, allocatable :: RadSlope(:,:) !Angulo de la pendiente del suelo [rad]
+real, allocatable :: sl_Zs(:,:) !Profundidad del suelo [mm]
+real sl_GammaW !Densidad del agua, es un solo valor
+real, allocatable :: sl_GammaS(:,:) !Densidad del suelo 
+real, allocatable :: sl_Cohesion(:,:) !Cohesion del suelo [Kpa]
+real, allocatable :: sl_FrictionAngle(:,:) !Angulo de friccion [rad]
+real, allocatable :: sl_RadSlope(:,:) !Angulo de la pendiente del suelo [rad]
 
 contains
 
@@ -225,7 +233,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	endif
 	!Si va a ejecutar deslizamientos, aloja variables y arregla coeficientes 
 	if (sim_slides .eq. 1) then 
-		call slide_allocate(N_cel)
+		call slide_allocate(N_cel, N_reg)
 	endif
 	!Si va a registrar flujos por separado:
 	if (separate_fluxes .eq. 1) then
@@ -502,7 +510,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 			
 			!--------------------------------------------------------------------------
 			!Si evalua deslizamientos
-			if (sim_slides.eq.1) call slide_ocurrence(N_cel,celda, StoOut(3,celda)&
+			if (sim_slides.eq.1) call slide_ocurrence(N_cel, tiempo, celda, StoOut(3,celda)&
 				&, H(2,celda))
 			
 			!--------------------------------------------------------------------------
@@ -1145,67 +1153,69 @@ end subroutine
 !-----------------------------------------------------------------------
 !Subrutinas de deslizamientos
 !-----------------------------------------------------------------------
-subroutine slide_allocate(N_cel) !Funcion para alojar variables de deslizamientos
-	integer, intent(in) :: N_cel
-	print *, 'hola'
+subroutine slide_allocate(N_cel,N_reg) !Funcion para alojar variables de deslizamientos
+	integer, intent(in) :: N_cel, N_reg
 	!Aloja variables de umbrales para deslizamientos
-	if (allocated(Zmin)) deallocate(Zmin)
-	if (allocated(Zmax)) deallocate(Zmax)
-	if (allocated(Zcrit)) deallocate(Zcrit)
-	if (allocated(Bo)) deallocate(Bo)
-	if (allocated(SlideOcurrence)) deallocate(SlideOcurrence)
-	if (allocated(RiskVector)) deallocate(RiskVector)
-	allocate(Zmin(1,N_cel),Zmax(1,N_cel),Zcrit(1,N_cel),Bo(1,N_cel),SlideOcurrence(1,N_cel),RiskVector(1,N_cel))
+	if (allocated(sl_Zmin)) deallocate(sl_Zmin)
+	if (allocated(sl_Zmax)) deallocate(sl_Zmax)
+	if (allocated(sl_Zcrit)) deallocate(sl_Zcrit)
+	if (allocated(sl_Bo)) deallocate(sl_Bo)
+	if (allocated(sl_SlideOcurrence)) deallocate(sl_SlideOcurrence)
+	if (allocated(sl_RiskVector)) deallocate(sl_RiskVector)
+	if (allocated(sl_SlideNcellTime)) deallocate(sl_SlideNcellTime)
+	allocate(sl_Zmin(1,N_cel),sl_Zmax(1,N_cel),sl_Zcrit(1,N_cel),sl_Bo(1,N_cel),sl_SlideOcurrence(1,N_cel),sl_RiskVector(1,N_cel))
+	allocate(sl_SlideNcellTime(N_reg))
 	!Calcula variables de acuerdo a las propiedades fisicas del suelo 
 	!Profundidad critica de inmunidad
-	Zmin = Cohesion/((GammaW*(COS(RadSlope))**2.0*TAN(FrictionAngle))&
-		&+(GammaS*(COS(RadSlope))**2.0*(TAN(RadSlope)-TAN(FrictionAngle))))	
+	sl_Zmin = sl_Cohesion/((sl_GammaW*(COS(sl_RadSlope))**2.0*TAN(sl_FrictionAngle))&
+		&+(sl_GammaS*(COS(sl_RadSlope))**2.0*(TAN(sl_RadSlope)-TAN(sl_FrictionAngle))))	
 	!Calculating the minimum value of landslide-triggering saturated depth
-	Zcrit = (GammaS/GammaW)*Zs*(1.0-(TAN(RadSlope)/TAN(FrictionAngle)))&
-		&+(Cohesion/(GammaW*(COS(RadSlope))**2*TAN(FrictionAngle)))
+	sl_Zcrit = (sl_GammaS/sl_GammaW)*sl_Zs*(1.0-(TAN(sl_RadSlope)/TAN(sl_FrictionAngle)))&
+		&+(sl_Cohesion/(sl_GammaW*(COS(sl_RadSlope))**2*TAN(sl_FrictionAngle)))
 	!Calculating soil thickness for unstable conditions
-	Zmax = Cohesion/((GammaS*(COS(RadSlope))**2)*(TAN(RadSlope)-&
-		&TAN(FrictionAngle)))
+	sl_Zmax = sl_Cohesion/((sl_GammaS*(COS(sl_RadSlope))**2)*(TAN(sl_RadSlope)-&
+		&TAN(sl_FrictionAngle)))
 	!Calculating slope angle for unconditional stable conditions
-	Bo = ATAN(-TAN(FrictionAngle*(GammaW-GammaS)/GammaS))
+	sl_Bo = ATAN(-TAN(sl_FrictionAngle*(sl_GammaW-sl_GammaS)/sl_GammaS))
 	!Calcula el mapa de suceptibilidad 
-	RiskVector=1 !Se asume todo el vector condicionado
-	where(RadSlope .lt. Bo) RiskVector = 0 !estable
-	where(Zs .lt. Zmin .and. RadSlope .ge. Bo) RiskVector = 0 !estable
-	where(Zs .lt. Zmax .and. RadSlope .ge. Bo) RiskVector = 2 !inestable
-	
-	!where(hill_slope.gt.Bo .and. Zs .gt. Zmin) RiskVector=1 ! Condicionado
-	!where(hill_slope.gt.Bo .and. Zs .gt. Zmax) RiskVector=2 ! Inestable
+	sl_RiskVector = 2 !Se asume todo el vector condicionado
+	where(unit_type .eq. 3) sl_RiskVector = 0 !estable
+	where(sl_RadSlope .lt. sl_Bo) sl_RiskVector = 0 !estable
+	where(sl_Zs .lt. sl_Zmin .and. sl_RadSlope .lt. sl_Bo) sl_RiskVector = 0 !estable
+	where(sl_Zs .gt. sl_Zmax .and. sl_RadSlope .gt. sl_Bo) sl_RiskVector = 1 !inestable
 	!Inicia en cero el vector de deslizamientos, como si no ocurrieran
-	SlideOcurrence=0
+	sl_SlideOcurrence = 0
+	sl_SlideNcellTime = 0
 end subroutine 
-subroutine slide_ocurrence(N_cel,cell,StorageT3,MaxStoT3) !Evalua la ocurrencia o no de deslizamientos
+subroutine slide_ocurrence(N_cel,timeStep,cell,StorageT3,MaxStoT3) !Evalua la ocurrencia o no de deslizamientos
 	!Variables de entrada
 	real, intent(in) :: StorageT3, MaxStoT3
-	integer, intent(in) :: cell, N_cel
+	integer, intent(in) :: cell, N_cel, timeStep
 	!Variables locales
 	real Zw,Num,Den !Profunidad perched
 	!Evalua si el suelo es suceptible 
-	if (RiskVector(1,cell) .eq. 1 .and. SlideOcurrence(1,cell) .eq. 0) then
+	if (sl_RiskVector(1,cell) .eq. 2 .and. sl_SlideOcurrence(1,cell) .eq. 0) then
 		!Calcula la profundidad encharcada en el tanque gravitacional
-		Zw=Zs(1,cell)*(StorageT3/MaxStoT3)
+		Zw = (StorageT3*sl_Zs(1,cell))/MaxStoT3
 		!Evalua si la profundida emparamada es mayor o igual a la critica
-		if (Zw .ge. Zcrit(1,cell)) then
+		if (Zw .ge. sl_Zcrit(1,cell)) then
 			!En caso afirmativo hay falla en el suelo 
-			SlideOcurrence(1,cell)=1
+			sl_SlideOcurrence(1,cell)=1
+			sl_SlideNcellTime(timeStep) = sl_SlideNcellTime(timeStep) + 1 
 			!Actualiza el tipo de celda y aguas abajo
-			if (GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell)
+			if (sl_GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell)
 		else 
-			Num=Cohesion(1,cell)+(GammaS(1,cell)*Zs(1,cell)-Zw*GammaW)&
-				&*(cos(RadSlope(1,cell)))**2*TAN(FrictionAngle(1,cell))
-			Den=GammaS(1,cell)*Zs(1,cell)*sin(RadSlope(1,cell))*cos(RadSlope(1,cell))
+			Num=sl_Cohesion(1,cell)+(sl_GammaS(1,cell)*sl_Zs(1,cell)-Zw*sl_GammaW)&
+				&*(cos(sl_RadSlope(1,cell)))**2*TAN(sl_FrictionAngle(1,cell))
+			Den=sl_GammaS(1,cell)*sl_Zs(1,cell)*sin(sl_RadSlope(1,cell))*cos(sl_RadSlope(1,cell))
 			!Prueba si es menor al factorde seguridad 
-			!if (Num/Den .le. FS) then 
+			if (Num/Den .le. sl_FS) then 
 				!Si esta vaiana es mas baja que el factor de seguridad desliza 
-			!	SlideOcurrence(1,cell)=2
+				sl_SlideOcurrence(1,cell)=2
+				sl_SlideNcellTime(timeStep) = sl_SlideNcellTime(timeStep) + 1
 				!Actualiza el tipo de celdas aguasd abajo
-			!	if (GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell)
-			!endif
+				if (sl_GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell)
+			endif
 		endif
 	endif
 end subroutine

@@ -325,8 +325,8 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
 	c = 1
 	#Si no hay almacenamiento medio lo coloca en -9999 
 	if Mean_Storage == None:
-		Mean_Storage = np.ones((Nintervals,5))*-9999
-	#Escribe registros medios y fechas de lo almacenamientos 
+		Mean_Storage = np.ones((5,Nintervals))*-9999
+	#Escribe registros medios y fechas de los almacenamientos 
 	for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
 		f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
 			(c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
@@ -2379,8 +2379,7 @@ class SimuBasin(Basin):
 				Vec,res = models.read_float_basin_ncol(var_bin,posFecha+1,N,5)
 			isVec=True
 			for p in range(5):
-				models.storage[p] = Vec[p]
-			return Fechas[posFecha]
+				models.storage[p] = Vec[p]			
 		elif type(var) is int or float:
 			Vec = np.ones((1,N))*var
 			isVec=True
@@ -2461,10 +2460,14 @@ class SimuBasin(Basin):
 		'Retornos\n'\
 		'----------\n'\
 		'self : variables iniciadas en el modelo bajo los nombres de:.\n'\
-		'	wmf.models.gammas.\n'\
-		'	wmf.models.cohesion.\n'\
-		'	wmf.models.frictionangle.\n'\
-		'	wmf.models.zs.\n'\
+		'	wmf.models.sl_zs.\n'\
+		'	wmf.models.sl_gammas.\n'\
+		'	wmf.models.sl_cohesion.\n'\
+		'	wmf.models.sl_frictionangle.\n'\
+		'	wmf.models.sl_radslope.\n'\
+		'	wmf.models.sl_fs.\n'\
+		#Pone el gamma del agua por defecto 
+		models.sl_gammaw = 9.8
 		#Obtiene el vector que va a alojar en el modelo
 		if VarName <> 'FS':
 			isVec=False
@@ -2485,17 +2488,17 @@ class SimuBasin(Basin):
 		#finalmente mete la variable en el modelo
 		N = self.ncells
 		if VarName is 'GammaSoil' :
-			models.gammas = np.ones((1,N))*Vec
+			models.sl_gammas = np.ones((1,N))*Vec
 		elif VarName is 'Cohesion':
-			models.cohesion = np.ones((1,N))*Vec
+			models.sl_cohesion = np.ones((1,N))*Vec
 		elif VarName is 'FrictionAngle':
-			models.frictionangle = np.ones((1,N))*np.deg2rad(Vec)
+			models.sl_frictionangle = np.ones((1,N))*np.deg2rad(Vec)
 		elif VarName is 'Zs':
-			models.zs = np.ones((1,N))*Vec
+			models.sl_zs = np.ones((1,N))*Vec
 		elif VarName is 'FS':
-			models.fs = var
+			models.sl_fs = var
 		elif VarName is 'Slope':
-			models.radslope = np.ones((1,N))*np.arctan(Vec)
+			models.sl_radslope = np.ones((1,N))*np.arctan(Vec)
 	#------------------------------------------------------
 	# Guardado y Cargado de modelos de cuencas preparados 
 	#------------------------------------------------------	
@@ -2707,6 +2710,10 @@ class SimuBasin(Basin):
 			else:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
 					start_point,self)
+		#Retornos en caso de simular deslizamientos
+		if models.sim_slides == 1:
+			Retornos.update({'SlidesMap': np.copy(models.sl_slideocurrence)})
+			Retornos.update({'Slides_NCell_Serie': np.copy(models.sl_slidencelltime)})
 		return Retornos
 		
 class Stream:
