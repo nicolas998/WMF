@@ -2712,8 +2712,9 @@ class SimuBasin(Basin):
 					start_point,self)
 		#Retornos en caso de simular deslizamientos
 		if models.sim_slides == 1:
-			Retornos.update({'SlidesMap': np.copy(models.sl_slideocurrence)})
+			Retornos.update({'Slides_Map': np.copy(models.sl_slideocurrence)})
 			Retornos.update({'Slides_NCell_Serie': np.copy(models.sl_slidencelltime)})
+			Retornos.update({'Slides_Acum':np.copy(models.sl_slideacumulate)})
 		return Retornos
 		
 class Stream:

@@ -112,6 +112,7 @@ integer sl_GullieNoGullie !Determina si se usa (0) o no se usa (1) el transporte
 real sl_FS !Factor de seguridad, por defecto se deja en 1.
 real, allocatable :: sl_RiskVector(:,:) !Vector de riesgos: 1. No riesgo, 2. Evaluable, 3. Siempre en riesgo.
 real, allocatable :: sl_SlideOcurrence(:,:) !Vector con las ocurrencias de deslizamientos de acuerdo al modelo.
+integer, allocatable :: sl_SlideAcumulate(:,:) !Vector donde se muestra el acumulado de celdas deslizadas que pasan por un celda
 integer, allocatable :: sl_SlideNcellTime(:) !Vector con la cantidad de celdas que se deslizan en cada intervalo de tiempo
 real, allocatable :: sl_Zcrit(:,:), sl_Zmin(:,:), sl_Zmax(:,:), sl_Bo(:,:) !Profundiad critica, minima, maxima [mts] y angulo critico [rad]
 !Propiedades fisicas del suelo 
@@ -1163,8 +1164,9 @@ subroutine slide_allocate(N_cel,N_reg) !Funcion para alojar variables de desliza
 	if (allocated(sl_SlideOcurrence)) deallocate(sl_SlideOcurrence)
 	if (allocated(sl_RiskVector)) deallocate(sl_RiskVector)
 	if (allocated(sl_SlideNcellTime)) deallocate(sl_SlideNcellTime)
+	if (allocated(sl_SlideAcumulate)) deallocate(sl_SlideAcumulate)
 	allocate(sl_Zmin(1,N_cel),sl_Zmax(1,N_cel),sl_Zcrit(1,N_cel),sl_Bo(1,N_cel),sl_SlideOcurrence(1,N_cel),sl_RiskVector(1,N_cel))
-	allocate(sl_SlideNcellTime(N_reg))
+	allocate(sl_SlideNcellTime(N_reg), sl_SlideAcumulate(1,N_cel))
 	!Calcula variables de acuerdo a las propiedades fisicas del suelo 
 	!Profundidad critica de inmunidad
 	sl_Zmin = sl_Cohesion/((sl_GammaW*(COS(sl_RadSlope))**2.0*TAN(sl_FrictionAngle))&
@@ -1186,6 +1188,7 @@ subroutine slide_allocate(N_cel,N_reg) !Funcion para alojar variables de desliza
 	!Inicia en cero el vector de deslizamientos, como si no ocurrieran
 	sl_SlideOcurrence = 0
 	sl_SlideNcellTime = 0
+	sl_SlideAcumulate = 0
 end subroutine 
 subroutine slide_ocurrence(N_cel,timeStep,cell,StorageT3,MaxStoT3) !Evalua la ocurrencia o no de deslizamientos
 	!Variables de entrada
@@ -1200,10 +1203,11 @@ subroutine slide_ocurrence(N_cel,timeStep,cell,StorageT3,MaxStoT3) !Evalua la oc
 		!Evalua si la profundida emparamada es mayor o igual a la critica
 		if (Zw .ge. sl_Zcrit(1,cell)) then
 			!En caso afirmativo hay falla en el suelo 
-			sl_SlideOcurrence(1,cell)=1
+			sl_SlideOcurrence(1,cell)= 1
+			sl_SlideAcumulate(1,cell) = 1
 			sl_SlideNcellTime(timeStep) = sl_SlideNcellTime(timeStep) + 1 
 			!Actualiza el tipo de celda y aguas abajo
-			if (sl_GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell)
+			if (sl_GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell,timeStep)
 		else 
 			Num=sl_Cohesion(1,cell)+(sl_GammaS(1,cell)*sl_Zs(1,cell)-Zw*sl_GammaW)&
 				&*(cos(sl_RadSlope(1,cell)))**2*TAN(sl_FrictionAngle(1,cell))
@@ -1211,31 +1215,35 @@ subroutine slide_ocurrence(N_cel,timeStep,cell,StorageT3,MaxStoT3) !Evalua la oc
 			!Prueba si es menor al factorde seguridad 
 			if (Num/Den .le. sl_FS) then 
 				!Si esta vaiana es mas baja que el factor de seguridad desliza 
-				sl_SlideOcurrence(1,cell)=2
+				sl_SlideOcurrence(1,cell)= 1
+				sl_SlideAcumulate(1,cell) = 1
 				sl_SlideNcellTime(timeStep) = sl_SlideNcellTime(timeStep) + 1
 				!Actualiza el tipo de celdas aguasd abajo
-				if (sl_GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell)
+				if (sl_GullieNoGullie .eq. 1) call slide_hill2gullie(N_cel,cell,timeStep)
 			endif
 		endif
 	endif
 end subroutine
-subroutine slide_hill2gullie(N_cel,cell) !Cuando una celda se vuelve en carcava asegura que aguas abajo tambien lo sea
+subroutine slide_hill2gullie(N_cel,cell,timeSt) !Cuando una celda se vuelve en carcava asegura que aguas abajo tambien lo sea
 	!Variables de entrada
-	integer, intent(in) :: cell,N_cel	
+	integer, intent(in) :: cell,N_cel, timeSt	
 	!Variables locales 
 	logical Flag
 	integer localCell,direction
 	!Ejecuta hasta encontrar otra carcava aguas abajo
 	if (unit_type(1,cell).le.2) then 
-		unit_type(1,cell)=2
+		!unit_type(1,cell)=2
 		flag=.True.
 		localCell=cell
 		do while (flag)
 			direction=N_cel-drena(1,localCell)+1
-			if (unit_type(1,direction) .ge. unit_type(1,localCell)) then
+			if (unit_type(1,direction) .gt. unit_type(1,localCell)) then
 				flag=.False.
 			else
-				unit_type(1,direction)=unit_type(1,localCell)
+				sl_SlideOcurrence(1,direction) = 3
+				sl_SlideAcumulate(1,direction) = sl_SlideAcumulate(1,direction) + 1
+				sl_SlideNcellTime(timeSt) = sl_SlideNcellTime(timeSt) + 1
+				!unit_type(1,direction)=unit_type(1,localCell)
 				localCell=direction
 			endif
 		enddo
