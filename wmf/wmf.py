@@ -2803,4 +2803,6 @@ class Stream:
 		if ruta<>None:
 			pl.savefig(ruta,bbox_inches='tight')
 		pl.show()
-	#def Plot_Map(self,ruta=None):
+	#def Plot_Map(self,ruta=None
+
+S
