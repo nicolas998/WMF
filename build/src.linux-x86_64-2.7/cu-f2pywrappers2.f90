@@ -319,6 +319,7 @@
       use cu, only : read_float_basin
       use cu, only : write_int_basin
       use cu, only : write_float_basin
+      use cu, only : stream_find_to_corr
       use cu, only : stream_find
       use cu, only : stream_cut
       use cu, only : stream_kml
@@ -363,6 +364,7 @@
       use cu, only : basin_subbasin_long
       use cu, only : basin_subbasin_map2subbasin
       use cu, only : basin_subbasin_stream_prop
+      use cu, only : geo_acum_to_cauce
       use cu, only : geo_hand
       use cu, only : geo_hand_global
       use cu, only : dir_reclass
@@ -446,21 +448,21 @@
      &ead_float_ascii_ng,read_int_ascii_ng,read_int_basin,read_float_bas&
      &in,f2pywrap_cu_write_float_ascii,f2pywrap_cu_write_int_ascii,f2pyw&
      &rap_cu_write_float_ascii_ng,f2pywrap_cu_write_int_ascii_ng,write_i&
-     &nt_basin,write_float_basin,stream_find,stream_cut,stream_kml,strea&
-     &m_reset,basin_find,basin_cut,basin_basics,basin_acum,basin_findlon&
-     &g,basin_time_to_out,basin_arc_slope,basin_reset,basin_coordxy,basi&
-     &n_perim_find,basin_perim_cut,basin_perim_kml,basin_float_var2map,b&
-     &asin_int_var2map,basin_int_map2var,basin_float_map2var,basin_map2b&
-     &asin,basin_2map_find,basin_2map,basin_point2var,basin_extract_var_&
-     &by_point,basin_stream_nod,basin_stream_slope,basin_stream_type,bas&
-     &in_stream_point2stream,basin_netxy_find,basin_netxy_cut,basin_ppal&
-     &stream_find,basin_ppalstream_cut,basin_ppal_hipsometric,basin_qmed&
-     &,basin_qofer_qcap,basin_propagate,basin_subbasin_nod,basin_subbasi&
-     &n_cut,basin_subbasin_horton,basin_subbasin_find,basin_subbasin_lon&
-     &g,basin_subbasin_map2subbasin,basin_subbasin_stream_prop,geo_hand,&
-     &geo_hand_global,dir_reclass,f2pywrap_cu_qsortc,f2pywrap_cu_partiti&
-     &on,f2pywrap_cu_find_colrow_inarg,cut_colrow_inarg,dem_detect_cloud&
-     &s,dem_correct_dem_w_dem)
+     &nt_basin,write_float_basin,stream_find_to_corr,stream_find,stream_&
+     &cut,stream_kml,stream_reset,basin_find,basin_cut,basin_basics,basi&
+     &n_acum,basin_findlong,basin_time_to_out,basin_arc_slope,basin_rese&
+     &t,basin_coordxy,basin_perim_find,basin_perim_cut,basin_perim_kml,b&
+     &asin_float_var2map,basin_int_var2map,basin_int_map2var,basin_float&
+     &_map2var,basin_map2basin,basin_2map_find,basin_2map,basin_point2va&
+     &r,basin_extract_var_by_point,basin_stream_nod,basin_stream_slope,b&
+     &asin_stream_type,basin_stream_point2stream,basin_netxy_find,basin_&
+     &netxy_cut,basin_ppalstream_find,basin_ppalstream_cut,basin_ppal_hi&
+     &psometric,basin_qmed,basin_qofer_qcap,basin_propagate,basin_subbas&
+     &in_nod,basin_subbasin_cut,basin_subbasin_horton,basin_subbasin_fin&
+     &d,basin_subbasin_long,basin_subbasin_map2subbasin,basin_subbasin_s&
+     &tream_prop,geo_acum_to_cauce,geo_hand,geo_hand_global,dir_reclass,&
+     &f2pywrap_cu_qsortc,f2pywrap_cu_partition,f2pywrap_cu_find_colrow_i&
+     &narg,cut_colrow_inarg,dem_detect_clouds,dem_correct_dem_w_dem)
       end subroutine f2pyinitcu
 
 

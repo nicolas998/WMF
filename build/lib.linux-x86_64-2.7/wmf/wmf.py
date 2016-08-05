@@ -408,8 +408,8 @@ class Basin:
 	# Subrutinas de trazado de cuenca y obtencion de parametros
 	#------------------------------------------------------
 	#Inicia la cuenca
-	def __init__(self,lat,lon,DEM,DIR,name='NaN',stream=None,
-		umbral=1000, ruta = None):
+	def __init__(self,lat=0,lon=0,DEM=None,DIR=None,name='NaN',stream=None,
+		umbral=1000, ruta = None, useCauceMap = None):
 		'Descripcion: Inicia la variable de la cuenca, y la traza \n'\
 		'	obtiene las propiedades basicas de la cuenca. \n'\
 		'\n'\
@@ -425,6 +425,10 @@ class Basin:
 		'	debe ser un objeto del tipo stream.\n'\
 		'umbral : umbral minimo para la creacion de cauce (defecto =1000).\n'\
 		'ruta : Ruta donde se encuentra un archivo binario de la cuenca.\n'\
+		'useCauceMap : Si se asigna un mapa binario donde 1 es cauce y 0 es ladera.\n'\
+		'	el trazador corregira las coordenadas para que estas lleguen a una celda.\n'\
+		'	tipo cauce y se trace la cuenca de forma correcta (esta opcion deshabilita \n'\
+		'	a stream)\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -432,8 +436,12 @@ class Basin:
 		#Relaciona con el DEM y el DIR
 		self.DEM=DEM
 		self.DIR=DIR
+		#Si se da la opcion de que use el useCauceMap deshabilita stream
+		if useCauceMap <> None:
+			stream = None
 		#Si se entrega cauce corrige coordenadas
 		if ruta == None:
+			# Si se da el stream corrige por corriente
 			if stream<>None:
 				error=[]
 				for i in stream.structure.T:
@@ -441,6 +449,9 @@ class Basin:
 				loc=np.argmin(error)
 				lat=stream.structure[0,loc]
 				lon=stream.structure[1,loc]
+			if useCauceMap <> None and useCauceMap.shape == DEM.shape:
+				nceldasTemp,lat,lon = cu.stream_find_to_corr(lat,lon,DEM,DIR,useCauceMap,
+					cu.ncols,cu.nrows)
 			#copia la direccion de los mapas de DEM y DIR, para no llamarlos mas
 			self.name=name
 			#Traza la cuenca 
@@ -742,6 +753,25 @@ class Basin:
 			intervals,
 			ppal_nceldas)
 		self.hipso_ppal[1],self.hipso_ppal_slope = __ModifyElevErode__(self.hipso_ppal[1])
+	def GetGeo_IT(self):
+		'Descripcion: Calcula el indice topografico para cada celda (Beven)\n'\
+		'	Internamente calcula el area para cada elemento y la pendiente en radianes.\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'self : no necesita nada es autocontenido.\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'IT : Indice topografico adimensional, a mayor valor se supone un suelo mas humedo.\n'\
+		#Obtiene el area
+		acum = cu.basin_acum(self.structure, self.ncells)
+		#Obtiene la pendiente en radianes
+		slope = cu.basin_arc_slope(self.structure,self.DEM,
+			self.ncells,self.ncols,self.nrows)
+		slope = np.arctan(slope)
+		slope[slope == 0] = 0.0001
+		return np.log((acum*cu.dxp) / np.tan(slope))
 	
 	def GetGeo_HAND(self,umbral=1000):
 		'Descripcion: Calcula Height Above the Nearest Drainage (HAND) \n'\
@@ -1331,8 +1361,8 @@ class Basin:
 		cortes=cortes[0].tolist()
 		cortes.insert(0,0)
 		#Escribe el shp de la red hidrica
-		if ruta.endswith('.shp')==False:
-			ruta=ruta+'.shp'
+		#if ruta.endswith('.shp')==False:
+		#	ruta=ruta+'.shp'
 		spatialReference = osgeo.osr.SpatialReference()
 		spatialReference.ImportFromEPSG(EPSG)
 		driver = osgeo.ogr.GetDriverByName(DriverFormat)
@@ -1399,8 +1429,8 @@ class Basin:
 		basinPerim=cu.basin_perim_cut(nperim)
 		#Param,Tc=basin_Tc(basin.structure,DEM,DIR,cu.dxp,basin.ncells,cu.ncols,cu.nrows)
 		#Construye el shp 
-		if ruta.endswith('.shp')==False:
-			ruta=ruta+'.shp'
+		#if ruta.endswith('.shp')==False:
+		#	ruta=ruta+'.shp'
 		#Genera el shapefile
 		spatialReference = osgeo.osr.SpatialReference()
 		spatialReference.ImportFromEPSG(EPSG)
@@ -2803,4 +2833,5 @@ class Stream:
 		if ruta<>None:
 			pl.savefig(ruta,bbox_inches='tight')
 		pl.show()
-	#def Plot_Map(self,ruta=None):
+	#def Plot_Map(self,ruta=None
+

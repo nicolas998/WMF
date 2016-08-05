@@ -368,6 +368,66 @@ end subroutine
 !-----------------------------------------------------------------------
 !Trazador de corrientes
 !-----------------------------------------------------------------------
+subroutine stream_find_to_corr(x,y,DEM,DIR,Cauce,nc,nf,nceldas,col,fil) !Encuentra la corriente
+    !Variables de entrada
+    integer, intent(in) :: nc,nf
+    real, intent(in) :: x,y
+    real, intent(in) :: DEM(nc,nf)
+    integer, intent(in) :: DIR(nc,nf), Cauce(nc,nf)
+    !Variables de salida
+    integer, intent(out) :: nceldas
+    integer, intent(out) :: col,fil
+    !f2py intent(in) :: x,y,DIR,DEM,nc,nf
+    !f2py intent(out) :: nceldas
+    !variables locales
+    integer kc,kf,flag,envia,c,i,dire,cont
+    character*20 a,b
+    !aloja el vector de cauce
+    if (.not. allocated(stream_temp)) allocate(stream_temp(4,ncols*nrows))
+    !vector de mascara
+    distancia=0
+    cont=0
+    flag=1
+    stream_temp=0
+    !col=coli; fil=fili
+    call coord2fil_col(x,y,col,fil)
+    dire=DIR(col,fil)
+    do while (flag.eq.1)
+		do kf=1,3
+		    do kc=1,3
+			!evalua si esa es la direccion
+				envia=9-3*kf+kc
+				if (dire.eq.envia) then
+				    cont=cont+1
+				    !Guarda valores en el vector de la corriente
+				    stream_temp(1,cont)=xll+dx*(col-0.5)
+				    stream_temp(2,cont)=yll+dx*(nrows-fil+0.5)
+				    stream_temp(3,cont)=DEM(col,fil)
+				    !actualiza el valor de la fila columna a evaluar
+				    col=col+kc-2
+				    fil=fil+kf-2
+				    dire=DIR(col,fil)
+				    !calcula la distancia acumulada
+				    if (mod(envia,2).eq.0) then
+						distancia=distancia+dxP
+				    else
+						distancia=distancia+dxP*1.4
+				    endif
+				    stream_temp(4,cont)=distancia
+				endif
+		    enddo
+		enddo
+		!Evalua si puede seguir o n
+		if (col.gt.ncols.or.fil.gt.nrows.or.col.le.0 &
+			&.or.fil.le.0 .or.dire.eq.noData .or. dire .le. 0&
+			&.or. Cauce(col,fil) .ne. 0) then
+		    flag=0
+		endif
+    end do
+    !copia el vector de salida
+    nceldas=cont
+end subroutine
+
 subroutine stream_find(x,y,DEM,DIR,nc,nf,nceldas) !Encuentra la corriente
     !Variables de entrada
     integer, intent(in) :: nc,nf
@@ -1978,6 +2038,17 @@ end subroutine
 !-----------------------------------------------------------------------
 !Geomorfologia a partir de cuenca
 !-----------------------------------------------------------------------
+subroutine geo_acum_to_cauce(ACUM, CAUCE, umbral, ncols, nrows) ! Obtiene el mapa de cauces a partir del de area acum
+	!Variables de entrada
+	integer, intent(in) :: ncols, nrows, umbral
+	integer, intent(in) :: ACUM(ncols, nrows)
+	!Variables de salida 
+	integer, intent(out) :: CAUCE(ncols, nrows)
+	!Var locales 
+	CAUCE = 0
+	where(ACUM > umbral) CAUCE = 1
+end subroutine
+
 subroutine geo_hand(basin_f,basin_elev,basin_long,cauce,nceldas,&
 	&hand_model,hdnd_model,a_quien) !Calcula: HAND: Height above the nearest drainage y HDND: Horizontal distance to the nearest drainage  
     !variables de entrada
