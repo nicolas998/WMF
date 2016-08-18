@@ -371,6 +371,10 @@
       use cu, only : cut_colrow_inarg
       use cu, only : dem_detect_clouds
       use cu, only : dem_correct_dem_w_dem
+      use cu, only : dem_slope
+      use cu, only : dem_find_dir
+      use cu, only : dirfix_kernel
+      use cu, only : dirfix_neighbour
       interface 
       subroutine f2pywrap_cu_write_float_ascii (ruta, mapa, f2py_mapa_d0&
      &, f2py_mapa_d1)
@@ -462,7 +466,8 @@
      &d,basin_subbasin_long,basin_subbasin_map2subbasin,basin_subbasin_s&
      &tream_prop,geo_acum_to_cauce,geo_hand,geo_hand_global,dir_reclass,&
      &f2pywrap_cu_qsortc,f2pywrap_cu_partition,f2pywrap_cu_find_colrow_i&
-     &narg,cut_colrow_inarg,dem_detect_clouds,dem_correct_dem_w_dem)
+     &narg,cut_colrow_inarg,dem_detect_clouds,dem_correct_dem_w_dem,dem_&
+     &slope,dem_find_dir,dirfix_kernel,dirfix_neighbour)
       end subroutine f2pyinitcu
 
 

@@ -157,6 +157,59 @@ def read_map_points(ruta_map, ListAtr = None):
         dr.Destroy()
         return Cord
 
+def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
+    dst_filename = ruta
+    #Formato de condiciones del mapa
+    x_pixels = Array.shape[0]  # number of pixels in x
+    y_pixels = Array.shape[1]  # number of pixels in y
+    PIXEL_SIZE = ArrayProp[4]  # size of the pixel...        
+    x_min = ArrayProp[2]  
+    y_max = ArrayProp[3] + ArrayProp[4] * ArrayProp[1] # x_min & y_max are like the "top left" corner.
+    driver = gdal.GetDriverByName(Format)
+    #Para encontrar el formato de GDAL 
+    NP2GDAL_CONVERSION = {
+      "uint8": 1,
+      "int8": 1,
+      "uint16": 2,
+      "int16": 3,
+      "uint32": 4,
+      "int32": 5,
+      "float32": 6,
+      "float64": 7,
+      "complex64": 10,
+      "complex128": 11,
+    }
+    gdaltype = NP2GDAL_CONVERSION[Array.dtype.name]
+    # Crea el driver
+    dataset = driver.Create(
+        dst_filename,
+        x_pixels,
+        y_pixels,
+        1,
+        gdaltype,)
+    #coloca la referencia espacial
+    dataset.SetGeoTransform((
+        x_min,    # 0
+        PIXEL_SIZE,  # 1
+        0,                      # 2
+        y_max,    # 3
+        0,                      # 4
+        -PIXEL_SIZE))  
+    #coloca la proyeccion a partir de un EPSG
+    proj = osgeo.osr.SpatialReference()
+    texto = 'EPSG:' + str(EPSG)
+    proj.SetWellKnownGeogCS( texto )
+    dataset.SetProjection(proj.ExportToWkt())
+    #Coloca el nodata
+    band = dataset.GetRasterBand(1)
+    if ArrayProp[-1] == None:        
+        band.SetNoDataValue(wmf.cu.nodata.astype(int).max())
+    else:
+        band.SetNoDataValue(-9999)
+    #Guarda el mapa
+    dataset.GetRasterBand(1).WriteArray(Array.T)
+    dataset.FlushCache() 
+
 def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
 	DriverFormat='ESRI Shapefile'):
 	'Funcion: Save_Points2Map\n'\
@@ -332,6 +385,19 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
 			(c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
 		c+=1
 	f.close()
+
+def map_acum_to_stream(ACUM,umbral):
+	'Funcion: map_acum_to_stream\n'\
+	'Descripcion: Calcula red hidrica a partir del area acumulada y un.\n'\
+	'	umbral.\n'\
+	'Parametros :.\n'\
+	'	-ACUM: Mapa de celdas acumuladas.\n'\
+	'	-umbral: Umbral para la generacion de cauce.\n'\
+	'Retorno:.\n'\
+	'	CAUCE: Mapa binario con los cauces: 1 cauce, 0 ladera.\n'\
+	#Invoca funcion de fortran
+	CAUCE = cu.geo_acum_to_cauce(ACUM,umbral,cu.ncols,cu.nrows)
+	return CAUCE
 	
 #-----------------------------------------------------------------------
 #Ecuaciones Que son de utilidad
@@ -437,7 +503,7 @@ class Basin:
 		self.DEM=DEM
 		self.DIR=DIR
 		#Si se da la opcion de que use el useCauceMap deshabilita stream
-		if useCauceMap <> None:
+		if useCauceMap is not None:
 			stream = None
 		#Si se entrega cauce corrige coordenadas
 		if ruta == None:
@@ -449,8 +515,8 @@ class Basin:
 				loc=np.argmin(error)
 				lat=stream.structure[0,loc]
 				lon=stream.structure[1,loc]
-			if useCauceMap <> None and useCauceMap.shape == DEM.shape:
-				nceldasTemp,lat,lon = cu.stream_find_to_corr(lat,lon,DEM,DIR,useCauceMap,
+			if useCauceMap is not None and useCauceMap.shape == DEM.shape:
+				lat,lon = cu.stream_find_to_corr(lat,lon,DEM,DIR,useCauceMap,
 					cu.ncols,cu.nrows)
 			#copia la direccion de los mapas de DEM y DIR, para no llamarlos mas
 			self.name=name
@@ -1091,6 +1157,31 @@ class Basin:
 			self.ncells,
 			MapProp[0],MapProp[1])
 		return vec
+	def Transform_Basin2Map(self, BasinVar, ruta = None, DriverFormat='GTiff',
+		EPSG=4326):
+		'Descripcion: A partir de un vector con propiedades de la cuenca en celdas\n'\
+		'	obtiene un mapa (matriz) con las propiedades del DEM, este puede ser escrito \n'\
+		'	en algun formato legible por GDAL. \n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'self : la cuenca misma.\n'\
+		'BasinVar : Vector con la variable de la cuenca a escribir [ncells].\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'Map : Matriz con la variable de la cuenca, donde no hay cuenca es wmf.cu.nodata .\n'\
+		'	el tamano de la matriz es igual a DEM.shape.\n'\
+		# Convierte la variable a mapa 
+		map_ncols,map_nrows = cu.basin_2map_find(self.structure,self.ncells)
+		M,mxll,myll = cu.basin_2map(self.structure, BasinVar,
+			map_ncols, map_nrows, self.ncells)
+		# Si exporta el mapa lo guarda si no simplemente devuelve la matriz 
+		if ruta<>None:
+			Save_Array2Raster(M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.nodata],
+				ruta = ruta, EPSG = EPSG, Format = DriverFormat)
+		return M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.nodata]
+		
 	def Transform_Hills2Basin(self,HillsMap):
 		'Descripcion: A partir de un vector con propiedades de las laderas\n'\
 		'	obtiene un vector con las propiedades por celda, ojo estas \n'\

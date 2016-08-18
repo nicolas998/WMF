@@ -368,64 +368,50 @@ end subroutine
 !-----------------------------------------------------------------------
 !Trazador de corrientes
 !-----------------------------------------------------------------------
-subroutine stream_find_to_corr(x,y,DEM,DIR,Cauce,nc,nf,nceldas,col,fil) !Encuentra la corriente
+subroutine stream_find_to_corr(x,y,DEM,DIR,Cauce,nc,nf,lat,lon) !Encuentra la corriente
     !Variables de entrada
     integer, intent(in) :: nc,nf
     real, intent(in) :: x,y
     real, intent(in) :: DEM(nc,nf)
     integer, intent(in) :: DIR(nc,nf), Cauce(nc,nf)
     !Variables de salida
-    integer, intent(out) :: nceldas
-    integer, intent(out) :: col,fil
-    !f2py intent(in) :: x,y,DIR,DEM,nc,nf
-    !f2py intent(out) :: nceldas
+    real, intent(out) :: lat,lon
+    !f2py intent(in) :: x,y,DIR,DEM,nc,nf, Cauce
+    !f2py intent(out) :: lat,lon
     !variables locales
-    integer kc,kf,flag,envia,c,i,dire,cont
+    integer kc,kf,flag,envia,c,i,dire,cont, fil, col
     character*20 a,b
-    !aloja el vector de cauce
-    if (.not. allocated(stream_temp)) allocate(stream_temp(4,ncols*nrows))
     !vector de mascara
-    distancia=0
     cont=0
     flag=1
-    stream_temp=0
     !col=coli; fil=fili
     call coord2fil_col(x,y,col,fil)
     dire=DIR(col,fil)
     do while (flag.eq.1)
+	!do i = 1,100
 		do kf=1,3
 		    do kc=1,3
 			!evalua si esa es la direccion
 				envia=9-3*kf+kc
 				if (dire.eq.envia) then
 				    cont=cont+1
-				    !Guarda valores en el vector de la corriente
-				    stream_temp(1,cont)=xll+dx*(col-0.5)
-				    stream_temp(2,cont)=yll+dx*(nrows-fil+0.5)
-				    stream_temp(3,cont)=DEM(col,fil)
 				    !actualiza el valor de la fila columna a evaluar
 				    col=col+kc-2
 				    fil=fil+kf-2
 				    dire=DIR(col,fil)
-				    !calcula la distancia acumulada
-				    if (mod(envia,2).eq.0) then
-						distancia=distancia+dxP
-				    else
-						distancia=distancia+dxP*1.4
-				    endif
-				    stream_temp(4,cont)=distancia
+				    lat=xll+dx*(col-0.5)
+				    lon=yll+dx*(nrows-fil+0.5)
 				endif
 		    enddo
 		enddo
-		!Evalua si puede seguir o n
-		if (col.gt.ncols.or.fil.gt.nrows.or.col.le.0 &
+		!Evalua si puede seguir o no
+		if (col.gt.nc.or.fil.gt.nf.or.col.le.0 &
 			&.or.fil.le.0 .or.dire.eq.noData .or. dire .le. 0&
 			&.or. Cauce(col,fil) .ne. 0) then
 		    flag=0
 		endif
+		!if (cont .gt. 1000) flag = 0
     end do
-    !copia el vector de salida
-    nceldas=cont
 end subroutine
 
 subroutine stream_find(x,y,DEM,DIR,nc,nf,nceldas) !Encuentra la corriente
@@ -2320,36 +2306,36 @@ subroutine dem_correct_dem_w_dem(dem_in,dem_out,dem_w,mask,nc,nf,nc_m,nf_m,xll_m
 	enddo
 end subroutine 
 
-!subroutine DEM_Slope(DEM,nc,nf,Slope) !Calcula la pendiente
-!	!Variables de entrada
-!	integer, intent(in) :: nc,nf
-!	real, intent(in) :: DEM(nc,nf)
-!	!Variables de salida
-!	real, intent(out) :: Slope(nc,nf)
-!	!f2py intent(in) :: nc,nf,DEM
-!	!f2py intent(out) :: Slope
-!	!Variables locales
-!	integer i,j,ki,kj
-!	real x,y,s,st
-!	!Recorre toda la matriz
-!	Slope=nodata
-!	do i=2,nc-1
-!		do j=2,nf-1
-!			!Recorre todo el kernel de 3x3 para cada celda
-!			s=0
-!			do ki=-1,1
-!				do kj=-1,1
-!					y=DEM(i,j)-DEM(i+ki,j+kj)
-!					if (ki .ne. 0 .and. kj .ne. 0) x=1.42*dxp
-!					st=y/x
-!					if (st .gt. s) s=st
-!				enddo
-!			enddo
-!			!Toma la mayor pendiente como la pend de la celda
-!			Slope(i,j)=s
-!		enddo
-!	enddo
-!end subroutine
+subroutine DEM_Slope(DEM,nc,nf,Slope) !Calcula la pendiente
+	!Variables de entrada
+	integer, intent(in) :: nc,nf
+	real, intent(in) :: DEM(nc,nf)
+	!Variables de salida
+	real, intent(out) :: Slope(nc,nf)
+	!f2py intent(in) :: nc,nf,DEM
+	!f2py intent(out) :: Slope
+	!Variables locales
+	integer i,j,ki,kj
+	real x,y,s,st
+	!Recorre toda la matriz
+	Slope=nodata
+	do i=2,nc-1
+		do j=2,nf-1
+			!Recorre todo el kernel de 3x3 para cada celda
+			s=0
+			do ki=-1,1
+				do kj=-1,1
+					y=DEM(i,j)-DEM(i+ki,j+kj)
+					if (ki .ne. 0 .and. kj .ne. 0) x=1.42*dxp
+					st=y/x
+					if (st .gt. s) s=st
+				enddo
+			enddo
+			!Toma la mayor pendiente como la pend de la celda
+			Slope(i,j)=s
+		enddo
+	enddo
+end subroutine
 !subroutine DEM_Pitfill(DEM,nc,nf,DEMfill) !llena huecos en el DEM
 !	!Variables de entrada
 !	integer, intent(in) :: nc,nf
@@ -2473,37 +2459,87 @@ end subroutine
 !		!Otro pit		
 !	enddo
 !end subroutine
-!subroutine kernel_DIR(DEMkernel,DIR)
-!	!variables de entrada
-!	real, intent(in) :: DEMkernel(3,3)
-!	!variables de salida
-!	integer, intent(out) :: DIR
-!	!Variables locales 
-!	integer i,j, directions(9),cont
-!	real y,x,s,st
-!	!busca una direccion
-!	s=0
-!	directions=(/7,4,1,8,0,2,9,6,3/)
-!	cont=1
-!	DIR=0
-!	do i=1,3
-!		do j=1,3
-!			y=DEMkernel(2,2)-DEMkernel(i,j)
-!			if (cont.eq.1 .or. cont.eq.3 .or. cont.eq.7 .or. cont .eq. 9) then
-!				x=1.41*x
-!			endif
-!			st=y/x
-!			cont=cont+1
-!			if (st .gt. s) then
-!				s=st
-!				DIR=directions(cont)
-!			endif
-!		enddo
-!	enddo
-!end subroutine
-!s--------------------------------------------------------------
-!Esneider
+subroutine DEM_find_dir(DEM,DIR, nc, nf)
+	!Variables de entrada
+	integer, intent(in) :: nc, nf
+	real, intent(in) :: DEM(nc,nf)
+	!Variables de salida 
+	integer, intent(out) :: DIR(nc,nf)
+	!Varaibles locales 
+	integer i,j
+	real DEMk(3,3)
+	!Comienza a iterar
+	DIR = 0
+	do i=2,nc-1
+		do j=2,nf-1
+			DEMk = DEM(i-1:i+1,j-1:j+1)
+			call dirfix_kernel(DEMk, DIR(i,j))
+		enddo
+	enddo
+	!Corrige celdas que pueden drenar a una vecina buena
+	call dirfix_neighbour(DEM, DIR, nc, nf)
+end subroutine
 
+subroutine dirfix_kernel(DEMkernel,DIR)
+	!variables de entrada
+	real, intent(in) :: DEMkernel(3,3)
+	!variables de salida
+	integer, intent(out) :: DIR
+	!Variables locales 
+	integer i,j, directions(9),cont
+	real y,x,s,st
+	!busca una direccion
+	s=0
+	directions=(/7,4,1,8,0,2,9,6,3/)
+	cont=0
+	DIR=-9
+	do i=1,3
+		do j=1,3
+			y=DEMkernel(2,2)-DEMkernel(i,j)
+			if (cont.eq.1 .or. cont.eq.3 .or. cont.eq.7 .or. cont .eq. 9) then
+				x=1.41*dxp
+			endif
+			st=y/x
+			cont=cont+1
+			if (st .gt. s) then
+				s=st
+				DIR=directions(cont)
+			endif
+		enddo
+	enddo
+end subroutine
+
+subroutine dirfix_neighbour(DEM, DIR, nc, nf)
+	!Variables de entrada
+	integer, intent(in) :: nc, nf
+	real, intent(in) :: DEM(nc,nf)
+	!Variables de salida 
+	integer, intent(inout) :: DIR(nc,nf)
+	!integer, intent(out) :: DIRcorr(nc,nf)
+	!Variables locales
+	integer i,j, directions(9), k1, k2, cont 
+	!Itera buscando direcciones malas 
+	!DIRcorr = DIR
+	directions=(/7,4,1,8,0,2,9,6,3/)
+	do i = 2, nc-1
+		do j = 2, nf-1
+			!Si la celda esta mala busca si tiene vecino de igual elev, bueno
+			if (DIR(i,j) .eq. -9) then 
+				cont = 1
+				!Itera por los 8 vecinos
+				do k1 = -1,1
+					do k2 = -1,1
+						if ((DEM(i,j) .eq. DEM(i+k1,j+k2)) .and. DIR(i+k1,j+k2) .ne. -9 ) then 
+							! Si se cumple la condicion hace que la celda le drene
+							DIR(i,j) = directions(cont)
+						endif
+						cont = cont+1
+					enddo
+				enddo
+			endif
+		enddo
+	enddo
+end subroutine
 
 end module
 
