@@ -659,16 +659,16 @@ class Basin:
 		#Genera un diccionario con las propiedades de la cuenca 
 		self.GeoParameters={'Area[km2]': Area,
 			'Perimetro[km]':Perim,
-			'Pend Cauce [%]':Scau,
-			'Long Cau [km]': Lcau,
-			'Pend Cuenca [%]': Scue,
-			'Long Cuenca [km]': Lpma,
-			'Hmax [m]':Hmax,
-			'Hmin [m]':Hmin,
-			'Hmean [m]':Hmean,
-			'H Cauce Max [m]':HCmax,
-			'Centro [X]': CentXY[0],
-			'Centro [Y]': CentXY[1]}
+			'Pend_Cauce [%]':Scau,
+			'Long_Cau [km]': Lcau,
+			'Pend_Cuenca [%]': Scue,
+			'Long_Cuenca [km]': Lpma,
+			'Hmax_[m]':Hmax,
+			'Hmin_[m]':Hmin,
+			'Hmean_[m]':Hmean,
+			'H Cauce_Max [m]':HCmax,
+			'Centro_[X]': CentXY[0],
+			'Centro_[Y]': CentXY[1]}
 		#Calcula los tiempos de concentracion
 		Tiempos={}
 		Tc=0.3*(Lcau/(Scue**0.25))**0.75
@@ -1500,7 +1500,7 @@ class Basin:
 			feature.Destroy()
 		shapeData.Destroy()
 	def Save_Basin2Map(self,ruta,dx=30.0,Param={},
-		DriverFormat='ESRI Shapefile',EPSG=4326):
+		DriverFormat='ESRI Shapefile',EPSG=4326, GeoParam = False):
 		'Descripcion: Guarda un archivo vectorial de la cuenca en .shp \n'\
 		'	Puede contener un diccionario con propiedades. \n'\
 		'\n'\
@@ -1511,6 +1511,7 @@ class Basin:
 		'dx : Longitud de las celdas planas.\n'\
 		'DriverFormat : nombre del tipo de archivo vectorial de salida (ver OsGeo).\n'\
 		'EPSG : Codigo de proyeccion utilizada para los datos, defecto WGS84.\n'\
+		'GeoParam: (False) determina si calcular de una los parametros geomorfo o no.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1518,10 +1519,12 @@ class Basin:
 		#Obtiene el perimetro de la cuenca 
 		nperim = cu.basin_perim_find(self.structure,self.ncells)
 		basinPerim=cu.basin_perim_cut(nperim)
-		#Param,Tc=basin_Tc(basin.structure,DEM,DIR,cu.dxp,basin.ncells,cu.ncols,cu.nrows)
-		#Construye el shp 
-		#if ruta.endswith('.shp')==False:
-		#	ruta=ruta+'.shp'
+		#Parametros geomorfo 
+		if GeoParam:
+			self.GetGeo_Parameters()
+			DictParam = {}
+			for k in self.GeoParameters.keys():
+				DictParam.update({k[:8]: self.GeoParameters[k]})
 		#Genera el shapefile
 		spatialReference = osgeo.osr.SpatialReference()
 		spatialReference.ImportFromEPSG(EPSG)
@@ -1535,6 +1538,10 @@ class Basin:
 			#new_field=osgeo.ogr.FieldDefn(p[:p.index('[')].strip()[:10],osgeo.ogr.OFTReal)
 			new_field=osgeo.ogr.FieldDefn(p,osgeo.ogr.OFTReal)
 			layer.CreateField(new_field)
+		if GeoParam:
+			for p in DictParam.keys():
+				new_field=osgeo.ogr.FieldDefn(p,osgeo.ogr.OFTReal)
+				layer.CreateField(new_field)
 		#Calcula el tamano de la muestra
 		ring = osgeo.ogr.Geometry(osgeo.ogr.wkbLinearRing)
 		for i in basinPerim.T:
@@ -1547,6 +1554,10 @@ class Basin:
 		for p in Param.keys():		
 			#feature.SetField(p[:p.index('[')].strip()[:10],float("%.2f" % Param[p]))
 			feature.SetField(p,float("%.2f" % Param[p]))
+		#Si calcula parametros geomorfo
+		if GeoParam:
+			for p in DictParam.keys():
+				feature.SetField(p,float("%.2f" % DictParam[p]))
 		layer.CreateFeature(feature)
 		poly.Destroy()
 		ring.Destroy()
