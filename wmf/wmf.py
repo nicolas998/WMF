@@ -1787,7 +1787,8 @@ class SimuBasin(Basin):
 	def __init__(self,lat,lon,DEM,DIR,name='NaN',stream=None,umbral=500,
 		noData=-999,modelType='cells',SimSed='no',SimSlides='no',dt=60,
 		SaveStorage='no',SaveSpeed='no',rute = None, retorno = 0,
-		SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no'):
+		SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no',
+		controlNodos = True):
 		'Descripcion: Inicia un objeto para simulacion \n'\
 		'	el objeto tiene las propieades de una cuenca con. \n'\
 		'	la diferencia de que inicia las variables requeridas. \n'\
@@ -1824,6 +1825,7 @@ class SimuBasin(Basin):
 		'SeparateFluxes : Separa el flujo en base, sub-superficial y escorrentia.\n'\
 		'SeparateRain : Separa el flujo proveniente de convectivas y de estratiformes.\n'\
 		'ShowStorage : Muestra en la salida del modelo el alm promedio en cada uno de los tanques.\n'\
+		'controlNodos: Coloca por defecto puntos de control en todos los nodos (True) o no (False).\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1880,6 +1882,18 @@ class SimuBasin(Basin):
 			models.verbose = 0
 			#Define los puntos de control		
 			models.control = np.zeros((1,N))
+			#Si se da la opcion de puntos de control en toda la red lo hace
+			if controlNodos:
+				self.GetGeo_Cell_Basics()
+				cauce,nodos,n_nodos = cu.basin_subbasin_nod(
+					self.structure,
+					self.CellAcum,
+					umbral,
+					self.ncells)
+				pos = np.where(nodos<>0)[0]
+				x,y = cu.basin_coordxy(self.structure,self.ncells)
+				idsOrd,xy = self.set_Control(np.vstack([x[pos],y[pos]]),nodos[pos])
+			#Puntos de control de humedad sin control por defecto 
 			models.control_h = np.zeros((1,N))
 			#Define las simulaciones que se van a hacer 
 			models.sim_sediments=0
@@ -2571,12 +2585,39 @@ class SimuBasin(Basin):
 		return IdsConvert,xyNew
 	
 	
-	#def set_sediments(self,var,varName):
+	def set_sediments(self,var,varName, wi = [0.036, 2.2e-4, 8.6e-7],
+		diametro = [0.35, 0.016, 0.001]):
+		'Descripcion: Alojas las variables requeridas para la ejecucion\n'\
+		'	del modelo de sedimentos.\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'var : Variable que describe la propiedad (constante, ruta, mapa o vector).\n'\
+		'varName: Nombre de la variable a ingresar en el modelo.\n'\
+		'	Krus : Erosividad del suelo (RUSLE).\n'\
+		'	Crus : Cobertura del suelo (RUSLE).\n'\
+		'	Prus : Practicas proteccion (RUSLE).\n'\
+		'	PArLiAc : Porcentaje Arenas, Limos y Arcillas.\n'\
+		'	wi : velocidad de caida de cada particula de sed [m/s].\n'\
+		'	diametro : diametro de cada tipo de sedimento [mm].\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'self : variables iniciadas en el modelo bajo los nombres de:.\n'\
+		'	wmf.models.krus.\n'\
+		'	wmf.models.crus.\n'\
+		'	wmf.models.prus.\n'\
+		'	wmf.models.parliac.\n'\
+		'	wmf.models.wi.\n'\
+		'	wmf.models.diametro.\n'\
+		#Inicia las variables 
+		if VarName == 'Krus':
+			 models.krus = np.ones((1,N))*Vec
 		
 		
 	def set_Slides(self,var,VarName):
 		'Descripcion: Alojas las variables requeridas para la ejecucion\n'\
-		'	del modelo de sedimentos.\n'\
+		'	del modelo de deslizamientos.\n'\
 		'\n'\
 		'Parametros\n'\
 		'----------\n'\
