@@ -1121,12 +1121,12 @@ subroutine basin_float_map2var(basin_f,MAPA,vect,nc,nf,xll_m,yll_m,dx_m,noData_m
 	endif
     enddo
 end subroutine
-subroutine basin_map2basin(basin_f,nceldas,Mapa,xllM,yllM,ncolsM,nrowsM,dxM,noDataM,opcion,vec) !pasa un mapa a un vector con los valores correspondientes a la topologia de la cuenca
+subroutine basin_map2basin(basin_f,nceldas,Mapa,xllM,yllM,ncolsM,nrowsM,dxM,noDataM,vec) !pasa un mapa a un vector con los valores correspondientes a la topologia de la cuenca
     !Variables de entrada
     integer, intent(in) :: ncolsM,nrowsM,nceldas
     integer, intent(in) :: basin_f(3,nceldas)
     real, intent(in) :: xllM,yllM,dxM,noDataM,Mapa(ncolsM,nrowsM)
-    character*11, intent(in) :: opcion
+    !character*11, intent(in) :: opcion
     !Variables de salida
     real, intent(out) :: vec(nceldas)
     !f2py intent(in) :: ncolsM,nrowsM,nceldas,basin_f,xllM,yllM,dxM,noDataM,opcion,Mapa

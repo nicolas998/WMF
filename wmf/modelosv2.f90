@@ -72,6 +72,8 @@ integer sim_slides !Simula (1) o no (0) deslizamientos
 integer save_storage !Guarda (1) o no (0) almacenamiento de los tanques en cada intervalo.
 integer save_speed !Guarda (1) o no (0) las velocidades en cada intervalo
 integer show_storage !(1)Calcula el alm medio en la cuenca para cada tanque y lo muestra en la salida. (0) no lo hace.
+integer show_speed !(1) muestra la velocidad en los puntos de control de caudales. (0) no lo hace.
+integer show_mean_speed !(1) muestra la velocidad promedio en cada uno de los 4 tanques. (0) no lo hace
 integer separate_fluxes !Separa (1) o no (0) los flujos que componen el caudal (base, sub-superficial y runoff)
 integer separate_rain !Separa (1) o no (0) los flujos de acuerdo al tipo de lluvia (convectiva, estratiforme)
 integer speed_type(3) !Tipo de velocidad para tanque 1, 2 y 3: 1: lineal, 2: Cinematica Potencial, de momento no hay mas implementadas 
@@ -87,6 +89,7 @@ real, allocatable :: Fluxes(:,:) !Matriz de flujos separados (3,nelem), 1: Super
 real, allocatable :: Storage_conv(:,:) !Almacenamuiento solo lluvia convectiva 
 real, allocatable :: Storage_stra(:,:) !Almacenamiento solo lluvia stratiforme
 real, allocatable :: mean_storage(:,:) !Almacenamiento promedio en cada intervalo para toda la cuenca. (5,n_reg)
+real, allocatable :: mean_speed(:,:) !Velocidad promedio en los 4 tanques que vierten de forma hztal. (4,n_reg)
 
 !variables de sedimentos Par aalojar volumens y demas
 real sed_factor !factor para calibrar el modelo de sedimentos
@@ -131,7 +134,7 @@ contains
 !-----------------------------------------------------------------------
 
 subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
-	& Qsed, Qseparated, Hum, balance, StoOut, ruta_storage,&
+	& Qsed, Qseparated, Hum, balance, speed, StoOut, ruta_storage, ruta_speed, &
 	& ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain)
     
     !--------------------------------------------------------------------------
@@ -143,12 +146,14 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
     character*500, intent(in) :: ruta_bin, ruta_hdr
     character*500, intent(in), optional :: ruta_storage
     character*500, intent(in), optional :: ruta_binConv, ruta_hdrConv, ruta_binStra, ruta_hdrStra
+    character*500, intent(in), optional :: ruta_speed
     
 	!Variables de salia
     real, intent(out) :: Hum(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !Control humedad en el suelo, Control caudales 
     real, intent(out) :: Qseparated(N_cont,3,N_reg) !Si se habilita la funcion de separar flujos, los entrega separados en los puntos de control
     real, intent(out) :: Qsep_byrain(N_cont,2,N_reg) !Si se habilita el separado por tipo de lluvia  
     real, intent(out) :: StoOut(5,N_cel),balance(N_reg) !Almacenamiento en tanques, balance total de la modelacion
+    real, intent(out) :: speed(N_cont,N_reg) !Velocidad registrada en los puntos de control del modelo 
      
 	!Variables de la lluvia
 	real Rain(N_cel) !Lluvia leida en el intervalo de tiempo [mm] [1,N_cel]
@@ -262,6 +267,12 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		if (allocated(mean_storage)) deallocate(mean_storage)
 		allocate(mean_storage(5,N_reg))
 		mean_storage = 0
+	endif
+	!Preparacion en caso de que se muestre la velocidad promedio en los tanques 
+	if (show_mean_speed .eq. 1) then 
+		if (allocated(mean_speed)) deallocate(mean_speed)
+		allocate(mean_speed(4,N_reg))
+		mean_speed = 0
 	endif
 	
 	!--------------------------------------------------------------------------
@@ -479,6 +490,10 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 						Qseparated(1,:,tiempo) = Fluxes(1:3,celda) &
 							&* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
 					endif
+					!Control de la velocidad en la salida de la cuenca 
+					if (show_speed .eq. 1) then 
+						Speed(1,tiempo) = hspeed(4,celda)
+					endif 
 					!---------------------------------------
 					!SEP_LLUVIA					
 					!Registro de flujos de lluvia separados por tipo de lluvia 
@@ -524,6 +539,10 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 					Qseparated(control_cont,:,tiempo) = Fluxes(1:3,celda) &
 						&* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
 				endif
+				!Si se quiere llevar control de la velocidad en el canal lo registra 
+				if (show_speed .eq. 1) then 
+					Speed(control_cont, tiempo) = hspeed(4,celda)
+				endif
 				!---------------------------------------
 				!SEP_LLUVIA
 				if (separate_rain .eq. 1) then 
@@ -556,12 +575,17 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		endif
 		!Guarda campo de velocidades del modelo
 		if (save_speed .eq. 1) then
-			call write_float_basin(rute_speed,hspeed,tiempo,N_cel,5)
+			call write_float_basin(rute_speed,hspeed,tiempo,N_cel,4)
 		endif
 		
 		!Genera un promedio de cada tanque en caso de que se indique que lo haga  
 		if (show_storage .eq. 1) then 
 			mean_storage(:,tiempo) = sum(StoOut,dim=2) / N_cel
+		endif
+		
+		!Genera el promedio de velocidad en cada tanque en caso de que se indique 
+		if (show_mean_speed .eq. 1) then 
+			mean_speed(:, tiempo) = sum(hspeed,dim=2) / N_cel
 		endif
 		
 		!Actualiza balance 

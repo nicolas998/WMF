@@ -39,7 +39,7 @@ except:
 #-----------------------------------------------------------------------
 def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 	figsize=(8,4.5),ids=None,legend=True,
-	ylabel='Stream $[m^3/seg]$'):
+	ylabel='Streamflow $[m^3/seg]$'):
 	fig=pl.figure(facecolor='w',edgecolor='w',figsize=figsize)
 	ax1=fig.add_subplot(111)
 	#Fechas
@@ -322,32 +322,32 @@ def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
 
 def __Add_hdr_bin_2route__(rute,storage=False):
 	if storage == False:
-		if rute.endswith('.bin') is False and rute.endswith('.hdr') is True:
+		if rute.endswith('.bin') == False and rute.endswith('.hdr') == True:
 			ruteBin = rute[:-3] + 'bin'
 			ruteHdr = rute
-		elif rute.endswith('.bin') is True and rute.endswith('.hdr') is False:
+		elif rute.endswith('.bin') == True and rute.endswith('.hdr') == False:
 			ruteBin = rute
 			ruteHdr = rute[:-3] + 'hdr'
-		elif  rute.endswith('.bin') is False and rute.endswith('.hdr') is False:
+		elif  rute.endswith('.bin') == False and rute.endswith('.hdr') == False:
 			ruteBin = rute + '.bin'
 			ruteHdr = rute + '.hdr'
 	else:
-		if rute.endswith('.StObin') is False and rute.endswith('.StOhdr') is True:
+		if rute.endswith('.StObin') == False and rute.endswith('.StOhdr') == True:
 			ruteBin = rute[:-6] + 'StObin'
 			ruteHdr = rute[:-6] + 'StOhdr'
-		elif rute.endswith('.StObin') is True and rute.endswith('.StOhdr') is False:
+		elif rute.endswith('.StObin') == True and rute.endswith('.StOhdr') == False:
 			ruteBin = rute[:-6] + 'StObin'
 			ruteHdr = rute[:-6] + 'StOhdr'
-		elif  rute.endswith('.StObin') is False and rute.endswith('.StOhdr') is False:
+		elif  rute.endswith('.StObin') == False and rute.endswith('.StOhdr') == False:
 			ruteBin = rute + '.StObin'
 			ruteHdr = rute + '.StOhdr'
-		elif rute.endswith('.bin') is False and rute.endswith('.hdr') is True:
+		elif rute.endswith('.bin') == False and rute.endswith('.hdr') == True:
 			ruteBin = rute[:-3] + 'StObin'
 			ruteHdr = rute[:-3] + 'StOhdr'
-		elif rute.endswith('.bin') is True and rute.endswith('.hdr') is False:
+		elif rute.endswith('.bin') == True and rute.endswith('.hdr') == False:
 			ruteBin = rute[:-3] + 'StObin'
 			ruteHdr = rute[:-3] + 'StOhdr'
-		elif  rute.endswith('.bin') is False and rute.endswith('.hdr') is False:
+		elif  rute.endswith('.bin') == False and rute.endswith('.hdr') == False:
 			ruteBin = rute + '.StObin'
 			ruteHdr = rute + '.StOhdr'
 	return ruteBin,ruteHdr
@@ -358,7 +358,7 @@ def read_mean_rain(ruta,Nintervals=None,FirstInt=None):
 	Rain = np.array([float(i[0]) for i in Data])
 	Dates = [datetime.datetime.strptime(i[1],' %Y-%m-%d-%H:%M  ') for i in Data]
 	#Obtiene el pedazo
-	if Nintervals is not None or FirstInt is not None:
+	if Nintervals <> None or FirstInt <> None:
 		Dates = Dates[FirstInt:FirstInt+Nintervals]
 		Rain = Rain[FirstInt:FirstInt+Nintervals]
 	#Regresa el resultado de la funcion
@@ -383,6 +383,28 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
 	for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
 		f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
 			(c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
+		c+=1
+	f.close()
+
+def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
+	Mean_Speed = None):
+	#Lee fechas para el intervalo de tiempo
+	S = read_mean_rain(rute_rain,Nintervals,FirstInt)
+	#Escribe el encabezado del archivo 
+	f=open(rute,'w')
+	f.write('Numero de celdas: %d \n' % cuenca.ncells)
+	f.write('Numero de laderas: %d \n' % cuenca.nhills)
+	f.write('Numero de registros: %d \n' % Nintervals)
+	f.write('Tipo Modelo: %s \n' % cuenca.modelType)
+	f.write('IDfecha, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
+	c = 1
+	#Si no hay almacenamiento medio lo coloca en -9999 
+	if Mean_Speed == None:
+		Mean_Speed = np.ones((5,Nintervals))*-9999
+	#Escribe registros medios y fechas de los almacenamientos 
+	for d,sto in zip(S.index.to_pydatetime(),Mean_Speed.T):
+		f.write('%d, \t %.2f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
+			(c,sto[0],sto[1],sto[2],sto[3],d.strftime('%Y-%m-%d-%H:%M')))
 		c+=1
 	f.close()
 
@@ -834,7 +856,7 @@ class Basin:
 		acum = cu.basin_acum(self.structure, self.ncells)
 		#Obtiene la pendiente en radianes
 		slope = cu.basin_arc_slope(self.structure,self.DEM,
-			self.ncells,self.ncols,self.nrows)
+			self.ncells,cu.ncols,cu.nrows)
 		slope = np.arctan(slope)
 		slope[slope == 0] = 0.0001
 		return np.log((acum*cu.dxp) / np.tan(slope))
@@ -1153,7 +1175,6 @@ class Basin:
 		vec = cu.basin_map2basin(self.structure,
 			Map,MapProp[2],MapProp[3],MapProp[4],
 			cu.nodata,
-			'fill_mean',
 			self.ncells,
 			MapProp[0],MapProp[1])
 		return vec
@@ -1571,7 +1592,7 @@ class Basin:
 		Max=None,ruta=None,mostrar='si',barra='si',figsize=(10,8),
 		ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
 		xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
-		colorbar=True):
+		colorbar=True, colorbarLabel = None):
 		#Plotea en la terminal como mapa un vector de la cuenca
 		'Funcion: write_proyect_int_ext\n'\
 		'Descripcion: Genera un plot del mapa entrgeado.\n'\
@@ -1639,7 +1660,9 @@ class Basin:
 				cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,
 					vmin=vmin,vmax=vmax)
 			if colorbar:
-				cbar = m.colorbar(cs,location='bottom',pad="5%")	
+				cbar = m.colorbar(cs,location='bottom',pad="5%")
+				if colorbarLabel<>None:
+					cbar.set_label(colorbarLabel, size = 16)	
 		#Si hay coordenadas de algo las plotea
 		if xy<>None:
 			xc,yc=m(xy[0],xy[1])
@@ -2573,10 +2596,10 @@ class SimuBasin(Basin):
 		elif tipo is 'H':
 			xyNew = coordXY
 			basinPts, order = self.Points_Points2Basin(coordXY,ids)
-			if self.modelType is 'cells':
+			if self.modelType[0] == 'c':
 				models.control_h[0] = basinPts
 				IdsConvert = basinPts[basinPts<>0]
-			elif self.modelType is 'hills':
+			elif self.modelType[0] == 'h':
 				unitario = basinPts / basinPts
 				pos = self.hills_own * unitario
 				posGrande = self.hills_own * basinPts
@@ -2773,7 +2796,7 @@ class SimuBasin(Basin):
 	# Ejecucion del modelo
 	#------------------------------------------------------	
 	def run_shia(self,Calibracion,
-		rain_rute, N_intervals, start_point = 1, ruta_storage = None,
+		rain_rute, N_intervals, start_point = 1, ruta_storage = None, ruta_speed = None,
 		ruta_conv = None, ruta_stra = None):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
@@ -2827,13 +2850,23 @@ class SimuBasin(Basin):
 		else:
 			NcontrolH = np.count_nonzero(models.control_h)
 		#Prepara variables de guardado de variables 
-		if ruta_storage is not None:
+		if ruta_storage <> None:
 			models.save_storage = 1
 			ruta_sto_bin, ruta_sto_hdr = __Add_hdr_bin_2route__(ruta_storage,
 				storage = True)
 		else:
+			models.save_storage = 0
 			ruta_sto_bin = 'no_guardo_nada.StObin'
 			ruta_sto_hdr = 'no_guardo_nada.StOhdr'
+		#prepara variable para guardado de velocidad 
+		if ruta_speed <> None:
+			models.save_speed = 1
+			ruta_speed_bin, ruta_speed_hdr = __Add_hdr_bin_2route__(ruta_speed,
+				storage = False)
+		else:
+			models.save_speed = 0
+			ruta_speed_bin = 'no_guardo_nada.bin'
+			ruta_speed_hdr = 'no_guardo_nada.hdr'
 		#Variables de separacion de flujo por tipo de lluvia 
 		if models.separate_rain == 1 and ruta_conv <> None and ruta_stra <> None:
 			ruta_binConv,ruta_hdrConv = __Add_hdr_bin_2route__(ruta_conv)
@@ -2844,9 +2877,9 @@ class SimuBasin(Basin):
 			ruta_hdrConv = 'none'
 			ruta_binStra = 'none'
 			ruta_hdrStra = 'none'
-			
+	
 		# Ejecuta el modelo 
-		Qsim,Qsed,Qseparated,Humedad,Balance,Alm,Qsep_byrain = models.shia_v1(
+		Qsim,Qsed,Qseparated,Humedad,Balance,Speed,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
 			rain_ruteHdr,
 			Calibracion,
@@ -2855,10 +2888,11 @@ class SimuBasin(Basin):
 			NcontrolH,
 			N_intervals,
 			ruta_sto_bin,
+			ruta_speed_bin,
 			ruta_binConv,
 			ruta_binStra,
 			ruta_hdrConv,
-			ruta_hdrStra)
+			ruta_hdrStra)	
 		#Retorno de variables de acuerdo a lo simulado 
 		Retornos={'Qsim' : Qsim}
 		Retornos.update({'Balance' : Balance})
@@ -2875,7 +2909,7 @@ class SimuBasin(Basin):
 			Retornos.update({'Mean_Storage' : np.copy(models.mean_storage)})
 		if models.save_storage == 1:
 			rutaStorageHdr = __Add_hdr_bin_2route__(ruta_storage)
-			#Caso en el que no se registra el alm medio 
+			#Caso en el que se registra el alm medio 
 			if models.show_storage == 1:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
 					start_point,self,Mean_Storage = np.copy(models.mean_storage))
@@ -2883,6 +2917,21 @@ class SimuBasin(Basin):
 			else:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
 					start_point,self)
+		if models.show_speed == 1:
+			Retornos.update({'Speed' : Speed})
+		if models.show_mean_speed == 1:
+			Retornos.update({'Mean_Speed' : np.copy(models.mean_speed)})
+		if models.save_speed == 1:
+			rutaSpeedHdr = __Add_hdr_bin_2route__(ruta_speed)
+			#Caso en el que hay velocidad media para todos los tanques 
+			if models.show_mean_speed == 1:
+				__Save_speed_hdr__(ruta_speed_hdr,rain_ruteHdr,N_intervals,
+					start_point,self,Mean_Speed = np.copy(models.mean_speed))
+			#Caso en el que no hay alm medio para cada uno de los 
+			else:
+				__Save_speed_hdr__(ruta_speed_hdr,rain_ruteHdr,N_intervals,
+					start_point,self)
+			
 		#Retornos en caso de simular deslizamientos
 		if models.sim_slides == 1:
 			Retornos.update({'Slides_Map': np.copy(models.sl_slideocurrence)})
