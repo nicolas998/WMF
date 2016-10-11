@@ -462,7 +462,9 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				if (separate_fluxes .eq. 1) then
 					Fluxes(1:3,celda) = Fluxes(1:3,celda) + hflux(1:3)
 					if (StoOut(5,celda) .gt. 0) then 
-						Fluxes(1:3,celda) = Fluxes(1:3,celda) - Fluxes(1:3,celda) * (hflux(4)/StoOut(5,celda))					
+						Fluxes(1:3,celda) = Fluxes(1:3,celda) - Fluxes(1:3,celda) * (hflux(4)/StoOut(5,celda))
+					else
+						Fluxes(1:3,celda) = 0.0
 					endif
 				endif
 				
@@ -474,7 +476,11 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 					StoOut(5,drenaid) = StoOut(5,drenaid)+hflux(4)					
 					!Actualizacion de flujos separados por tipo de almacenamiento 
 					if (separate_fluxes .eq. 1) then
-						Fluxes(1:3,drenaid) = Fluxes(1:3,drenaid) + Fluxes(1:3,celda) * (hflux(4)/StoOut(5,celda))
+						if (StoOut(5,celda) .gt. 0) then 
+							Fluxes(1:3,drenaid) = Fluxes(1:3,drenaid) + Fluxes(1:3,celda) * (hflux(4)/StoOut(5,celda))
+						else
+							Fluxes(1:3, drenaid) = 0.0
+						endif
 					endif
 					!---------------------------------------
 					!SEP_LLUVIA
@@ -487,8 +493,12 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 					salidas=salidas+hflux(4) ![mm]
 					!Registro de flujos separados por tipo de almacenamiento
 					if (separate_fluxes .eq. 1) then
-						Qseparated(1,:,tiempo) = Fluxes(1:3,celda) &
-							&* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
+						if (StoOut(5,celda) .gt. 0) then
+							Qseparated(1,:,tiempo) = Fluxes(1:3,celda) &
+								&* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
+						else
+							Qseparated(1,:,tiempo) = 0.0
+						endif
 					endif
 					!Control de la velocidad en la salida de la cuenca 
 					if (show_speed .eq. 1) then 
@@ -536,8 +546,12 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				Q(control_cont,tiempo)=hflux(4)*m3_mmRivers(celda)/dt ![m3/s]      
 				!Si hay control por separacion de flujos, los registra 
 				if (separate_fluxes .eq. 1) then
-					Qseparated(control_cont,:,tiempo) = Fluxes(1:3,celda) &
-						&* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
+					if (StoOut(5,celda) .gt. 0) then
+						Qseparated(control_cont,:,tiempo) = Fluxes(1:3,celda) &
+							&* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
+					else
+						Qseparated(control_cont,:,tiempo) = 0.0
+					endif
 				endif
 				!Si se quiere llevar control de la velocidad en el canal lo registra 
 				if (show_speed .eq. 1) then 
