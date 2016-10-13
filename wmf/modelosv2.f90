@@ -74,6 +74,7 @@ integer save_speed !Guarda (1) o no (0) las velocidades en cada intervalo
 integer show_storage !(1)Calcula el alm medio en la cuenca para cada tanque y lo muestra en la salida. (0) no lo hace.
 integer show_speed !(1) muestra la velocidad en los puntos de control de caudales. (0) no lo hace.
 integer show_mean_speed !(1) muestra la velocidad promedio en cada uno de los 4 tanques. (0) no lo hace
+integer show_area !(1) muestra el area en los puntos de control (0) no lo hace
 integer separate_fluxes !Separa (1) o no (0) los flujos que componen el caudal (base, sub-superficial y runoff)
 integer separate_rain !Separa (1) o no (0) los flujos de acuerdo al tipo de lluvia (convectiva, estratiforme)
 integer speed_type(3) !Tipo de velocidad para tanque 1, 2 y 3: 1: lineal, 2: Cinematica Potencial, de momento no hay mas implementadas 
@@ -134,7 +135,7 @@ contains
 !-----------------------------------------------------------------------
 
 subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
-	& Qsed, Qseparated, Hum, balance, speed, StoOut, ruta_storage, ruta_speed, &
+	& Qsed, Qseparated, Hum, balance, speed, AreaControl, StoOut, ruta_storage, ruta_speed, &
 	& ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain)
     
     !--------------------------------------------------------------------------
@@ -154,6 +155,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
     real, intent(out) :: Qsep_byrain(N_cont,2,N_reg) !Si se habilita el separado por tipo de lluvia  
     real, intent(out) :: StoOut(5,N_cel),balance(N_reg) !Almacenamiento en tanques, balance total de la modelacion
     real, intent(out) :: speed(N_cont,N_reg) !Velocidad registrada en los puntos de control del modelo 
+    real, intent(out) :: AreaControl(N_cont, N_reg)
      
 	!Variables de la lluvia
 	real Rain(N_cel) !Lluvia leida en el intervalo de tiempo [mm] [1,N_cel]
@@ -212,8 +214,13 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	! Calib 9 y 10: Alm maximo capilar y gravitacional
 	do i=1,4
 		vspeed(i,:)=v_coef(i,:)*Calib(i)*dt ! Cantidad [mm] que baja de tanque a tanque
-		hspeed(i,:)=h_coef(i,:)*Calib(i+4) ! Velocidad [mm/seg] que se mueve
+		if (speed_type(i) .eq. 1) then 
+			hspeed(i,:)=h_coef(i,:)*Calib(i+4) ! Velocidad [mm/seg] que se mueve
+		else
+			hspeed(i,:) = 0.5 ! Velocidad de arranque para las ecuaciones no lineales horizontales
+		endif
 	enddo
+	
 	!Calcula parametros estaticos en el tiempo
 	H(1,:)=Max_capilar(1,:)*Calib(9)
 	H(2,:)=Max_gravita(1,:)*Calib(10)
@@ -503,6 +510,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 					!Control de la velocidad en la salida de la cuenca 
 					if (show_speed .eq. 1) then 
 						Speed(1,tiempo) = hspeed(4,celda)
+						AreaControl(1, tiempo) = section_area
 					endif 
 					!---------------------------------------
 					!SEP_LLUVIA					
@@ -556,6 +564,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				!Si se quiere llevar control de la velocidad en el canal lo registra 
 				if (show_speed .eq. 1) then 
 					Speed(control_cont, tiempo) = hspeed(4,celda)
+					AreaControl(control_cont, tiempo) = section_area
 				endif
 				!---------------------------------------
 				!SEP_LLUVIA
@@ -589,7 +598,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		endif
 		!Guarda campo de velocidades del modelo
 		if (save_speed .eq. 1) then
-			call write_float_basin(rute_speed,hspeed,tiempo,N_cel,4)
+			call write_float_basin(ruta_speed,hspeed,tiempo,N_cel,4)
 		endif
 		
 		!Genera un promedio de cada tanque en caso de que se indique que lo haga  
@@ -985,9 +994,9 @@ subroutine calc_speed(sm, coef, expo, elem_long, speed, area)
 	integer i 
 	!Itera la cantidad de veces niter para solucionar la ecuacion
 	do i=1,4
-	    Area=sm/(elem_long+speed*dt) ![m2] Calcula el area de la seccion
-	    new_speed=coef*(Area**expo) ![m/seg] Calcula la velocidad nueva
-	    speed=(2*new_speed+speed)/3 ![m/seg] Promedia la velocidad
+	    Area = sm/(elem_long+speed*dt) ![m2] Calcula el area de la seccion
+	    new_speed = coef*(Area**expo) ![m/seg] Calcula la velocidad nueva
+	    speed = (2*new_speed+speed)/3 ![m/seg] Promedia la velocidad
 	enddo		
 end subroutine 
 

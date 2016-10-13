@@ -2862,7 +2862,7 @@ class SimuBasin(Basin):
 		if ruta_speed <> None:
 			models.save_speed = 1
 			ruta_speed_bin, ruta_speed_hdr = __Add_hdr_bin_2route__(ruta_speed,
-				storage = False)
+				storage = True)
 		else:
 			models.save_speed = 0
 			ruta_speed_bin = 'no_guardo_nada.bin'
@@ -2877,9 +2877,8 @@ class SimuBasin(Basin):
 			ruta_hdrConv = 'none'
 			ruta_binStra = 'none'
 			ruta_hdrStra = 'none'
-	
 		# Ejecuta el modelo 
-		Qsim,Qsed,Qseparated,Humedad,Balance,Speed,Alm,Qsep_byrain = models.shia_v1(
+		Qsim,Qsed,Qseparated,Humedad,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
 			rain_ruteHdr,
 			Calibracion,
@@ -2917,6 +2916,10 @@ class SimuBasin(Basin):
 			else:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
 					start_point,self)
+		#Area de la seccion 
+		if models.show_area == 1:
+			Retornos.update({'Sec_Area': Area})
+		#Velocidades 
 		if models.show_speed == 1:
 			Retornos.update({'Speed' : Speed})
 		if models.show_mean_speed == 1:

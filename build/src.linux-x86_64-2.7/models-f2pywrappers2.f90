@@ -1641,6 +1641,7 @@
       use models, only : dept
       use models, only : vdc
       use models, only : vsc
+      use models, only : show_area
       use models, only : sl_slideacumulate
       use models, only : ero
       use models, only : sl_riskvector
@@ -1773,27 +1774,27 @@
      &min,f2py_models_getdims_sl_frictionangle,f2py_models_getdims_h_exp&
      &,nrows,dx,rute_speed,dt,f2py_models_getdims_crus,f2py_models_getdi&
      &ms_storage_conv,f2py_models_getdims_drena,xll,dep,f2py_models_getd&
-     &ims_krus,dept,f2py_models_getdims_vdc,f2py_models_getdims_vsc,f2py&
-     &_models_getdims_sl_slideacumulate,ero,f2py_models_getdims_sl_riskv&
-     &ector,f2py_models_getdims_sl_zcrit,f2py_models_getdims_control,f2p&
-     &y_models_getdims_vd,f2py_models_getdims_mean_speed,f2py_models_get&
-     &dims_sl_gammas,sl_gammaw,f2py_models_getdims_volero,sim_slides,spe&
-     &ed_type,diametro,f2py_models_getdims_v_exp,f2py_models_getdims_par&
-     &liac,show_mean_speed,f2py_models_getdims_max_gravita,f2py_models_g&
-     &etdims_storage,f2py_models_getdims_storage_stra,f2py_models_getdim&
-     &s_mean_rain,f2py_models_getdims_sl_cohesion,separate_rain,retorno,&
-     &save_storage,sl_gullienogullie,ncols,rain_first_point,f2py_models_&
-     &getdims_hill_slope,wi,f2py_models_getdims_sl_radslope,qskr,f2py_mo&
-     &dels_getdims_sl_zs,sim_sediments,f2py_models_getdims_speed_map,f2p&
-     &y_models_getdims_stream_slope,f2py_models_getdims_stream_width,f2p&
-     &y_models_getdims_stream_long,g,f2py_models_getdims_posconv,f2py_mo&
-     &dels_getdims_mean_storage,nceldas,sed_factor,f2py_models_getdims_v&
-     &_coef,yll,nodata,f2py_models_getdims_control_h,shia_v1,read_float_&
-     &basin,read_float_basin_ncol,read_int_basin,write_float_basin,write&
-     &_int_basin,rain_read_ascii_table,rain_read_ascii_table_separate,ra&
-     &in_pre_mit,rain_mit,rain_idw,calc_speed,sed_allocate,sed_hillslope&
-     &,sed_channel,slide_allocate,slide_ocurrence,slide_hill2gullie,basi&
-     &n_subbasin_map2subbasin)
+     &ims_krus,dept,f2py_models_getdims_vdc,f2py_models_getdims_vsc,show&
+     &_area,f2py_models_getdims_sl_slideacumulate,ero,f2py_models_getdim&
+     &s_sl_riskvector,f2py_models_getdims_sl_zcrit,f2py_models_getdims_c&
+     &ontrol,f2py_models_getdims_vd,f2py_models_getdims_mean_speed,f2py_&
+     &models_getdims_sl_gammas,sl_gammaw,f2py_models_getdims_volero,sim_&
+     &slides,speed_type,diametro,f2py_models_getdims_v_exp,f2py_models_g&
+     &etdims_parliac,show_mean_speed,f2py_models_getdims_max_gravita,f2p&
+     &y_models_getdims_storage,f2py_models_getdims_storage_stra,f2py_mod&
+     &els_getdims_mean_rain,f2py_models_getdims_sl_cohesion,separate_rai&
+     &n,retorno,save_storage,sl_gullienogullie,ncols,rain_first_point,f2&
+     &py_models_getdims_hill_slope,wi,f2py_models_getdims_sl_radslope,qs&
+     &kr,f2py_models_getdims_sl_zs,sim_sediments,f2py_models_getdims_spe&
+     &ed_map,f2py_models_getdims_stream_slope,f2py_models_getdims_stream&
+     &_width,f2py_models_getdims_stream_long,g,f2py_models_getdims_posco&
+     &nv,f2py_models_getdims_mean_storage,nceldas,sed_factor,f2py_models&
+     &_getdims_v_coef,yll,nodata,f2py_models_getdims_control_h,shia_v1,r&
+     &ead_float_basin,read_float_basin_ncol,read_int_basin,write_float_b&
+     &asin,write_int_basin,rain_read_ascii_table,rain_read_ascii_table_s&
+     &eparate,rain_pre_mit,rain_mit,rain_idw,calc_speed,sed_allocate,sed&
+     &_hillslope,sed_channel,slide_allocate,slide_ocurrence,slide_hill2g&
+     &ullie,basin_subbasin_map2subbasin)
       end subroutine f2pyinitmodels
 
 
