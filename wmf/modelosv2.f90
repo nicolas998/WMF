@@ -1,5 +1,9 @@
 !Modelos: acoplado con cuencas presenta una serie de modelos hidrologicos distribuidos
 !Copyright (C) <2016>  <Nicolas Velasquez Giron>
+!e-mail: nicolas.velasquezgiron@gmail.com
+
+!Flood analysis is an adaptation of the code developed by:
+!Esneider Zapata Atehortua, ezapataat@gmail.com
 
 !This program is free software: you can redistribute it and/or modify
 !it under the terms of the GNU General Public License as published by
@@ -69,6 +73,7 @@ real dt !Delta del tiempo de modelacion
 integer rain_first_point !Primer punto de lectura de lluvia
 integer sim_sediments !Simula (1) o no (0) sedimentos
 integer sim_slides !Simula (1) o no (0) deslizamientos
+integer sim_floods !Simula (1) o no (0) inundaciones
 integer save_storage !Guarda (1) o no (0) almacenamiento de los tanques en cada intervalo.
 integer save_speed !Guarda (1) o no (0) las velocidades en cada intervalo
 integer show_storage !(1)Calcula el alm medio en la cuenca para cada tanque y lo muestra en la salida. (0) no lo hace.
@@ -81,6 +86,7 @@ integer speed_type(3) !Tipo de velocidad para tanque 1, 2 y 3: 1: lineal, 2: Cin
 integer, allocatable :: control(:,:) !Celdas de la cuenca que tienen puntos de control
 integer, allocatable :: control_h(:,:) !Celdas de la cuenca que son puntos de control de humedad
 integer, allocatable :: guarda_cond(:,:) !Intervalos de tiempo en que se hace guardado de condiciones
+integer calc_niter !Cantidad de iteraciones para la ecuacion de solucion numerica (defecto 5)
 
 !Variables de resultados globales (siempre van a estar ahi)
 real, allocatable :: Storage(:,:) !Almacenamiento de los 5 tanques del modelo
@@ -126,6 +132,33 @@ real, allocatable :: sl_GammaS(:,:) !Densidad del suelo
 real, allocatable :: sl_Cohesion(:,:) !Cohesion del suelo [Kpa]
 real, allocatable :: sl_FrictionAngle(:,:) !Angulo de friccion [rad]
 real, allocatable :: sl_RadSlope(:,:) !Angulo de la pendiente del suelo [rad]
+
+!Variables del modelo de inundaciones (Esneider, 2015)
+!-----------------------------------------------------------
+!Variables calculadas por el modelo 
+real, allocatable :: flood_Q(:,:) !Caudal para inundaciones, calculado por el modelo
+real, allocatable :: flood_Qsed(:,:) !Caudal ponderado por sedimentos en los cauces
+real, allocatable :: flood_h(:,:) !Profundidad para inundaciones, calculado por el modelo 
+integer, allocatable :: flood_flood(:,:) !Celdas inundadas por el modelo (1), no inundadas (0)
+!Variables de calculo intermedias 
+real, allocatable :: flood_speed(:,:) !Velocidad calculada para la simulacion de inundaciones 
+real, allocatable :: flood_ufr(:,:) ! Velocidad critica calculada en funcion del D50, flood_h y la velocidad 
+real flood_rdf !coeficiente ecuacion de caudal pico en crecientes
+real, allocatable :: flood_Cr(:,:) !Concentracion de sedimentos en el canal
+integer , allocatable :: flood_eval(:,:) !determina si una celda debe ser evaluada por inundacion (1) o no (0)
+real flood_area, flood_diff ! Area de seccion calculada con la concentracion y diferencia de alturas calculada 
+!Variables parametro del modelo 
+real flood_AV !Parametro para dar sentido hidrauico al caudal, determina cuanto es area, cuanto es velocidad.
+real, allocatable :: flood_w(:,:) !Ancho de los canales, Parametro del modelo 
+real, allocatable :: flood_d50(:,:) !Tamano mediana de las particulas en el cauce
+integer, allocatable :: flood_aquien(:,:) !Celda cauce destino de una celda ladera (Para saber a quienes inundar)
+real, allocatable :: flood_hand(:,:) !modelo de elevacion relativa de cada celda con respecto a su cauce
+real, allocatable :: flood_loc_hand(:,:) ! modelo de elevacion dedicado a una sola celda
+real flood_Cmax !Maxima concentración de sedimentos (recomendado : 0.75)
+real, allocatable :: flood_slope(:,:) !Pendiente como: Theta = sin(tan-1(y/x))
+real flood_dw, flood_dsed !Densidad del agua (1000) y densidad de los sedimentos (2600)
+real flood_umbral
+
 
 contains
 
@@ -247,6 +280,10 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	!Si va a ejecutar deslizamientos, aloja variables y arregla coeficientes 
 	if (sim_slides .eq. 1) then 
 		call slide_allocate(N_cel, N_reg)
+	endif
+	!Si va a calcular inundaciones inicia algunas variables 
+	if (sim_floods .eq. 1) then 
+		call flood_allocate(N_cel)
 	endif
 	!Si va a registrar flujos por separado:
 	if (separate_fluxes .eq. 1) then
@@ -548,6 +585,25 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				&, H(2,celda))
 			
 			!--------------------------------------------------------------------------
+			!Si evalua inundaciones 
+			if (sim_floods .eq. 1) then 
+				!Guarda los caudales y velocidades de cada  celda, para luego evaluar inundaciones
+				if (unit_type(1,celda).eq.3 .and. hspeed(4,celda)*flood_AV .gt. flood_umbral) then 
+					!Calcula caudal y velocidad
+					flood_Q(1,celda) = hflux(4)*m3_mmRivers(celda)/dt
+					flood_speed(1,celda) = hspeed(4,celda) * flood_AV
+					!Calcula los parametros de la hidraulica incluyendo concentraciones 
+					call flood_params(celda)
+					!Calcula la diferencia de hand 
+					call flood_find_hdiff(celda)
+					!Calcula el area de inundacion equivalente 
+					call flood_debris_flow(celda, flood_area, flood_diff)
+					!Inunda celdas
+					where(flood_aquien .eq. celda .and. flood_hand .lt. flood_diff) flood_flood = 1
+				endif
+			endif
+			
+			!--------------------------------------------------------------------------
 			!Record de variables y resultados del modelo
 			!Caudales en el punto de control
 			if (control(1,celda).ne.0) then
@@ -585,13 +641,17 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				Hum(controlh_cont,tiempo)=sum((/ StoOut(1,celda), StoOut(3,celda)/))
 				controlh_cont=controlh_cont+1
 			endif
-				
+
+		!---------------------------------------------------------------------
+		!---------------------------------------------------------------------
+		!---------------------------------------------------------------------
+		!Termina de iterar celdas
 		enddo
 		
 		!--------------------------------------------------------------------------
 		!Obtiene la lluvia promedio para el intervalo de tiempo
 		Mean_Rain(1,tiempo)=rain_sum/N_cel
-		
+				
 		!Guarda campo de estados del modelo 
 		if (save_storage .eq. 1) then
 			call write_float_basin(ruta_storage,StoOut,tiempo,N_cel,5)
@@ -610,7 +670,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		if (show_mean_speed .eq. 1) then 
 			mean_speed(:, tiempo) = sum(hspeed,dim=2) / N_cel
 		endif
-		
+			
 		!Actualiza balance 
 		balance(tiempo) = sum(StoOut)-StoAtras - entradas + salidas
 		entradas = 0
@@ -621,6 +681,11 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 			tiempo_r = tiempo
 			print *, tiempo_r/N_reg
 		endif
+	
+	!---------------------------------------------------------------------
+	!---------------------------------------------------------------------
+	!---------------------------------------------------------------------
+	!Termina de iterar tiempos
 	enddo
 	
 end subroutine
@@ -993,7 +1058,7 @@ subroutine calc_speed(sm, coef, expo, elem_long, speed, area)
 	real new_speed
 	integer i 
 	!Itera la cantidad de veces niter para solucionar la ecuacion
-	do i=1,4
+	do i=1,calc_niter
 	    Area = sm/(elem_long+speed*dt) ![m2] Calcula el area de la seccion
 	    new_speed = coef*(Area**expo) ![m/seg] Calcula la velocidad nueva
 	    speed = (2*new_speed+speed)/3 ![m/seg] Promedia la velocidad
@@ -1298,6 +1363,95 @@ subroutine slide_hill2gullie(N_cel,cell,timeSt) !Cuando una celda se vuelve en c
 end subroutine 
 
 !-----------------------------------------------------------------------
+!Subrutinas de inundaciones
+!-----------------------------------------------------------------------
+subroutine flood_allocate(N_cel) !Aloja las variables propias de deslizamientos 
+	integer, intent(in) :: N_cel
+	!Alojado de variables que se calculan al interior
+	if (allocated(flood_Q) .eqv. .false.) allocate(flood_Q(1,N_cel))
+	if (allocated(flood_Qsed) .eqv. .false.) allocate(flood_Qsed(1,N_cel))
+	if (allocated(flood_speed) .eqv. .false.) allocate(flood_speed(1,N_cel))
+	if (allocated(flood_h) .eqv. .false.) allocate(flood_h(1,N_cel))
+	if (allocated(flood_ufr) .eqv. .false.) allocate(flood_ufr(1,N_cel))
+	if (allocated(flood_Cr) .eqv. .false.) allocate(flood_Cr(1,N_cel))
+	if (allocated(flood_eval) .eqv. .false.) allocate(flood_eval(1,N_cel))
+	if (allocated(flood_flood) .eqv. .false.) allocate(flood_flood(1,N_cel))
+	if (allocated(flood_loc_hand) .eqv. .false.) allocate(flood_loc_hand(1,N_cel))
+	if (allocated(flood_slope) .eqv. .false.) allocate(flood_slope(1,N_cel))
+	flood_eval = 0
+end subroutine
+
+subroutine flood_params(celda) !Calcula los parametros de inundacion para un intervalo de tiempo
+	integer, intent(in) :: celda
+	real d50, cr, dw, dsed, cmax
+	d50 = flood_d50(1,celda)
+	dw = flood_dw
+	dsed = flood_dsed
+	cmax = flood_Cmax 
+	!Calcula profundidad y velocidad de friccion
+	flood_h(1,celda) = flood_Q(1,celda) / (flood_speed(1,celda) * flood_w(1,celda))
+	flood_ufr(1,celda) = flood_speed(1,celda)/((5.75)*log(flood_h(1,celda)/flood_d50(1,celda))+6.25)
+	!Calcula la concentracion
+	cr = flood_Cmax * (0.06*flood_h(1,celda))**(0.2/flood_ufr(1,celda)) 
+	flood_Cr(1,celda) = cr
+	!coeficiente eq constitutiva
+	flood_rdf = (1./d50)*((9.81/0.0128)*(cr+(1-cr)*(dw/dsed)))**(0.5)*((cmax/cr)**(1./3)-1.0)
+	!Nuevo caudal incluyendo escombros
+	flood_Qsed(1,celda) = flood_Q(1,celda) * (1.0 + (flood_Cr(1,celda)/(1-flood_Cr(1,celda))))
+end subroutine
+subroutine flood_find_hdiff(celda) !Saca en un vector las celdas del HAND que le drenan a la celda evaluada
+	!Variables de entrada
+	integer, intent(in) :: celda
+	!Variables locales 
+	flood_loc_hand(1,:) = 99999
+	where(flood_aquien .eq. celda) flood_loc_hand = flood_hand
+	call QsortC(flood_loc_hand(1,:))
+end subroutine 
+!Subrutina escrita por Esneider, 2015 en su tesis de maestria
+subroutine flood_debris_flow(celda,areas,dif) !Calcula: Altura de inundacion para una celda dada  
+    !variables de entrada
+    integer, intent(in) :: celda !Celda a evaluar
+    !Variables de salida
+    real, intent(out) :: areas,dif !Salidas 
+    !variables locales 
+    integer i
+    real Qpar,Qp,r_df,h,area,varia
+    !Codigo
+	h = 0
+	area = 0
+	areas = 0
+	Qp = 0	 
+	i = 1
+    !Itera por las diferentes alturas
+	do while (flood_loc_hand(1,i) .ne. 0 .and. flood_loc_hand(1,i) .ne. 9999 .and. Qp .lt. flood_Qsed(1,celda)) 
+		!Calcula diferencia y areas
+		dif=flood_loc_hand(1,i)
+		areas = areas + area 
+		area = (dif-h)*i*dx		
+		!Equacion constitutiva para flujos de escombros.
+		Qpar = ((2./5)*flood_rdf*(dif-h)**(3./2)*(flood_slope(1,celda))*(1./2))*area
+		h = dif
+		Qp = Qp + Qpar
+		i = i + 1 
+    enddo
+end subroutine
+
+
+
+
+
+
+				  
+				   
+				   
+
+
+
+
+
+
+
+!-----------------------------------------------------------------------
 !Subrutinas de cuencas
 !-----------------------------------------------------------------------
 subroutine basin_subbasin_map2subbasin(sub_pert,basin_var,subbasin_sum,&
@@ -1336,6 +1490,54 @@ subroutine basin_subbasin_map2subbasin(sub_pert,basin_var,subbasin_sum,&
 			subbasin_sum(i)=0.0
 		endif
 	enddo
+end subroutine
+
+!-----------------------------------------------------------------------
+!Utilidades Varias 
+!-----------------------------------------------------------------------
+recursive subroutine QsortC(A)
+  real, intent(in out), dimension(:) :: A
+  integer :: iq
+    !f2py intent(inout) :: A
+  if(size(A) > 1) then
+     call Partition(A, iq)
+     call QsortC(A(:iq-1))
+     call QsortC(A(iq:))
+  endif
+end subroutine 
+subroutine Partition(A, marker) !subrutina utilizada por QsortC para hacer sort
+  real, intent(in out), dimension(:) :: A
+  integer, intent(out) :: marker
+  integer :: i, j
+  real :: temp
+  real :: x      ! pivot point
+  x = A(1)
+  i= 0
+  j= size(A) + 1
+  do
+     j = j-1
+     do
+        if (A(j) <= x) exit
+        j = j-1
+     end do
+     i = i+1
+     do
+        if (A(i) >= x) exit
+        i = i+1
+     end do
+     if (i < j) then
+        ! exchange A(i) and A(j)
+        temp = A(i)
+        A(i) = A(j)
+        A(j) = temp
+     elseif (i == j) then
+        marker = i+1
+        return
+     else
+        marker = i
+        return
+     endif
+  end do
 end subroutine
 
 end module

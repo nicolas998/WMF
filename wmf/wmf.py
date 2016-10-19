@@ -1810,7 +1810,7 @@ class SimuBasin(Basin):
 	def __init__(self,lat,lon,DEM,DIR,name='NaN',stream=None,umbral=500,
 		noData=-999,modelType='cells',SimSed='no',SimSlides='no',dt=60,
 		SaveStorage='no',SaveSpeed='no',rute = None, retorno = 0,
-		SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no',
+		SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no', SimFloods = 'no',
 		controlNodos = True):
 		'Descripcion: Inicia un objeto para simulacion \n'\
 		'	el objeto tiene las propieades de una cuenca con. \n'\
@@ -1901,6 +1901,7 @@ class SimuBasin(Basin):
 			models.max_gravita = np.ones((1,N))
 			models.storage = np.zeros((5,N))
 			models.dt = dt
+			models.calc_niter = 5
 			models.retorno = 0
 			models.verbose = 0
 			#Define los puntos de control		
@@ -1940,6 +1941,8 @@ class SimuBasin(Basin):
 			models.show_storage = 0 
 			if ShowStorage is 'si':
 				models.show_storage = 1
+			if SimFloods == 'si':
+				models.sim_floods = 1
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
 			self.__Load_SimuBasin(rute)
@@ -2429,6 +2432,82 @@ class SimuBasin(Basin):
 				models.speed_type[c]=i
 			else:
 				models.speed_type[c]=1	
+	
+	def set_Floods(self,var,VarName, umbral = 1000):
+		'Descripcion: Aloja las variables del sub modelo de inundaciones\n'\
+		'\n'\
+		'Parametros\n'\
+		'Mierda PUTA\n'\
+		'----------\n'\
+		'var : Variable que describe la propiedad (constante, ruta, mapa o vector).\n'\
+		'varName: Nombre de la variable a ingresar en el modelo.\n'\
+		'	GammaWater : Densidad del agua (Defecto: 1000).\n'\
+		'	GammaSoil : Densidad del sedimento (Defecto: 2600).\n'\
+		'	VelArea: Factor conversion Velocidad - Area (Defecto: 1/200).\n'\
+		'	Cmax: Maxima concentracion de sedimentos (Defecto 0.75).\n'\
+		'	VelUmbral: Velocidad minima para que se de el flujo de escombros ( Defecto: 3 m/s).\n'\
+		'	Stream_W: Ancho del canal en cada celda (ncells).\n'\
+		'	Stream_D50: Tamano de particula percentil 50 (ncells).\n'\
+		'	HAND: Modelo de elevacion relativa de celda ladera a celda cauce (ncells), no se ponde nada.\n'\
+		'	umbral: Umbral para determinar corriente segun HAND debe coincidir con el umbral del modelo.\n'\
+		'	Slope: Pendiente del canal, (no se ponde variable)\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'self : variables iniciadas en el modelo bajo los nombres de:.\n'\
+		'	wmf.models.flood_dw.\n'\
+		'	wmf.models.flood_dsed.\n'\
+		'	wmf.models.flood_av.\n'\
+		'	wmf.models.flood_cmax.\n'\
+		'	wmf.models.flood_d50.\n'\
+		'	wmf.models.flood_hand.\n'\
+		'	wmf.models.flood_aquien.\n'\
+		#Si el modelo es tipo ladera agrega la variable 
+		if self.modelType[0] == 'h':
+			return 'El modelo por laderas no simula inundaciones.'
+		#Pone el gamma del agua por defecto 
+		models.flood_dw = 1000
+		models.flood_dsed = 2600
+		models.flood_av = 1./200.0
+		models.flood_cmax = 0.75
+		models.flood_umbral = 3.0
+		#Obtiene el vector que va a alojar en el modelo
+		if VarName <> 'GammaWater' and VarName <> 'GammaSoil' and VarName <> 'VelArea' and VarName <> 'Cmax' and VarName <> 'VelUmbral':
+			isVec=False
+			if type(var) is str:
+				#Si es un string lee el mapa alojado en esa ruta 
+				Map,Pp = read_map_raster(var)
+				Vec = self.Transform_Map2Basin(Map,Pp)
+				isVec=True
+			elif type(var) is int or float:
+				Vec = np.ones((1,self.ncells))*var
+				isVec=True
+			elif type(var) is np.ndarray and var.shape[0] == self.ncells:			
+				Vec = var
+				isVec=True
+			#finalmente mete la variable en el modelo
+			N = self.ncells
+			if VarName is 'Stream_W' :
+				models.flood_w = np.ones((1,N))*Vec
+			elif VarName is 'Stream_D50':
+				models.flood_d50 = np.ones((1,N))*Vec
+			elif VarName is 'HAND':
+				self.GetGeo_HAND(umbral = umbral)				
+				models.flood_hand = np.ones((1,N))*np.copy(self.CellHAND)
+				models.flood_aquien = np.ones((1,N))*np.copy(self.CellHAND_drainCell)
+			elif VarName is 'Slope':
+				self.GetGeo_Cell_Basics()
+				models.flood_slope = np.ones((1,N))*np.sin(np.arctan(self.CellSlope))
+		elif VarName == 'GammaWater':
+			models.flood_dw = var
+		elif VarName == 'GammaSoil':
+			models.flood_dsed = var
+		elif VarName == 'VelArea':
+			models.flood_av = var
+		elif VarName == 'Cmax':
+			models.flood_cmax = var
+		elif VarName == 'VelUmbral':
+			models.flood_umbral = var
+	
 	def set_PhysicVariables(self,modelVarName,var,pos,mask=None):
 		'Descripcion: Coloca las variables fisicas en el modelo \n'\
 		'	Se debe assignarel nombre del tipo de variable, la variable\n'\
@@ -2797,7 +2876,7 @@ class SimuBasin(Basin):
 	#------------------------------------------------------	
 	def run_shia(self,Calibracion,
 		rain_rute, N_intervals, start_point = 1, ruta_storage = None, ruta_speed = None,
-		ruta_conv = None, ruta_stra = None):
+		ruta_conv = None, ruta_stra = None, kinematicN = 5):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
 		'	variables requeridas . \n'\
@@ -2826,6 +2905,15 @@ class SimuBasin(Basin):
 		'	de tiempo, esta es opcional, solo se guardan si esta variable es asignada.\n'\
 		'ruta_conv : Ruta al binario y hdr indicando las nubes que son convectivas.\n'\
 		'ruta_stra : Ruta al binario y hdr indicando las nubes que son estratiformes.\n'\
+		'kinematicN: Cantidad de iteraciones para la solucion de la onda cinematica.\n'\
+		'	De forma continua: 5 iteraciones, recomendado para cuando el modelo se\n'\
+		'		ejecuta en forma continua Ej: cu.run_shia(Calib, rain_rute, 100)\n'\
+		'	Por intervalos: 10 iteraciones, recomendado cuando el modelo se ejecuta\n'\
+		'		por intervalos de un paso ej:\n'\
+		'		for i in range(1,N)\n'\
+		'			Results = cu.run_shia(Calib, ruta_rain, 1, i)\n'\
+		'			for c,j in enumerate(Results[''Storage'']):\n'\
+		'				cu.set_Storage(j,c)\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -2840,6 +2928,7 @@ class SimuBasin(Basin):
 			N = self.nhills
 		#prepara variables globales
 		models.rain_first_point = start_point
+		models.calc_niter = kinematicN
 		#Prepara terminos para control
 		if np.count_nonzero(models.control) == 0 :
 			NcontrolQ = 1
