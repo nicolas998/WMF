@@ -1433,6 +1433,60 @@ subroutine basin_stream_type(basin_f,acum,umbrales,stream_types,numbrales,ncelda
 	enddo
     enddo
 end subroutine
+subroutine basin_stream_sections(basin_f, cauces, directions, DEM, &
+	&num_celdas, nceldas, ncols, nrows, secciones)
+	!Variables de entrada 
+	integer, intent(in) :: nceldas, ncols, nrows, num_celdas
+	real, intent(in) :: DEM(ncols, nrows)
+	integer, intent(in) :: basin_f(3, nceldas)
+	integer, intent(in) :: cauces(nceldas), directions(nceldas)
+	!variables de salida 
+	real, intent(out) :: secciones(num_celdas*2+1, nceldas)
+	!Variables locales 
+	integer i, col, fil, cont
+	integer colMov, filMov !Reglas de busqueda izq, der, arriba abajo
+	!Inicia las secciones iguales a cero 
+	seccion_rel = 0
+	seccion_tot = 0
+	!Itera por todas las celdas 
+	do i=1,nceldas
+		!Evalua la seccion si la celda es cauce 
+		if (cauces(i) .eq. 1 ) then 
+			!Reglas default 
+			colMov = 0
+			filMov = 0
+			!Determina la regla de expancion de la seccion en funcion 
+			if (directions(i) .eq. 4 .or. directions(i) .eq. 6) then 
+				filMov = 1
+			elseif (directions(i) .eq. 8 .or. directions(i) .eq. 2) then 
+				colMov = 1
+			elseif (directions(i) .eq. 7 .or. directions(i) .eq. 3) then 
+				colMov = 1
+				filMov = -1
+			elseif (directions(i) .eq. 1 .or. directions(i) .eq. 9) then 
+				colMov = 1
+				filMov = 1
+			endif
+			!Obtiene los valores en la seccion 
+			col = basin_f(2,i); fil = basin_f(3,i)
+			!itera para las celdas de la seccion
+			cont = 1
+			do j=-num_celdas,num_celdas
+				!coloca la elevacion si esta dentro del mapa 
+				if (col+j*colMov .ge. 1 .and. col+j*colMov .le. ncols .and.&
+					& fil+j*filMov .ge. 1 .and. fil+j*filMov .le. nrows) then 
+					!Seccion de elevacion dentro del mapa
+					secciones(cont,i) = DEM(col+j*colMov,fil+j*filMov)
+				else
+					!Caso fuera del mapa 
+					secciones(cont,i) = -9999
+				endif
+				cont = cont + 1 
+			enddo
+		endif	
+	enddo
+end subroutine
+
 subroutine basin_stream_point2stream(basin_f,cauce,id_coord,xy_coord,res_coord,basin_pts,xy_new,ncoord,nceldas) !Obtiene el vector basin_pts con los puntos de control ubicados
     !Variables de entrada
     integer, intent(in) :: nceldas,ncoord

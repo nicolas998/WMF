@@ -889,6 +889,33 @@ class Basin:
 		self.CellHAND_class=handC
 		self.CellHDND=hdnd
 		self.CellHAND_drainCell=hand_destiny
+	
+	def GetGeo_Sections(self, NumCeldas = 10):
+		'Descripcion: Obtiene secciones transversales a traves de todos.\n'\
+		'	los elementos de la red de drenaje, las secciones se obtienen\n'\
+		'	en la direccion perpendicular al flujo, es decir si el mapa de\n'\
+		'	direcciones indica en una celda la direccion norte, las secciones\n'\
+		'	se obtienen en lsa direcciones oriente, occidente, con NumCeldas\n'\
+		'	a cada lado de la celda tipo cauce.\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'NumCeldas: Cantidad de celdas para elaborar secciones a ambos lados.\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'self.Sections : Secciones a traves de los elementos del cauce.\n'\
+		'	su tamano es [self.ncells, NumCeldas*2 + 1 ]\n'\
+		#Obtiene mapa de cauces 
+		self.GetGeo_Cell_Basics()
+		#Obtiene vector de direcciones 
+		directions = self.Transform_Map2Basin(self.DIR, 
+			[cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, 0.0])
+		#Obtiene las secciones 
+		self.Secciones = cu.basin_stream_sections(self.structure,
+			self.CellCauce, directions, self.DEM, NumCeldas,
+			self.ncells, cu.ncols, cu.nrows)
+			
 	#------------------------------------------------------
 	# Subrutinas para el calculo de extremos mediante hidrografa unitaria sintetica 
 	#------------------------------------------------------
@@ -2445,6 +2472,7 @@ class SimuBasin(Basin):
 		'	GammaSoil : Densidad del sedimento (Defecto: 2600).\n'\
 		'	VelArea: Factor conversion Velocidad - Area (Defecto: 1/200).\n'\
 		'	Cmax: Maxima concentracion de sedimentos (Defecto 0.75).\n'\
+		'	MaxIter: Cantidad maxima de iteraciones para obtener la mancha de inunudacion.\n'\
 		'	VelUmbral: Velocidad minima para que se de el flujo de escombros ( Defecto: 3 m/s).\n'\
 		'	Stream_W: Ancho del canal en cada celda (ncells).\n'\
 		'	Stream_D50: Tamano de particula percentil 50 (ncells).\n'\
@@ -2470,6 +2498,7 @@ class SimuBasin(Basin):
 		models.flood_av = 1./200.0
 		models.flood_cmax = 0.75
 		models.flood_umbral = 3.0
+		models.flood_max_iter = 10
 		#Obtiene el vector que va a alojar en el modelo
 		if VarName <> 'GammaWater' and VarName <> 'GammaSoil' and VarName <> 'VelArea' and VarName <> 'Cmax' and VarName <> 'VelUmbral':
 			isVec=False
@@ -2507,6 +2536,8 @@ class SimuBasin(Basin):
 			models.flood_cmax = var
 		elif VarName == 'VelUmbral':
 			models.flood_umbral = var
+		elif VarName == 'MaxIter':
+			models.flood_max_iter = var
 	
 	def set_PhysicVariables(self,modelVarName,var,pos,mask=None):
 		'Descripcion: Coloca las variables fisicas en el modelo \n'\
