@@ -1434,7 +1434,7 @@ subroutine basin_stream_type(basin_f,acum,umbrales,stream_types,numbrales,ncelda
     enddo
 end subroutine
 subroutine basin_stream_sections(basin_f, cauces, directions, DEM, &
-	&num_celdas, nceldas, ncols, nrows, secciones)
+	&num_celdas, nceldas, ncols, nrows, secciones, secciones_cel)
 	!Variables de entrada 
 	integer, intent(in) :: nceldas, ncols, nrows, num_celdas
 	real, intent(in) :: DEM(ncols, nrows)
@@ -1442,12 +1442,13 @@ subroutine basin_stream_sections(basin_f, cauces, directions, DEM, &
 	integer, intent(in) :: cauces(nceldas), directions(nceldas)
 	!variables de salida 
 	real, intent(out) :: secciones(num_celdas*2+1, nceldas)
+	integer, intent(out) :: secciones_cel(num_celdas*2+1, nceldas)
 	!Variables locales 
-	integer i, col, fil, cont
+	integer i, j, col, fil, cont, posCelda
 	integer colMov, filMov !Reglas de busqueda izq, der, arriba abajo
 	!Inicia las secciones iguales a cero 
-	seccion_rel = 0
-	seccion_tot = 0
+	secciones = 0
+	secciones_cel = 0
 	!Itera por todas las celdas 
 	do i=1,nceldas
 		!Evalua la seccion si la celda es cauce 
@@ -1472,14 +1473,19 @@ subroutine basin_stream_sections(basin_f, cauces, directions, DEM, &
 			!itera para las celdas de la seccion
 			cont = 1
 			do j=-num_celdas,num_celdas
+				posCelda = -9999
 				!coloca la elevacion si esta dentro del mapa 
 				if (col+j*colMov .ge. 1 .and. col+j*colMov .le. ncols .and.&
 					& fil+j*filMov .ge. 1 .and. fil+j*filMov .le. nrows) then 
 					!Seccion de elevacion dentro del mapa
 					secciones(cont,i) = DEM(col+j*colMov,fil+j*filMov)
+					!where(basin_f(2,:) .eq. col+j*colMov .and. basin_f(3,:) .eq. fil+j*filMov) secciones_cel(cont,:) = basin_f(1,:)
+					call find_xy_in_basin(basin_f,col+j*colMov,fil+j*filMov,posCelda, nceldas)
+					secciones_cel(cont,i) = posCelda					
 				else
 					!Caso fuera del mapa 
 					secciones(cont,i) = -9999
+					secciones_cel(cont,i) = -9999					
 				endif
 				cont = cont + 1 
 			enddo
@@ -2611,12 +2617,12 @@ subroutine find_xy_in_basin(basin_f,col,fil,posit,nceldas) !Encuentra la posicio
     posit=0; flag=1
     i=1
     do while(i.le.nceldas.and.flag.eq.1)
-	if (basin_f(2,i).eq.col.and.basin_f(3,i).eq.fil) then
-	    flag=0 !Encontro el punto de salida
-	    posit=i
-	else
-	    i=i+1
-	endif
+		if (basin_f(2,i).eq.col.and.basin_f(3,i).eq.fil) then
+		    flag=0 !Encontro el punto de salida
+		    posit=i
+		else
+		    i=i+1
+		endif
     enddo
     !Si posit a la salida ==0 es porque el punto esta fuera de la cuenca
 end subroutine
