@@ -890,7 +890,7 @@ class Basin:
 		self.CellHDND=hdnd
 		self.CellHAND_drainCell=hand_destiny
 	
-	def GetGeo_Sections(self, NumCeldas = 10):
+	def GetGeo_Sections(self, NumCeldas = 6):
 		'Descripcion: Obtiene secciones transversales a traves de todos.\n'\
 		'	los elementos de la red de drenaje, las secciones se obtienen\n'\
 		'	en la direccion perpendicular al flujo, es decir si el mapa de\n'\
@@ -905,14 +905,14 @@ class Basin:
 		'Retornos\n'\
 		'----------\n'\
 		'self.Sections : Secciones a traves de los elementos del cauce.\n'\
-		'	su tamano es [self.ncells, NumCeldas*2 + 1 ]\n'\
+		'	su tamano es [NumCeldas*2 + 1, self.ncells]\n'\
 		#Obtiene mapa de cauces 
 		self.GetGeo_Cell_Basics()
 		#Obtiene vector de direcciones 
 		directions = self.Transform_Map2Basin(self.DIR, 
 			[cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, 0.0])
 		#Obtiene las secciones 
-		self.Secciones = cu.basin_stream_sections(self.structure,
+		self.Sections, self.Sections_Cells = cu.basin_stream_sections(self.structure,
 			self.CellCauce, directions, self.DEM, NumCeldas,
 			self.ncells, cu.ncols, cu.nrows)
 			
@@ -2460,7 +2460,7 @@ class SimuBasin(Basin):
 			else:
 				models.speed_type[c]=1	
 	
-	def set_Floods(self,var,VarName, umbral = 1000):
+	def set_Floods(self,var,VarName, umbral = 1000, NumCeldas = 6):
 		'Descripcion: Aloja las variables del sub modelo de inundaciones\n'\
 		'\n'\
 		'Parametros\n'\
@@ -2499,6 +2499,7 @@ class SimuBasin(Basin):
 		models.flood_cmax = 0.75
 		models.flood_umbral = 3.0
 		models.flood_max_iter = 10
+		models.flood_step = 1.0
 		#Obtiene el vector que va a alojar en el modelo
 		if VarName <> 'GammaWater' and VarName <> 'GammaSoil' and VarName <> 'VelArea' and VarName <> 'Cmax' and VarName <> 'VelUmbral':
 			isVec=False
@@ -2526,6 +2527,10 @@ class SimuBasin(Basin):
 			elif VarName is 'Slope':
 				self.GetGeo_Cell_Basics()
 				models.flood_slope = np.ones((1,N))*np.sin(np.arctan(self.CellSlope))
+			elif VarName is 'Sections':
+				self.GetGeo_Sections(NumCeldas = NumCeldas)
+				models.flood_sections = np.ones((NumCeldas*2+1,N)) * self.Sections 
+				models.flood_sec_cells = np.ones((NumCeldas*2+1,N)) * self.Sections_Cells 
 		elif VarName == 'GammaWater':
 			models.flood_dw = var
 		elif VarName == 'GammaSoil':

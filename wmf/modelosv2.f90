@@ -146,7 +146,8 @@ real, allocatable :: flood_ufr(:,:) ! Velocidad critica calculada en funcion del
 real flood_rdf !coeficiente ecuacion de caudal pico en crecientes
 real, allocatable :: flood_Cr(:,:) !Concentracion de sedimentos en el canal
 integer , allocatable :: flood_eval(:,:) !determina si una celda debe ser evaluada por inundacion (1) o no (0)
-real flood_area, flood_diff ! Area de seccion calculada con la concentracion y diferencia de alturas calculada 
+real flood_area, flood_diff ! Area de seccion calculada con la concentracion y diferencia de alturas calculada
+real flood_sec_tam
 !Variables parametro del modelo 
 real flood_AV !Parametro para dar sentido hidrauico al caudal, determina cuanto es area, cuanto es velocidad.
 real, allocatable :: flood_w(:,:) !Ancho de los canales, Parametro del modelo 
@@ -154,11 +155,14 @@ real, allocatable :: flood_d50(:,:) !Tamano mediana de las particulas en el cauc
 integer, allocatable :: flood_aquien(:,:) !Celda cauce destino de una celda ladera (Para saber a quienes inundar)
 real, allocatable :: flood_hand(:,:) !modelo de elevacion relativa de cada celda con respecto a su cauce
 real, allocatable :: flood_loc_hand(:,:) ! modelo de elevacion dedicado a una sola celda
+real, allocatable :: flood_sections(:,:) !Secciones sobre los elementos que son cauce
+real, allocatable :: flood_sec_cells(:,:) !Referencia en la estructura de la cuenca de las celdas que hacen parte de las secciones
 real flood_Cmax !Maxima concentración de sedimentos (recomendado : 0.75)
 real, allocatable :: flood_slope(:,:) !Pendiente como: Theta = sin(tan-1(y/x))
 real flood_dw, flood_dsed !Densidad del agua (1000) y densidad de los sedimentos (2600)
-real flood_umbral
-
+real flood_umbral !Velocidad minima para que se evalue inundaciones 
+integer flood_max_iter !Maxima cantidad de iteraciones para determinar celdas inundadas
+real flood_step !Tamano del paso (en metros) para ir generando la mancha de inundacion
 
 contains
 
@@ -595,11 +599,12 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 					!Calcula los parametros de la hidraulica incluyendo concentraciones 
 					call flood_params(celda)
 					!Calcula la diferencia de hand 
-					call flood_find_hdiff(celda)
+					!call flood_find_hdiff(celda)
 					!Calcula el area de inundacion equivalente 
-					call flood_debris_flow(celda, flood_area, flood_diff)
+					!call flood_debris_flow(celda, flood_area, flood_diff)
+					call flood_debris_flow2(celda, flood_area, flood_diff)
 					!Inunda celdas
-					where(flood_aquien .eq. celda .and. flood_hand .lt. flood_diff) flood_flood = 1
+					!where(flood_aquien .eq. celda .and. flood_hand .lt. flood_diff) flood_flood = 1
 				endif
 			endif
 			
@@ -1378,6 +1383,7 @@ subroutine flood_allocate(N_cel) !Aloja las variables propias de deslizamientos
 	if (allocated(flood_flood) .eqv. .false.) allocate(flood_flood(1,N_cel))
 	if (allocated(flood_loc_hand) .eqv. .false.) allocate(flood_loc_hand(1,N_cel))
 	if (allocated(flood_slope) .eqv. .false.) allocate(flood_slope(1,N_cel))
+	flood_sec_tam = size(flood_sections(:,1))
 	flood_eval = 0
 end subroutine
 
@@ -1423,7 +1429,8 @@ subroutine flood_debris_flow(celda,areas,dif) !Calcula: Altura de inundacion par
 	Qp = 0	 
 	i = 1
     !Itera por las diferentes alturas
-	do while (flood_loc_hand(1,i) .ne. 0 .and. flood_loc_hand(1,i) .ne. 9999 .and. Qp .lt. flood_Qsed(1,celda)) 
+	do while (flood_loc_hand(1,i) .ne. 0 .and. flood_loc_hand(1,i) .ne. 9999 .and. &
+		&Qp .lt. flood_Qsed(1,celda) .and. i .lt. flood_max_iter) 
 		!Calcula diferencia y areas
 		dif=flood_loc_hand(1,i)
 		areas = areas + area 
@@ -1435,7 +1442,41 @@ subroutine flood_debris_flow(celda,areas,dif) !Calcula: Altura de inundacion par
 		i = i + 1 
     enddo
 end subroutine
-
+subroutine flood_debris_flow2(celda,areas,dif) !Calcula: Altura de inundacion para una celda dada  
+    !variables de entrada
+    integer, intent(in) :: celda !Celda a evaluar
+    !Variables de salida
+    real, intent(out) :: areas,dif !Salidas 
+    !variables locales 
+    integer i
+    real Qpar,Qp,r_df,h,area,varia, fondo, linea
+    real diferencias(int(flood_sec_tam)) , positions(int(flood_sec_tam))
+    !Codigo
+	area = 0
+	Qp = 0	 
+	i = 1
+	!Obntiene el fondo del canal	
+    fondo = flood_sections((floor(flood_sec_tam)/2)+1, celda)
+    !Itera por las diferentes alturas hasta que Qp sea mayor que Qsed y 
+	do while (Qp .lt. flood_Qsed(1,celda) .and. i*flood_step .lt. 50) 
+		!Calcula diferencia y areas
+		dif = i*flood_step
+		linea = fondo + dif
+		diferencias = linea - flood_sections(:,celda)
+		area = sum(diferencias, mask = diferencias .gt. 0.0) * dxp 
+		!Equacion constitutiva para flujos de escombros.
+		Qp = ((2./5)*flood_rdf*(i*flood_step)**(3./2)*(flood_slope(1,celda))*(1./2))*area
+		i = i + 1 
+    enddo
+    !Inunda 
+    positions = 999999
+    where(diferencias .gt. 0.0) positions = flood_sec_cells(:,celda)
+    call QsortC(positions)
+    do i = 1, count(diferencias .gt. 0.0)
+		flood_flood(1,int(positions(i))) = 1
+    enddo
+    flood_flood(1,celda) = 2
+end subroutine
 
 
 
