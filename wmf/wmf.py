@@ -420,6 +420,12 @@ def map_acum_to_stream(ACUM,umbral):
 	#Invoca funcion de fortran
 	CAUCE = cu.geo_acum_to_cauce(ACUM,umbral,cu.ncols,cu.nrows)
 	return CAUCE
+
+def SimuBains_Update_DEM_DIR(ruta_basin, rute_dem, rute_dir):
+		g = netCDF4.Dataset(ruta_basin,'a')
+		g.DEM = rute_dem
+		g.DIR = rute_dir
+		g.close()
 	
 #-----------------------------------------------------------------------
 #Ecuaciones Que son de utilidad
@@ -2044,7 +2050,7 @@ class SimuBasin(Basin):
 		models.control_h = np.ones((1,N)) * gr.variables['control_h'][:]
 		#Cierra el archivo 
 		gr.close()
-		
+	
 	#------------------------------------------------------
 	# Subrutinas de lluvia, interpolacion, lectura, escritura
 	#------------------------------------------------------	
