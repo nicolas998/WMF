@@ -422,10 +422,19 @@ def map_acum_to_stream(ACUM,umbral):
 	return CAUCE
 
 def SimuBains_Update_DEM_DIR(ruta_basin, rute_dem, rute_dir):
-		g = netCDF4.Dataset(ruta_basin,'a')
-		g.DEM = rute_dem
-		g.DIR = rute_dir
-		g.close()
+	'Funcion: map_acum_to_stream\n'\
+	'Descripcion: Actualiza la ruta al DEM y al DIR de un proyecto de simulacion.\n'\
+	'Parametros :.\n'\
+	'	-ruta_basin: ruta del proyecto de la cuenca.\n'\
+	'	-ruta_dem: Ruta al mapa dem.\n'\
+	'	-ruta_dir: Ruta al mapa dir .\n'\
+	'Retorno:.\n'\
+	'	actualiza las rutas en el proyecto.\n'\
+	#Lee el nc y le actualiza ambas rutas
+	g = netCDF4.Dataset(ruta_basin,'a')
+	g.DEM = rute_dem
+	g.DIR = rute_dir
+	g.close()
 	
 #-----------------------------------------------------------------------
 #Ecuaciones Que son de utilidad
