@@ -1478,7 +1478,7 @@ class Basin:
 	#------------------------------------------------------
 	def Save_Net2Map(self,ruta,dx=30.0,umbral=1000,
 		qmed=None,Dict=None,DriverFormat='ESRI Shapefile',
-		EPSG=4326):
+		EPSG=4326, NumTramo = False):
 		'Descripcion: Guarda la red hidrica simulada de la cuenca en .shp \n'\
 		'	Puede contener un diccionario con propiedades de la red hidrica. \n'\
 		'\n'\
@@ -1492,6 +1492,7 @@ class Basin:
 		'Dict : Diccionario con parametros de la red hidrica que se quieren imprimir.\n'\
 		'DriverFormat : nombre del tipo de archivo vectorial de salida (ver OsGeo).\n'\
 		'EPSG : Codigo de proyeccion utilizada para los datos, defecto WGS84.\n'\
+		'NumTramo: Poner o no el numero de tramo en cada elemento de la red.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1508,15 +1509,19 @@ class Basin:
 		nodos = cu.basin_stream_nod(self.structure,acum,umbral,self.ncells)[1]
 		netsize = cu.basin_netxy_find(self.structure,nodos,cauceHorton,self.ncells)
 		net=cu.basin_netxy_cut(netsize,self.ncells)
+		#Para net con caudal medio
 		if qmed<>None:
 			netsize = cu.basin_netxy_find(self.structure,nodos,cauce*qmed,self.ncells)
 			netQmed=cu.basin_netxy_cut(netsize,self.ncells)
+		#Para net con tramos
+		if NumTramo:
+			netsize2 = cu.basin_netxy_find(self.structure,nodos,sub_pert*cauce,self.ncells)
+			netTramo = cu.basin_netxy_cut(netsize2,self.ncells)
+		#Cortes
 		cortes=np.where(net[0,:]==-999)
 		cortes=cortes[0].tolist()
 		cortes.insert(0,0)
 		#Escribe el shp de la red hidrica
-		#if ruta.endswith('.shp')==False:
-		#	ruta=ruta+'.shp'
 		spatialReference = osgeo.osr.SpatialReference()
 		spatialReference.ImportFromEPSG(EPSG)
 		driver = osgeo.ogr.GetDriverByName(DriverFormat)
@@ -1529,6 +1534,10 @@ class Basin:
 		layer.CreateField(new_field)
 		new_field=osgeo.ogr.FieldDefn('Horton',osgeo.ogr.OFTInteger)
 		layer.CreateField(new_field)
+		#coloca los nodos
+		if NumTramo:
+			new_field=osgeo.ogr.FieldDefn('Tramo',osgeo.ogr.OFTInteger)
+			layer.CreateField(new_field)
 		if qmed<>None:
 			new_field=osgeo.ogr.FieldDefn('Qmed[m3s]',osgeo.ogr.OFTReal)
 			layer.CreateField(new_field)
@@ -1553,6 +1562,8 @@ class Basin:
 			feature.SetField('Horton',int(net[0,i+1]))
 			if qmed<>None:	
 				feature.SetField('Qmed[m3s]',float(netQmed[0,i+1]))
+			if NumTramo:	
+				feature.SetField('Tramo',int(netTramo[0,i+1]))
 			if Dict<>None:
 				if type(Dict==dict):
 					for n,k in zip(netDict,Dict.keys()):					
