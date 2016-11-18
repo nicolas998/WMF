@@ -679,6 +679,27 @@ subroutine basin_acum(basin_f,nceldas,acum) !calcula: acumulada
     !Calcula escalares genericos de la cuenca
     area=nceldas*dxp**2/1e6 
 end subroutine
+subroutine basin_acum_var(basin_f,nceldas,var_to_acum,acum) !calcula: acumula una variable dada
+    !variables de entrada
+    integer, intent(in) :: nceldas
+    integer, intent(in) :: basin_f(nceldas)
+    real, intent(in) :: var_to_acum(1, nceldas)
+    !variables de salida
+    real, intent(out) :: acum(1, nceldas)
+    !f2py intent(in) :: nceldas,nc,nf,basin_f, var_to_acum
+    !f2py intent(out) :: acum
+    integer i,drenaid
+    !Calcula Longitudes, acum y pendiente
+    acum=var_to_acum
+    do i=1,nceldas
+		!Determina la celda a la que se drena
+		drenaid=nceldas-basin_f(i)+1
+		!Calcula el area acumulada
+		if (basin_f(i).ne.0) then
+		    acum(1, drenaid)=acum(1, drenaid)+acum(1, i)			    
+		endif	
+    end do
+end subroutine
 subroutine basin_findlong(basin_f,nceldas,longMax,punto) !Calcula la longitud de la cuenca
 	!variables de entrada
     integer, intent(in) :: nceldas
