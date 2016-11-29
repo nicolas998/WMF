@@ -1961,15 +1961,18 @@ class SimuBasin(Basin):
 			models.control = np.zeros((1,N))
 			#Si se da la opcion de puntos de control en toda la red lo hace
 			if controlNodos:
-				self.GetGeo_Cell_Basics()
-				cauce,nodos,n_nodos = cu.basin_subbasin_nod(
-					self.structure,
-					self.CellAcum,
-					umbral,
-					self.ncells)
-				pos = np.where(nodos<>0)[0]
-				x,y = cu.basin_coordxy(self.structure,self.ncells)
-				idsOrd,xy = self.set_Control(np.vstack([x[pos],y[pos]]),nodos[pos])
+				if modelType == 'cells':
+					self.GetGeo_Cell_Basics()
+					cauce,nodos,n_nodos = cu.basin_subbasin_nod(
+						self.structure,
+						self.CellAcum,
+						umbral,
+						self.ncells)
+					pos = np.where(nodos<>0)[0]
+					x,y = cu.basin_coordxy(self.structure,self.ncells)
+					idsOrd,xy = self.set_Control(np.vstack([x[pos],y[pos]]),nodos[pos])
+				elif modelType == 'hills':
+					models.control = np.ones((1,self.nhills)) * nodos[nodos<>0]
 			#Puntos de control de humedad sin control por defecto 
 			models.control_h = np.zeros((1,N))
 			#Define las simulaciones que se van a hacer 
