@@ -3032,7 +3032,7 @@ class SimuBasin(Basin):
 			ruta_binStra = 'none'
 			ruta_hdrStra = 'none'
 		# Ejecuta el modelo 
-		Qsim,Qsed,Qseparated,Humedad,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
+		Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
 			rain_ruteHdr,
 			Calibracion,
@@ -3052,6 +3052,10 @@ class SimuBasin(Basin):
 		Retornos.update({'Storage' : Alm})
 		if np.count_nonzero(models.control_h)>0:
 			Retornos.update({'Humedad' : Humedad})
+		if np.count_nonzero(models.control_h)>0:
+			Retornos.update({'St1' : St1})
+		if np.count_nonzero(models.control_h)>0:
+			Retornos.update({'St3' : St3})
 		if models.sim_sediments == 1:
 			Retornos.update({'Sediments' : Qsed})
 		if models.separate_fluxes == 1:
