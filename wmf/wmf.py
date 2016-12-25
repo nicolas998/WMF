@@ -38,10 +38,10 @@ except:
 #Ploteo de variables
 #-----------------------------------------------------------------------
 def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
-	figsize=(8,4.5),ids=None,legend=True,
-	ylabel='Streamflow $[m^3/seg]$'):
-	fig=pl.figure(facecolor='w',edgecolor='w',figsize=figsize)
-	ax1=fig.add_subplot(111)
+	figsize=(8,4.5),ids=None,legend=True,ax1 = None,**kwargs):
+	if ax1 == None:
+		fig=pl.figure(facecolor='w',edgecolor='w',figsize=figsize)
+		ax1=fig.add_subplot(111)
 	#Fechas
 	if Dates==None:
 		if len(Qs.shape)>1:
@@ -55,29 +55,48 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 		ax1AX=pl.gca()
 		ax2=ax1.twinx()
 		ax2AX=pl.gca()
-		ax2.fill_between(ejeX,0,mrain,alpha=0.4,color='blue',lw=0)
-		ax2.set_ylabel('Precipitation [$mm$]',size=14)
-		ax2AX.set_ylim(ax2AX.get_ylim() [::-1])    
+		alpha = kwargs.get('rain_alpha',0.4)
+		color = kwargs.get('rain_color','blue')
+		lw = kwargs.get('rain_lw',0)
+		ax2.fill_between(ejeX,0,mrain,alpha=alpha,color=color,lw=lw)
+		ylabel = kwargs.get('rain_ylabel','Precipitation [$mm$]')
+		label_size = kwargs.get('label_size',14)
+		ax2.set_ylabel(ylabel,size=label_size)
+		ylim = kwargs.get('rain_ylim',ax2AX.get_ylim() [::-1])
+		ax2AX.set_ylim(ylim)    
 	#grafica las hidrografas
-	ColorSim=['r','g','k','c','y']
+	ColorSim=kwargs.get('ColorSim',['r','g','k','c','y'])
+	Qs_lw = kwargs.get('Qs_lw',1.5)
+	Qo_lw = kwargs.get('Qo_lw',2.0)
+	Qs_color = kwargs.get('Qs_color','r')
+	Qo_color = kwargs.get('Qo_color','b')
+	Qo_label = kwargs.get('Qo_label','Observed')
+	Qs_label = kwargs.get('Qs_label','Simulated')
 	if len(Qs.shape)>1:
 		if ids is None:
 			ids = np.arange(1,Qs.shape[0]+1)
 		for i,c,d in zip(Qs,ColorSim,ids):
-			ax1.plot(ejeX,i,c,lw=1.5,label='Simulated '+str(d))    
+			ax1.plot(ejeX,i,c,lw=Qs_lw,label='Simulated '+str(d))    
 	else:
-		ax1.plot(ejeX,Qs,'r',lw=1.5,label='Simulated ')    
-	if Qo<>None: ax1.plot(ejeX,Qo,'b',lw=2,label='Observed')
+		ax1.plot(ejeX,Qs,Qs_color,lw=Qs_lw,label=Qs_label)    
+	if Qo<>None: ax1.plot(ejeX,Qo,Qo_color,lw=Qo_lw,label=Qo_label)
 	#Pone elementos en la figura
-	ax1.set_xlabel('Time [$min$]',size=14)
-	ax1.set_ylabel(ylabel,size=14)
+	xlabel = kwargs.get('xlabel','Time [$min$]')
+	ylabel = kwargs.get('ylabel','Streamflow $[m^3/seg]$')
+	ax1.set_xlabel(xlabel,size=label_size)
+	ax1.set_ylabel(ylabel,size=label_size)
 	ax1.grid(True)
-	if legend:
-		lgn1=ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12),
-			fancybox=True, shadow=True, ncol=4)
+	loc = kwargs.get('legend_loc','upper center')
+	bbox_to_anchor = kwargs.get('bbox_to_anchor',(0.5,-0.12))
+	ncol = kwargs.get('legend_ncol',4)
+	if legend == True:
+		lgn1=ax1.legend(loc=loc, bbox_to_anchor=bbox_to_anchor,
+			fancybox=True, shadow=True, ncol=ncol)
 	if ruta<>None:
 		pl.savefig(ruta, bbox_inches='tight')
-	pl.show()
+	show = kwargs.get('show',True)
+	if show == True:
+		pl.show()
 
 #-----------------------------------------------------------------------
 #Lectura de informacion y mapas 
