@@ -39,6 +39,36 @@ except:
 #-----------------------------------------------------------------------
 def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 	figsize=(8,4.5),ids=None,legend=True,ax1 = None,**kwargs):
+	'''ENTRADAS:
+	Qs = Caudal simulado, variable tipo lista
+	Qo = Caudal observado, variable tipo lista
+	mrain = Lluvia media observada,variable tipo lista
+	Dates = Indice de tiempo (Datetime), variable tipo lista
+	ids = Identificador de puntos de control
+	ax1 = axis o entorno para graficar
+	**kwargs = Argumentos por defecto, se pueden cambiar.
+	Estos argumentos son:
+
+	ARGUMENTOS POR DEFECTO
+	rain_alpha': 0.4
+	rain_color': blue
+	rain_lw : 0
+	rain_ylabel: Precipitation [$mm$]
+	label_size: 14
+	rain_ylim : Se ajusta
+	ColorSim : ['r','g','k','c','y']
+	Qs_lw : 1.5
+	Qo_lw : 2.0
+	Qs_color : red
+	Qo_color : blue
+	Qo_label : Observed
+	Qs_label : Simulated
+	xlabel : Time [$min$]
+	ylabel : Streamflow $[m^3/seg]
+	legend_loc : upper center
+	bbox_to_anchor : (0.5,-0.12)
+	legend_ncol : 4
+	'''
 	if ax1 == None:
 		fig=pl.figure(facecolor='w',edgecolor='w',figsize=figsize)
 		ax1=fig.add_subplot(111)
