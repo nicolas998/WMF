@@ -1741,8 +1741,11 @@ class Basin:
 			lats=np.array([myll+0.5*cu.dx+i*cu.dx for i in range(Mrows)])
 			X,Y=np.meshgrid(longs,lats)
 			Y=Y[::-1]
+			show = kwargs.get('show',True)
 			if axis == None:
 				fig=pl.figure(figsize=figsize)
+			else:
+				show = False
 			m = Basemap(projection='merc',
 				llcrnrlat=lats.min()-extra_lat,
 				urcrnrlat=lats.max()+extra_lat,
@@ -1807,7 +1810,6 @@ class Basin:
 			#Guarda
 			if ruta<>None:
 				pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
-			show = kwargs.get('show',True)
 			if show==True:
 				pl.show()
 			return m
