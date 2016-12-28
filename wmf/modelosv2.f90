@@ -645,7 +645,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 			if (control_h(1,celda).ne.0) then 
 				Hum(controlh_cont,tiempo)=sum((/ StoOut(1,celda), StoOut(3,celda)/))
 				St1(controlh_cont,tiempo)=StoOut(1,celda)
-				St3(coltrolh_cont,tiempo)=StoOut(3,celda)
+				St3(controlh_cont,tiempo)=StoOut(3,celda)
 				controlh_cont=controlh_cont+1
 			endif
 
