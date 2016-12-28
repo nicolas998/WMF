@@ -50,24 +50,24 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 	Estos argumentos son:
 
 	ARGUMENTOS POR DEFECTO
-	rain_alpha': 0.4
-	rain_color': blue
-	rain_lw : 0
-	rain_ylabel: Precipitation [$mm$]
-	label_size: 14
-	rain_ylim : Se ajusta
-	ColorSim : ['r','g','k','c','y']
-	Qs_lw : 1.5
-	Qo_lw : 2.0
-	Qs_color : red
-	Qo_color : blue
-	Qo_label : Observed
-	Qs_label : Simulated
-	xlabel : Time [$min$]
-	ylabel : Streamflow $[m^3/seg]
-	legend_loc : upper center
-	bbox_to_anchor : (0.5,-0.12)
-	legend_ncol : 4
+	rain_alpha': 0.4, Transparencia de la lluvia
+	rain_color': blue, Color de la lluvia
+	rain_lw : 0, Ancho de linea de lluvia
+	rain_ylabel: Precipitation [$mm$], Etiqueta del eje y de la lluvia
+	label_size: 14, Tamaño de fuente 
+	rain_ylim : Se ajusta, Límite del eje y
+	ColorSim : ['r','g','k','c','y'], Colores para simulación de caudal
+	Qs_lw : 1.5, Ancho de línea de caudal simulado
+	Qo_lw : 2.0, Ancho de línea de caudal observado
+	Qs_color : red, Color de línea de caudal simulado
+	Qo_color : blue, Color de línea de caudal observado
+	Qo_label : Observed, Leyenda de caudal observado
+	Qs_label : Simulated, Leyenda de caudal simulado
+	xlabel : Time [$min$], Etiqueta del eje x
+	ylabel : Streamflow $[m^3/seg], Etiqueta del eje y
+	legend_loc : upper center, Ubicación de la leyenda
+	bbox_to_anchor : (0.5,-0.12), Ajuste de la caja de la leyenda
+	legend_ncol : 4, Número de columnas para la leyenda
 	'''
         show = kwargs.get('show',True)
 	if ax1 == None:
