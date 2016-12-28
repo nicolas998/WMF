@@ -69,9 +69,12 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 	bbox_to_anchor : (0.5,-0.12)
 	legend_ncol : 4
 	'''
+        show = kwargs.get('show',True)
 	if ax1 == None:
 		fig=pl.figure(facecolor='w',edgecolor='w',figsize=figsize)
 		ax1=fig.add_subplot(111)
+	else:
+		show = False
 	#Fechas
 	if Dates==None:
 		if len(Qs.shape)>1:
@@ -124,7 +127,6 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 			fancybox=True, shadow=True, ncol=ncol)
 	if ruta<>None:
 		pl.savefig(ruta, bbox_inches='tight')
-	show = kwargs.get('show',True)
 	if show == True:
 		pl.show()
 
