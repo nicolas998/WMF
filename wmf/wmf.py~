@@ -50,31 +50,28 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 	Estos argumentos son:
 
 	ARGUMENTOS POR DEFECTO
-	rain_alpha': 0.4, Transparencia de la lluvia
-	rain_color': blue, Color de la lluvia
-	rain_lw : 0, Ancho de linea de lluvia
-	rain_ylabel: Precipitation [$mm$], Etiqueta del eje y de la lluvia
-	label_size: 14, Tamaño de fuente 
-	rain_ylim : Se ajusta, Límite del eje y
-	ColorSim : ['r','g','k','c','y'], Colores para simulación de caudal
-	Qs_lw : 1.5, Ancho de línea de caudal simulado
-	Qo_lw : 2.0, Ancho de línea de caudal observado
-	Qs_color : red, Color de línea de caudal simulado
-	Qo_color : blue, Color de línea de caudal observado
-	Qo_label : Observed, Leyenda de caudal observado
-	Qs_label : Simulated, Leyenda de caudal simulado
-	xlabel : Time [$min$], Etiqueta del eje x
-	ylabel : Streamflow $[m^3/seg], Etiqueta del eje y
-	legend_loc : upper center, Ubicación de la leyenda
-	bbox_to_anchor : (0.5,-0.12), Ajuste de la caja de la leyenda
-	legend_ncol : 4, Número de columnas para la leyenda
+	rain_alpha': 0.4
+	rain_color': blue
+	rain_lw : 0
+	rain_ylabel: Precipitation [$mm$]
+	label_size: 14
+	rain_ylim : Se ajusta
+	ColorSim : ['r','g','k','c','y']
+	Qs_lw : 1.5
+	Qo_lw : 2.0
+	Qs_color : red
+	Qo_color : blue
+	Qo_label : Observed
+	Qs_label : Simulated
+	xlabel : Time [$min$]
+	ylabel : Streamflow $[m^3/seg]
+	legend_loc : upper center
+	bbox_to_anchor : (0.5,-0.12)
+	legend_ncol : 4
 	'''
-        show = kwargs.get('show',True)
 	if ax1 == None:
 		fig=pl.figure(facecolor='w',edgecolor='w',figsize=figsize)
 		ax1=fig.add_subplot(111)
-	else:
-		show = False
 	#Fechas
 	if Dates==None:
 		if len(Qs.shape)>1:
@@ -127,6 +124,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 			fancybox=True, shadow=True, ncol=ncol)
 	if ruta<>None:
 		pl.savefig(ruta, bbox_inches='tight')
+	show = kwargs.get('show',True)
 	if show == True:
 		pl.show()
 
@@ -1693,126 +1691,91 @@ class Basin:
 	# Graficas de la cuenca
 	#------------------------------------------------------
 	def Plot_basin(self,vec=None,Min=None,
-			Max=None,ruta=None,figsize=(10,8),
-			ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
-			xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
-			colorbar=True, colorbarLabel = None,axis=None,
-			**kwargs):
-			#Plotea en la terminal como mapa un vector de la cuenca
-			'Función: write_proyect_int_ext\n'\
-			'Descripción: Genera un plot del mapa entregado.\n'\
-			'del mismo en forma de mapa \n'\
-			'Parámetros Obligatorios:.\n'\
-			'	-basin: Vector con la forma de la cuenca.\n'\
-			'	-vec: Vector con los valores a plotear.\n'\
-			'Parámetros Opcionales:.\n'\
-			'	-Min: Valor minimo del plot, determina el rango de colores.\n'\
-			'	-Max: Valor maximo del plot, determina el rango de colores.\n'\
-			'	-ruta: Ruta en la cual se guarda la grafica.\n'\
-			'	-colorbar: Muestra o no la barra de colores, defecto: True.\n'\
-			'	-figsize: tamano de la ventana donde se muestra la cuenca.\n'\
-			'	-ZeroAsNaN: Convierte los valores de cero en NaN.\n'\
-			'Otros argumentos:.\n'\
-			'	-axis = Entorno de gráfica que contiene elementos de las figuras.\n'\
-			'	-parallels = Grafica Paralelos, list-like.\n'\
-			'	-parallels_labels = Etiquetas de los paralelos, list-like.\n'\
-			'		labels = [left,right,top,bottom].\n'\
-			'		Ejemplo:\n'\
-			'		m.drawparallels(parallels,labels=[False,True,True,False]).\n'\
-			'	-meridians = Grafica Meridianos, list-like.\n'\
-			'	-meridians_labels = Etiquetas de los meridianos, list-like.\n'\
-			'	-per_color = Color del perímetro.\n'\
-			'	-per_lw = Ancho de linea del perímetro.\n'\
-			'	-colorbarLabel = Título del colorbar.\n'\
-			'	-xy_edgecolor = Color de la línea exterior del scatter .\n'\
-			'	-xy_lw = Ancho de línea del Scatter .\n'\
-			'	-xy_s = Tamaño del scatter.\n'\
-			'	-show = boolean, si es True muestra la gráfica.\n'\
-			'Retorno:.\n'\
-			'	-Actualizacion del binario .int\n'\
-			'	-m = Para continuar graficando encima del entorno creado en Basemap\n'\
-			'		Ejemplo:.\n'\
-			'		m = Plot_basin(**args).\n'\
-			'		m.scatter(coordenada_x,coordenada_y).\n'
-			Mcols,Mrows=cu.basin_2map_find(self.structure,self.ncells)
-			Map,mxll,myll=cu.basin_2map(self.structure,self.structure[0]
-				,Mcols,Mrows,self.ncells)
-			longs=np.array([mxll+0.5*cu.dx+i*cu.dx for i in range(Mcols)])
-			lats=np.array([myll+0.5*cu.dx+i*cu.dx for i in range(Mrows)])
-			X,Y=np.meshgrid(longs,lats)
-			Y=Y[::-1]
-			show = kwargs.get('show',True)
-			if axis == None:
-				fig=pl.figure(figsize=figsize)
+		Max=None,ruta=None,mostrar='si',barra='si',figsize=(10,8),
+		ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
+		xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
+		colorbar=True, colorbarLabel = None):
+		#Plotea en la terminal como mapa un vector de la cuenca
+		'Funcion: write_proyect_int_ext\n'\
+		'Descripcion: Genera un plot del mapa entrgeado.\n'\
+		'del mismo en forma de mapa \n'\
+		'Parametros Obligatorios:.\n'\
+		'	-basin: Vector con la forma de la cuenca.\n'\
+		'	-vec: Vector con los valores a plotear.\n'\
+		'Parametros Opcionales:.\n'\
+		'	-Min: Valor minimo del plot, determina el rango de colores.\n'\
+		'	-Max: Valor maximo del plot, determina el rango de colores.\n'\
+		'	-ruta: Ruta en la cual se guarda la grafica.\n'\
+		'	-mostrar: Muestra o no la grafica, defecto: si.\n'\
+		'	-barra: Muestra o no la barra de colores, defecto: si.\n'\
+		'	-figsize: tamano de la ventana donde se muestra la cuenca.\n'\
+		'	-ZeroAsNaN: Convierte los valores de cero en NaN.\n'\
+		'Retorno:.\n'\
+		'	Actualizacion del binario .int\n'\
+		#Plot en basemap
+		Mcols,Mrows=cu.basin_2map_find(self.structure,self.ncells)
+		Map,mxll,myll=cu.basin_2map(self.structure,self.structure[0]
+			,Mcols,Mrows,self.ncells)
+		longs=np.array([mxll+0.5*cu.dx+i*cu.dx for i in range(Mcols)])
+		lats=np.array([myll+0.5*cu.dx+i*cu.dx for i in range(Mrows)])
+		X,Y=np.meshgrid(longs,lats)
+		Y=Y[::-1]
+		fig=pl.figure(figsize=figsize)		
+		m = Basemap(projection='merc',
+			llcrnrlat=lats.min()-extra_lat,
+			urcrnrlat=lats.max()+extra_lat,
+			llcrnrlon=longs.min()-extra_long,
+			urcrnrlon=longs.max()+extra_long,
+			resolution='c')
+		m.drawparallels(np.arange(lats.min(),
+			lats.max(),lines_spaces),
+			labels=[1,0,0,0],
+			fmt="%.2f",
+			rotation='vertical',
+			xoffset=0.1)
+		m.drawmeridians(np.arange(longs.min(),
+			longs.max(),lines_spaces),
+			labels=[0,0,1,0], 
+			fmt="%.2f",
+			yoffset=0.1)
+		Xm,Ym=m(X,Y)
+	    #Plotea el contorno de la cuenca y la red 
+		nperim = cu.basin_perim_find(self.structure,self.ncells)
+		perim = cu.basin_perim_cut(nperim)	
+		xp,yp=m(perim[0],perim[1])  
+		m.plot(xp, yp, color='r',lw=2)
+	    #Si hay una variable la monta
+		if vec<>None:
+			if vmin is None:
+				vmin = vec.min()
+			if vmax is None:
+				vmax = vec.max()
+			MapVec,mxll,myll=cu.basin_2map(self.structure,vec,Mcols,Mrows,
+				self.ncells)
+			MapVec[MapVec==cu.nodata]=np.nan
+			if ZeroAsNaN is 'si':
+				MapVec[MapVec == 0] = np.nan
+			if colorTable<>None:
+				cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,cmap=colorTable,
+					vmin=vmin,vmax=vmax)
 			else:
-				show = False
-			m = Basemap(projection='merc',
-				llcrnrlat=lats.min()-extra_lat,
-				urcrnrlat=lats.max()+extra_lat,
-				llcrnrlon=longs.min()-extra_long,
-				urcrnrlon=longs.max()+extra_long,
-				resolution='c')
-			parallels = kwargs.get('parallels',np.arange(lats.min(),
-				lats.max(),lines_spaces))
-			parallels_labels = kwargs.get('parallels_labels',[1,0,0,0])
-			m.drawparallels(parallels,
-				labels = parallels_labels,
-				fmt="%.2f",
-				rotation='vertical',
-				xoffset=0.1)
-			meridians = kwargs.get('meridians', np.arange(longs.min(),
-				longs.max(),lines_spaces))
-			meridians_labels = kwargs.get('meridians_labels', [0,0,1,0])
-			m.drawmeridians(meridians,
-				labels=meridians_labels, 
-				fmt="%.2f",
-				yoffset=0.1)
-			Xm,Ym=m(X,Y)
-			#Plotea el contorno de la cuenca y la red 
-			nperim = cu.basin_perim_find(self.structure,self.ncells)
-			perim = cu.basin_perim_cut(nperim)	
-			xp,yp=m(perim[0],perim[1])
-			per_color = kwargs.get('per_color','r')
-			per_lw = kwargs.get('per_lw',2)
-			m.plot(xp, yp, color=per_color,lw=per_lw)
-			#hay una variable la monta
-			if vec<>None:
-				if vmin is None:
-					vmin = vec.min()
-				if vmax is None:
-					vmax = vec.max()
-				MapVec,mxll,myll=cu.basin_2map(self.structure,vec,Mcols,Mrows,
-					self.ncells)
-				MapVec[MapVec==cu.nodata]=np.nan
-				if ZeroAsNaN is 'si':
-					MapVec[MapVec == 0] = np.nan
-				if colorTable<>None:
-					cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,cmap=colorTable,
-						vmin=vmin,vmax=vmax)
-				else:
-					cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,
-						vmin=vmin,vmax=vmax)
-				cbar_label_size = kwargs.get('cbar_label_size',16)
-				if colorbar:
-					cbar = m.colorbar(cs,location='bottom',pad="5%")
-					if colorbarLabel<>None:
-						cbar.set_label(colorbarLabel, size = cbar_label_size)
-			#Si hay coordenadas de algo las plotea
-			xy_edgecolor = kwargs.get('xy_edgecolor','black')
-			xy_lw = kwargs.get('xy_lw',30)
-			xy_s = kwargs.get('xy_s',0.5)
-			if xy<>None:
-				xc,yc=m(xy[0],xy[1])
-				m.scatter(xc,yc,color=xycolor,
-					s=xy_s,
-					linewidth=xy_lw,
-					edgecolor=xy_edgecolor)
-			#Guarda
-			if ruta<>None:
-				pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
-			if show==True:
-				pl.show()
-			return m
+				cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,
+					vmin=vmin,vmax=vmax)
+			if colorbar:
+				cbar = m.colorbar(cs,location='bottom',pad="5%")
+				if colorbarLabel<>None:
+					cbar.set_label(colorbarLabel, size = 16)	
+		#Si hay coordenadas de algo las plotea
+		if xy<>None:
+			xc,yc=m(xy[0],xy[1])
+			m.scatter(xc,yc,color=xycolor,
+				s=30,
+				linewidth=0.5,
+				edgecolor='black')
+		#Guarda
+		if ruta<>None:
+			pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
+		pl.show()
 	# Grafica barras de tiempos de concentracion
 	def Plot_Tc(self,ruta=None,figsize=(8,6)):
 		keys=self.Tc.keys()
