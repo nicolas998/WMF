@@ -172,7 +172,7 @@ contains
 !-----------------------------------------------------------------------
 
 subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
-	& Qsed, Qseparated, Hum, balance, speed, AreaControl, StoOut, ruta_storage, ruta_speed, &
+	& Qsed, Qseparated, Hum, St1_pc, St3_pc, balance, speed, AreaControl, StoOut, ruta_storage, ruta_speed, &
 	& ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain)
     
     !--------------------------------------------------------------------------
@@ -187,7 +187,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
     character*500, intent(in), optional :: ruta_speed
     
 	!Variables de salia
-    real, intent(out) :: Hum(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !Control humedad en el suelo, Control caudales 
+    real, intent(out) :: Hum(N_contH,N_reg),St1_pc(N_contH,N_reg),St3_pc(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !Control humedad en el suelo, Control caudales y almacenamiento capilar y gravitacional en puntos de control. 
     real, intent(out) :: Qseparated(N_cont,3,N_reg) !Si se habilita la funcion de separar flujos, los entrega separados en los puntos de control
     real, intent(out) :: Qsep_byrain(N_cont,2,N_reg) !Si se habilita el separado por tipo de lluvia  
     real, intent(out) :: StoOut(5,N_cel),balance(N_reg) !Almacenamiento en tanques, balance total de la modelacion
@@ -645,6 +645,8 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 			!Humedad en puntos de control
 			if (control_h(1,celda).ne.0) then 
 				Hum(controlh_cont,tiempo)=sum((/ StoOut(1,celda), StoOut(3,celda)/))
+				St1_pc(controlh_cont,tiempo) = StoOut(1,celda)
+				St3_pc(controlh_cont,tiempo) = StoOut(3,celda)
 				controlh_cont=controlh_cont+1
 			endif
 
