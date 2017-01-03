@@ -233,6 +233,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
     !--------------------------------------------------------------------------
 	!Lee los vectores de estructura de guardado de la lluvia 
 	call rain_read_ascii_table(ruta_hdr,N_reg)
+	print *, posEvento
 	!Inicia la variable global de lluvia promedio sobre la cuenca
 	if (allocated(Mean_Rain)) deallocate(Mean_Rain)
 	allocate(Mean_Rain(1,N_reg))
@@ -808,7 +809,7 @@ subroutine rain_read_ascii_table(ruta,Nintervals)
 		read(10,*)
 		read(10,*)
 		!Solo lee si se cumple la condicion 
-		if (Nintervals + rain_first_point .le. Ntotal) then
+		if (Nintervals + rain_first_point .le. Ntotal+1) then
 			!Salta lo necesario de acuerdo a rain_first_point		
 			if (rain_first_point .gt. 1) then 
 				do i = 1,rain_first_point

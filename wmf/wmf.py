@@ -352,15 +352,16 @@ def __Add_hdr_bin_2route__(rute,storage=False):
 			ruteHdr = rute + '.StOhdr'
 	return ruteBin,ruteHdr
 
-def read_mean_rain(ruta,Nintervals=None,FirstInt=None):
+def read_mean_rain(ruta,Nintervals=None,FirstInt=0):
 	#Abrey cierra el archivo plano
 	Data = np.loadtxt(ruta,skiprows=6,usecols=(2,3),delimiter=',',dtype='str')
 	Rain = np.array([float(i[0]) for i in Data])
 	Dates = [datetime.datetime.strptime(i[1],' %Y-%m-%d-%H:%M  ') for i in Data]
+	#Corrige pedazo para capturar 	
+	if Nintervals == None: Nintervals = Rain.size
 	#Obtiene el pedazo
-	if Nintervals <> None or FirstInt <> None:
-		Dates = Dates[FirstInt:FirstInt+Nintervals]
-		Rain = Rain[FirstInt:FirstInt+Nintervals]
+	Dates = Dates[FirstInt:FirstInt+Nintervals]
+	Rain = Rain[FirstInt:FirstInt+Nintervals]
 	#Regresa el resultado de la funcion
 	return pd.Series(Rain,index = pd.to_datetime(Dates))
 	
