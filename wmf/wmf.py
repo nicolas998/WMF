@@ -1842,20 +1842,18 @@ class Basin:
 			box.width, box.height * 0.9])
 		ax.set_xlim(-0.4,len(keys)+1-0.8)
 		ax.bar(range(len(keys)),self.Tc.values(),color=colores)
-		ax.hlines(Media,-0.4,len(keys)+1-0.8,'k',lw=2)
-		ax.hlines(Mediana,-0.4,len(keys)+1-0.8,'r',lw=2)
-		ax.hlines(Media+Desv,-0.4,len(keys)+1-0.8,'b',lw=2)
-		Texto='%.2f' % Media
-		ax.text(len(keys)/3.0,Media+0.03,'$\\mu='+Texto+'$')
-		Texto='%.2f' % (Media+Desv)
-		ax.text(len(keys)/2.0,Media+Desv+0.03,u'$\mu+\sigma='+Texto+'$')
+		Texto='%.2f' % Media		
+		ax.hlines(Media,-0.4,len(keys)+1-0.8,'k',lw=2,label='$\\mu='+Texto+'$')
 		Texto='%.2f' % Mediana
-		ax.text(len(keys)/2.0,Mediana+0.03,'$P_{50}='+Texto+'$')	
+		ax.hlines(Mediana,-0.4,len(keys)+1-0.8,'r',lw=2,label = '$P_{50}='+Texto+'$')
+		Texto='%.2f' % (Media+Desv)
+		ax.hlines(Media+Desv,-0.4,len(keys)+1-0.8,'b',lw=2,label = u'$\mu+\sigma='+Texto+'$')
 		ax.set_xticks(list(np.arange(1,len(keys)+1)-0.8))
 		ax.set_xticklabels(keys,rotation=60)
 		ylabel = kwargs.get('ylabel',u'Tiempo de concentracion $T_c[hrs]$')
 		ax.set_ylabel(ylabel,size=14)
 		ax.grid(True)
+		ax.legend(loc='upper_right',ncol='3',fontsize='medium')
 		if ruta<>None:
 			pl.savefig(ruta,bbox_inches='tight')
 		if show == True:
