@@ -1836,6 +1836,7 @@ class Basin:
 			ax=fig.add_subplot(111)
 		else:
 			show = False
+			ax = axis
 		box = ax.get_position()
 		ax.set_position([box.x0, box.y0 + box.height * 0.18,
 			box.width, box.height * 0.9])
