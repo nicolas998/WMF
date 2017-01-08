@@ -1814,21 +1814,28 @@ class Basin:
 				pl.show()
 			return m
 	# Grafica barras de tiempos de concentracion
-	def Plot_Tc(self,ruta=None,figsize=(8,6)):
+	def Plot_Tc(self,ruta=None,figsize=(8,6),**kwargs):
 		keys=self.Tc.keys()
 		keys[2]=u'Carr Espana'
 		Media=np.array(self.Tc.values()).mean()
 		Desv=np.array(self.Tc.values()).std()
 		Mediana=np.percentile(self.Tc.values(),50)
 		rango=[Media-Desv,Media+Desv]
+		color1 = kwargs.get('color1','b')
+		color2 = kwargs.get('color2','r')
 		colores=[]
 		for t in self.Tc.values():
 			if t>rango[0] and t<rango[1]:
-				colores.append('b')
+				colores.append(color1)
 			else:
-				colores.append('r')
-		fig=pl.figure(edgecolor='w',facecolor='w',figsize=figsize)
-		ax=fig.add_subplot(111)
+				colores.append(color2)
+		axis = kwargs.get('axis',None)
+		show = kwargs.get('show',True)
+		if axis == None:
+			fig=pl.figure(edgecolor='w',facecolor='w',figsize=figsize)
+			ax=fig.add_subplot(111)
+		else:
+			show = False
 		box = ax.get_position()
 		ax.set_position([box.x0, box.y0 + box.height * 0.18,
 			box.width, box.height * 0.9])
@@ -1849,7 +1856,8 @@ class Basin:
 		ax.grid(True)
 		if ruta<>None:
 			pl.savefig(ruta,bbox_inches='tight')
-		pl.show()
+		if show == True:
+			pl.show()
 	#Plot de cuace ppal
 	def PlotPpalStream(self,ruta = None, figsize = (8,6)):
 		fig = pl.figure(figsize = figsize, edgecolor = 'w',
