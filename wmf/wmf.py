@@ -1839,7 +1839,7 @@ class Basin:
 		ax.hlines(Media+Desv,-0.4,len(keys)+1-0.8,'b',lw=2)
 		Texto='%.2f' % Media
 		ax.text(len(keys)/3.0,Media+0.03,'$\\mu='+Texto+'$')
-		Texto='%.2f' % Desv
+		Texto='%.2f' % Media+Desv
 		ax.text(len(keys)/2.0,Media+Desv+0.03,u'$\mu+\sigma='+Texto+'$')
 		Texto='%.2f' % Mediana
 		ax.text(len(keys)/2.0,Mediana+0.03,'$P_{50}='+Texto+'$')	
