@@ -97,7 +97,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 		ax2.set_ylabel(ylabel,size=label_size)
 		ylim = kwargs.get('rain_ylim',ax2AX.get_ylim() [::-1])
 		ax2AX.set_ylim(ylim)    
-	#grafica las hidrografas
+	#grafica las hidrógrafas
 	ColorSim=kwargs.get('ColorSim',['r','g','k','c','y'])
 	Qs_lw = kwargs.get('Qs_lw',1.5)
 	Qo_lw = kwargs.get('Qo_lw',2.0)
@@ -1840,7 +1840,7 @@ class Basin:
 		ax.hlines(Media+Desv,-0.4,len(keys)+1-0.8,'b',lw=2)
 		Texto='%.2f' % Media
 		ax.text(len(keys)/3.0,Media+0.03,'$\\mu='+Texto+'$')
-		Texto='%.2f' % Desv
+		Texto='%.2f' % Media+Desv
 		ax.text(len(keys)/2.0,Media+Desv+0.03,u'$\mu+\sigma='+Texto+'$')
 		Texto='%.2f' % Mediana
 		ax.text(len(keys)/2.0,Mediana+0.03,'$P_{50}='+Texto+'$')	
