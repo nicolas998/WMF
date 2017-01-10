@@ -3168,6 +3168,10 @@ class SimuBasin(Basin):
 		Retornos.update({'Storage' : Alm})
 		if np.count_nonzero(models.control_h)>0:
 			Retornos.update({'Humedad' : Humedad})
+		if np.count_nonzero(models.control_h)>0:
+			Retornos.update({'St1' : St1})
+		if np.count_nonzero(models.control_h)>0:
+			Retornos.update({'St3' : St3})
                 if np.count_nonzero(models.control_h)>0:
                         Retornos.update({'St1_pc' : St1_pc})
                 if np.count_nonzero(models.control_h)>0:
