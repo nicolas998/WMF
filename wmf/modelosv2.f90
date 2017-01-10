@@ -823,7 +823,7 @@ subroutine rain_read_ascii_table(ruta,Nintervals)
 		read(10,*)
 		read(10,*)
 		!Solo lee si se cumple la condicion 
-		if (Nintervals + rain_first_point .le. Ntotal) then
+		if (Nintervals + rain_first_point .le. Ntotal+1) then
 			!Salta lo necesario de acuerdo a rain_first_point		
 			if (rain_first_point .gt. 1) then 
 				do i = 1,rain_first_point
