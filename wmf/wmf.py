@@ -116,6 +116,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 	#Pone elementos en la figura
 	xlabel = kwargs.get('xlabel','Time [$min$]')
 	ylabel = kwargs.get('ylabel','Streamflow $[m^3/seg]$')
+	label_size = kwargs.get('label_size', 16)
 	ax1.set_xlabel(xlabel,size=label_size)
 	ax1.set_ylabel(ylabel,size=label_size)
 	ax1.grid(True)
