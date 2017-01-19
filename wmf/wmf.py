@@ -707,7 +707,7 @@ class Basin:
 		return 
 	#Parametros Geomorfologicos
 	def GetGeo_Parameters(self,rutaParamASC=None,plotTc=False,
-		rutaTcPlot = None, figsize=(8,5)):
+		rutaTcPlot = None, figsize=(8,5), GetPerim=True):
 		'Descripcion: Obtiene los parametros geomorfologicos de la cuenca \n'\
 		'	y los tiempos de concentracion calculados por diferentes metodologias. \n'\
 		'\n'\
@@ -735,10 +735,12 @@ class Basin:
 		self.hipso_main,self.hipso_basin=cu.basin_ppal_hipsometric(
 			self.structure,Elev,punto,30,ppal_nceldas,self.ncells)
 		self.main_stream=ppal
-		nperim = cu.basin_perim_find(self.structure,self.ncells)
+		if GetPerim:
+			nperim = cu.basin_perim_find(self.structure,self.ncells)
 		#Obtiene los parametros 
 		Area=(self.ncells*cu.dxp**2)/1e6
-		Perim=nperim*cu.dxp/1000.0
+		if GetPerim:
+			Perim=nperim*cu.dxp/1000.0
 		Lcau=ppal[1,-1]/1000.0
 		Scau=np.polyfit(ppal[1,::-1],ppal[0],1)[0]*100
 		Scue=slope.mean()*100
@@ -747,8 +749,7 @@ class Basin:
 		x,y = cu.basin_coordxy(self.structure,self.ncells)
 		CentXY = [np.median(x),np.median(y)]
 		#Genera un diccionario con las propiedades de la cuenca 
-		self.GeoParameters={'Area[km2]': Area,
-			'Perimetro[km]':Perim,
+		self.GeoParameters={'Area[km2]': Area,			
 			'Pend_Cauce [%]':Scau,
 			'Long_Cau [km]': Lcau,
 			'Pend_Cuenca [%]': Scue,
@@ -759,6 +760,8 @@ class Basin:
 			'H Cauce_Max [m]':HCmax,
 			'Centro_[X]': CentXY[0],
 			'Centro_[Y]': CentXY[1]}
+		if GetPerim:
+			self.GeoParameters.update({'Perimetro[km]':Perim})
 		#Calcula los tiempos de concentracion
 		Tiempos={}
 		Tc=0.3*(Lcau/(Scue**0.25))**0.75
@@ -1531,7 +1534,7 @@ class Basin:
 	#------------------------------------------------------
 	def Save_Net2Map(self,ruta,dx=30.0,umbral=1000,
 		qmed=None,Dict=None,DriverFormat='ESRI Shapefile',
-		EPSG=4326, NumTramo = False):
+		EPSG=4326, NumTramo = False, formato = '%.2f'):
 		'Descripcion: Guarda la red hidrica simulada de la cuenca en .shp \n'\
 		'	Puede contener un diccionario con propiedades de la red hidrica. \n'\
 		'\n'\
@@ -1620,7 +1623,7 @@ class Basin:
 			if Dict<>None:
 				if type(Dict==dict):
 					for n,k in zip(netDict,Dict.keys()):					
-						feature.SetField(k[:10],float(n[0,i+1]))
+						feature.SetField(k[:10],float(formato % n[0,i+1]))
 			#featureFID+=1
 			layer.CreateFeature(feature)
 			line.Destroy()
