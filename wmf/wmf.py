@@ -97,7 +97,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 		ax2.set_ylabel(ylabel,size=label_size)
 		ylim = kwargs.get('rain_ylim',ax2AX.get_ylim() [::-1])
 		ax2AX.set_ylim(ylim)    
-	#grafica las hidrografas
+	#grafica las hidrógrafas
 	ColorSim=kwargs.get('ColorSim',['r','g','k','c','y'])
 	Qs_lw = kwargs.get('Qs_lw',1.5)
 	Qo_lw = kwargs.get('Qo_lw',2.0)
@@ -3143,6 +3143,10 @@ class SimuBasin(Basin):
 		Retornos.update({'Storage' : Alm})
 		if np.count_nonzero(models.control_h)>0:
 			Retornos.update({'Humedad' : Humedad})
+		if np.count_nonzero(models.control_h)>0:
+			Retornos.update({'St1' : St1})
+		if np.count_nonzero(models.control_h)>0:
+			Retornos.update({'St3' : St3})
                 if np.count_nonzero(models.control_h)>0:
                         Retornos.update({'St1_pc' : St1_pc})
                 if np.count_nonzero(models.control_h)>0:
