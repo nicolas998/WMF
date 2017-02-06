@@ -1632,7 +1632,8 @@ subroutine basin_ppalstream_find(basin_f,nodos,longCeldas,elev,nceldas,ppal_ncel
 	!f2py intent(in) :: nceldas,nodos,basin_f,longCeldas,elev
 	!f2py intent(out) :: ppal_nceldas,punto
 	!Aloja el vector temporal 
-	if (.not. allocated(ppal_stream_temp)) allocate(ppal_stream_temp(4,nceldas))
+	if (allocated(ppal_stream_temp)) deallocate(ppal_stream_temp)
+	allocate(ppal_stream_temp(4,nceldas))
 	ppal_stream_temp=-999
 	!Inicia la longitud maxima
 	LongMax=0.0

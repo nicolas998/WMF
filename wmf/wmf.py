@@ -14,6 +14,8 @@
 #!You should have received a copy of the GNU General Public License
 #!along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #Algo
+import matplotlib 
+matplotlib.use('Agg')
 from cu import *
 from models import *
 import numpy as np
@@ -54,20 +56,20 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 	rain_color': blue, Color de la lluvia
 	rain_lw : 0, Ancho de linea de lluvia
 	rain_ylabel: Precipitation [$mm$], Etiqueta del eje y de la lluvia
-	label_size: 14, Tamaño de fuente 
-	rain_ylim : Se ajusta, Límite del eje y
-	ColorSim : ['r','g','k','c','y'], Colores para simulación de caudal
-	Qs_lw : 1.5, Ancho de línea de caudal simulado
-	Qo_lw : 2.0, Ancho de línea de caudal observado
-	Qs_color : red, Color de línea de caudal simulado
-	Qo_color : blue, Color de línea de caudal observado
+	label_size: 14, Tamano de fuente 
+	rain_ylim : Se ajusta, Limite del eje y
+	ColorSim : ['r','g','k','c','y'], Colores para simulacion de caudal
+	Qs_lw : 1.5, Ancho de linea de caudal simulado
+	Qo_lw : 2.0, Ancho de linea de caudal observado
+	Qs_color : red, Color de linea de caudal simulado
+	Qo_color : blue, Color de linea de caudal observado
 	Qo_label : Observed, Leyenda de caudal observado
 	Qs_label : Simulated, Leyenda de caudal simulado
 	xlabel : Time [$min$], Etiqueta del eje x
 	ylabel : Streamflow $[m^3/seg], Etiqueta del eje y
-	legend_loc : upper center, Ubicación de la leyenda
+	legend_loc : upper center, Ubicacion de la leyenda
 	bbox_to_anchor : (0.5,-0.12), Ajuste de la caja de la leyenda
-	legend_ncol : 4, Número de columnas para la leyenda
+	legend_ncol : 4, Numero de columnas para la leyenda
 	'''
         show = kwargs.get('show',True)
 	if ax1 == None:
@@ -97,7 +99,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 		ax2.set_ylabel(ylabel,size=label_size)
 		ylim = kwargs.get('rain_ylim',ax2AX.get_ylim() [::-1])
 		ax2AX.set_ylim(ylim)    
-	#grafica las hidrógrafas
+	#grafica las hidrografas
 	ColorSim=kwargs.get('ColorSim',['r','g','k','c','y'])
 	Qs_lw = kwargs.get('Qs_lw',1.5)
 	Qo_lw = kwargs.get('Qo_lw',2.0)
@@ -1452,7 +1454,8 @@ class Basin:
 
 	#Caudales extremos
 	def GetQ_Max(self,Qmed,Coef=[6.71, 3.29], Expo= [0.82, 0.64], Cv = 0.5,
-		Tr = [2.33, 5, 10, 25, 50, 100], Dist = 'gumbel'):
+		Tr = [2.33, 5, 10, 25, 50, 100], Dist = 'gumbel', metodo = 'poveda',
+		Expo2 = [0.7745, 0.4608]):
 		'Descripcion: Calcula el caudal maximo para diferentes\n'\
 		'	periodos de retorno. Recibe como entrada el caudal medio \n'\
 		'	calculado con GetQ_Balance.\n'\
@@ -1470,13 +1473,20 @@ class Basin:
 		'Cv : Coeficiente de escalamiento [0.5].\n'\
 		'Tr : Periodo de retorno [2.33, 5, 10, 25, 50, 100].\n'\
 		'Dist : Distrbucion [gumbel/lognorm].\n'\
+		'metodo: Poveda (u = cQA^a) o atlas (u = C(P-E)^a A^b), en este segundo caso Qmed = P-E.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
 		'CellQmax : Caudal maximo para los diferentes periodos.\n'\
 		# Calcula la media y desviacion
-		MedMax = Coef[0] * Qmed ** Expo[0]
-		DesMax = Coef[1] * Qmed ** Expo[1]
+		if metodo == 'poveda':
+			MedMax = Coef[0] * Qmed ** Expo[0]
+			DesMax = Coef[1] * Qmed ** Expo[1]
+		elif metodo == 'atlas':
+			Acum = cu.basin_acum(self.structure, self.ncells)
+			Acum = Acum * (cu.dxp**2)/1e6
+			MedMax = Coef[0] * (Qmed ** Expo[0]) * (Acum**Expo2[0])
+			DesMax = Coef[1] * (Qmed ** Expo[1]) * (Acum**Expo2[1])
 		#Itera para todos los periodos de retorno
 		Qmax=[]
 		for t in Tr:
@@ -1704,13 +1714,13 @@ class Basin:
 			colorbar=True, colorbarLabel = None,axis=None,
 			**kwargs):
 			#Plotea en la terminal como mapa un vector de la cuenca
-			'Función: write_proyect_int_ext\n'\
-			'Descripción: Genera un plot del mapa entregado.\n'\
+			'Funcion: Plot_basin\n'\
+			'Descripcion: Genera un plot del mapa entregado.\n'\
 			'del mismo en forma de mapa \n'\
-			'Parámetros Obligatorios:.\n'\
+			'Parametros Obligatorios:.\n'\
 			'	-basin: Vector con la forma de la cuenca.\n'\
 			'	-vec: Vector con los valores a plotear.\n'\
-			'Parámetros Opcionales:.\n'\
+			'Parametros Opcionales:.\n'\
 			'	-Min: Valor minimo del plot, determina el rango de colores.\n'\
 			'	-Max: Valor maximo del plot, determina el rango de colores.\n'\
 			'	-ruta: Ruta en la cual se guarda la grafica.\n'\
@@ -1718,7 +1728,7 @@ class Basin:
 			'	-figsize: tamano de la ventana donde se muestra la cuenca.\n'\
 			'	-ZeroAsNaN: Convierte los valores de cero en NaN.\n'\
 			'Otros argumentos:.\n'\
-			'	-axis = Entorno de gráfica que contiene elementos de las figuras.\n'\
+			'	-axis = Entorno de grafica que contiene elementos de las figuras.\n'\
 			'	-parallels = Grafica Paralelos, list-like.\n'\
 			'	-parallels_labels = Etiquetas de los paralelos, list-like.\n'\
 			'		labels = [left,right,top,bottom].\n'\
@@ -1726,13 +1736,13 @@ class Basin:
 			'		m.drawparallels(parallels,labels=[False,True,True,False]).\n'\
 			'	-meridians = Grafica Meridianos, list-like.\n'\
 			'	-meridians_labels = Etiquetas de los meridianos, list-like.\n'\
-			'	-per_color = Color del perímetro.\n'\
-			'	-per_lw = Ancho de linea del perímetro.\n'\
-			'	-colorbarLabel = Título del colorbar.\n'\
-			'	-xy_edgecolor = Color de la línea exterior del scatter .\n'\
-			'	-xy_lw = Ancho de línea del Scatter .\n'\
-			'	-xy_s = Tamaño del scatter.\n'\
-			'	-show = boolean, si es True muestra la gráfica.\n'\
+			'	-per_color = Color del perimetro.\n'\
+			'	-per_lw = Ancho de linea del perimetro.\n'\
+			'	-colorbarLabel = Titulo del colorbar.\n'\
+			'	-xy_edgecolor = Color de la linea exterior del scatter .\n'\
+			'	-xy_lw = Ancho de linea del Scatter .\n'\
+			'	-xy_s = Tamano del scatter.\n'\
+			'	-show = boolean, si es True muestra la grafica.\n'\
 			'Retorno:.\n'\
 			'	-Actualizacion del binario .int\n'\
 			'	-m = Para continuar graficando encima del entorno creado en Basemap\n'\
@@ -1818,6 +1828,141 @@ class Basin:
 			if show==True:
 				pl.show()
 			return m
+	#Grafica de plot para montar en paginas web o presentaciones
+	def Plot_basinClean(self, vec, ruta, umbral = 0.0, 
+		vmin = 0.0, vmax = None, **kwargs):
+		#Argumentos kw
+		cmap = kwargs.get('cmap','Spectral')
+		figsize = kwargs.get('figsize', (10,8))
+		#Obtiene la matriz 
+		M,p = self.Transform_Basin2Map(vec)
+		M[M == -9999] = np.nan
+		M[M < umbral] = np.nan
+		#Calcula esquinas: izquierda, derecha, abajo, arriba.
+		Corners = [p[2], 
+		p[2]+p[0]*p[4], 
+		p[3],
+		p[3]+p[1]*p[4]]
+		#Crea la figura
+		fig = pl.figure(figsize=figsize)
+		ax = fig.add_subplot(111)
+		#plot
+		if vmax == None:
+			pl.imshow(M.T,
+				interpolation='None',
+				cmap= pl.get_cmap(cmap), 
+				vmin = vmin)
+		else:
+			pl.imshow(M.T,
+				interpolation='None',
+				cmap= pl.get_cmap(cmap), 
+				vmin = vmin,
+				vmax = vmax)
+		#Quita ejes
+		ax.set_xticklabels([])
+		ax.set_yticklabels([])
+		ax.axis('off')
+		#Guarda transparente y ajustando bordes
+		pl.savefig(ruta, 
+		    bbox_inches = 'tight', 
+		    pad_inches = 0, 
+		    transparent = True)
+		return Corners
+	#Grafica de variables sobre la red 
+	def Plot_Net(self, vec, vec_c = None,ruta = None, q_compare = None, show = True, 
+		vmin = 0, vmax = 1, umbral = 0.1,**kwargs):
+		'Descripcion: Hace un plot de lass variables sobre el cauce \n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'vec : Variable a ser ploteada sobre la red.\n'\
+		'vec_c : Variable utilizada para darle color al plot.\n'\
+		'ruta : Lugar y nombre donde se va a guardar la cuenca.\n'\
+		'q_compare : Caudal o variable de comparacion.\n'\
+		'show : Mostrar o no la figura.\n'\
+		'vmin : Maximo valor para plotear.\n'\
+		'vmax : Minimo valor para plotear.\n'\
+		'umbral : Umbral para determinar cauce (constante o la var self.CellCauce).\n'\
+		'\n'\
+		'kwargs\n'\
+		'----------\n'\
+		'cmap : mapa de colores "Spectral".\n'\
+		'figsize : tamano de la figura (10,8).\n'\
+		'escala : Factor para escalar el tamano de los puntos.\n'\
+		'colorbar : Pinta o no barra de colores (True).\n'\
+		'clean : Pinta la figura limpia sin ejes (False).\n'\
+		'transparent: Guarda la figura sin fondo (False).\n'\
+		'grid: Pinta la grilla (True).\n'\
+		'size: Tamano de texto en los ejes (16).\n'\
+		'ticksize: Tamano de texto en los valores de los ejes (16).\n'\
+		'.\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'Hace un plot de una variable sobre la red de drenaje.\n'\
+		#Argumentos kw
+		cmap = kwargs.get('cmap','Spectral')
+		figsize = kwargs.get('figsize', (10,8))
+		escala = kwargs.get('escala', 1)
+		colorbar = kwargs.get('colorbar',True)
+		clean = kwargs.get('clean',False)
+		transparent = kwargs.get('transparent', False)
+		grid = kwargs.get('grid', True)
+		size = kwargs.get('size', 14)
+		ticksize = kwargs.get('ticksize', 14)
+		#Donde plotea
+		if type(umbral) == float or type(umbral) == int :
+			pos = np.where(vec>umbral)[0]
+		elif type(umbral) == np.ndarray and umbral.shape[0] == self.ncells:
+			pos = np.where(umbral == 1)[0]
+		x,y = cu.basin_coordxy(self.structure, self.ncells)
+		#Vector para pintar si no tiene el vec_c usa vec
+		if vec_c == None:
+			vec_c = np.copy(vec)
+		#Compara o no 
+		if q_compare<>None:
+			vec = vec/q_compare.astype(float)		
+		#Figura
+		fig = pl.figure(figsize=figsize)
+		ax = fig.add_subplot(111)
+		ax.scatter(x[pos],y[pos], 
+			s = vec[pos]*escala, 	        
+			c = vec_c[pos], 
+			lw = 0,
+			vmin = vmin,
+			vmax = vmax,
+			cmap = pl.get_cmap(cmap))
+		ax.patch.set_facecolor('w')
+		ax.patch.set_alpha(0.0)
+		if grid:
+			pl.grid(True)
+		if colorbar:
+			pl.colorbar()
+		ax.set_xlim(x[pos].min(),x[pos].max())
+		ax.set_ylim(y[pos].min(),y[pos].max())
+		#Quita ejes
+		if clean:
+			ax.set_xticklabels([])
+			ax.set_yticklabels([])
+			ax.axis('off')
+		if clean == False:
+			ax.set_xlabel('Latitud', size = size)
+			ax.set_ylabel('Longitud', size = size)
+			ax.tick_params(labelsize = ticksize)
+		#Guarda transparente y ajustando bordes
+		if ruta<>None:
+			pl.savefig(ruta, 
+				bbox_inches = 'tight', 
+				pad_inches = 0, 
+				transparent = transparent,
+				edgecolor = 'none',
+				facecolor = 'none')
+		if show:
+			pl.show()
+		pl.close(fig)
+		#Retorna las 4 coordenadas de las esquinas 
+		return [x[pos].min(), x[pos].max(), y[pos].min(), y[pos].max()]
+	
+		
 	# Grafica barras de tiempos de concentracion
 	def Plot_Tc(self,ruta=None,figsize=(8,6)):
 		keys=self.Tc.keys()
@@ -1951,9 +2096,9 @@ class Basin:
 			pl.show()
 class SimuBasin(Basin):
 	
-	def __init__(self,lat,lon,DEM,DIR,name='NaN',stream=None,umbral=500,
+	def __init__(self,lat=None,lon=None,DEM=None,DIR=None,rute = None, name='NaN',stream=None,umbral=500,
 		noData=-999,modelType='cells',SimSed='no',SimSlides='no',dt=60,
-		SaveStorage='no',SaveSpeed='no',rute = None, retorno = 0,
+		SaveStorage='no',SaveSpeed='no',retorno = 0,
 		SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no', SimFloods = 'no',
 		controlNodos = True):
 		'Descripcion: Inicia un objeto para simulacion \n'\

@@ -172,11 +172,7 @@ contains
 !-----------------------------------------------------------------------
 
 subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
-<<<<<<< HEAD
 	& Qsed, Qseparated, Hum, St1, St3, balance, speed, AreaControl, StoOut, ruta_storage, ruta_speed, &
-=======
-	& Qsed, Qseparated, Hum, St1_pc, St3_pc, balance, speed, AreaControl, StoOut, ruta_storage, ruta_speed, &
->>>>>>> b4750aa919bb67bd787cd133d87cc78a159c959c
 	& ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain)
     
     !--------------------------------------------------------------------------
@@ -192,7 +188,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
     
 	!Variables de salia
     real, intent(out) :: Hum(N_contH,N_reg),St1(N_contH,N_reg),St3(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !puntos control 
-    real, intent(out) :: Hum(N_contH,N_reg),St1_pc(N_contH,N_reg),St3_pc(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !Control humedad en el suelo, Control caudales y almacenamiento capilar y gravitacional en puntos de control. 
+    !real, intent(out) :: Hum(N_contH,N_reg),St1_pc(N_contH,N_reg),St3_pc(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !Control humedad en el suelo, Control caudales y almacenamiento capilar y gravitacional en puntos de control. 
     real, intent(out) :: Qseparated(N_cont,3,N_reg) !Si se habilita la funcion de separar flujos, los entrega separados en los puntos de control
     real, intent(out) :: Qsep_byrain(N_cont,2,N_reg) !Si se habilita el separado por tipo de lluvia  
     real, intent(out) :: StoOut(5,N_cel),balance(N_reg) !Almacenamiento en tanques, balance total de la modelacion
@@ -651,8 +647,8 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 				Hum(controlh_cont,tiempo)=sum((/ StoOut(1,celda), StoOut(3,celda)/))
 				St1(controlh_cont,tiempo)=StoOut(1,celda)
 				St3(controlh_cont,tiempo)=StoOut(3,celda)
-				St1_pc(controlh_cont,tiempo) = StoOut(1,celda)
-				St3_pc(controlh_cont,tiempo) = StoOut(3,celda)
+				!St1_pc(controlh_cont,tiempo) = StoOut(1,celda)
+				!St3_pc(controlh_cont,tiempo) = StoOut(3,celda)
 				controlh_cont=controlh_cont+1
 			endif
 
