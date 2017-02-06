@@ -1964,59 +1964,88 @@ class Basin:
 	
 		
 	# Grafica barras de tiempos de concentracion
-	def Plot_Tc(self,ruta=None,figsize=(8,6)):
+	def Plot_Tc(self,ruta=None,figsize=(8,6),**kwargs):
 		keys=self.Tc.keys()
 		keys[2]=u'Carr Espana'
 		Media=np.array(self.Tc.values()).mean()
 		Desv=np.array(self.Tc.values()).std()
 		Mediana=np.percentile(self.Tc.values(),50)
 		rango=[Media-Desv,Media+Desv]
+		color1 = kwargs.get('color1','b')
+		color2 = kwargs.get('color2','r')
 		colores=[]
 		for t in self.Tc.values():
 			if t>rango[0] and t<rango[1]:
-				colores.append('b')
+				colores.append(color1)
 			else:
-				colores.append('r')
-		fig=pl.figure(edgecolor='w',facecolor='w',figsize=figsize)
-		ax=fig.add_subplot(111)
+				colores.append(color2)
+		axis = kwargs.get('axis',None)
+		show = kwargs.get('show',True)
+		if axis == None:
+			fig=pl.figure(edgecolor='w',facecolor='w',figsize=figsize)
+			ax=fig.add_subplot(111)
+		else:
+			show = False
+			ax = axis
 		box = ax.get_position()
 		ax.set_position([box.x0, box.y0 + box.height * 0.18,
 			box.width, box.height * 0.9])
 		ax.set_xlim(-0.4,len(keys)+1-0.8)
 		ax.bar(range(len(keys)),self.Tc.values(),color=colores)
-		ax.hlines(Media,-0.4,len(keys)+1-0.8,'k',lw=2)
-		ax.hlines(Mediana,-0.4,len(keys)+1-0.8,'r',lw=2)
-		ax.hlines(Media+Desv,-0.4,len(keys)+1-0.8,'b',lw=2)
-		Texto='%.2f' % Media
-		ax.text(len(keys)/3.0,Media+0.03,'$\\mu='+Texto+'$')
-		Texto='%.2f' % Desv
-		ax.text(len(keys)/2.0,Media+Desv+0.03,u'$\mu+\sigma='+Texto+'$')
+		Texto='%.2f' % Media		
+		ax.hlines(Media,-0.4,len(keys)+1-0.8,'k',lw=2,label='$\\mu='+Texto+'$')
 		Texto='%.2f' % Mediana
-		ax.text(len(keys)/2.0,Mediana+0.03,'$P_{50}='+Texto+'$')	
+		ax.hlines(Mediana,-0.4,len(keys)+1-0.8,'r',lw=2,label = '$P_{50}='+Texto+'$')
+		Texto='%.2f' % (Media+Desv)
+		ax.hlines(Media+Desv,-0.4,len(keys)+1-0.8,'b',lw=2,label = u'$\mu+\sigma='+Texto+'$')
 		ax.set_xticks(list(np.arange(1,len(keys)+1)-0.8))
 		ax.set_xticklabels(keys,rotation=60)
-		ax.set_ylabel(u'Tiempo de concentracion $T_c[hrs]$',size=14)
+		ylabel = kwargs.get('ylabel',u'Tiempo de concentracion $T_c[hrs]$')
+		ax.set_ylabel(ylabel,size=14)
 		ax.grid(True)
+		ax.legend(loc='upper_right',ncol='3',fontsize='medium')
 		if ruta<>None:
 			pl.savefig(ruta,bbox_inches='tight')
-		pl.show()
+		if show == True:
+			pl.show()
 	#Plot de cuace ppal
-	def PlotPpalStream(self,ruta = None, figsize = (8,6)):
-		fig = pl.figure(figsize = figsize, edgecolor = 'w',
-			facecolor = 'w')
+def PlotPpalStream(self,ruta = None, figsize = (8,6),axis=None,**kwargs):
+	'''GRAFICA EL PERFIL DEL CAUCE PRINCIPAL
+	===================================================================================
+	ARGUMENTO  - DEFAULT               - DESCRIPCIÓN                  - TIPO
+	ruta       - None                  - Ruta para guardar gráfica    - str
+	figsize    - (8,6)                 - Tamaño de la figura          - tuple 
+	axis       - None                  - Axis o entorno para graficar - matplotlib.axes
+	show       - True                  - Muestra gráfica              - bool
+	fontsize   - 16                    - Tamaño de letra              - int,float
+	ylabel     - Elevacion $[m.s.n.m]$ - Etiqueta de la ordenada      - str 
+	cbar_label - None                  - Etiqueta del colorbar        - str
+	=================================================================================== '''
+	show = kwargs.get('show',True)
+	if axis == None:
+		fig = pl.figure(figsize = figsize, edgecolor = 'w',facecolor = 'w')
 		ax = fig.add_subplot(111)
-		pl.scatter(self.ppal_stream[1]/1000.0,
-			self.ppal_stream[0],
-			c = self.ppal_slope,
-			linewidth = 0)
-		ax.grid(True)
-		ax.set_xlabel('Distancia $[km]$',size = 16)
-		ax.set_ylabel(u'Elevacion $[m.s.n.m]$',size = 16)
-		pl.colorbar()
-		if ruta<>None:
-			pl.savefig(ruta,bbox_inches='tight')
+	else:
+		show=False
+		ax = axis
+	pl.scatter(self.ppal_stream[1]/1000.0,
+		self.ppal_stream[0],
+		c = self.ppal_slope,
+		linewidth = 0)
+	ax.grid(True)
+	fontsize = kwargs.get('fontsize',16)
+	ylabel = kwargs.get('ylabel','Elevacion $[m.s.n.m]$')
+	ax.set_xlabel('Distancia $[km]$',size = fontsize)
+	ax.set_ylabel(ylabel,size = fontsize)
+	cb = pl.colorbar()
+	cbar_label = kwargs.get('cbar_label',None)
+	if cbar_label <> None:
+		cb.set_label(cbar_label,fontsize=fontsize)
+	if ruta<>None:
+		pl.savefig(ruta,bbox_inches='tight')
+	if show == True:
 		pl.show()
-	#Plot de hidtograma de pendientes 
+	#Plot de histograma de pendientes 
 	def PlotSlopeHist(self,ruta=None,bins=[0,2,0.2],
 		Nsize=1000, figsize = (8,6)):
 		if Nsize>self.ncells:
