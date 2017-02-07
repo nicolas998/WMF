@@ -1895,6 +1895,7 @@ class Basin:
 		'grid: Pinta la grilla (True).\n'\
 		'size: Tamano de texto en los ejes (16).\n'\
 		'ticksize: Tamano de texto en los valores de los ejes (16).\n'\
+		'norm: normalizacion de la escala de colores para el cmap.\n'\
 		'.\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1909,6 +1910,7 @@ class Basin:
 		grid = kwargs.get('grid', True)
 		size = kwargs.get('size', 14)
 		ticksize = kwargs.get('ticksize', 14)
+		norm = kwargs.get('norm', None)
 		#Donde plotea
 		if type(umbral) == float or type(umbral) == int :
 			pos = np.where(vec>umbral)[0]
@@ -1924,13 +1926,14 @@ class Basin:
 		#Figura
 		fig = pl.figure(figsize=figsize)
 		ax = fig.add_subplot(111)
-		ax.scatter(x[pos],y[pos], 
+		pl.scatter(x[pos],y[pos], 
 			s = vec[pos]*escala, 	        
 			c = vec_c[pos], 
 			lw = 0,
 			vmin = vmin,
 			vmax = vmax,
-			cmap = pl.get_cmap(cmap))
+			cmap = pl.get_cmap(cmap),
+			norm = norm)
 		ax.patch.set_facecolor('w')
 		ax.patch.set_alpha(0.0)
 		if grid:
