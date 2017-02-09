@@ -2015,12 +2015,12 @@ class Basin:
 	def PlotPpalStream(self,ruta = None, figsize = (8,6),axis=None,**kwargs):
 		'''GRAFICA EL PERFIL DEL CAUCE PRINCIPAL
 		===================================================================================
-		ARGUMENTO  - DEFAULT               - DESCRIPCIÓN                  - TIPO
-		ruta       - None                  - Ruta para guardar gráfica    - str
-		figsize    - (8,6)                 - Tamaño de la figura          - tuple 
+		ARGUMENTO  - DEFAULT               - DESCRIPCIoN                  - TIPO
+		ruta       - None                  - Ruta para guardar grafica    - str
+		figsize    - (8,6)                 - Tamano de la figura          - tuple 
 		axis       - None                  - Axis o entorno para graficar - matplotlib.axes
-		show       - True                  - Muestra gráfica              - bool
-		fontsize   - 16                    - Tamaño de letra              - int,float
+		show       - True                  - Muestra grafica              - bool
+		fontsize   - 16                    - Tamano de letra              - int,float
 		ylabel     - Elevacion $[m.s.n.m]$ - Etiqueta de la ordenada      - str 
 		cbar_label - None                  - Etiqueta del colorbar        - str
 		=================================================================================== '''
