@@ -19,7 +19,6 @@ matplotlib.use('Agg')
 from cu import *
 from models import *
 import numpy as np
-from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid, cm
 import pylab as pl
 import osgeo.ogr, osgeo.osr
 import gdal
@@ -36,6 +35,11 @@ except:
 	except:
 		print 'No netcdf en esta maquina, se desabilita la funcion SimuBasin.save_SimuBasin'
 		pass
+try:
+	from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid, cm
+except:
+	print 'No se logra importar basemap, por lo tanto no funciona Plot_basin'
+	pass
 #-----------------------------------------------------------------------
 #Ploteo de variables
 #-----------------------------------------------------------------------
