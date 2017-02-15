@@ -490,7 +490,7 @@ def SimuBains_Update_DEM_DIR(ruta_basin, rute_dem, rute_dir):
 	'Retorno:.\n'\
 	'	actualiza las rutas en el proyecto.\n'\
 	#Lee el nc y le actualiza ambas rutas
-	g = netCDF4.Dataset(ruta_basin,'a')
+	g = netcdf.Dataset(ruta_basin,'a')
 	g.DEM = rute_dem
 	g.DIR = rute_dir
 	g.close()
