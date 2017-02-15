@@ -2655,11 +2655,16 @@ class SimuBasin(Basin):
 			f.close()
 			#Abre con numpy para simplificar las cosas 
 			a = np.loadtxt(ruta_hdr,skiprows=6,dtype='str').T
-			self.radarPos = [int(i.split(',')[0]) for i in a[1]]
-			self.radarMeanRain = [float(i.split(',')[0]) for i in a[2]]
-			for i in a[3]:
-				d = datetime.datetime.strptime(i,'%Y-%m-%d-%H:%M')
-				self.radarDates.append(d)
+			if self.radarCont > 1:
+				self.radarPos = [int(i.split(',')[0]) for i in a[1]]
+				self.radarMeanRain = [float(i.split(',')[0]) for i in a[2]]
+				for i in a[3]:
+					d = datetime.datetime.strptime(i,'%Y-%m-%d-%H:%M')
+					self.radarDates.append(d)
+			else:				
+				self.radarPos = [int(a[1].split(',')[0])]
+				self.radarMeanRain = [float(a[2].split(',')[0])]
+				self.radarDates = [datetime.datetime.strptime(a[-1], '%Y-%m-%d-%H:%M')]
 		return actualizo 
 		
 	#------------------------------------------------------
