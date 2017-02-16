@@ -2557,7 +2557,7 @@ class SimuBasin(Basin):
 		f.close()
 		return np.array(meanRain),np.array(posIds)
 	def rain_radar2basin_from_array(self,vec=None,ruta_out=None,fecha=None,dt=None,
-		status='update',umbral = 0.01):
+		status='update',umbral = 0.01, doit = False):
 		'Descripcion: Genera campos de lluvia a partir de archivos array\n'\
 		'\n'\
 		'Parametros\n'\
@@ -2572,6 +2572,7 @@ class SimuBasin(Basin):
 		'	old: Estado para abrir y tomar las propiedades de self.radar.. para la generacion de un binario.\n'\
 		'	close: Cierra un binario que se ha generado mediante update.\n'\
 		'	reset: Reinicia las condiciones de self.radar... para la creacion de un campo nuevo.\n'\
+		'doit: Independiente del umbral escribe el binario en la siguiente entrada.\n'\
 		'Retornos\n'\
 		'----------\n'\
 		'Guarda el binario, no hay retorno\n'\
@@ -2606,7 +2607,7 @@ class SimuBasin(Basin):
 			#Entrada 1 es la entrada de campos sin lluvia 
 			if len(self.radarDates) == 0:
 				models.write_int_basin(ruta_bin,np.zeros((1,N)),1,N,1)
-			if vec.mean() > umbral:
+			if vec.mean() > umbral or doit:
 				#Actualiza contador, lluvia media y pocisiones 
 				self.radarCont +=1
 				self.radarMeanRain.append(vec.mean())
