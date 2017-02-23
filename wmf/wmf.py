@@ -2296,6 +2296,7 @@ class SimuBasin(Basin):
 		self.ncells = gr.ncells
 		self.nhills = gr.nhills
 		models.dt = gr.dt
+		models.dxp = gr.dxp
 		models.retorno = gr.retorno
 		#Asigna dem y DIr a partir de la ruta 
 		try:
@@ -2653,10 +2654,13 @@ class SimuBasin(Basin):
 			f=open(ruta_hdr[:-3]+'hdr','r')
 			Lista = f.readlines()
 			self.radarCont = int(Lista[3].split()[-1])
+			cantidadIds = int(Lista[2].split()[-1])
 			f.close()
+			print self.radarCont
 			#Abre con numpy para simplificar las cosas 
 			a = np.loadtxt(ruta_hdr,skiprows=6,dtype='str').T
-			if self.radarCont > 1:
+			if self.radarCont > 1 and cantidadIds > 1:
+				print 'mierda'
 				self.radarPos = [int(i.split(',')[0]) for i in a[1]]
 				self.radarMeanRain = [float(i.split(',')[0]) for i in a[2]]
 				for i in a[3]:
