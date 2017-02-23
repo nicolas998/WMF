@@ -3300,9 +3300,10 @@ class SimuBasin(Basin):
 			ruta_speed_bin = 'no_guardo_nada.bin'
 			ruta_speed_hdr = 'no_guardo_nada.hdr'
 		#Variables de separacion de flujo por tipo de lluvia 
-		if models.separate_rain == 1 and ruta_conv <> None and ruta_stra <> None:
+		if ruta_conv <> None and ruta_stra <> None:
 			ruta_binConv,ruta_hdrConv = __Add_hdr_bin_2route__(ruta_conv)
 			ruta_binStra,ruta_hdrStra = __Add_hdr_bin_2route__(ruta_stra)
+			models.separate_rain = 1
 		else:
 			models.separate_rain = 0
 			ruta_binConv = 'none'
