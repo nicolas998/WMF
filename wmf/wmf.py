@@ -529,6 +529,37 @@ def PotCritica(S,D,te = 0.056):
     ti = te * (D*1600*9.8)
     return ti *(8.2* (((ti/(1000*9.8*S))/D)**(1.0/6.0)) * np.sqrt(ti/1000.0))/9800.0
 
+def __eval_nash(s_o,s_s):
+	med_s_o=np.nansum(s_o)/np.sum(np.isfinite(s_o))
+	Dif_sim=(s_o-s_s[:len(s_o)])**2
+	Dif_med=(s_o-med_s_o)**2
+	E=1-(np.nansum(Dif_sim)/np.nansum(Dif_med))
+	return E
+def __eval_rmse(So,Ss):
+	Dif=(So-Ss)**2
+	Dif=np.ma.array(Dif,mask=np.isnan(Dif))
+	return np.sqrt(Dif.sum()/Dif.shape[0])
+def __eval_rmse_log(So,Ss):
+	So=np.ma.array(So,mask=np.isnan(So))
+	Ss=np.ma.array(Ss,mask=np.isnan(Ss))
+	So=np.log(So); Ss=np.log(Ss)
+	Dif=(So-Ss)**2
+	Dif=np.ma.array(Dif,mask=np.isnan(Dif))
+	return np.sqrt(Dif.sum()/Dif.shape[0])
+def __eval_t_pico(s_o,s_s,dt):    
+	max_o=np.argmax(np.ma.array(s_o,mask=np.isnan(s_o)))
+	max_s=np.argmax(np.ma.array(s_s,mask=np.isnan(s_s)))
+	dif_tpico=(max_o-max_s)*dt
+	return dif_tpico
+def __eval_q_pico(s_o,s_s):
+	max_o=np.argmax(np.ma.array(s_o,mask=np.isnan(s_o)))
+	max_s=np.argmax(np.ma.array(s_s,mask=np.isnan(s_s)))
+	Qo_max=s_o[max_o]
+	Qs_max=s_s[max_s]
+	dif_qpico=((Qo_max-Qs_max)/Qo_max)*100
+	return dif_qpico
+
+
 #-----------------------------------------------------------------------
 #Transformacion de datos
 #-----------------------------------------------------------------------
@@ -3386,7 +3417,28 @@ class SimuBasin(Basin):
 			Retornos.update({'Slides_NCell_Serie': np.copy(models.sl_slidencelltime)})
 			Retornos.update({'Slides_Acum':np.copy(models.sl_slideacumulate)})
 		return Retornos
+
+	def efficiencia(Qobs, Qsim):
+		'Descripcion: Calcula diferentes indices de desempeno del modelo\n'\
+		'	nash, qpico, rmse, rmseLog, t_pico\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'Qobs : Caudal observado.\n'\
+		'Qsim : Caudal simulado.\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'DicEff: diccionario con la eficiencia obtenida en cada param.\n'\
+		#Comienza a evaluar cada parametro 
+		DictEff = {'Nash': __eval_nash(Qobs, Qsim)}
+		DictEff.update({'Qpico': __eval_q_pico(Qobs, Qsim)})
+		DictEff.update({'Tpico': __eval_t_pico(Qobs, Qsim, models.dt)})
+		DictEff.update({'RmseLog':__eval_rmse_log(Qobs, Qsim)})
+		DictEff.update({'Rmse':__eval_rmse(Qobs, Qsim)})
+		return DictEff
 		
+		
+	
 class Stream:
 	#------------------------------------------------------
 	# Subrutinas de trazado de corriente y obtencion de parametros
