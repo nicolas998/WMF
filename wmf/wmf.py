@@ -3418,7 +3418,7 @@ class SimuBasin(Basin):
 			Retornos.update({'Slides_Acum':np.copy(models.sl_slideacumulate)})
 		return Retornos
 
-	def efficiencia(Qobs, Qsim):
+	def efficiencia(self, Qobs, Qsim):
 		'Descripcion: Calcula diferentes indices de desempeno del modelo\n'\
 		'	nash, qpico, rmse, rmseLog, t_pico\n'\
 		'\n'\
