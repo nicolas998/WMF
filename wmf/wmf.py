@@ -2306,7 +2306,7 @@ class SimuBasin(Basin):
 		elif rute is not None:
 			self.__Load_SimuBasin(rute)
 	
-	def __Load_SimuBasin(self,ruta):
+	def __Load_SimuBasin(self,ruta, sim_slides = False):
 		'Descripcion: Lee una cuenca posteriormente guardada\n'\
 		'	La cuenca debio ser guardada con SimuBasin.save_SimuBasin\n'\
 		'\n'\
@@ -2314,6 +2314,10 @@ class SimuBasin(Basin):
 		'----------\n'\
 		'self : Inicia las variables vacias.\n'\
 		'ruta : ruta donde se encuentra ubicada la cuenca guardada\n'\
+		'Opcionales\n'\
+		'----------\n'\
+		'sim_slides : (False, True) Carga variables de modelos de deslizamientos previmaente guardadas.\n'\
+		'sim_sed : (False, True) Carga variables de modelo de sedimentos previamente guardadas\n'\
 		'Retornos\n'\
 		'----------\n'\
 		'self : La cuenca con sus parametros ya cargada.\n'\
@@ -2329,6 +2333,12 @@ class SimuBasin(Basin):
 		models.dt = gr.dt
 		models.dxp = gr.dxp
 		models.retorno = gr.retorno
+		#Si carga deslizamientos 
+		if sim_slides:
+			models.sim_slides = 1
+			models.sl_fs = gr.sl_fs
+			models.gullienogullie = gr.sl_gullie
+			models.sl_gammaw = gr.sl_gammaw			
 		#Asigna dem y DIr a partir de la ruta 
 		try:
 			DEM = read_map_raster(gr.DEM,True,gr.dxp)
@@ -2375,6 +2385,15 @@ class SimuBasin(Basin):
 		#propiedades de puntos de control
 		models.control = np.ones((1,N)) * gr.variables['control'][:]
 		models.control_h = np.ones((1,N)) * gr.variables['control_h'][:]
+		
+		#Propiedades de deslizamientos 
+		if sim_slides:
+			models.sl_gammas = np.ones((1,N)) * gr.variables['gamma_soil'][:]
+			models.sl_cohesion = np.ones((1,N)) * gr.variables['cohesion'][:]
+			models.sl_frictionangle = np.ones((1,N)) * gr.variables['friction_angle'][:]
+			models.sl_radslope = np.ones((1,N)) * gr.variables['rad_slope'][:]
+			models.sl_zs = np.ones((1,N)) * gr.variables['z_soil'][:]
+				
 		#Cierra el archivo 
 		gr.close()
 	
@@ -3182,6 +3201,8 @@ class SimuBasin(Basin):
 		    'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
 		    'ncells':self.ncells,'nhills':self.nhills,
 		    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno}
+		if models.sim_slides == 1:
+			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.gullienogullie, 'sl_gammaw':models.sl_gammaw})
 		#abre el archivo 
 		gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
 		#Establece tamano de las variables 
@@ -3217,7 +3238,13 @@ class SimuBasin(Basin):
 		elem_area = gr.createVariable('elem_area','f4',('Nelem',),zlib = True)
 		speed_type = gr.createVariable('speed_type','i4',('col3',),zlib = True)
 		storage = gr.createVariable('storage','i4',('col5','Nelem'),zlib = True)
-		
+		#Variables de deslizamientos 
+		if models.sim_slides == 1:
+			frictionAngle = gr.createVariable('friction_angle','f4',('Nelem',),zlib = True)
+			Cohesion = gr.createVariable('cohesion','f4',('Nelem',),zlib = True)
+			GammaSoil = gr.createVariable('gamma_soil','f4',('Nelem',),zlib = True)
+			ZSoil = gr.createVariable('z_soil','f4',('Nelem',),zlib = True)
+			RadSlope = gr.createVariable('rad_slope','f4',('Nelem',),zlib = True)
 		#Asigna valores a las variables
 		VarStruc[:] = self.structure
 		VarHills[:] = self.hills
@@ -3241,6 +3268,14 @@ class SimuBasin(Basin):
 		elem_area[:] = models.elem_area
 		speed_type[:] = models.speed_type
 		storage[:] = models.storage
+		
+		#Asigna valores de deslizamientos 
+		if models.sim_slides:
+			frictionAngle[:] = models.sl_frictionangle
+			Cohesion[:] = models.sl_cohesion
+			GammaSoil[:] = models.sl_gammas
+			ZSoil[:] = models.sl_zs
+			RadSlope[:] = models.sl_radslope
 		
 		#asigna las prop a la cuenca 
 		gr.setncatts(Dict)
