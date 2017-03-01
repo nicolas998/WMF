@@ -3171,10 +3171,11 @@ class SimuBasin(Basin):
 			models.sl_fs = var
 		elif VarName is 'Slope':
 			models.sl_radslope = np.ones((1,N))*np.arctan(Vec)
+			models.sl_radslope[models.sl_radslope == 0] = 0.01
 	#------------------------------------------------------
 	# Guardado y Cargado de modelos de cuencas preparados 
 	#------------------------------------------------------	
-	def Save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None):
+	def Save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None, SimSlides = False):
 		'Descripcion: guarda una cuenca previamente ejecutada\n'\
 		'\n'\
 		'Parametros\n'\
@@ -3182,6 +3183,8 @@ class SimuBasin(Basin):
 		'ruta : Ruta donde la cuenca sera guardada.\n'\
 		'ruta_dem : direccion donde se aloja el DEM (se recomienda absoluta).\n'\
 		'ruta_dir : direccion donde se aloja el DIR (se recomienda absoluta).\n'\
+		'SimSlides: indica a la funcion si va a guardar o no informacion para la simulacion.\n'\
+		'	de deslizamientos.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -3201,7 +3204,7 @@ class SimuBasin(Basin):
 		    'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
 		    'ncells':self.ncells,'nhills':self.nhills,
 		    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno}
-		if models.sim_slides == 1:
+		if SimSlides:
 			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
 		#abre el archivo 
 		gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
@@ -3239,7 +3242,7 @@ class SimuBasin(Basin):
 		speed_type = gr.createVariable('speed_type','i4',('col3',),zlib = True)
 		storage = gr.createVariable('storage','i4',('col5','Nelem'),zlib = True)
 		#Variables de deslizamientos 
-		if models.sim_slides == 1:
+		if SimSlides:
 			frictionAngle = gr.createVariable('friction_angle','f4',('Nelem',),zlib = True)
 			Cohesion = gr.createVariable('cohesion','f4',('Nelem',),zlib = True)
 			GammaSoil = gr.createVariable('gamma_soil','f4',('Nelem',),zlib = True)
@@ -3270,7 +3273,7 @@ class SimuBasin(Basin):
 		storage[:] = models.storage
 		
 		#Asigna valores de deslizamientos 
-		if models.sim_slides:
+		if SimSlides:
 			frictionAngle[:] = models.sl_frictionangle
 			Cohesion[:] = models.sl_cohesion
 			GammaSoil[:] = models.sl_gammas
