@@ -2164,7 +2164,7 @@ class Basin:
 class SimuBasin(Basin):
 	
 	def __init__(self,lat=None,lon=None,DEM=None,DIR=None,rute = None, name='NaN',stream=None,umbral=500,
-		noData=-999,modelType='cells',SimSed='no',SimSlides='no',dt=60,
+		noData=-999,modelType='cells',SimSed=False,SimSlides=False,dt=60,
 		SaveStorage='no',SaveSpeed='no',retorno = 0,
 		SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no', SimFloods = 'no',
 		controlNodos = True):
@@ -2304,7 +2304,7 @@ class SimuBasin(Basin):
 				models.sim_floods = 1
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
-			self.__Load_SimuBasin(rute)
+			self.__Load_SimuBasin(rute, sim_slides = SimSlides)
 	
 	def __Load_SimuBasin(self,ruta, sim_slides = False):
 		'Descripcion: Lee una cuenca posteriormente guardada\n'\
@@ -3202,7 +3202,7 @@ class SimuBasin(Basin):
 		    'ncells':self.ncells,'nhills':self.nhills,
 		    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno}
 		if models.sim_slides == 1:
-			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.gullienogullie, 'sl_gammaw':models.sl_gammaw})
+			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
 		#abre el archivo 
 		gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
 		#Establece tamano de las variables 
