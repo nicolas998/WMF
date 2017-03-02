@@ -27,6 +27,7 @@ from scipy.stats import norm
 import os
 import pandas as pd
 import datetime as datetime
+from multiprocessing import Pool
 try:
 	import netcdf as netcdf
 except:
@@ -40,6 +41,15 @@ try:
 except:
 	print 'No se logra importar basemap, por lo tanto no funciona Plot_basin'
 	pass
+try:
+	from deap import base, creator
+	from deap import tools
+	FlagCalib_NSGAII = True
+except:
+	print 'No se logra importar deap tools, por lo tanto se deshabilita SimuBasin.Calib_NSGAII'
+	FlagCalib_NSGAII = False
+import random
+
 #-----------------------------------------------------------------------
 #Ploteo de variables
 #-----------------------------------------------------------------------
@@ -3436,8 +3446,155 @@ class SimuBasin(Basin):
 		DictEff.update({'RmseLog': __eval_rmse_log__(Qobs, Qsim)})
 		DictEff.update({'Rmse': __eval_rmse__(Qobs, Qsim)})
 		return DictEff
+	
+	def Calib_NSGAII(self, nsga_el, pop_size = 40, process = 4, MUTPB = 0.5, CXPB = 0.5):
+		'Descripcion: Algoritmo para calibrar de forma automatica el modelo\n'\
+		'	hidrologico utilizando DEAP y su funcion de seleccion NSGAII.\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'nsga_el : un objeto de la clase nsgaii_element, el cual determinara las reglas.\n'\
+		'	para la generacion de calibraciones.\n'\
+		'pop_size: tamano de la poblacion (cantidad de calibraciones a evaluar).\n'\
+		'process: Cantidad de procesadores que se utilizaran en la generacion.\n'\
+		'MUTPB: Probabilidad generica de que un gen mute.\n'\
+		'CXPB: Probabilidad generica de que dos genes se crucen.\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'DicEff: diccionario con la eficiencia obtenida en cada param.\n'\
+		#Inicia el elemento nsga con los parametros de el 
+		nsga_el.set_nsgaII()
+		#Crea las poblaciones y las ejecuciones 
+		pop = nsga_el.toolbox.population(pop_size)
+		Ejecs = map(nsga_el.__crea_ejec__, pop)
+		#Retorno 
+		return Ejecs
+	
+class nsgaii_element:
+	def __init__(self, evp =[0,1], infil = [1,200], perco = [1, 40],
+		losses = [0,1],velRun = [0.1, 1], velSub = [0.1, 1], velSup =[0.1, 1],
+		velStream = [0.1, 1], Hu = [0.1, 1], Hg = [0.1, 1], npasos = 100, inicio =1,
+		rutaLluvia = None, Qobs = None, probCruce = np.ones(10)*0.5, probMutacion = np.ones(10)*0.5,
+		rangosMutacion = [[0,1], [1,200], [1,40], [0,1], [0.1,1], [0.1, 1], [0.1,1], [0.1,1], [0.1, 1], [0.1,1]],
+		MaxMinOptima = (1.0, -1.0), CrowDist = 0.5):
+		#Rangos parametros
+		self.evp_range = evp
+		self.infil_range = infil
+		self.perco_range = perco
+		self.losses_range = losses
+		self.velRun_range = velRun
+		self.velSub_range = velSub
+		self.velSup_range = velSup
+		self.velStream_range = velStream
+		self.hu_range = Hu
+		self.hg_range = Hg
+		#Establece propiedades para ejecucion
+		self.npasos = npasos
+		self.inicio = inicio
+		self.ruta_lluvia = rutaLluvia
+		self.Qobs = Qobs
+		#Propiedades de cruce y mutacion
+		self.prob_cruce = probCruce
+		self.prob_mutacion = probMutacion
+		self.rangos_mutacion = rangosMutacion
+		self.optimiza = MaxMinOptima
+		self.crowdist = CrowDist
 		
+	def __crea_calibracion__(self):
+	    #Evp
+		if self.evp_range[0] <> self.evp_range[1]:
+			evp = np.random.uniform(self.evp_range[0], self.evp_range[1],1)[0]
+		else:
+			evp = self.evp_range[0]
+		#Infiltracion
+		if self.infil_range[0] <> self.infil_range[1]:
+			infil = np.random.uniform(self.infil_range[0], self.infil_range[1],1)[0]
+		else:
+			infil = self.infil_range[0]
+		#Percolacion
+		if self.perco_range[0] <> self.perco_range[1]:
+			perco = np.random.uniform(self.perco_range[0], self.perco_range[1],1)[0]
+		else:
+			perco = self.perco_range[0]
+		#Perdidas
+		if self.losses_range[0] <> self.losses_range[1]:
+			losses = np.random.uniform(self.losses_range[0], self.losses_range[1],1)[0]
+		else:
+			losses = self.losses_range[0]
+		#runoff
+		if self.velRun_range[0] <> self.velRun_range[1]:
+			velRun = np.random.uniform(self.velRun_range[0], self.velRun_range[1],1)[0]
+		else:
+			velRun = self.velRun_range[0]
+		#Vel subsuperficial
+		if self.velSub_range[0] <> self.velSub_range[1]:
+			velSub = np.random.uniform(self.velSub_range[0], self.velSub_range[1],1)[0]
+		else:
+			velSub = self.velSub_range[0]
+		#Vel acuifero
+		if self.velSup_range[0] <> self.velSup_range[1]:
+			velSup = np.random.uniform(self.velSup_range[0], self.velSup_range[1],1)[0]
+		else:
+			velSup = self.velSup_range[0]
+		#Vel cauce
+		if self.velStream_range[0] <> self.velStream_range[1]:
+			velStream = np.random.uniform(self.velStream_range[0], self.velStream_range[1],1)[0]
+		else:
+			velStream = self.velStream_range[0]
+		#almacenamiento hu
+		if self.hu_range[0] <> self.hu_range[1]:
+			hu = np.random.uniform(self.hu_range[0], self.hu_range[1],1)[0]
+		else:
+			hu = self.hu_range[0]
+		#almacenamiento hg
+		if self.hg_range[0] <> self.hg_range[1]:
+			hg = np.random.uniform(self.hg_range[0], self.hg_range[1],1)[0]
+		else:
+			hg = self.hg_range[0]
+	    #Retorna una calibracion aleatoria 
+		return [evp, infil, perco, losses, velRun, velSub, velSup, velStream, hu, hg]
+	
+	def __crea_ejec__(self, calibracion):
+		return [calibracion, self.ruta_lluvia, self.npasos, self.inicio]
+
+	def __evalfunc__(self, Qsim, f1 = __eval_nash__, f2 = __eval_q_pico__):
+		E1 = f1(self.Qobs, Qsim)
+		E2 = f2(self.Qobs, Qsim)
+		return E1, E2 
+	
+	def __cruce__(self, indi1, indi2):
+		for i,u in zip(range(10), self.prob_cruce):
+			p = np.random.uniform(0,1,1)
+			if p>u:
+				a = indi1[i]; b = indi2[i]
+				indi1[i] = b
+				indi2[i] = a
+		return indi1, indi2
 		
+	def __mutacion__(self, indi):
+		c = 0
+		for i,u in zip(range(10), self.prob_mutacion):
+			p = np.random.uniform(0,1,1)
+			if p>u:
+				indi[i] = np.random.uniform(self.rangos_mutacion[c][0],self.rangos_mutacion[c][0],1)[0]
+			c+=1
+		return indi
+	
+	def set_nsgaII(self):
+		self.toolbox = base.Toolbox()
+		creator.create("FitnessMin", base.Fitness,
+			weights = self.optimiza,
+			crowding_dist = self.crowdist)
+		creator.create("Individual", list, fitness=creator.FitnessMin)
+		self.toolbox.register("attr1", self.__crea_calibracion__)
+		self.toolbox.register("individual", tools.initRepeat, creator.Individual,
+			self.toolbox.attr1, n=1)
+		self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual)
+		self.toolbox.register("evaluate", self.__evalfunc__)
+		self.toolbox.register("mate", self.__cruce__)
+		self.toolbox.register("mutate", self.__mutacion__)
+		self.toolbox.register("select", tools.selNSGA2)
 	
 class Stream:
 	#------------------------------------------------------
