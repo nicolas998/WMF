@@ -308,6 +308,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		hflux_s = 0
 		Conv = 0
 		Stra = 0
+		Qsep_byrain = 0
 		!Lectura de posiciones de eventos en el tiempo de cada caso.
 		call rain_read_ascii_table_separate(ruta_hdrConv,ruta_hdrStra,N_reg)
 	endif
@@ -408,7 +409,8 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 					Storage_stra(i+1,celda)=Storage_stra(i+1,celda)+(vflux(i)-vflux(i+1))*St ![mm]
 				enddo
 				!Actualiza si hay retorno 
-				if (Ret .ne. 0.0) then 
+				!if (Ret .ne. 0.0) then 
+				if (retorno .gt. 0) then
 					Storage_conv(2,celda) = Storage_conv(2,celda) + Ret*Co ![mm]
 					Storage_conv(3,celda) = Storage_conv(3,celda) - Ret*Co ![mm]
 					Storage_stra(2,celda) = Storage_stra(2,celda) + Ret*St ![mm]
