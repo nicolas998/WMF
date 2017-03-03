@@ -2359,7 +2359,9 @@ class SimuBasin(Basin):
 			self.DEM = DEM
 			self.DIR = DIR
 		except:
-			print 'me jodi'
+			print 'No se encuentran el DEM y el DIR en la ruta:'
+			print gr.DEM
+			print gr.DIR
 			pass
 		#de acuerdo al tipo de modeloe stablece numero de elem
 		if self.modelType[0] is 'c':
