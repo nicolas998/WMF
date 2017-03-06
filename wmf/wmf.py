@@ -2500,6 +2500,7 @@ class SimuBasin(Basin):
 			f.write('Numero de celdas: %d \n' % self.ncells)
 			f.write('Numero de laderas: %d \n' % self.nhills)
 			f.write('Numero de registros: %d \n' % reg.shape[1])
+			f.write('Numero de campos no cero: %d \n' % posIds.max())
 			f.write('Tipo de interpolacion: TIN\n')
 			f.write('IDfecha, Record, Lluvia, Fecha \n')
 			if isPandas:
