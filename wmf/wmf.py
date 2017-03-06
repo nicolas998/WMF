@@ -28,6 +28,7 @@ import os
 import pandas as pd
 import datetime as datetime
 from multiprocessing import Pool
+import matplotlib.path as mplPath
 try:
 	import netcdf as netcdf
 except:
@@ -2293,7 +2294,7 @@ class SimuBasin(Basin):
 			if SimSed is 'si':
 				models.sim_sediments=1
 			models.sim_slides=0
-			if SimSlides is 'si':
+			if SimSlides:
 				models.sim_slides=1
 			models.save_storage=0
 			if SaveStorage is 'si':
@@ -2314,7 +2315,7 @@ class SimuBasin(Basin):
 				models.sim_floods = 1
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
-			self.__Load_SimuBasin(rute, sim_slides = SimSlides)
+			self.__Load_SimuBasin(rute, SimSlides)
 	
 	def __Load_SimuBasin(self,ruta, sim_slides = False):
 		'Descripcion: Lee una cuenca posteriormente guardada\n'\
@@ -2412,7 +2413,7 @@ class SimuBasin(Basin):
 	#------------------------------------------------------
 	# Subrutinas de lluvia, interpolacion, lectura, escritura
 	#------------------------------------------------------	
-	def rain_interpolate_mit(self,coord,registers,ruta):
+	def rain_interpolate_mit(self,coord,registers,ruta, umbral = 0.01):
 		'Descripcion: Interpola la lluvia mediante una malla\n'\
 		'	irregular de triangulos, genera campos que son. \n'\
 		'	guardados en un binario para luego ser leido por el. \n'\
@@ -2425,6 +2426,7 @@ class SimuBasin(Basin):
 		'registers : Array (Nest,Nregisters) con los registros de lluvia.\n'\
 		'ruta : Ruta con nombre en donde se guardara el binario con.\n'\
 		'	la informacion de lluvia.\n'\
+		'umbral: Umbral a partir del cual se considera que un campo contiene lluvia\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -2460,25 +2462,58 @@ class SimuBasin(Basin):
 		TIN_mesh=Delaunay(coord.T)
 		TIN_mesh=TIN_mesh.vertices.T+1
 		#Obtiene las pertenencias en la cuenca a la malla 
-		TIN_perte = models.rain_pre_mit(xy_basin,TIN_mesh,coord,self.ncells,
-			TIN_mesh.shape[1],coord.shape[1]) 	 			
-		#Genera las interpolaciones para el rango de datos 		
-		meanRain = models.rain_mit(xy_basin,coord,reg,TIN_mesh,
-			TIN_perte,ruta,self.ncells,coord.shape[1],
-			TIN_mesh.shape[1],reg.shape[1])
-		#Guarda un archivo con informacion de la lluvia 
-		f=open(ruta[:-3]+'hdr','w')
-		f.write('Numero de celdas: %d \n' % self.ncells)
-		f.write('Numero de laderas: %d \n' % self.nhills)
-		f.write('Numero de registros: %d \n' % reg.shape[1])
-		f.write('Tipo de interpolacion: TIN\n')
-		f.write('Record, Fecha \n')
-		if isPandas:
-			dates=registers.index.to_pydatetime()
-			for c,d in enumerate(dates):
-				f.write('%d, %s \n' % (c,d.strftime('%Y-%m-%d-%H:%M')))
-		f.close()
-		return meanRain
+		#TIN_perte = models.rain_pre_mit(xy_basin,TIN_mesh,coord,self.ncells,
+		#	TIN_mesh.shape[1],coord.shape[1]) 	 			
+		c = 1
+		TIN_perte = np.zeros((1,self.ncells))
+		for t in TIN_mesh.T:
+			t = t-1
+			t = np.append(t, t[0])
+			Poly = np.vstack([coord[0][t], coord[1][t]])
+			bbPath = mplPath.Path(Poly.T, closed=True)
+			Contiene = bbPath.contains_points(xy_basin.T)
+			TIN_perte[0][Contiene == True] = c
+			c+=1
+		#Revisa si todas las celdas quedaron asignadas
+		if len(TIN_perte[TIN_perte == 0]) == 0:			
+			#Selecciona si es por laderas o por celdas
+			if self.modelType[0] is 'h':	
+				maskVector = np.copy(self.hills_own)
+			elif self.modelType[0] is 'c':
+				maskVector = np.ones(self.ncells)			
+			#Interpola con tin
+			meanRain,posIds = models.rain_mit(xy_basin, 
+				coord, 
+				reg, 
+				TIN_mesh,
+				TIN_perte,
+				self.nhills,
+				ruta, 
+				umbral, 
+				maskVector, 
+				self.ncells, 
+				coord.shape[1],
+				TIN_mesh.shape[1],
+				reg.shape[1])			
+			#Guarda un archivo con informacion de la lluvia 
+			f=open(ruta[:-3]+'hdr','w')
+			f.write('Numero de celdas: %d \n' % self.ncells)
+			f.write('Numero de laderas: %d \n' % self.nhills)
+			f.write('Numero de registros: %d \n' % reg.shape[1])
+			f.write('Tipo de interpolacion: TIN\n')
+			f.write('IDfecha, Record, Lluvia, Fecha \n')
+			if isPandas:
+				dates=registers.index.to_pydatetime()
+				c = 1
+				for d,pos,m in zip(dates,posIds,meanRain):			
+					f.write('%d, \t %d, \t %.2f, %s \n' % (c,pos,m,d.strftime('%Y-%m-%d-%H:%M')))
+					c+=1
+			f.close()
+			return meanRain, posIds
+		else:
+			print 'Error: Existen celdas de la cuenca sin asignacion de triangulos, se retornan las coordenadas no asignadas'
+			pos = np.where(TIN_perte == 0)[1]
+			return xy_basin[0,pos], xy_basin[1,pos]
 			
 	def rain_interpolate_idw(self,coord,registers,ruta,p=1,umbral=0.0):
 		'Descripcion: Interpola la lluvia mediante la metodologia\n'\
