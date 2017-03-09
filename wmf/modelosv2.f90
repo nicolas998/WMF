@@ -409,7 +409,8 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 					Storage_stra(i+1,celda)=Storage_stra(i+1,celda)+(vflux(i)-vflux(i+1))*St ![mm]
 				enddo
 				!Actualiza si hay retorno 
-				if (Ret .ne. 0.0) then 
+				!if (Ret .ne. 0.0) then 
+				if (retorno .gt. 0) then
 					Storage_conv(2,celda) = Storage_conv(2,celda) + Ret*Co ![mm]
 					Storage_conv(3,celda) = Storage_conv(3,celda) - Ret*Co ![mm]
 					Storage_stra(2,celda) = Storage_stra(2,celda) + Ret*St ![mm]
@@ -931,28 +932,54 @@ subroutine rain_pre_mit(tin_perte,xy_basin,TIN,coord,nceldas,ntin,ncoord)
     enddo
 end subroutine
 
-subroutine rain_mit(xy_basin,coord,rain,tin,tin_perte,nceldas,ncoord,&
-	&ntin,nreg,ruta,meanRain)
+subroutine rain_mit(xy_basin,coord,rain,tin,tin_perte,nceldas,nhills,ncoord,&
+	&ntin,nreg,ruta,umbral,meanRain, posIds,maskVector)
 	!Variables de entrada
-	integer, intent(in) :: nceldas, nreg, ncoord
-	integer, intent(in) :: ntin, tin(3,ntin), tin_perte(1,nceldas)
-	real, intent(in) :: xy_basin(2,nceldas), coord(2,ncoord), rain(ncoord,nreg)
+	integer, intent(in) :: nceldas, nreg, ncoord, nhills
+	integer, intent(in) :: ntin, tin(3,ntin), tin_perte(1,nceldas), maskVector(nceldas)
+	real, intent(in) :: xy_basin(2,nceldas), coord(2,ncoord), rain(ncoord,nreg), umbral
 	character*255, intent(in) :: ruta
 	!Variables de salida 
-	real, intent(out) :: meanRain(nreg)
+	real, intent(out) :: meanRain(nreg) 
+	integer, intent(out) :: posIds(nreg)
 	!Variables locales 
 	real ax(nceldas),ay(nceldas),bx(nceldas),by(nceldas)
 	real cx(nceldas),cy(nceldas),dx(nceldas),dy(nceldas)
 	real az,bz,cz
 	real coef1(nceldas),Cel_x,Cel_y
-	real det1, det2,det3,det4,coef2,campo(nceldas)
-	integer Cel_pert,celdas,tiempo
+	real det1, det2,det3,det4,coef2,campo(nceldas), campoHill(nhills)
+	integer Cel_pert,celdas,tiempo, mascara(nceldas),campoIntHill(nhills)
+	integer campoInt(nceldas), celdas_hills, cont
+	
+	!Mira si la cuenca es celdas o laderas 
+	if (sum(maskVector) .eq. nceldas) then
+		celdas_hills = 1 !celdas
+	elseif (sum(maskVector) .eq. nhills) then
+		celdas_hills = 2 !laderas
+	endif
+	
+	!Guarda un campo vacio que va a ser el usado en 
+	!los casos en que no tenga valores de lluvia sobre toda la cuenca
+	campoInt = 0
+	mascara = 1
+	if (celdas_hills .eq. 2) then
+		!Si es por laderas guarda la primera entrada como ceros		
+		call basin_subbasin_map2subbasin(maskVector,campo,campoHill,&
+			&nhills,nceldas,mascara,celdas_hills)
+		campoIntHill = campoHill
+		call write_int_basin(ruta,campoIntHill,1,nhills,1)
+	elseif (celdas_hills .eq. 1) then
+		!Si es por celdas guarda la primera como nceldas de ceros
+		call write_int_basin(ruta,campoInt,1,nceldas,1)
+	endif
+	
 	!obtiene los coeficientes e interpola		
 	ax=coord(1,tin(1,tin_perte(1,:))) ; ay=coord(2,tin(1,tin_perte(1,:)))
     bx=coord(1,tin(2,tin_perte(1,:))) ; by=coord(2,tin(2,tin_perte(1,:)))
     cx=coord(1,tin(3,tin_perte(1,:))) ; cy=coord(2,tin(3,tin_perte(1,:)))
     coef1=(bx-ax)*(cy-ay)-(cx-ax)*(by-ay)			
 	!Itera para todas las celdas para todos los tiempos	
+	cont = 2
 	do tiempo=1,nreg		
 		do celdas=1,nceldas
 			!Obtiene mas coeficientes
@@ -969,11 +996,31 @@ subroutine rain_mit(xy_basin,coord,rain,tin,tin_perte,nceldas,ncoord,&
 			coef2=det1*(bz-az)+det2*(cz-az)-det3*(bz-az)-det4*(cz-az)
 			!Calcula la cantidad de lluvia
 			campo(celdas)=max(az-coef2/coef1(celdas),0.0)		
-		enddo
-		!Lluvia promedio en la cuenca 
-		meanRain(tiempo) = sum(campo)/count(campo .gt. 0)
-		!cuando termina de recorrer la cuenca guarda el resultado 
-		call write_float_basin(ruta,campo,tiempo,nceldas,1)
+		enddo		
+		!Si el campo tiene algun valor diferente de cero lo mete en la media 
+		!Y tambien lo guarda.
+		if (sum(campo) .gt. umbral .and. count(campo .gt. umbral) .gt. 0) then
+			!Obtiene la media
+			meanRain(tiempo) = sum(campo)/count(campo .gt. 0)			
+			!Guarda el campo interpolado para el tiempo		
+			if (celdas_hills .eq. 1) then 
+				!Caso de celdas 
+				campoInt = campo*1000
+				call write_int_basin(ruta,campoInt,cont,nceldas,1)
+			elseif (celdas_hills .eq. 2) then 
+				!Caso de laderas
+				call basin_subbasin_map2subbasin(maskVector,campo,campoHill,&
+				&nhills,nceldas,mascara,celdas_hills)
+				campoIntHill = campoHill*1000
+				call write_int_basin(ruta,campoIntHill,cont,nhills,1)
+			endif
+			!Actualiza el conteo de la posicion de los campos
+			posIds(tiempo) = cont
+			cont = cont+1			
+		else
+			meanRain(tiempo) = 0.0
+			posIds(tiempo) = 1
+		endif
 	enddo
 end subroutine 
 subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,nhills,ruta,umbral,&
