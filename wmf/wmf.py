@@ -878,6 +878,26 @@ class Basin:
 		#Obtiene el canal en la cuenca 
 		self.CellCauce = np.zeros(self.ncells)
 		self.CellCauce[self.CellAcum>self.umbral]=1
+	def GetGeo_Horton(self):
+		'Descripcion: Obtiene el orden de horton para cada celda de \n'\
+		'	cada ladera y para las celdas de cada cauce.\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'self : no necesita nada es autocontenido.\n'\
+		'\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'CellHorton_Hill : Orden de horton de cada ladera.\n'\
+		'CellHorton_Stream : Orden de horton de cada elemento de cauce.\n'\
+		#obtiene los parametros basicos por celdas
+		cauce,nodos_fin,n_nodos = cu.basin_subbasin_nod(self.structure,self.CellAcum,self.umbral,self.ncells)
+		sub_pert,sub_basin = cu.basin_subbasin_find(self.structure,nodos_fin,n_nodos,self.ncells)
+		sub_basins = cu.basin_subbasin_cut(n_nodos)
+		sub_horton,nod_horton = cu.basin_subbasin_horton(sub_basins,self.ncells,n_nodos)
+		self.CellHorton_Hill,sub_basin = cu.basin_subbasin_find(self.structure,nod_horton,n_nodos,self.ncells)	
+		#Obtiene el canal en la cuenca 
+		self.CellHorton_Stream = self.CellCauce * self.CellHorton_Hill		
 	def GetGeo_IsoChrones(self,Tc,Niter=4):
 		'Descripcion: Obtiene el tiempo de viaje aproximado de cada  \n'\
 		'	celda a la salida de la cuenca, para eso usa el tiempo de . \n'\
