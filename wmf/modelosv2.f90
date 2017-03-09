@@ -308,6 +308,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 		hflux_s = 0
 		Conv = 0
 		Stra = 0
+		Qsep_byrain = 0
 		!Lectura de posiciones de eventos en el tiempo de cada caso.
 		call rain_read_ascii_table_separate(ruta_hdrConv,ruta_hdrStra,N_reg)
 	endif
