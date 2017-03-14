@@ -2198,7 +2198,7 @@ class SimuBasin(Basin):
 		noData=-999,modelType='cells',SimSed=False,SimSlides=False,dt=60,
 		SaveStorage='no',SaveSpeed='no',retorno = 0,
 		SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no', SimFloods = 'no',
-		controlNodos = True):
+		controlNodos = True, storageConstant = 0.001):
 		'Descripcion: Inicia un objeto para simulacion \n'\
 		'	el objeto tiene las propieades de una cuenca con. \n'\
 		'	la diferencia de que inicia las variables requeridas. \n'\
@@ -2333,6 +2333,7 @@ class SimuBasin(Basin):
 				models.show_storage = 1
 			if SimFloods == 'si':
 				models.sim_floods = 1
+			models.storage_constant = storageConstant
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
 			self.__Load_SimuBasin(rute, SimSlides)
@@ -2364,6 +2365,10 @@ class SimuBasin(Basin):
 		models.dt = gr.dt
 		models.dxp = gr.dxp
 		models.retorno = gr.retorno
+		try:
+			models.storage_constant = gr.storageConst
+		except:
+			models.storage_constant = 0.0
 		#Si carga deslizamientos 
 		if sim_slides:
 			models.sim_slides = 1
@@ -3271,7 +3276,7 @@ class SimuBasin(Basin):
 			'DIR':ruta_dir,
 		    'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
 		    'ncells':self.ncells,'nhills':self.nhills,
-		    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno}
+		    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno, 'storageConst' : models.storage_constant}
 		if SimSlides:
 			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
 		#abre el archivo 

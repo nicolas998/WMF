@@ -90,6 +90,7 @@ integer calc_niter !Cantidad de iteraciones para la ecuacion de solucion numeric
 
 !Variables de resultados globales (siempre van a estar ahi)
 real, allocatable :: Storage(:,:) !Almacenamiento de los 5 tanques del modelo
+real storage_constant !Constante de almacenamiento que puede ser muy baja (0.01 a 0.0001) para corregir bug de separacion de fluxes
 real, allocatable :: Speed_map(:,:) !Mapa de velocidades en los tanques, solo se activa si se da la opcion save_speed
 real, allocatable :: Mean_Rain(:,:) !Serie de lluvia promedio en la cuenca [mm]
 real, allocatable :: Fluxes(:,:) !Matriz de flujos separados (3,nelem), 1: Superficial, 2: sub-superficial, 3: subterraneo
@@ -242,7 +243,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	m3_mmRivers=(stream_long(1,:)*stream_width(1,:))/1000.0
 	Q=0.0
 	!Inicia variables para realizar el balance en la cuenca
-	StoOut=Storage
+	StoOut=Storage + storage_constant
 	entradas=0
 	salidas=0
 	balance = 0	
