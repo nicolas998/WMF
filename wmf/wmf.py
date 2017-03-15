@@ -194,6 +194,16 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None):
 		return Mapa.T,[ncols,nrows,xll,yll,dx,noData]
 
 def read_map_points(ruta_map, ListAtr = None):
+	'Funcion: read_map_points\n'\
+	'Descripcion: Lee un mapa vectorial de puntos soportado por GDAL.\n'\
+	'Parametros Obligatorios:.\n'\
+	'	-ruta_map: Ruta donde se encuentra el mapa.\n'\
+	'Parametros Opcionales:.\n'\
+	'	-ListAtr: Lista con los nombres de los atributos de las columnas\n'\
+	'		que se quieren leer dentro de la variable Dict\n'\
+	'Retorno:.\n'\
+	'	Si ListAtr == None: Retorna unicamente las coordenadas.\n'\
+	'	Si ListAtr == [Nombre1, Nombre2, ...]: Retorna: Coord y diccionario con variables.\n'\
     #Obtiene el acceso
     dr = osgeo.ogr.Open(ruta_map)
     l = dr.GetLayer()
