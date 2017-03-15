@@ -204,90 +204,90 @@ def read_map_points(ruta_map, ListAtr = None):
 	'Retorno:.\n'\
 	'	Si ListAtr == None: Retorna unicamente las coordenadas.\n'\
 	'	Si ListAtr == [Nombre1, Nombre2, ...]: Retorna: Coord y diccionario con variables.\n'\
-    #Obtiene el acceso
-    dr = osgeo.ogr.Open(ruta_map)
-    l = dr.GetLayer()
-    #Lee las coordenadas
-    Cord = []
-    for i in range(l.GetFeatureCount()):
-        f = l.GetFeature(i)
-        g = f.GetGeometryRef()
-        pt = [g.GetX(),g.GetY()]
-        Cord.append(pt)
-    Cord = np.array(Cord).T
-    #Si hay atributos para buscar los lee y los m
-    if ListAtr is not None:
-        Dict = {}
-        for j in ListAtr:
-            #Busca si el atributo esta
-            pos = f.GetFieldIndex(j)
-            #Si esta lee la info del atributo
-            if pos is not -1:
-                vals = []
-                for i in range(l.GetFeatureCount()):
-                    f = l.GetFeature(i)
-                    vals.append(f.GetField(pos))
-                Dict.update({j:np.array(vals)})
-        #Cierra el mapa 
-        dr.Destroy()
-        return Cord, Dict
-    else:
-        #Cierra el mapa 
-        dr.Destroy()
-        return Cord
+	#Obtiene el acceso
+	dr = osgeo.ogr.Open(ruta_map)
+	l = dr.GetLayer()
+	#Lee las coordenadas
+	Cord = []
+	for i in range(l.GetFeatureCount()):
+		f = l.GetFeature(i)
+		g = f.GetGeometryRef()
+		pt = [g.GetX(),g.GetY()]
+		Cord.append(pt)
+	Cord = np.array(Cord).T
+	#Si hay atributos para buscar los lee y los m
+	if ListAtr is not None:
+		Dict = {}
+		for j in ListAtr:
+			#Busca si el atributo esta
+			pos = f.GetFieldIndex(j)
+			#Si esta lee la info del atributo
+			if pos is not -1:
+				vals = []
+				for i in range(l.GetFeatureCount()):
+					f = l.GetFeature(i)
+					vals.append(f.GetField(pos))
+				Dict.update({j:np.array(vals)})
+		#Cierra el mapa 
+		dr.Destroy()
+		return Cord, Dict
+	else:
+		#Cierra el mapa 
+		dr.Destroy()
+		return Cord
 
 def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
-    dst_filename = ruta
-    #Formato de condiciones del mapa
-    x_pixels = Array.shape[0]  # number of pixels in x
-    y_pixels = Array.shape[1]  # number of pixels in y
-    PIXEL_SIZE = ArrayProp[4]  # size of the pixel...        
-    x_min = ArrayProp[2]  
-    y_max = ArrayProp[3] + ArrayProp[4] * ArrayProp[1] # x_min & y_max are like the "top left" corner.
-    driver = gdal.GetDriverByName(Format)
-    #Para encontrar el formato de GDAL 
-    NP2GDAL_CONVERSION = {
-      "uint8": 1,
-      "int8": 1,
-      "uint16": 2,
-      "int16": 3,
-      "uint32": 4,
-      "int32": 5,
-      "float32": 6,
-      "float64": 7,
-      "complex64": 10,
-      "complex128": 11,
-    }
-    gdaltype = NP2GDAL_CONVERSION[Array.dtype.name]
-    # Crea el driver
-    dataset = driver.Create(
-        dst_filename,
-        x_pixels,
-        y_pixels,
-        1,
-        gdaltype,)
-    #coloca la referencia espacial
-    dataset.SetGeoTransform((
-        x_min,    # 0
-        PIXEL_SIZE,  # 1
-        0,                      # 2
-        y_max,    # 3
-        0,                      # 4
-        -PIXEL_SIZE))  
-    #coloca la proyeccion a partir de un EPSG
-    proj = osgeo.osr.SpatialReference()
-    texto = 'EPSG:' + str(EPSG)
-    proj.SetWellKnownGeogCS( texto )
-    dataset.SetProjection(proj.ExportToWkt())
-    #Coloca el nodata
-    band = dataset.GetRasterBand(1)
-    if ArrayProp[-1] == None:        
-        band.SetNoDataValue(wmf.cu.nodata.astype(int).max())
-    else:
-        band.SetNoDataValue(-9999)
-    #Guarda el mapa
-    dataset.GetRasterBand(1).WriteArray(Array.T)
-    dataset.FlushCache() 
+	dst_filename = ruta
+	#Formato de condiciones del mapa
+	x_pixels = Array.shape[0]  # number of pixels in x
+	y_pixels = Array.shape[1]  # number of pixels in y
+	PIXEL_SIZE = ArrayProp[4]  # size of the pixel...        
+	x_min = ArrayProp[2]  
+	y_max = ArrayProp[3] + ArrayProp[4] * ArrayProp[1] # x_min & y_max are like the "top left" corner.
+	driver = gdal.GetDriverByName(Format)
+	#Para encontrar el formato de GDAL 
+	NP2GDAL_CONVERSION = {
+	  "uint8": 1,
+	  "int8": 1,
+	  "uint16": 2,
+	  "int16": 3,
+	  "uint32": 4,
+	  "int32": 5,
+	  "float32": 6,
+	  "float64": 7,
+	  "complex64": 10,
+	  "complex128": 11,
+	}
+	gdaltype = NP2GDAL_CONVERSION[Array.dtype.name]
+	# Crea el driver
+	dataset = driver.Create(
+		dst_filename,
+		x_pixels,
+		y_pixels,
+		1,
+		gdaltype,)
+	#coloca la referencia espacial
+	dataset.SetGeoTransform((
+		x_min,    # 0
+		PIXEL_SIZE,  # 1
+		0,                      # 2
+		y_max,    # 3
+		0,                      # 4
+		-PIXEL_SIZE))  
+	#coloca la proyeccion a partir de un EPSG
+	proj = osgeo.osr.SpatialReference()
+	texto = 'EPSG:' + str(EPSG)
+	proj.SetWellKnownGeogCS( texto )
+	dataset.SetProjection(proj.ExportToWkt())
+	#Coloca el nodata
+	band = dataset.GetRasterBand(1)
+	if ArrayProp[-1] == None:        
+		band.SetNoDataValue(wmf.cu.nodata.astype(int).max())
+	else:
+		band.SetNoDataValue(-9999)
+	#Guarda el mapa
+	dataset.GetRasterBand(1).WriteArray(Array.T)
+	dataset.FlushCache() 
 
 def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
 	DriverFormat='ESRI Shapefile'):
