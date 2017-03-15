@@ -1787,7 +1787,8 @@ class Basin:
 			Max=None,ruta=None,figsize=(10,8),
 			ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
 			xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
-			colorbar=True, colorbarLabel = None,axis=None,rutaShp=None,
+			colorbar=True, colorbarLabel = None,axis=None,rutaShp=None,shpWidth = 0.7,
+			shpColor = 'r',
 			**kwargs):
 			#Plotea en la terminal como mapa un vector de la cuenca
 			'Funcion: Plot_basin\n'\
@@ -1804,6 +1805,8 @@ class Basin:
 			'	-figsize: tamano de la ventana donde se muestra la cuenca.\n'\
 			'	-ZeroAsNaN: Convierte los valores de cero en NaN.\n'\
 			'	-rutaShp: Ruta a un vectorial que se quiera mostrar en el mapa.\n'\
+			'	-shpWidth: Ancho de las lineas del shp cargado.\n'\
+			'	-shpColor: Color de las lineas del shp cargado.\n'\
 			'Otros argumentos:.\n'\
 			'	-axis = Entorno de grafica que contiene elementos de las figuras.\n'\
 			'	-parallels = Grafica Paralelos, list-like.\n'\
@@ -1901,7 +1904,7 @@ class Basin:
 					edgecolor=xy_edgecolor)
 			#Si hay una ruta a un shp lo plotea
 			if rutaShp <> None:
-				m.readshapefile(rutaShp, 'mapashp')
+				m.readshapefile(rutaShp, 'mapashp', linewidth = shpWidth, color = shpColor)
 			#Guarda
 			if ruta<>None:
 				pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
