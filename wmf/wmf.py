@@ -2999,10 +2999,23 @@ class SimuBasin(Basin):
 		'----------\n'\
 		'self : Objeto de la cuenca 2que luego se va a simular.\n'\
 		'modelVarName : Nombre de la variable del modelo que se va a incertar.\n'\
-		'	- h_coef.\n'\
-		'	- h_exp.\n'\
+		'	- h_coef: coeficientes horizontales\n'\
+		'		[0]: Flujo de Escorrentia.\n'\
+		'		[1]: Flujo Sub-superficial.\n'\
+		'		[2]: Flujo subterraneo.\n'\
+		'		[3]: Flujo en cauces.\n'\
+		'	- h_exp: exponentes del tipo v = h_coef*(A**h_exp)\n'\
+		'		[0]: Escorrentia.\n'\
+		'		[1]: sub-superficial.\n'\
+		'		[2]: subterraneo.\n'\
+		'		[3]: cauce.\n'\
 		'	- v_coef.\n'\
-		'	- v_exp.\n'\
+		'		[0]: Tasa evaporacion.\n'\
+		'		[1]: Infiltracion.\n'\
+		'		[2]: Percolacion.\n'\
+		'		[3]: Perdidas (0).\n'\
+		'	- v_exp: procesos verticales no lineales\n'\
+		'		(no implementado dentro del modelo)\n'
 		'	- capilar.\n'\
 		'	- gravit.\n'\
 		'var : variable que ingresa en el modelo, esta puede ser:.\n'\
