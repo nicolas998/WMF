@@ -148,6 +148,65 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 	if show == True:
 		pl.show()
 
+def plot_mean_storage(Mean_Storage, Dates = None, mrain = None, 
+	rute = None, **kwargs):
+	'Funcion: plot_mean_storage\n'\
+	'Descripcion: Plotea como se encuentran los almacenamientos medios en la cuenca.\n'\
+	'Parametros Obligatorios:.\n'\
+	'	-Mean_Storage: almacenamiento medio en cada uno de los tanques (5,Npasos).\n'\
+	'		Esta es la variables obtenida por wmf.SimuBasin.run_shia como Mean_Storage.\n'\
+	'Parametros Opcionales:.\n'\
+	'	-Dates: Fechas para el plot\n'\
+	'	-marin: Lluvia promedio sobre la cuenca\n'\
+	'	-rute: Ruta donde se va a guardar\n'\
+	'	-kwargs: algunos argumentos de set del plot\n'\
+	'		- figsize: tamano de la figura.\n'\
+	'		- color: Color de los plot.\n'\
+	'		- lw: ancho de la linea del plot.\n'\
+	'		- labelsize: tamano de los label.\n'\
+	'		- ysize: tamano de la fuente en el eje Y.\n'\
+	'Retorno:.\n'\
+	'	Plot de los almacenamientos medios.\n'\
+	#Argumentos kw
+	figsize = kwargs.get('figsize',(13,9))
+	color = kwargs.get('color','k')
+	lw = kwargs.get('lw',4)
+	labelsize = kwargs.get('labelsize', 14)
+	ysize = kwargs.get('ysize', 16)
+	show = kwargs.get('show',True)
+	alpha = kwargs.get('alpha',0.5)
+	colorRain = kwargs.get('colorRain','b')
+	lwRain = kwargs.get('lwRain',0.1)
+	#Inicio de la funcion
+	if Dates==None:
+		ejeX=range(Mean_Storage.shape[1])
+	else:
+		ejeX=Dates
+	#figura
+	fig = pl.figure(figsize = figsize)
+	nombres = ['Hu','Runoff','Hg','Sub','Stream']
+	for c,i in enumerate(Mean_Storage):
+		ax = fig.add_subplot(5,1,c+1)
+		ax.plot(ejeX, i, color, lw = lw)
+		ax.grid()
+		# Deja el eje X solo en el ultimo plot
+		if c<4:
+			ax.set_xticklabels([])
+		ax.tick_params(labelsize = labelsize)
+		#Pinta la lluvia en el primer plot
+		if c == 0 and mrain <> None:
+			ax2=ax.twinx()
+			ax2AX=pl.gca()
+			ax2.fill_between(ejeX,0,mrain,alpha=alpha,color=colorRain,lw=lwRain)
+			ylim = ax2AX.get_ylim()[::-1]; ylim = list(ylim); ylim[1] = 0
+			ax2AX.set_ylim(ylim)
+		#Nombre de cada tanque 
+		ax.set_ylabel(nombres[c], size = ysize)
+	if rute<>None:
+		pl.savefig(rute, bbox_inches='tight')
+	if show == True:
+		pl.show()
+
 #-----------------------------------------------------------------------
 #Lectura de informacion y mapas 
 #-----------------------------------------------------------------------
