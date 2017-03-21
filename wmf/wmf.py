@@ -3248,7 +3248,8 @@ class SimuBasin(Basin):
 	#------------------------------------------------------
 	# Guardado y Cargado de modelos de cuencas preparados 
 	#------------------------------------------------------	
-	def Save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None, SimSlides = False):
+	def Save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None, SimSlides = False,
+		ExtraVar = None):
 		'Descripcion: guarda una cuenca previamente ejecutada\n'\
 		'\n'\
 		'Parametros\n'\
@@ -3258,6 +3259,9 @@ class SimuBasin(Basin):
 		'ruta_dir : direccion donde se aloja el DIR (se recomienda absoluta).\n'\
 		'SimSlides: indica a la funcion si va a guardar o no informacion para la simulacion.\n'\
 		'	de deslizamientos.\n'\
+		'ExtraVar: Variables extras de simulacion deben ir en un diccionario.\n'\
+		'	Forma del diccionario Dict = {"varName": {"Data": vector[ncells], "type": "tipo"}}.\n'\
+		'	Los tipos de variables son: flotante: "f4", entero "i4".\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -3353,6 +3357,11 @@ class SimuBasin(Basin):
 			ZSoil[:] = models.sl_zs
 			RadSlope[:] = models.sl_radslope
 		
+		#Introduce variables extras en caso de que el usuario las incluyera
+		if type(ExtraVar) is dict:
+			for k in ExtraVar.keys():
+				Var = gr.createVariable(k,ExtraVar[k]['type'],('ncell',),zlib=True)
+				Var[:] = ExtraVar[k]['Data']
 		#asigna las prop a la cuenca 
 		gr.setncatts(Dict)
 		#Cierra el archivo 
