@@ -1972,7 +1972,7 @@ class Basin:
 			return m
 	#Grafica de plot para montar en paginas web o presentaciones
 	def Plot_basinClean(self, vec, ruta, umbral = 0.0, 
-		vmin = 0.0, vmax = None, **kwargs):	
+		vmin = 0.0, vmax = None, show_cbar = False, **kwargs):	
 		'Funcion: Plot_basinClean\n'\
 		'Descripcion: Genera un plot del mapa entregado en un lienzo limpio.\n'\
 		'Parametros Obligatorios:.\n'\
@@ -1982,15 +1982,24 @@ class Basin:
 		'	-umbral: Umbral a partir del cual se plotea variable.\n'\
 		'	-vmin: Valor minimo de la variable.\n'\
 		'	-vmax: valor maximo de la variable.\n'\
+		'	-show_cbar: muestra o no el Cbar del plot.\n'\
 		'Otros argumentos:.\n'\
 		'	-cmap: Esquema de colores.\n'\
 		'	-figsize = Tamano de la figura.\n'\
+		'	-cbar_aspect: (20) relacion largo ancho del cbar.\n'\
+		'	-cbar_ticks: (None) ubicacion de los ticks del cbar.\n'\
+		'	-cbar_ticklabels: (None) Labels a poner sobre los ticks.\n'\
+		'	-cbar_ticksize: (14) Tamano de los ticks.\n'\
 		'Retorno:.\n'\
 		'	-Figura se muestra y se guarda.\n'\
 		'	-Coordenadas de los bordes del mapa.\n'\
 		#Argumentos kw
 		cmap = kwargs.get('cmap','Spectral')
 		figsize = kwargs.get('figsize', (10,8))
+		cbar_aspect = kwargs.get('cbar_aspect', 20)
+		cbar_ticklabels = kwargs.get('cbar_ticklabels', None)
+		cbar_ticks = kwargs.get('cbar_ticks', None)
+		cbar_ticksize = kwargs.get('cbar_ticksize', 14)
 		#Obtiene la matriz 
 		M,p = self.Transform_Basin2Map(vec)
 		M[M == -9999] = np.nan
@@ -2005,12 +2014,12 @@ class Basin:
 		ax = fig.add_subplot(111)
 		#plot
 		if vmax == None:
-			pl.imshow(M.T,
+			im = pl.imshow(M.T,
 				interpolation='None',
 				cmap= pl.get_cmap(cmap), 
 				vmin = vmin)
 		else:
-			pl.imshow(M.T,
+			im = pl.imshow(M.T,
 				interpolation='None',
 				cmap= pl.get_cmap(cmap), 
 				vmin = vmin,
@@ -2019,11 +2028,18 @@ class Basin:
 		ax.set_xticklabels([])
 		ax.set_yticklabels([])
 		ax.axis('off')
+		#colorca colorbar
+		if show_cbar:
+			cbar = pl.colorbar(im, aspect = cbar_aspect, )
+			if cbar_ticks <> None:
+				cbar.set_ticks(cbar_ticks)
+			if cbar_ticklabels <> None:
+				cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
 		#Guarda transparente y ajustando bordes
 		pl.savefig(ruta, 
-		    bbox_inches = 'tight', 
-		    pad_inches = 0, 
-		    transparent = True)
+			bbox_inches = 'tight', 
+			pad_inches = 0, 
+			transparent = True)
 		return Corners
 	#Grafica de variables sobre la red 
 	def Plot_Net(self, vec, vec_c = None,ruta = None, q_compare = None, show = True, 
