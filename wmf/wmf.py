@@ -1972,7 +1972,22 @@ class Basin:
 			return m
 	#Grafica de plot para montar en paginas web o presentaciones
 	def Plot_basinClean(self, vec, ruta, umbral = 0.0, 
-		vmin = 0.0, vmax = None, **kwargs):
+		vmin = 0.0, vmax = None, **kwargs):	
+		'Funcion: Plot_basinClean\n'\
+		'Descripcion: Genera un plot del mapa entregado en un lienzo limpio.\n'\
+		'Parametros Obligatorios:.\n'\
+		'	-vec: Vector con los valores a plotear.\n'\
+		'	-ruta: ruta donde se guarda el png.\n'\
+		'Parametros Opcionales:.\n'\
+		'	-umbral: Umbral a partir del cual se plotea variable.\n'\
+		'	-vmin: Valor minimo de la variable.\n'\
+		'	-vmax: valor maximo de la variable.\n'\
+		'Otros argumentos:.\n'\
+		'	-cmap: Esquema de colores.\n'\
+		'	-figsize = Tamano de la figura.\n'\
+		'Retorno:.\n'\
+		'	-Figura se muestra y se guarda.\n'\
+		'	-Coordenadas de los bordes del mapa.\n'\
 		#Argumentos kw
 		cmap = kwargs.get('cmap','Spectral')
 		figsize = kwargs.get('figsize', (10,8))
