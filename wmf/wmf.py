@@ -148,6 +148,65 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 	if show == True:
 		pl.show()
 
+def plot_mean_storage(Mean_Storage, Dates = None, mrain = None, 
+	rute = None, **kwargs):
+	'Funcion: plot_mean_storage\n'\
+	'Descripcion: Plotea como se encuentran los almacenamientos medios en la cuenca.\n'\
+	'Parametros Obligatorios:.\n'\
+	'	-Mean_Storage: almacenamiento medio en cada uno de los tanques (5,Npasos).\n'\
+	'		Esta es la variables obtenida por wmf.SimuBasin.run_shia como Mean_Storage.\n'\
+	'Parametros Opcionales:.\n'\
+	'	-Dates: Fechas para el plot\n'\
+	'	-marin: Lluvia promedio sobre la cuenca\n'\
+	'	-rute: Ruta donde se va a guardar\n'\
+	'	-kwargs: algunos argumentos de set del plot\n'\
+	'		- figsize: tamano de la figura.\n'\
+	'		- color: Color de los plot.\n'\
+	'		- lw: ancho de la linea del plot.\n'\
+	'		- labelsize: tamano de los label.\n'\
+	'		- ysize: tamano de la fuente en el eje Y.\n'\
+	'Retorno:.\n'\
+	'	Plot de los almacenamientos medios.\n'\
+	#Argumentos kw
+	figsize = kwargs.get('figsize',(13,9))
+	color = kwargs.get('color','k')
+	lw = kwargs.get('lw',4)
+	labelsize = kwargs.get('labelsize', 14)
+	ysize = kwargs.get('ysize', 16)
+	show = kwargs.get('show',True)
+	alpha = kwargs.get('alpha',0.5)
+	colorRain = kwargs.get('colorRain','b')
+	lwRain = kwargs.get('lwRain',0.1)
+	#Inicio de la funcion
+	if Dates==None:
+		ejeX=range(Mean_Storage.shape[1])
+	else:
+		ejeX=Dates
+	#figura
+	fig = pl.figure(figsize = figsize)
+	nombres = ['Hu','Runoff','Hg','Sub','Stream']
+	for c,i in enumerate(Mean_Storage):
+		ax = fig.add_subplot(5,1,c+1)
+		ax.plot(ejeX, i, color, lw = lw)
+		ax.grid()
+		# Deja el eje X solo en el ultimo plot
+		if c<4:
+			ax.set_xticklabels([])
+		ax.tick_params(labelsize = labelsize)
+		#Pinta la lluvia en el primer plot
+		if c == 0 and mrain <> None:
+			ax2=ax.twinx()
+			ax2AX=pl.gca()
+			ax2.fill_between(ejeX,0,mrain,alpha=alpha,color=colorRain,lw=lwRain)
+			ylim = ax2AX.get_ylim()[::-1]; ylim = list(ylim); ylim[1] = 0
+			ax2AX.set_ylim(ylim)
+		#Nombre de cada tanque 
+		ax.set_ylabel(nombres[c], size = ysize)
+	if rute<>None:
+		pl.savefig(rute, bbox_inches='tight')
+	if show == True:
+		pl.show()
+
 #-----------------------------------------------------------------------
 #Lectura de informacion y mapas 
 #-----------------------------------------------------------------------
@@ -194,90 +253,100 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None):
 		return Mapa.T,[ncols,nrows,xll,yll,dx,noData]
 
 def read_map_points(ruta_map, ListAtr = None):
-    #Obtiene el acceso
-    dr = osgeo.ogr.Open(ruta_map)
-    l = dr.GetLayer()
-    #Lee las coordenadas
-    Cord = []
-    for i in range(l.GetFeatureCount()):
-        f = l.GetFeature(i)
-        g = f.GetGeometryRef()
-        pt = [g.GetX(),g.GetY()]
-        Cord.append(pt)
-    Cord = np.array(Cord).T
-    #Si hay atributos para buscar los lee y los m
-    if ListAtr is not None:
-        Dict = {}
-        for j in ListAtr:
-            #Busca si el atributo esta
-            pos = f.GetFieldIndex(j)
-            #Si esta lee la info del atributo
-            if pos is not -1:
-                vals = []
-                for i in range(l.GetFeatureCount()):
-                    f = l.GetFeature(i)
-                    vals.append(f.GetField(pos))
-                Dict.update({j:np.array(vals)})
-        #Cierra el mapa 
-        dr.Destroy()
-        return Cord, Dict
-    else:
-        #Cierra el mapa 
-        dr.Destroy()
-        return Cord
+	'Funcion: read_map_points\n'\
+	'Descripcion: Lee un mapa vectorial de puntos soportado por GDAL.\n'\
+	'Parametros Obligatorios:.\n'\
+	'	-ruta_map: Ruta donde se encuentra el mapa.\n'\
+	'Parametros Opcionales:.\n'\
+	'	-ListAtr: Lista con los nombres de los atributos de las columnas\n'\
+	'		que se quieren leer dentro de la variable Dict\n'\
+	'Retorno:.\n'\
+	'	Si ListAtr == None: Retorna unicamente las coordenadas.\n'\
+	'	Si ListAtr == [Nombre1, Nombre2, ...]: Retorna: Coord y diccionario con variables.\n'\
+	#Obtiene el acceso
+	dr = osgeo.ogr.Open(ruta_map)
+	l = dr.GetLayer()
+	#Lee las coordenadas
+	Cord = []
+	for i in range(l.GetFeatureCount()):
+		f = l.GetFeature(i)
+		g = f.GetGeometryRef()
+		pt = [g.GetX(),g.GetY()]
+		Cord.append(pt)
+	Cord = np.array(Cord).T
+	#Si hay atributos para buscar los lee y los m
+	if ListAtr is not None:
+		Dict = {}
+		for j in ListAtr:
+			#Busca si el atributo esta
+			pos = f.GetFieldIndex(j)
+			#Si esta lee la info del atributo
+			if pos is not -1:
+				vals = []
+				for i in range(l.GetFeatureCount()):
+					f = l.GetFeature(i)
+					vals.append(f.GetField(pos))
+				Dict.update({j:np.array(vals)})
+		#Cierra el mapa 
+		dr.Destroy()
+		return Cord, Dict
+	else:
+		#Cierra el mapa 
+		dr.Destroy()
+		return Cord
 
 def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
-    dst_filename = ruta
-    #Formato de condiciones del mapa
-    x_pixels = Array.shape[0]  # number of pixels in x
-    y_pixels = Array.shape[1]  # number of pixels in y
-    PIXEL_SIZE = ArrayProp[4]  # size of the pixel...        
-    x_min = ArrayProp[2]  
-    y_max = ArrayProp[3] + ArrayProp[4] * ArrayProp[1] # x_min & y_max are like the "top left" corner.
-    driver = gdal.GetDriverByName(Format)
-    #Para encontrar el formato de GDAL 
-    NP2GDAL_CONVERSION = {
-      "uint8": 1,
-      "int8": 1,
-      "uint16": 2,
-      "int16": 3,
-      "uint32": 4,
-      "int32": 5,
-      "float32": 6,
-      "float64": 7,
-      "complex64": 10,
-      "complex128": 11,
-    }
-    gdaltype = NP2GDAL_CONVERSION[Array.dtype.name]
-    # Crea el driver
-    dataset = driver.Create(
-        dst_filename,
-        x_pixels,
-        y_pixels,
-        1,
-        gdaltype,)
-    #coloca la referencia espacial
-    dataset.SetGeoTransform((
-        x_min,    # 0
-        PIXEL_SIZE,  # 1
-        0,                      # 2
-        y_max,    # 3
-        0,                      # 4
-        -PIXEL_SIZE))  
-    #coloca la proyeccion a partir de un EPSG
-    proj = osgeo.osr.SpatialReference()
-    texto = 'EPSG:' + str(EPSG)
-    proj.SetWellKnownGeogCS( texto )
-    dataset.SetProjection(proj.ExportToWkt())
-    #Coloca el nodata
-    band = dataset.GetRasterBand(1)
-    if ArrayProp[-1] == None:        
-        band.SetNoDataValue(wmf.cu.nodata.astype(int).max())
-    else:
-        band.SetNoDataValue(-9999)
-    #Guarda el mapa
-    dataset.GetRasterBand(1).WriteArray(Array.T)
-    dataset.FlushCache() 
+	dst_filename = ruta
+	#Formato de condiciones del mapa
+	x_pixels = Array.shape[0]  # number of pixels in x
+	y_pixels = Array.shape[1]  # number of pixels in y
+	PIXEL_SIZE = ArrayProp[4]  # size of the pixel...        
+	x_min = ArrayProp[2]  
+	y_max = ArrayProp[3] + ArrayProp[4] * ArrayProp[1] # x_min & y_max are like the "top left" corner.
+	driver = gdal.GetDriverByName(Format)
+	#Para encontrar el formato de GDAL 
+	NP2GDAL_CONVERSION = {
+	  "uint8": 1,
+	  "int8": 1,
+	  "uint16": 2,
+	  "int16": 3,
+	  "uint32": 4,
+	  "int32": 5,
+	  "float32": 6,
+	  "float64": 7,
+	  "complex64": 10,
+	  "complex128": 11,
+	}
+	gdaltype = NP2GDAL_CONVERSION[Array.dtype.name]
+	# Crea el driver
+	dataset = driver.Create(
+		dst_filename,
+		x_pixels,
+		y_pixels,
+		1,
+		gdaltype,)
+	#coloca la referencia espacial
+	dataset.SetGeoTransform((
+		x_min,    # 0
+		PIXEL_SIZE,  # 1
+		0,                      # 2
+		y_max,    # 3
+		0,                      # 4
+		-PIXEL_SIZE))  
+	#coloca la proyeccion a partir de un EPSG
+	proj = osgeo.osr.SpatialReference()
+	texto = 'EPSG:' + str(EPSG)
+	proj.SetWellKnownGeogCS( texto )
+	dataset.SetProjection(proj.ExportToWkt())
+	#Coloca el nodata
+	band = dataset.GetRasterBand(1)
+	if ArrayProp[-1] == None:        
+		band.SetNoDataValue(wmf.cu.nodata.astype(int).max())
+	else:
+		band.SetNoDataValue(-9999)
+	#Guarda el mapa
+	dataset.GetRasterBand(1).WriteArray(Array.T)
+	dataset.FlushCache() 
 
 def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
 	DriverFormat='ESRI Shapefile'):
@@ -1777,7 +1846,8 @@ class Basin:
 			Max=None,ruta=None,figsize=(10,8),
 			ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
 			xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
-			colorbar=True, colorbarLabel = None,axis=None,
+			colorbar=True, colorbarLabel = None,axis=None,rutaShp=None,shpWidth = 0.7,
+			shpColor = 'r',
 			**kwargs):
 			#Plotea en la terminal como mapa un vector de la cuenca
 			'Funcion: Plot_basin\n'\
@@ -1793,6 +1863,9 @@ class Basin:
 			'	-colorbar: Muestra o no la barra de colores, defecto: True.\n'\
 			'	-figsize: tamano de la ventana donde se muestra la cuenca.\n'\
 			'	-ZeroAsNaN: Convierte los valores de cero en NaN.\n'\
+			'	-rutaShp: Ruta a un vectorial que se quiera mostrar en el mapa.\n'\
+			'	-shpWidth: Ancho de las lineas del shp cargado.\n'\
+			'	-shpColor: Color de las lineas del shp cargado.\n'\
 			'Otros argumentos:.\n'\
 			'	-axis = Entorno de grafica que contiene elementos de las figuras.\n'\
 			'	-parallels = Grafica Paralelos, list-like.\n'\
@@ -1888,6 +1961,9 @@ class Basin:
 					s=xy_s,
 					linewidth=xy_lw,
 					edgecolor=xy_edgecolor)
+			#Si hay una ruta a un shp lo plotea
+			if rutaShp <> None:
+				m.readshapefile(rutaShp, 'mapashp', linewidth = shpWidth, color = shpColor)
 			#Guarda
 			if ruta<>None:
 				pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
@@ -2987,10 +3063,23 @@ class SimuBasin(Basin):
 		'----------\n'\
 		'self : Objeto de la cuenca 2que luego se va a simular.\n'\
 		'modelVarName : Nombre de la variable del modelo que se va a incertar.\n'\
-		'	- h_coef.\n'\
-		'	- h_exp.\n'\
+		'	- h_coef: coeficientes horizontales\n'\
+		'		[0]: Flujo de Escorrentia.\n'\
+		'		[1]: Flujo Sub-superficial.\n'\
+		'		[2]: Flujo subterraneo.\n'\
+		'		[3]: Flujo en cauces.\n'\
+		'	- h_exp: exponentes del tipo v = h_coef*(A**h_exp)\n'\
+		'		[0]: Escorrentia.\n'\
+		'		[1]: sub-superficial.\n'\
+		'		[2]: subterraneo.\n'\
+		'		[3]: cauce.\n'\
 		'	- v_coef.\n'\
-		'	- v_exp.\n'\
+		'		[0]: Tasa evaporacion.\n'\
+		'		[1]: Infiltracion.\n'\
+		'		[2]: Percolacion.\n'\
+		'		[3]: Perdidas (0).\n'\
+		'	- v_exp: procesos verticales no lineales\n'\
+		'		(no implementado dentro del modelo)\n'
 		'	- capilar.\n'\
 		'	- gravit.\n'\
 		'var : variable que ingresa en el modelo, esta puede ser:.\n'\
