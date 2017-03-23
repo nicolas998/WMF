@@ -639,6 +639,27 @@ def __eval_q_pico__(s_o,s_s):
 	dif_qpico=((Qo_max-Qs_max)/Qo_max)*100
 	return dif_qpico
 
+
+#Funciones para mirar como es un netCDf por dentro
+def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
+	'Funcion: netCDf_var_view\n'\
+	'Descripcion: Muestra las variables que estan cargadas en el netCDF.\n'\
+	'Parametros Opcionales:.\n'\
+	'	-ruta: Ruta donde se encuentra el netCDF\n'\
+	'	-print_netCDF: Imprime la info generica del netCDF.\n'\
+	'Retorno:.\n'\
+	'	DataFram de pandas con las variables del netCDF.\n'\
+	# lectura 
+	g = netcdf.Dataset(ruta)
+	Dict = {}
+	for k in g.variables.keys():
+		D = {'type': g.variables[k].datatype, 'dimensions': g.variables[k].dimensions}
+		Dict.update({k:D})	
+	# if print 
+	if print_netCDF:
+		print g
+	return pd.DataFrame.from_dict(Dict, orient='index')
+
 #Funciones de ejecucion en paralelo del modelo
 def __multiprocess_Warper__(Lista):
 	Res = Lista[4].run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
@@ -649,7 +670,6 @@ def __ejec_parallel__(ListEjecs, nproc, nodo):
 	Lista = [i['Qsim'][nodo][0] for i in Res]
 	P.close()
 	return Lista
-	
 
 #-----------------------------------------------------------------------
 #Transformacion de datos
@@ -1580,8 +1600,8 @@ class Basin:
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
-		'CellQmed : Caudal medio calculado para toda la cuenca.\n'\
-		'CellETR : ETR calculada para toda la cuenca.\n'\
+		'self.CellQmed : Caudal medio calculado para toda la cuenca.\n'\
+		'self.CellETR : ETR calculada para toda la cuenca.\n'\
 		#Calcula las propiedades de la cuenca 
 		self.GetGeo_Cell_Basics()
 		#Determina si la precipitacion es un vector o un escalar 
@@ -2316,7 +2336,7 @@ class SimuBasin(Basin):
 		noData=-999,modelType='cells',SimSed=False,SimSlides=False,dt=60,
 		SaveStorage='no',SaveSpeed='no',retorno = 0,
 		SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no', SimFloods = 'no',
-		controlNodos = True):
+		controlNodos = True, storageConstant = 0.001):
 		'Descripcion: Inicia un objeto para simulacion \n'\
 		'	el objeto tiene las propieades de una cuenca con. \n'\
 		'	la diferencia de que inicia las variables requeridas. \n'\
@@ -2451,6 +2471,7 @@ class SimuBasin(Basin):
 				models.show_storage = 1
 			if SimFloods == 'si':
 				models.sim_floods = 1
+			models.storage_constant = storageConstant
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
 			self.__Load_SimuBasin(rute, SimSlides)
@@ -2482,6 +2503,10 @@ class SimuBasin(Basin):
 		models.dt = gr.dt
 		models.dxp = gr.dxp
 		models.retorno = gr.retorno
+		try:
+			models.storage_constant = gr.storageConst
+		except:
+			models.storage_constant = 0.0
 		#Si carga deslizamientos 
 		if sim_slides:
 			models.sim_slides = 1
@@ -3374,7 +3399,8 @@ class SimuBasin(Basin):
 	#------------------------------------------------------
 	# Guardado y Cargado de modelos de cuencas preparados 
 	#------------------------------------------------------	
-	def Save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None, SimSlides = False):
+	def Save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None, SimSlides = False,
+		ExtraVar = None):
 		'Descripcion: guarda una cuenca previamente ejecutada\n'\
 		'\n'\
 		'Parametros\n'\
@@ -3384,6 +3410,9 @@ class SimuBasin(Basin):
 		'ruta_dir : direccion donde se aloja el DIR (se recomienda absoluta).\n'\
 		'SimSlides: indica a la funcion si va a guardar o no informacion para la simulacion.\n'\
 		'	de deslizamientos.\n'\
+		'ExtraVar: Variables extras de simulacion deben ir en un diccionario.\n'\
+		'	Forma del diccionario Dict = {"varName": {"Data": vector[ncells], "type": "tipo"}}.\n'\
+		'	Los tipos de variables son: flotante: "f4", entero "i4".\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -3402,7 +3431,7 @@ class SimuBasin(Basin):
 			'DIR':ruta_dir,
 		    'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
 		    'ncells':self.ncells,'nhills':self.nhills,
-		    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno}
+		    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno, 'storageConst' : models.storage_constant}
 		if SimSlides:
 			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
 		#abre el archivo 
@@ -3479,6 +3508,11 @@ class SimuBasin(Basin):
 			ZSoil[:] = models.sl_zs
 			RadSlope[:] = models.sl_radslope
 		
+		#Introduce variables extras en caso de que el usuario las incluyera
+		if type(ExtraVar) is dict:
+			for k in ExtraVar.keys():
+				Var = gr.createVariable(k,ExtraVar[k]['type'],('ncell',),zlib=True)
+				Var[:] = ExtraVar[k]['Data']
 		#asigna las prop a la cuenca 
 		gr.setncatts(Dict)
 		#Cierra el archivo 
