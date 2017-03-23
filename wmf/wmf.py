@@ -3699,8 +3699,10 @@ class SimuBasin(Basin):
 		#Ejecuta a la poblacion
 		QsimPar = __ejec_parallel__(Ejecs, process, nodo_eval)
 		fitnesses = map(nsga_el.toolbox.evaluate, QsimPar)
+		for ind, fit in zip(pop, fitnesses):
+			ind.fitness.values = fit
 		#Retorno 
-		return Ejecs, QsimPar
+		return Ejecs, QsimPar, fitnesses
 	
 	
 class nsgaii_element:
