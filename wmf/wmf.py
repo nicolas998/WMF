@@ -3702,7 +3702,7 @@ class SimuBasin(Basin):
 	
 	
 class nsgaii_element:
-	def __init__(self, rutaLluvia, Qobs, npasos, inicio, evp =[0,1], infil = [1,200], perco = [1, 40],
+	def __init__(self, rutaLluvia, Qobs, npasos, inicio, SimuBasinElem ,evp =[0,1], infil = [1,200], perco = [1, 40],
 		losses = [0,1],velRun = [0.1, 1], velSub = [0.1, 1], velSup =[0.1, 1],
 		velStream = [0.1, 1], Hu = [0.1, 1], Hg = [0.1, 1], 
 		probCruce = np.ones(10)*0.5, probMutacion = np.ones(10)*0.5,
@@ -3718,6 +3718,7 @@ class nsgaii_element:
 		'	-Qobs: Array numpy con el caudal observado [npasos].\n'\
 		'	-npasos: Cantidad de pasos en simulacion.\n'\
 		'	-inicio: Punto de inicio en la simulacion.\n'\
+		'	-SimuBasinElem: Objeto de simulacion.\n'\
 		'Retornos\n'\
 		'----------\n'\
 		'self : Con las variables iniciadas.\n'\
@@ -3737,6 +3738,7 @@ class nsgaii_element:
 		self.inicio = inicio
 		self.ruta_lluvia = rutaLluvia
 		self.Qobs = Qobs
+		self.simelem = SimuBasinElem
 		#Propiedades de cruce y mutacion
 		self.prob_cruce = probCruce
 		self.prob_mutacion = probMutacion
@@ -3798,8 +3800,8 @@ class nsgaii_element:
 	    #Retorna una calibracion aleatoria 
 		return [evp, infil, perco, losses, velRun, velSub, velSup, velStream, hu, hg]
 	
-	def __crea_ejec__(self, calibracion, SimuBasinElem):
-		return [calibracion, self.ruta_lluvia, self.npasos, self.inicio, SimuBasinElem]
+	def __crea_ejec__(self, calibracion):
+		return [calibracion, self.ruta_lluvia, self.npasos, self.inicio, self.simelem]
 
 	def __evalfunc__(self, Qsim, f1 = __eval_nash__, f2 = __eval_q_pico__):
 		E1 = f1(self.Qobs, Qsim)
