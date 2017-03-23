@@ -643,10 +643,10 @@ def __eval_q_pico__(s_o,s_s):
 def __multiprocess_Warper__(Lista):
 	Res = Lista[4].run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
 	return Res
-def __ejec_parallel__(ListEjecs, nproc):
+def __ejec_parallel__(ListEjecs, nproc, nodo):
 	P = Pool(processes=nproc)
-	Res = P.map(self.__multiprocess_Warper__, ListEjecs)
-	Lista = [i['Qsim'] for i in Res]
+	Res = P.map(__multiprocess_Warper__, ListEjecs)
+	Lista = [i['Qsim'][nodo][0] for i in Res]
 	P.close()
 	return Lista
 	
@@ -3674,7 +3674,7 @@ class SimuBasin(Basin):
 		DictEff.update({'Rmse': __eval_rmse__(Qobs, Qsim)})
 		return DictEff
 	
-	def Calib_NSGAII(self, nsga_el, pop_size = 40, process = 4, MUTPB = 0.5, CXPB = 0.5):
+	def Calib_NSGAII(self, nsga_el, nodo_eval, pop_size = 40, process = 4, MUTPB = 0.5, CXPB = 0.5):
 		'Descripcion: Algoritmo para calibrar de forma automatica el modelo\n'\
 		'	hidrologico utilizando DEAP y su funcion de seleccion NSGAII.\n'\
 		'\n'\
@@ -3682,6 +3682,7 @@ class SimuBasin(Basin):
 		'----------\n'\
 		'nsga_el : un objeto de la clase nsgaii_element, el cual determinara las reglas.\n'\
 		'	para la generacion de calibraciones.\n'\
+		'nodo_eval: nodo donde se evalua el modelo.\n'\
 		'pop_size: tamano de la poblacion (cantidad de calibraciones a evaluar).\n'\
 		'process: Cantidad de procesadores que se utilizaran en la generacion.\n'\
 		'MUTPB: Probabilidad generica de que un gen mute.\n'\
@@ -3696,7 +3697,8 @@ class SimuBasin(Basin):
 		pop = nsga_el.toolbox.population(pop_size)
 		Ejecs = map(nsga_el.__crea_ejec__, pop)
 		#Ejecuta a la poblacion
-		QsimPar = __ejec_parallel__(Ejecs, process)
+		QsimPar = __ejec_parallel__(Ejecs, process, nodo_eval)
+		fitnesses = map(nsga_el.toolbox.evaluate, QsimPar)
 		#Retorno 
 		return Ejecs, QsimPar
 	
