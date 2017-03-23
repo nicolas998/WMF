@@ -639,17 +639,6 @@ def __eval_q_pico__(s_o,s_s):
 	dif_qpico=((Qo_max-Qs_max)/Qo_max)*100
 	return dif_qpico
 
-#Funciones de ejecucion en paralelo del modelo
-def __multiprocess_Warper__(Lista, simuBasinElem):
-    Res = simuBasinElem.run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
-    return Res
-def __ejec_parallel__(ListEjecs, nproc):
-    P = Pool(processes=nproc)
-    Res = P.map(Multiprocess_Warper, ListEjecs)
-    Lista = [i['Qsim'] for i in Res]
-    P.close()
-    return Lista
-
 #-----------------------------------------------------------------------
 #Transformacion de datos
 #-----------------------------------------------------------------------
@@ -3695,9 +3684,20 @@ class SimuBasin(Basin):
 		pop = nsga_el.toolbox.population(pop_size)
 		Ejecs = map(nsga_el.__crea_ejec__, pop)
 		#Ejecuta a la poblacion
-		QsimPar = __ejec_parallel__(Ejecs, process)
+		QsimPar = self.__ejec_parallel__(Ejecs, process)
 		#Retorno 
 		return Ejecs, QsimPar
+	
+	#Funciones de ejecucion en paralelo del modelo
+	def __multiprocess_Warper__(self, Lista):
+		Res = self.run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
+		return Res
+	def __ejec_parallel__(self, ListEjecs, nproc):
+		P = Pool(processes=nproc)
+		Res = P.map(self.__multiprocess_Warper__, ListEjecs)
+		Lista = [i['Qsim'] for i in Res]
+		P.close()
+		return Lista
 	
 class nsgaii_element:
 	def __init__(self, rutaLluvia, Qobs, npasos, inicio, evp =[0,1], infil = [1,200], perco = [1, 40],
