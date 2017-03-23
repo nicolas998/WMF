@@ -639,6 +639,16 @@ def __eval_q_pico__(s_o,s_s):
 	dif_qpico=((Qo_max-Qs_max)/Qo_max)*100
 	return dif_qpico
 
+#Funciones de ejecucion en paralelo del modelo
+def __multiprocess_Warper__(Lista, simuBasinElem):
+    Res = simuBasinElem.run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
+    return Res
+def __ejec_parallel__(ListEjecs, nproc):
+    P = Pool(processes=nproc)
+    Res = P.map(Multiprocess_Warper, ListEjecs)
+    Lista = [i['Qsim'] for i in Res]
+    P.close()
+    return Lista
 
 #-----------------------------------------------------------------------
 #Transformacion de datos
@@ -3684,16 +3694,31 @@ class SimuBasin(Basin):
 		#Crea las poblaciones y las ejecuciones 
 		pop = nsga_el.toolbox.population(pop_size)
 		Ejecs = map(nsga_el.__crea_ejec__, pop)
+		#Ejecuta a la poblacion
+		QsimPar = __ejec_parallel__(Ejecs)
 		#Retorno 
 		return Ejecs
 	
 class nsgaii_element:
-	def __init__(self, evp =[0,1], infil = [1,200], perco = [1, 40],
+	def __init__(self, rutaLluvia, Qobs, npasos, inicio, evp =[0,1], infil = [1,200], perco = [1, 40],
 		losses = [0,1],velRun = [0.1, 1], velSub = [0.1, 1], velSup =[0.1, 1],
-		velStream = [0.1, 1], Hu = [0.1, 1], Hg = [0.1, 1], npasos = 100, inicio =1,
-		rutaLluvia = None, Qobs = None, probCruce = np.ones(10)*0.5, probMutacion = np.ones(10)*0.5,
+		velStream = [0.1, 1], Hu = [0.1, 1], Hg = [0.1, 1], 
+		probCruce = np.ones(10)*0.5, probMutacion = np.ones(10)*0.5,
 		rangosMutacion = [[0,1], [1,200], [1,40], [0,1], [0.1,1], [0.1, 1], [0.1,1], [0.1,1], [0.1, 1], [0.1,1]],
 		MaxMinOptima = (1.0, -1.0), CrowDist = 0.5):
+		'Descripcion: Inicia el objeto de calibracion genetica tipo NSGAII\n'\
+		'	este objeto contiene las reglas principales para la implementacion\n'\
+		'	de todo el algoritmo de calibracion genetico.\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'	-rutaLluvia : Ruta donde se encuentra el archivo de lluvia binario.\n'\
+		'	-Qobs: Array numpy con el caudal observado [npasos].\n'\
+		'	-npasos: Cantidad de pasos en simulacion.\n'\
+		'	-inicio: Punto de inicio en la simulacion.\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'self : Con las variables iniciadas.\n'\
 		#Rangos parametros
 		self.evp_range = evp
 		self.infil_range = infil
