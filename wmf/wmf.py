@@ -639,6 +639,7 @@ def __eval_q_pico__(s_o,s_s):
 	dif_qpico=((Qo_max-Qs_max)/Qo_max)*100
 	return dif_qpico
 
+
 #Funciones para mirar como es un netCDf por dentro
 def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
 	'Funcion: netCDf_var_view\n'\
@@ -658,6 +659,17 @@ def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
 	if print_netCDF:
 		print g
 	return pd.DataFrame.from_dict(Dict, orient='index')
+
+#Funciones de ejecucion en paralelo del modelo
+def __multiprocess_Warper__(Lista):
+	Res = Lista[4].run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
+	return Res
+def __ejec_parallel__(ListEjecs, nproc, nodo):
+	P = Pool(processes=nproc)
+	Res = P.map(__multiprocess_Warper__, ListEjecs)
+	Lista = [i['Qsim'][nodo][0] for i in Res]
+	P.close()
+	return Lista
 
 #-----------------------------------------------------------------------
 #Transformacion de datos
@@ -1991,10 +2003,34 @@ class Basin:
 			return m
 	#Grafica de plot para montar en paginas web o presentaciones
 	def Plot_basinClean(self, vec, ruta, umbral = 0.0, 
-		vmin = 0.0, vmax = None, **kwargs):
+		vmin = 0.0, vmax = None, show_cbar = False, **kwargs):	
+		'Funcion: Plot_basinClean\n'\
+		'Descripcion: Genera un plot del mapa entregado en un lienzo limpio.\n'\
+		'Parametros Obligatorios:.\n'\
+		'	-vec: Vector con los valores a plotear.\n'\
+		'	-ruta: ruta donde se guarda el png.\n'\
+		'Parametros Opcionales:.\n'\
+		'	-umbral: Umbral a partir del cual se plotea variable.\n'\
+		'	-vmin: Valor minimo de la variable.\n'\
+		'	-vmax: valor maximo de la variable.\n'\
+		'	-show_cbar: muestra o no el Cbar del plot.\n'\
+		'Otros argumentos:.\n'\
+		'	-cmap: Esquema de colores.\n'\
+		'	-figsize = Tamano de la figura.\n'\
+		'	-cbar_aspect: (20) relacion largo ancho del cbar.\n'\
+		'	-cbar_ticks: (None) ubicacion de los ticks del cbar.\n'\
+		'	-cbar_ticklabels: (None) Labels a poner sobre los ticks.\n'\
+		'	-cbar_ticksize: (14) Tamano de los ticks.\n'\
+		'Retorno:.\n'\
+		'	-Figura se muestra y se guarda.\n'\
+		'	-Coordenadas de los bordes del mapa.\n'\
 		#Argumentos kw
 		cmap = kwargs.get('cmap','Spectral')
 		figsize = kwargs.get('figsize', (10,8))
+		cbar_aspect = kwargs.get('cbar_aspect', 20)
+		cbar_ticklabels = kwargs.get('cbar_ticklabels', None)
+		cbar_ticks = kwargs.get('cbar_ticks', None)
+		cbar_ticksize = kwargs.get('cbar_ticksize', 14)
 		#Obtiene la matriz 
 		M,p = self.Transform_Basin2Map(vec)
 		M[M == -9999] = np.nan
@@ -2009,12 +2045,12 @@ class Basin:
 		ax = fig.add_subplot(111)
 		#plot
 		if vmax == None:
-			pl.imshow(M.T,
+			im = pl.imshow(M.T,
 				interpolation='None',
 				cmap= pl.get_cmap(cmap), 
 				vmin = vmin)
 		else:
-			pl.imshow(M.T,
+			im = pl.imshow(M.T,
 				interpolation='None',
 				cmap= pl.get_cmap(cmap), 
 				vmin = vmin,
@@ -2023,11 +2059,18 @@ class Basin:
 		ax.set_xticklabels([])
 		ax.set_yticklabels([])
 		ax.axis('off')
+		#colorca colorbar
+		if show_cbar:
+			cbar = pl.colorbar(im, aspect = cbar_aspect, )
+			if cbar_ticks <> None:
+				cbar.set_ticks(cbar_ticks)
+			if cbar_ticklabels <> None:
+				cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
 		#Guarda transparente y ajustando bordes
 		pl.savefig(ruta, 
-		    bbox_inches = 'tight', 
-		    pad_inches = 0, 
-		    transparent = True)
+			bbox_inches = 'tight', 
+			pad_inches = 0, 
+			transparent = True)
 		return Corners
 	#Grafica de variables sobre la red 
 	def Plot_Net(self, vec, vec_c = None,ruta = None, q_compare = None, show = True, 
@@ -3665,7 +3708,7 @@ class SimuBasin(Basin):
 		DictEff.update({'Rmse': __eval_rmse__(Qobs, Qsim)})
 		return DictEff
 	
-	def Calib_NSGAII(self, nsga_el, pop_size = 40, process = 4, MUTPB = 0.5, CXPB = 0.5):
+	def Calib_NSGAII(self, nsga_el, nodo_eval, pop_size = 40, process = 4, MUTPB = 0.5, CXPB = 0.5):
 		'Descripcion: Algoritmo para calibrar de forma automatica el modelo\n'\
 		'	hidrologico utilizando DEAP y su funcion de seleccion NSGAII.\n'\
 		'\n'\
@@ -3673,6 +3716,7 @@ class SimuBasin(Basin):
 		'----------\n'\
 		'nsga_el : un objeto de la clase nsgaii_element, el cual determinara las reglas.\n'\
 		'	para la generacion de calibraciones.\n'\
+		'nodo_eval: nodo donde se evalua el modelo.\n'\
 		'pop_size: tamano de la poblacion (cantidad de calibraciones a evaluar).\n'\
 		'process: Cantidad de procesadores que se utilizaran en la generacion.\n'\
 		'MUTPB: Probabilidad generica de que un gen mute.\n'\
@@ -3686,16 +3730,36 @@ class SimuBasin(Basin):
 		#Crea las poblaciones y las ejecuciones 
 		pop = nsga_el.toolbox.population(pop_size)
 		Ejecs = map(nsga_el.__crea_ejec__, pop)
+		#Ejecuta a la poblacion
+		QsimPar = __ejec_parallel__(Ejecs, process, nodo_eval)
+		fitnesses = map(nsga_el.toolbox.evaluate, QsimPar)
+		for ind, fit in zip(pop, fitnesses):
+			ind.fitness.values = fit
 		#Retorno 
-		return Ejecs
+		return Ejecs, QsimPar, fitnesses
+	
 	
 class nsgaii_element:
-	def __init__(self, evp =[0,1], infil = [1,200], perco = [1, 40],
+	def __init__(self, rutaLluvia, Qobs, npasos, inicio, SimuBasinElem ,evp =[0,1], infil = [1,200], perco = [1, 40],
 		losses = [0,1],velRun = [0.1, 1], velSub = [0.1, 1], velSup =[0.1, 1],
-		velStream = [0.1, 1], Hu = [0.1, 1], Hg = [0.1, 1], npasos = 100, inicio =1,
-		rutaLluvia = None, Qobs = None, probCruce = np.ones(10)*0.5, probMutacion = np.ones(10)*0.5,
+		velStream = [0.1, 1], Hu = [0.1, 1], Hg = [0.1, 1], 
+		probCruce = np.ones(10)*0.5, probMutacion = np.ones(10)*0.5,
 		rangosMutacion = [[0,1], [1,200], [1,40], [0,1], [0.1,1], [0.1, 1], [0.1,1], [0.1,1], [0.1, 1], [0.1,1]],
 		MaxMinOptima = (1.0, -1.0), CrowDist = 0.5):
+		'Descripcion: Inicia el objeto de calibracion genetica tipo NSGAII\n'\
+		'	este objeto contiene las reglas principales para la implementacion\n'\
+		'	de todo el algoritmo de calibracion genetico.\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'	-rutaLluvia : Ruta donde se encuentra el archivo de lluvia binario.\n'\
+		'	-Qobs: Array numpy con el caudal observado [npasos].\n'\
+		'	-npasos: Cantidad de pasos en simulacion.\n'\
+		'	-inicio: Punto de inicio en la simulacion.\n'\
+		'	-SimuBasinElem: Objeto de simulacion.\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'self : Con las variables iniciadas.\n'\
 		#Rangos parametros
 		self.evp_range = evp
 		self.infil_range = infil
@@ -3712,6 +3776,7 @@ class nsgaii_element:
 		self.inicio = inicio
 		self.ruta_lluvia = rutaLluvia
 		self.Qobs = Qobs
+		self.simelem = SimuBasinElem
 		#Propiedades de cruce y mutacion
 		self.prob_cruce = probCruce
 		self.prob_mutacion = probMutacion
@@ -3774,7 +3839,7 @@ class nsgaii_element:
 		return [evp, infil, perco, losses, velRun, velSub, velSup, velStream, hu, hg]
 	
 	def __crea_ejec__(self, calibracion):
-		return [calibracion, self.ruta_lluvia, self.npasos, self.inicio]
+		return [calibracion, self.ruta_lluvia, self.npasos, self.inicio, self.simelem]
 
 	def __evalfunc__(self, Qsim, f1 = __eval_nash__, f2 = __eval_q_pico__):
 		E1 = f1(self.Qobs, Qsim)
