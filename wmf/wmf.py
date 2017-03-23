@@ -3696,7 +3696,7 @@ class SimuBasin(Basin):
 		pop = nsga_el.toolbox.population(pop_size)
 		Ejecs = map(nsga_el.__crea_ejec__, pop)
 		#Ejecuta a la poblacion
-		QsimPar = self.__ejec_parallel__(Ejecs, process)
+		QsimPar = __ejec_parallel__(Ejecs, process)
 		#Retorno 
 		return Ejecs, QsimPar
 	
