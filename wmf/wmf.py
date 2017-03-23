@@ -639,6 +639,25 @@ def __eval_q_pico__(s_o,s_s):
 	dif_qpico=((Qo_max-Qs_max)/Qo_max)*100
 	return dif_qpico
 
+#Funciones para mirar como es un netCDf por dentro
+def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
+	'Funcion: netCDf_var_view\n'\
+	'Descripcion: Muestra las variables que estan cargadas en el netCDF.\n'\
+	'Parametros Opcionales:.\n'\
+	'	-ruta: Ruta donde se encuentra el netCDF\n'\
+	'	-print_netCDF: Imprime la info generica del netCDF.\n'\
+	'Retorno:.\n'\
+	'	DataFram de pandas con las variables del netCDF.\n'\
+	# lectura 
+	g = netcdf.Dataset(ruta)
+	Dict = {}
+	for k in g.variables.keys():
+		D = {'type': g.variables[k].datatype, 'dimensions': g.variables[k].dimensions}
+		Dict.update({k:D})	
+	# if print 
+	if print_netCDF:
+		print g
+	return pd.DataFrame.from_dict(Dict, orient='index')
 
 #-----------------------------------------------------------------------
 #Transformacion de datos
@@ -1569,8 +1588,8 @@ class Basin:
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
-		'CellQmed : Caudal medio calculado para toda la cuenca.\n'\
-		'CellETR : ETR calculada para toda la cuenca.\n'\
+		'self.CellQmed : Caudal medio calculado para toda la cuenca.\n'\
+		'self.CellETR : ETR calculada para toda la cuenca.\n'\
 		#Calcula las propiedades de la cuenca 
 		self.GetGeo_Cell_Basics()
 		#Determina si la precipitacion es un vector o un escalar 
