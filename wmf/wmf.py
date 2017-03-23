@@ -639,6 +639,18 @@ def __eval_q_pico__(s_o,s_s):
 	dif_qpico=((Qo_max-Qs_max)/Qo_max)*100
 	return dif_qpico
 
+#Funciones de ejecucion en paralelo del modelo
+def __multiprocess_Warper__(Lista):
+	Res = Lista[4].run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
+	return Res
+def __ejec_parallel__(ListEjecs, nproc):
+	P = Pool(processes=nproc)
+	Res = P.map(self.__multiprocess_Warper__, ListEjecs)
+	Lista = [i['Qsim'] for i in Res]
+	P.close()
+	return Lista
+	
+
 #-----------------------------------------------------------------------
 #Transformacion de datos
 #-----------------------------------------------------------------------
@@ -3688,16 +3700,6 @@ class SimuBasin(Basin):
 		#Retorno 
 		return Ejecs, QsimPar
 	
-	#Funciones de ejecucion en paralelo del modelo
-	def __multiprocess_Warper__(self, Lista):
-		Res = self.run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
-		return Res
-	def __ejec_parallel__(self, ListEjecs, nproc):
-		P = Pool(processes=nproc)
-		Res = P.map(self.__multiprocess_Warper__, ListEjecs)
-		Lista = [i['Qsim'] for i in Res]
-		P.close()
-		return Lista
 	
 class nsgaii_element:
 	def __init__(self, rutaLluvia, Qobs, npasos, inicio, evp =[0,1], infil = [1,200], perco = [1, 40],
@@ -3796,8 +3798,8 @@ class nsgaii_element:
 	    #Retorna una calibracion aleatoria 
 		return [evp, infil, perco, losses, velRun, velSub, velSup, velStream, hu, hg]
 	
-	def __crea_ejec__(self, calibracion):
-		return [calibracion, self.ruta_lluvia, self.npasos, self.inicio]
+	def __crea_ejec__(self, calibracion, SimuBasinElem):
+		return [calibracion, self.ruta_lluvia, self.npasos, self.inicio, SimuBasinElem]
 
 	def __evalfunc__(self, Qsim, f1 = __eval_nash__, f2 = __eval_q_pico__):
 		E1 = f1(self.Qobs, Qsim)
