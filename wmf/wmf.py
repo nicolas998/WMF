@@ -777,7 +777,7 @@ class Basin:
 		'ruta : ruta donde se encuentra ubicada la cuenca guardada\n'\
 		'Retornos\n'\
 		'----------\n'\
-		'self : La cuenca con sus parametros ya cargada.\n'\		
+		'self : La cuenca con sus parametros ya cargada.\n'\
 		#Abre el archivo binario de la cuenca 
 		self.rutaNC = ruta
 		gr = netcdf.Dataset(ruta,'a')
@@ -808,7 +808,7 @@ class Basin:
 		'----------\n'\
 		'var : Retorna la variable como un numpy array.\n'\
 		#Lectura del netCDf y lectura de variable
-		gr = netcdf.Dataset(self.ruta,'a')
+		gr = netcdf.Dataset(self.rutaNC,'a')
 		Var = gr.variables[varName][:]
 		gr.close()
 		return Var
