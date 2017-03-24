@@ -778,6 +778,7 @@ class Basin:
 		'Retornos\n'\
 		'----------\n'\
 		'self : La cuenca con sus parametros ya cargada.\n'\
+		self.rutaNC = ruta
 		#Abre el archivo binario de la cuenca 
 		gr = netcdf.Dataset(ruta,'a')
 		#obtiene las prop de la cuenca
@@ -2493,6 +2494,7 @@ class SimuBasin(Basin):
 		'----------\n'\
 		'self : La cuenca con sus parametros ya cargada.\n'\
 		#Abre el archivo binario de la cuenca 
+		self.rutaNC = ruta
 		gr = netcdf.Dataset(ruta,'a')
 		#obtiene las prop de la cuenca
 		self.name = gr.nombre
