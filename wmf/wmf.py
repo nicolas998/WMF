@@ -658,6 +658,7 @@ def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
 	# if print 
 	if print_netCDF:
 		print g
+	g.close()
 	return pd.DataFrame.from_dict(Dict, orient='index')
 
 #Funciones de ejecucion en paralelo del modelo
