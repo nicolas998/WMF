@@ -3735,8 +3735,39 @@ class SimuBasin(Basin):
 		fitnesses = map(nsga_el.toolbox.evaluate, QsimPar)
 		for ind, fit in zip(pop, fitnesses):
 			ind.fitness.values = fit
+		#Itera la poblacion hasta encontrar a la mejor
+		for g in range(NGEN):
+			offspring = tools.selTournamentDCD(pop, len(pop))
+			offspring = map(nsga_el.toolbox.clone, offspring)
+			# Apply crossover and mutation on the offspring
+			for child1, child2 in zip(offspring[::2], offspring[1::2]):
+				if random.random() < CXPB:
+					nsga_el.toolbox.mate(child1[0], child2[0])
+					del child1.fitness.values
+					del child2.fitness.values
+			#Muta a algunos de los genomas
+			for mutant in offspring:
+				if random.random() < MUTPB:
+					nsga_el.toolbox.mutate(mutant[0])
+					del mutant.fitness.values
+			#Ejecuta a la nueva generacion
+			Ejecs = map(nsga_el.__crea_ejec__, offspring)
+			QsimPar = __ejec_parallel__(Ejecs, process, nodo_eval)
+			#Identifica a la gente que no cumple de la generacion
+			Qsim_invalid = []
+			invalid_ind = []
+			for i,q in zip(offspring, QsimPar):
+				if not i.fitness.valid:
+					Qsim_invalid.append(q)
+					invalid_ind.append(i)
+			#Evaluate the individuals with an invalid fitness
+			fitnesses = map(nsga_el.toolbox.evaluate, Qsim_invalid)
+			for ind, fit in zip(invalid_ind, fitnesses):
+				ind.fitness.values = fit
+			#Toma la siguiente generacion
+			pop = toolbox.select(pop + offspring, 48)
 		#Retorno 
-		return Ejecs, QsimPar, fitnesses
+		return pop, QsimPar, fitnesses
 	
 	
 class nsgaii_element:
