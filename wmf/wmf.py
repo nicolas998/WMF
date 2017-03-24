@@ -3779,7 +3779,7 @@ class SimuBasin(Basin):
 			#Toma la siguiente generacion
 			pop = nsga_el.toolbox.select(pop + offspring, pop_size)
 		#Retorno 
-		return pop, QsimPar, fitnesses
+		return pop, QsimPar, np.array(fitnesses).T
 	
 	
 class nsgaii_element:
