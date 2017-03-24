@@ -777,9 +777,9 @@ class Basin:
 		'ruta : ruta donde se encuentra ubicada la cuenca guardada\n'\
 		'Retornos\n'\
 		'----------\n'\
-		'self : La cuenca con sus parametros ya cargada.\n'\
-		self.rutaNC = ruta
+		'self : La cuenca con sus parametros ya cargada.\n'\		
 		#Abre el archivo binario de la cuenca 
+		self.rutaNC = ruta
 		gr = netcdf.Dataset(ruta,'a')
 		#obtiene las prop de la cuenca
 		self.name = gr.nombre
