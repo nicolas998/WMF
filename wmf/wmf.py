@@ -2573,6 +2573,19 @@ class SimuBasin(Basin):
 		#Cierra el archivo 
 		gr.close()
 	
+	def Load_BasinVar(self, ruta, varName):		
+		'Descripcion: Lee una variable especifica del netCDf de la cuenca\n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'ruta : ruta donde se encuentra ubicada la cuenca guardada\n'\
+		'varName: nombre de la variable guardada\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'var : Retorna la variable como un numpy array.\n'\
+		gr = netcdf.Dataset(ruta,'a')
+		return gr.variables[varName][:]
+		
 	#------------------------------------------------------
 	# Subrutinas de lluvia, interpolacion, lectura, escritura
 	#------------------------------------------------------	
