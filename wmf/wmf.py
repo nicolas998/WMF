@@ -3708,23 +3708,27 @@ class SimuBasin(Basin):
 		DictEff.update({'Rmse': __eval_rmse__(Qobs, Qsim)})
 		return DictEff
 	
-	def Calib_NSGAII(self, nsga_el, nodo_eval, pop_size = 40, process = 4, MUTPB = 0.5, CXPB = 0.5):
+	def Calib_NSGAII(self, nsga_el, nodo_eval, pop_size = 40, process = 4, 
+		NGEN = 6, MUTPB = 0.5, CXPB = 0.5):
 		'Descripcion: Algoritmo para calibrar de forma automatica el modelo\n'\
 		'	hidrologico utilizando DEAP y su funcion de seleccion NSGAII.\n'\
 		'\n'\
 		'Parametros\n'\
 		'----------\n'\
-		'nsga_el : un objeto de la clase nsgaii_element, el cual determinara las reglas.\n'\
-		'	para la generacion de calibraciones.\n'\
-		'nodo_eval: nodo donde se evalua el modelo.\n'\
-		'pop_size: tamano de la poblacion (cantidad de calibraciones a evaluar).\n'\
-		'process: Cantidad de procesadores que se utilizaran en la generacion.\n'\
-		'MUTPB: Probabilidad generica de que un gen mute.\n'\
-		'CXPB: Probabilidad generica de que dos genes se crucen.\n'\
+		'	- nsga_el : un objeto de la clase nsgaii_element, el cual determinara las reglas.\n'\
+		'		para la generacion de calibraciones.\n'\
+		'	- nodo_eval: nodo donde se evalua el modelo.\n'\
+		'	- pop_size: tamano de la poblacion (cantidad de calibraciones a evaluar).\n'\
+		'	- process: Cantidad de procesadores que se utilizaran en la generacion.\n'\
+		'	- NGEN: Cantidad de generaciones para obtener la poblacion final.\n'\
+		'	- MUTPB: Probabilidad generica de que un gen mute.\n'\
+		'	- CXPB: Probabilidad generica de que dos genes se crucen.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
-		'DicEff: diccionario con la eficiencia obtenida en cada param.\n'\
+		'	- pop: poblacion final.\n'\
+		'	- Qsim: Caudales simulados en el punto evaluado.\n'\
+		'	- fitness: desempeno de la poblacion obtenida.\n'\
 		#Inicia el elemento nsga con los parametros de el 
 		nsga_el.set_nsgaII()
 		#Crea las poblaciones y las ejecuciones 
