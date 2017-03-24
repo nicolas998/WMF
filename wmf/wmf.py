@@ -2583,6 +2583,7 @@ class SimuBasin(Basin):
 		'Retornos\n'\
 		'----------\n'\
 		'var : Retorna la variable como un numpy array.\n'\
+		#Lectura del netCDf y lectura de variable
 		gr = netcdf.Dataset(ruta,'a')
 		return gr.variables[varName][:]
 		
