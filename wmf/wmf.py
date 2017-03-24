@@ -3747,7 +3747,7 @@ class SimuBasin(Basin):
 		for ind, fit in zip(pop, fitnesses):
 			ind.fitness.values = fit
 		#Itera la poblacion hasta encontrar a la mejor
-		toolbox = base.Toolbox()
+		#toolbox = base.Toolbox()
 		for g in range(NGEN):
 			offspring = tools.selTournamentDCD(pop, len(pop))
 			offspring = map(nsga_el.toolbox.clone, offspring)
@@ -3777,7 +3777,7 @@ class SimuBasin(Basin):
 			for ind, fit in zip(invalid_ind, fitnesses):
 				ind.fitness.values = fit
 			#Toma la siguiente generacion
-			pop = toolbox.select(pop + offspring, pop_size)
+			pop = nsga_el.toolbox.select(pop + offspring, pop_size)
 		#Retorno 
 		return pop, QsimPar, fitnesses
 	
