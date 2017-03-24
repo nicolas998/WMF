@@ -2136,7 +2136,7 @@ class Basin:
 			lw = 0,
 			vmin = vmin,
 			vmax = vmax,
-			cmap = pl.get_cmap(cmap),
+			cmap = cmap,
 			norm = norm)
 		ax.patch.set_facecolor('w')
 		ax.patch.set_alpha(0.0)
