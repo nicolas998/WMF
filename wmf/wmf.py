@@ -3718,7 +3718,7 @@ class SimuBasin(Basin):
 		'	- nsga_el : un objeto de la clase nsgaii_element, el cual determinara las reglas.\n'\
 		'		para la generacion de calibraciones.\n'\
 		'	- nodo_eval: nodo donde se evalua el modelo.\n'\
-		'	- pop_size: tamano de la poblacion (cantidad de calibraciones a evaluar).\n'\
+		'	- pop_size: tamano de la poblacion (cantidad de calibraciones a evaluar, multiplo de 4).\n'\
 		'	- process: Cantidad de procesadores que se utilizaran en la generacion.\n'\
 		'	- NGEN: Cantidad de generaciones para obtener la poblacion final.\n'\
 		'	- MUTPB: Probabilidad generica de que un gen mute.\n'\
@@ -3729,6 +3729,13 @@ class SimuBasin(Basin):
 		'	- pop: poblacion final.\n'\
 		'	- Qsim: Caudales simulados en el punto evaluado.\n'\
 		'	- fitness: desempeno de la poblacion obtenida.\n'\
+		#Check de que la poblacion sea multiplo de 4
+		Flag = True
+		while Flag:
+			if np.mod(pop_size,4) == 0:
+				Flag = False
+			else:
+				pop_size += 1
 		#Inicia el elemento nsga con los parametros de el 
 		nsga_el.set_nsgaII()
 		#Crea las poblaciones y las ejecuciones 
@@ -3740,6 +3747,7 @@ class SimuBasin(Basin):
 		for ind, fit in zip(pop, fitnesses):
 			ind.fitness.values = fit
 		#Itera la poblacion hasta encontrar a la mejor
+		toolbox = base.Toolbox()
 		for g in range(NGEN):
 			offspring = tools.selTournamentDCD(pop, len(pop))
 			offspring = map(nsga_el.toolbox.clone, offspring)
@@ -3769,7 +3777,7 @@ class SimuBasin(Basin):
 			for ind, fit in zip(invalid_ind, fitnesses):
 				ind.fitness.values = fit
 			#Toma la siguiente generacion
-			pop = toolbox.select(pop + offspring, 48)
+			pop = toolbox.select(pop + offspring, pop_size)
 		#Retorno 
 		return pop, QsimPar, fitnesses
 	
