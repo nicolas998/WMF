@@ -2489,6 +2489,8 @@ class SimuBasin(Basin):
 			if SimFloods == 'si':
 				models.sim_floods = 1
 			models.storage_constant = storageConstant
+			#Determina que la geomorfologia no se ha estimado 
+			self.isSetGeo = False
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
 			self.__Load_SimuBasin(rute, SimSlides)
@@ -2590,6 +2592,8 @@ class SimuBasin(Basin):
 				
 		#Cierra el archivo 
 		gr.close()
+		#Determina que por defecto debe estar set la geomorfologia
+		self.isSetGeo = True
 			
 	#------------------------------------------------------
 	# Subrutinas de lluvia, interpolacion, lectura, escritura
@@ -3023,12 +3027,14 @@ class SimuBasin(Basin):
 			models.nceldas = self.hills.shape[1]
 			models.unit_type = np.ones((1,N))*np.ones(N)*3
 			models.hill_long = np.ones((1,N))*sub_basin_long
-			models.hill_slope = np.ones((1,N))*self.Transform_Basin2Hills(pend) 				
+			models.hill_slope = np.ones((1,N))*self.Transform_Basin2Hills(pend) 
 			models.stream_long = np.ones((1,N))*stream_long
 			models.stream_slope = np.ones((1,N))*stream_slope
 			models.stream_width = np.ones((1,N))*cu.basin_subbasin_map2subbasin(
 				self.hills_own,stream_width,self.nhills,0,self.ncells,self.CellCauce)
-			models.elem_area = np.ones((1,N))*np.array([self.hills_own[self.hills_own==i].shape[0] for i in range(1,self.hills.shape[1]+1)])*cu.dxp**2.0			
+			models.elem_area = np.ones((1,N))*np.array([self.hills_own[self.hills_own==i].shape[0] for i in range(1,self.hills.shape[1]+1)])*cu.dxp**2.0
+		#Ajusta variable de que la geomorfologia esta calculada 
+		self.isSetGeo = True
 	def set_Speed_type(self,types=np.ones(3)):
 		'Descripcion: Especifica el tipo de velocidad a usar en cada \n'\
 		'	nivel del modelo. \n'\
@@ -3435,6 +3441,10 @@ class SimuBasin(Basin):
 		'Retornos\n'\
 		'----------\n'\
 		'self : Con las variables iniciadas.\n'\
+		#Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto
+		if self.isSetGeo == False:
+			self.set_Geomorphology()
+			print 'Aviso: SE ha estimado la geomorfologia con los umbrales por defecto umbral = [30, 500]'
 		#Guarda la cuenca
 		if self.modelType[0] is 'c':
 			N = self.ncells
