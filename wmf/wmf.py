@@ -1725,7 +1725,7 @@ class Basin:
 	#------------------------------------------------------
 	# Guardado shp de cuencas y redes hidricas 
 	#------------------------------------------------------
-	def Save_Net2Map(self,ruta,dx=30.0,umbral=1000,
+	def Save_Net2Map(self,ruta,dx=cu.dxp,umbral=None,
 		qmed=None,Dict=None,DriverFormat='ESRI Shapefile',
 		EPSG=4326, NumTramo = False, formato = '%.2f'):
 		'Descripcion: Guarda la red hidrica simulada de la cuenca en .shp \n'\
@@ -1735,8 +1735,8 @@ class Basin:
 		'----------\n'\
 		'self : no necesita nada es autocontenido.\n'\
 		'ruta : Lugar y nombre donde se va a guardar la red hidrica.\n'\
-		'dx : Longitud de las celdas planas.\n'\
-		'umbral : cantidad de celdas necesarias para corriente.\n'\
+		'dx : Longitud de las celdas planas (Valor de Dx plano asignado a wmf.cu.dxp).\n'\
+		'umbral : cantidad de celdas necesarias para corriente (Valor del umbral asignado a self.umbral).\n'\
 		'qmed : caudal medio calculado por alguna metodologia.\n'\
 		'Dict : Diccionario con parametros de la red hidrica que se quieren imprimir.\n'\
 		'DriverFormat : nombre del tipo de archivo vectorial de salida (ver OsGeo).\n'\
@@ -1746,6 +1746,9 @@ class Basin:
 		'Retornos\n'\
 		'----------\n'\
 		'Escribe un archivo vectorial con la estructura de la red hidrica y sus propiedades.\n'\
+		#varia el umbral en funcion de self
+		if umbral == None:
+			umbral = self.umbral
 		#division de la cuenca 
 		acum=cu.basin_acum(self.structure,self.ncells)
 		cauce,nod_f,n_nodos=cu.basin_subbasin_nod(self.structure,acum,umbral,self.ncells)
