@@ -1725,7 +1725,7 @@ class Basin:
 	#------------------------------------------------------
 	# Guardado shp de cuencas y redes hidricas 
 	#------------------------------------------------------
-	def Save_Net2Map(self,ruta,dx=30.0,umbral=1000,
+	def Save_Net2Map(self,ruta,dx=cu.dxp,umbral=None,
 		qmed=None,Dict=None,DriverFormat='ESRI Shapefile',
 		EPSG=4326, NumTramo = False, formato = '%.2f'):
 		'Descripcion: Guarda la red hidrica simulada de la cuenca en .shp \n'\
@@ -1735,8 +1735,8 @@ class Basin:
 		'----------\n'\
 		'self : no necesita nada es autocontenido.\n'\
 		'ruta : Lugar y nombre donde se va a guardar la red hidrica.\n'\
-		'dx : Longitud de las celdas planas.\n'\
-		'umbral : cantidad de celdas necesarias para corriente.\n'\
+		'dx : Longitud de las celdas planas (Valor de Dx plano asignado a wmf.cu.dxp).\n'\
+		'umbral : cantidad de celdas necesarias para corriente (Valor del umbral asignado a self.umbral).\n'\
 		'qmed : caudal medio calculado por alguna metodologia.\n'\
 		'Dict : Diccionario con parametros de la red hidrica que se quieren imprimir.\n'\
 		'DriverFormat : nombre del tipo de archivo vectorial de salida (ver OsGeo).\n'\
@@ -1746,6 +1746,9 @@ class Basin:
 		'Retornos\n'\
 		'----------\n'\
 		'Escribe un archivo vectorial con la estructura de la red hidrica y sus propiedades.\n'\
+		#varia el umbral en funcion de self
+		if umbral == None:
+			umbral = self.umbral
 		#division de la cuenca 
 		acum=cu.basin_acum(self.structure,self.ncells)
 		cauce,nod_f,n_nodos=cu.basin_subbasin_nod(self.structure,acum,umbral,self.ncells)
@@ -2503,6 +2506,8 @@ class SimuBasin(Basin):
 			if SimFloods == 'si':
 				models.sim_floods = 1
 			models.storage_constant = storageConstant
+			#Determina que la geomorfologia no se ha estimado 
+			self.isSetGeo = False
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
 			self.__Load_SimuBasin(rute, SimSlides)
@@ -2604,6 +2609,8 @@ class SimuBasin(Basin):
 				
 		#Cierra el archivo 
 		gr.close()
+		#Determina que por defecto debe estar set la geomorfologia
+		self.isSetGeo = True
 			
 	#------------------------------------------------------
 	# Subrutinas de lluvia, interpolacion, lectura, escritura
@@ -2986,14 +2993,22 @@ class SimuBasin(Basin):
 		'	models.nceldas : Numero de celdas o laderas. \n'\
 		'	models.unit_type : tipo de celda, en el caso de ladera no aplica.\n'\
 		'		1: Celda tipo ladera.\n'\
-		'		2: Celda tipo carcava.\n'\
+		'		2: Celda tipo transitorio.\n'\
 		'		3: Celda tipo cauce.\n'\
-		'	models.hill_long : Longitud de la ladera (o celda). \n'\
-		'	models.hill_slope : Pendiente de cada ladera (o celda).\n'\
+		'	models.hill_long : Longitud promedio de la ladera (o celda). \n'\
+		'		- Celdas: Longitud de cada elemento (cu.dxp) para ortogonal y 1.43*cu.dxp para diagonal. \n'\
+		'		- Laderas: Promedio de las longitudes recorridas entre una celda y la corriente de la ladera. \n'\
+		'	models.hill_slope : Pendiente de cada ladera (promedio) o celda.\n'\
 		'	models.stream_long : Longitud de cada tramo de cuace. \n'\
+		'		- Celdas: Es cu.dxp: ortogonal, 1.42*cu.dxp: Diagonal. \n'\
+		'		- Laderas: Es la Longitud de los elementos del cauce que componen la ladera. \n'\
 		'	models.stream_slope : Pendiente de cada tramo de cauce. \n'\
+		'		- Celdas: Es la pendiente estimada por self.GetGeo_Cell_Basics(). \n'\
+		'		- Laderas: Pendiente promedio de las laderas. \n'\
 		'	models.stream_width : Ancho de cada tramo de cauce. \n'\
-		'	models.elem_area : Area de cada celda o ladera. \n'\
+		'		- Celdas: No aplica y se hacen todos iguales a la unidad. \n'\
+		'		- Laderas: Es el ancho del canal calculado a partir de geomrofologia o entregado. \n'\
+		'	models.elem_area : Area de cada celda (cu.dxp**2) o ladera (nceldasLadera * cu.dxp**2). \n'\
 		#Obtiene lo basico para luego pasar argumentos
 		acum,hill_long,pend,elev = cu.basin_basics(self.structure,
 			self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
@@ -3037,12 +3052,14 @@ class SimuBasin(Basin):
 			models.nceldas = self.hills.shape[1]
 			models.unit_type = np.ones((1,N))*np.ones(N)*3
 			models.hill_long = np.ones((1,N))*sub_basin_long
-			models.hill_slope = np.ones((1,N))*self.Transform_Basin2Hills(pend) 				
+			models.hill_slope = np.ones((1,N))*self.Transform_Basin2Hills(pend) 
 			models.stream_long = np.ones((1,N))*stream_long
 			models.stream_slope = np.ones((1,N))*stream_slope
 			models.stream_width = np.ones((1,N))*cu.basin_subbasin_map2subbasin(
 				self.hills_own,stream_width,self.nhills,0,self.ncells,self.CellCauce)
-			models.elem_area = np.ones((1,N))*np.array([self.hills_own[self.hills_own==i].shape[0] for i in range(1,self.hills.shape[1]+1)])*cu.dxp**2.0			
+			models.elem_area = np.ones((1,N))*np.array([self.hills_own[self.hills_own==i].shape[0] for i in range(1,self.hills.shape[1]+1)])*cu.dxp**2.0
+		#Ajusta variable de que la geomorfologia esta calculada 
+		self.isSetGeo = True
 	def set_Speed_type(self,types=np.ones(3)):
 		'Descripcion: Especifica el tipo de velocidad a usar en cada \n'\
 		'	nivel del modelo. \n'\
@@ -3449,6 +3466,10 @@ class SimuBasin(Basin):
 		'Retornos\n'\
 		'----------\n'\
 		'self : Con las variables iniciadas.\n'\
+		#Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto
+		if self.isSetGeo == False:
+			self.set_Geomorphology()
+			print 'Aviso: SE ha estimado la geomorfologia con los umbrales por defecto umbral = [30, 500]'
 		#Guarda la cuenca
 		if self.modelType[0] is 'c':
 			N = self.ncells
