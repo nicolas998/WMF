@@ -2979,14 +2979,22 @@ class SimuBasin(Basin):
 		'	models.nceldas : Numero de celdas o laderas. \n'\
 		'	models.unit_type : tipo de celda, en el caso de ladera no aplica.\n'\
 		'		1: Celda tipo ladera.\n'\
-		'		2: Celda tipo carcava.\n'\
+		'		2: Celda tipo transitorio.\n'\
 		'		3: Celda tipo cauce.\n'\
-		'	models.hill_long : Longitud de la ladera (o celda). \n'\
-		'	models.hill_slope : Pendiente de cada ladera (o celda).\n'\
+		'	models.hill_long : Longitud promedio de la ladera (o celda). \n'\
+		'		- Celdas: Longitud de cada elemento (cu.dxp) para ortogonal y 1.43*cu.dxp para diagonal. \n'\
+		'		- Laderas: Promedio de las longitudes recorridas entre una celda y la corriente de la ladera. \n'\
+		'	models.hill_slope : Pendiente de cada ladera (promedio) o celda.\n'\
 		'	models.stream_long : Longitud de cada tramo de cuace. \n'\
+		'		- Celdas: Es cu.dxp: ortogonal, 1.42*cu.dxp: Diagonal. \n'\
+		'		- Laderas: Es la Longitud de los elementos del cauce que componen la ladera. \n'\
 		'	models.stream_slope : Pendiente de cada tramo de cauce. \n'\
+		'		- Celdas: Es la pendiente estimada por self.GetGeo_Cell_Basics(). \n'\
+		'		- Laderas: Pendiente promedio de las laderas. \n'\
 		'	models.stream_width : Ancho de cada tramo de cauce. \n'\
-		'	models.elem_area : Area de cada celda o ladera. \n'\
+		'		- Celdas: No aplica y se hacen todos iguales a la unidad. \n'\
+		'		- Laderas: Es el ancho del canal calculado a partir de geomrofologia o entregado. \n'\
+		'	models.elem_area : Area de cada celda (cu.dxp**2) o ladera (nceldasLadera * cu.dxp**2). \n'\
 		#Obtiene lo basico para luego pasar argumentos
 		acum,hill_long,pend,elev = cu.basin_basics(self.structure,
 			self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
