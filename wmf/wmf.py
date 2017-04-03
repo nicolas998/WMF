@@ -2110,13 +2110,17 @@ class Basin:
 		'cmap : mapa de colores "Spectral".\n'\
 		'figsize : tamano de la figura (10,8).\n'\
 		'escala : Factor para escalar el tamano de los puntos.\n'\
-		'colorbar : Pinta o no barra de colores (True).\n'\
+		'show_cbar : Pinta o no barra de colores (True).\n'\
 		'clean : Pinta la figura limpia sin ejes (False).\n'\
 		'transparent: Guarda la figura sin fondo (False).\n'\
 		'grid: Pinta la grilla (True).\n'\
 		'size: Tamano de texto en los ejes (16).\n'\
 		'ticksize: Tamano de texto en los valores de los ejes (16).\n'\
 		'norm: normalizacion de la escala de colores para el cmap.\n'\
+		'-cbar_aspect: (20) relacion largo ancho del cbar.\n'\
+		'-cbar_ticks: (None) ubicacion de los ticks del cbar.\n'\
+		'-cbar_ticklabels: (None) Labels a poner sobre los ticks.\n'\
+		'-cbar_ticksize: (14) Tamano de los ticks.\n'\
 		'.\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -2125,13 +2129,17 @@ class Basin:
 		cmap = kwargs.get('cmap','Spectral')
 		figsize = kwargs.get('figsize', (10,8))
 		escala = kwargs.get('escala', 1)
-		colorbar = kwargs.get('colorbar',True)
+		show_cbar = kwargs.get('show_cbar',True)
 		clean = kwargs.get('clean',False)
 		transparent = kwargs.get('transparent', False)
 		grid = kwargs.get('grid', True)
 		size = kwargs.get('size', 14)
 		ticksize = kwargs.get('ticksize', 14)
 		norm = kwargs.get('norm', None)
+		cbar_aspect = kwargs.get('cbar_aspect', 20)
+		cbar_ticklabels = kwargs.get('cbar_ticklabels', None)
+		cbar_ticks = kwargs.get('cbar_ticks', None)
+		cbar_ticksize = kwargs.get('cbar_ticksize', 14)
 		#Donde plotea
 		if type(umbral) == float or type(umbral) == int :
 			pos = np.where(vec>umbral)[0]
@@ -2147,7 +2155,7 @@ class Basin:
 		#Figura
 		fig = pl.figure(figsize=figsize)
 		ax = fig.add_subplot(111)
-		pl.scatter(x[pos],y[pos], 
+		sca = pl.scatter(x[pos],y[pos], 
 			s = vec[pos]*escala, 	        
 			c = vec_c[pos], 
 			lw = 0,
@@ -2159,8 +2167,14 @@ class Basin:
 		ax.patch.set_alpha(0.0)
 		if grid:
 			pl.grid(True)
-		if colorbar:
-			pl.colorbar()
+		#colorca colorbar
+		if show_cbar:
+			cbar = pl.colorbar(sca, aspect = cbar_aspect, )
+			if cbar_ticks <> None:
+				cbar.set_ticks(cbar_ticks)
+			if cbar_ticklabels <> None:
+				cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
+		
 		ax.set_xlim(x[pos].min(),x[pos].max())
 		ax.set_ylim(y[pos].min(),y[pos].max())
 		#Quita ejes
