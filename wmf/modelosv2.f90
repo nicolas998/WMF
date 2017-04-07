@@ -432,9 +432,11 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 							& hill_long(1,celda)))*StoOut(i+1,celda)						
 					!Caso no lineal potencial 
 					case(2)	
-						call calc_speed(StoOut(i+1,celda)*m3_mmHill(celda), h_coef(i,celda),&
+						!Itera para calcular la velocidad de salida y el area de la seccion por onda cinematica
+						call calc_speed(StoOut(i+1,celda)*m3_mmHill(celda), h_coef(i,celda)*Calib(i+4),&
 							& h_exp(i,celda), hill_long(1,celda), hspeed(i,celda), section_area)
-						hflux(i)=min(Calib(i+4)*section_area*hspeed(i,celda)*dt/m3_mmHill(celda),&
+						!con la velocidad y el area calcula la cantidad de agua que sale del tanque
+						hflux(i)=min(section_area*hspeed(i,celda)*dt/m3_mmHill(celda),&
 							& StoOut(i+1,celda))![mm]
 				end select
 				!---------------------------------------
@@ -490,10 +492,11 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 					Storage_stra(5,celda) = Storage_stra(5,celda)+sum(hflux_s(1:2))+hflux_s(3)*(unit_type(1,celda)-2)
 				endif
 				
-				!Resuelve el transporte en el canal 
-				call calc_speed(StoOut(5,celda)*m3_mmRivers(celda), h_coef(4,celda),&
+				!Resuelve el transporte en el canal por onda cinematica
+				call calc_speed(StoOut(5,celda)*m3_mmRivers(celda), h_coef(4,celda)*Calib(8),&
 					& h_exp(4,celda), stream_long(1,celda), hspeed(4,celda), section_area)
-				hflux(4)=min(section_area*hspeed(4,celda)*dt*Calib(8)/m3_mmRivers(celda),&
+				!Calcula la cantidad de agua que sale del canal.
+				hflux(4)=min(section_area*hspeed(4,celda)*dt/m3_mmRivers(celda),&
 					&StoOut(5,celda)) ![mm]				
 				
 				!---------------------------------------
