@@ -2048,31 +2048,35 @@ subroutine basin_subbasin_map2subbasin(sub_pert,basin_var,subbasin_sum,&
 	integer, intent(in) :: n_nodos,nceldas,sum_mean
 	integer, intent(in) :: sub_pert(nceldas)
 	real, intent(in) :: basin_var(nceldas)
-	integer, intent(in), optional :: cauce(nceldas)
+	integer, intent(in) :: cauce(nceldas)
 	!Variables de salida
 	real, intent(out) :: subbasin_sum(n_nodos)
 	!f2py intent(in) n_nodos,nceldas,sub_pert,basin_var,sum_mean
 	!f2py intent(out) :: subbasin_var 
 	!Variables locales
 	integer i,posi,cont_valores 
-	real suma_valores
+	real suma_valores, max_valores
 	!Localiza 
 	do i=1,n_nodos
 		posi=n_nodos-i+1
 		!Cambia las condiciones de acuerdo a si esta o no el cauce 
-		if (present(cauce)) then 
-			suma_valores=sum(basin_var,&
-				&MASK=sub_pert.eq.posi.and.cauce.eq.1)
-			cont_valores=count(sub_pert.eq.posi.and.cauce.eq.1)
-		else
-			suma_valores=sum(basin_var,MASK=sub_pert.eq.posi)
-			cont_valores=count(sub_pert.eq.posi)
-		endif
+		!if (present(cauce)) then 
+		suma_valores=sum(basin_var,&
+			&MASK=sub_pert.eq.posi.and.cauce.eq.1)
+		cont_valores=count(sub_pert.eq.posi.and.cauce.eq.1)
+		max_valores = maxval(basin_var, MASK = sub_pert.eq.posi.and.cauce.eq.1)
+		!else
+		!	suma_valores=sum(basin_var,MASK=sub_pert.eq.posi)
+		!	cont_valores=count(sub_pert.eq.posi)
+		!	max_valores = maxval(basin_var, MASK=sub_pert.eq.posi)
+		!endif
 		if (cont_valores .gt. 0.0) then
 			if (sum_mean .eq. 0) then
 				subbasin_sum(i)=suma_valores/cont_valores
 			elseif (sum_mean .eq. 1) then 
 				subbasin_sum(i) = suma_valores
+			elseif (sum_mean .eq. 2) then
+				subbasin_sum(i) = max_valores
 			endif
 		else
 			subbasin_sum(i)=0.0

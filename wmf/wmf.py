@@ -1506,7 +1506,7 @@ class Basin:
 		for i,k in enumerate(HillsMap[::-1]):
 			CellMap[self.hills_own==i+1] = k
 		return CellMap
-	def Transform_Basin2Hills(self,CellMap,mask=None,sumORmean=0):
+	def Transform_Basin2Hills(self,CellMap,mask=None,SumMeanMax=0):
 		'Descripcion: A partir de un vector tipo Basin obtiene un\n'\
 		'	vector del tipo laderas, en donde las propiedades se \n'\
 		'	agregan para cada ladera. \n'\
@@ -1517,8 +1517,8 @@ class Basin:
 		'CellMap : Vector con las propiedades por celdas [ncells].\n'\
 		'mask : Celdas sobre las cuales se agrega la variable (1), y\n'\
 		'	sobre las que no (0).\n'\
-		'sumORmean : si la variable sera agregada como un promedio (0)\n'\
-		'	o como una suma (1).\n'\
+		'SumMeanMax : si la variable sera agregada como un promedio (0)\n'\
+		'	o como una suma (1), o como el maximo valor (2).\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1534,7 +1534,7 @@ class Basin:
 			Ma = np.ones(self.ncells)
 		#Pasa el mapa de celdas a mapa de laderas		
 		HillsMap = cu.basin_subbasin_map2subbasin(self.hills_own,
-			CellMap, self.nhills, sumORmean, self.ncells, Ma)
+			CellMap, self.nhills, Ma, SumMeanMax, self.ncells)
 		return HillsMap
 	#------------------------------------------------------
 	# Trabajo con datos puntuales puntos 
@@ -3012,10 +3012,6 @@ class SimuBasin(Basin):
 		#Obtiene lo basico para luego pasar argumentos
 		acum,hill_long,pend,elev = cu.basin_basics(self.structure,
 			self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
-		#Obtiene parametros para la cuenca como si fuera celdas
-		#Obtiene el tipo de celdas
-		unit_type = cu.basin_stream_type(self.structure,
-			acum,umbrales,len(umbrales),self.ncells)
 		#Obtiene la pendiente y la longitud de las corrientes
 		cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(
 			self.structure,acum,umbrales[1],self.ncells)
@@ -3037,6 +3033,10 @@ class SimuBasin(Basin):
 			stream_width=np.ones(self.ncells)
 		#De acuerdo a si el modelo es por laderas o por celdas agrega lass varaibeles 
 		if self.modelType[0]=='c':
+			#Obtiene el tipo de celdas
+			unit_type = cu.basin_stream_type(self.structure,
+				acum,umbrales,len(umbrales),self.ncells)
+			#Asigna variables
 			models.drena = np.ones((1,self.ncells))*self.structure
 			models.nceldas = self.ncells
 			models.unit_type = np.ones((1,self.ncells))*unit_type
@@ -3056,7 +3056,9 @@ class SimuBasin(Basin):
 			models.stream_long = np.ones((1,N))*stream_long
 			models.stream_slope = np.ones((1,N))*stream_slope
 			models.stream_width = np.ones((1,N))*cu.basin_subbasin_map2subbasin(
-				self.hills_own,stream_width,self.nhills,0,self.ncells,self.CellCauce)
+				self.hills_own,stream_width,self.nhills,cauce,0,self.ncells)
+			no0min = models.stream_width[models.stream_width<>0].min()
+			models.stream_width[models.stream_width==0] = no0min
 			models.elem_area = np.ones((1,N))*np.array([self.hills_own[self.hills_own==i].shape[0] for i in range(1,self.hills.shape[1]+1)])*cu.dxp**2.0
 		#Ajusta variable de que la geomorfologia esta calculada 
 		self.isSetGeo = True
