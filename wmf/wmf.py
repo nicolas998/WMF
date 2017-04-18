@@ -1486,7 +1486,7 @@ class Basin:
 		if ruta<>None:
 			Save_Array2Raster(M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.nodata],
 				ruta = ruta, EPSG = EPSG, Format = DriverFormat)
-		return M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.nodata]
+		return M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.dy,cu.nodata]
 		
 	def Transform_Hills2Basin(self,HillsMap):
 		'Descripcion: A partir de un vector con propiedades de las laderas\n'\
@@ -1945,7 +1945,7 @@ class Basin:
 			Map,mxll,myll=cu.basin_2map(self.structure,self.structure[0]
 				,Mcols,Mrows,self.ncells)
 			longs=np.array([mxll+0.5*cu.dx+i*cu.dx for i in range(Mcols)])
-			lats=np.array([myll+0.5*cu.dx+i*cu.dx for i in range(Mrows)])
+			lats=np.array([myll+0.5*cu.dy+i*cu.dy for i in range(Mrows)])
 			X,Y=np.meshgrid(longs,lats)
 			Y=Y[::-1]
 			show = kwargs.get('show',True)
@@ -2024,14 +2024,14 @@ class Basin:
 				pl.show()
 			return m
 	#Grafica de plot para montar en paginas web o presentaciones
-	def Plot_basinClean(self, vec, ruta, umbral = 0.0, 
+	def Plot_basinClean(self, vec, ruta = None, umbral = 0.0, 
 		vmin = 0.0, vmax = None, show_cbar = False, **kwargs):	
 		'Funcion: Plot_basinClean\n'\
 		'Descripcion: Genera un plot del mapa entregado en un lienzo limpio.\n'\
 		'Parametros Obligatorios:.\n'\
 		'	-vec: Vector con los valores a plotear.\n'\
-		'	-ruta: ruta donde se guarda el png.\n'\
 		'Parametros Opcionales:.\n'\
+		'	-ruta: ruta donde se guarda el png.\n'\
 		'	-umbral: Umbral a partir del cual se plotea variable.\n'\
 		'	-vmin: Valor minimo de la variable.\n'\
 		'	-vmax: valor maximo de la variable.\n'\
@@ -2061,7 +2061,7 @@ class Basin:
 		Corners = [p[2], 
 		p[2]+p[0]*p[4], 
 		p[3],
-		p[3]+p[1]*p[4]]
+		p[3]+p[1]*p[5]]
 		#Crea la figura
 		fig = pl.figure(figsize=figsize)
 		ax = fig.add_subplot(111)
@@ -2089,10 +2089,13 @@ class Basin:
 			if cbar_ticklabels <> None:
 				cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
 		#Guarda transparente y ajustando bordes
-		pl.savefig(ruta, 
-			bbox_inches = 'tight', 
-			pad_inches = 0, 
-			transparent = True)
+		if ruta<>None:
+			pl.savefig(ruta, 
+				bbox_inches = 'tight', 
+				pad_inches = 0, 
+				transparent = True)
+		else:
+			pl.show()
 		return Corners
 	#Grafica de variables sobre la red 
 	def Plot_Net(self, vec, vec_c = None,ruta = None, q_compare = None, show = True, 
