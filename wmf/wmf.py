@@ -1458,7 +1458,7 @@ class Basin:
 		'vecMap : Vector conla informacion del mapa al interio de la cuenca.\n'\
 		#Comienza le codifgo 
 		vec = cu.basin_map2basin(self.structure,
-			Map,MapProp[2],MapProp[3],MapProp[4],
+			Map,MapProp[2],MapProp[3],MapProp[4],MapProp[5],
 			cu.nodata,
 			self.ncells,
 			MapProp[0],MapProp[1])
