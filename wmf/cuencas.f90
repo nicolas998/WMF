@@ -48,7 +48,8 @@ module cu
 !Globales
 real xll,yll !coordenadas de la esquina inferior izquierda
 real noData !Valor que representa los no datos
-real dx !Largo del mapa leido
+real dx !Diferencia en ejeX
+real dy !Diferencia en ejey
 real dxP !largo proyectado del mapa, debe ser indicado si no se cononce
 integer ncols,nrows !cantidad de columnas y filas del mapa
 real, allocatable :: stream_temp(:,:) !Vector temporal para el trazado de la corriente
@@ -1142,15 +1143,15 @@ subroutine basin_float_map2var(basin_f,MAPA,vect,nc,nf,xll_m,yll_m,dx_m,noData_m
 	endif
     enddo
 end subroutine
-subroutine basin_map2basin(basin_f,nceldas,Mapa,xllM,yllM,ncolsM,nrowsM,dxM,noDataM,vec) !pasa un mapa a un vector con los valores correspondientes a la topologia de la cuenca
+subroutine basin_map2basin(basin_f,nceldas,Mapa,xllM,yllM,ncolsM,nrowsM,dxM,dyM,noDataM,vec) !pasa un mapa a un vector con los valores correspondientes a la topologia de la cuenca
     !Variables de entrada
     integer, intent(in) :: ncolsM,nrowsM,nceldas
     integer, intent(in) :: basin_f(3,nceldas)
-    real, intent(in) :: xllM,yllM,dxM,noDataM,Mapa(ncolsM,nrowsM)
+    real, intent(in) :: xllM,yllM,dxM,dyM,noDataM,Mapa(ncolsM,nrowsM)
     !character*11, intent(in) :: opcion
     !Variables de salida
     real, intent(out) :: vec(nceldas)
-    !f2py intent(in) :: ncolsM,nrowsM,nceldas,basin_f,xllM,yllM,dxM,noDataM,opcion,Mapa
+    !f2py intent(in) :: ncolsM,nrowsM,nceldas,basin_f,xllM,yllM,dxM,dyM,noDataM,opcion,Mapa
     !f2py intent(out) :: vec
     !Variables internas
     integer i,j,cont,cantidad
@@ -1166,12 +1167,12 @@ subroutine basin_map2basin(basin_f,nceldas,Mapa,xllM,yllM,ncolsM,nrowsM,dxM,noDa
     do i=1,nceldas
 		!Calcula la pos de la celda
 		Xpos=xll+dx*(basin_f(2,i)-0.5)
-		Ypos=yll+dx*((nrows-basin_f(3,i))+0.5)
+		Ypos=yll+dy*((nrows-basin_f(3,i))+0.5)
 		!Evalua si la posicion esta por dentro del mapa
-		if (Xpos.gt.xllM.and.Xpos.lt.(xllM+dxM*ncolsM).and.Ypos.gt.yllM.and.Ypos.lt.(yllM+nrowsM*dxM)) then
+		if (Xpos.gt.xllM.and.Xpos.lt.(xllM+dxM*ncolsM).and.Ypos.gt.yllM.and.Ypos.lt.(yllM+nrowsM*dyM)) then
 		    !si esta por dentro le asigna la columna equivalente
 		    columna=ceiling((Xpos-xllM)/dxM)
-		    fila=ceiling((Ypos-yllM)/dxM)
+		    fila=ceiling((Ypos-yllM)/dyM)
 		    fila=nrowsM-fila+1
 		    vec(i)=Mapa(columna,fila)
 		    !Si esta adentro pero es un valor no data hace una de las dos opciones

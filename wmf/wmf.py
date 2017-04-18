@@ -232,7 +232,8 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None):
 	noData=banda.GetNoDataValue()
 	geoT=direction.GetGeoTransform()
 	dx=geoT[1]
-	xll=geoT[0]; yll=geoT[3]-nrows*dx
+	dy = np.abs(geoT[-1])
+	xll=geoT[0]; yll=geoT[3]-nrows*dy
 	#lee el mapa
 	Mapa=direction.ReadAsArray()
 	direction.FlushCache()
@@ -242,6 +243,7 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None):
 		cu.nrows=nrows
 		cu.nodata=noData
 		cu.dx=dx
+		cu.dy = dy
 		cu.xll=xll
 		cu.yll=yll
 		if dxp==None:
@@ -250,7 +252,7 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None):
 			cu.dxp=dxp
 		return Mapa.T
 	else:
-		return Mapa.T,[ncols,nrows,xll,yll,dx,noData]
+		return Mapa.T,[ncols,nrows,xll,yll,dx,dy,noData]
 
 def read_map_points(ruta_map, ListAtr = None):
 	'Funcion: read_map_points\n'\
