@@ -857,7 +857,7 @@ subroutine basin_perim_find(basin_f,nperim,nceldas) !Encuentra los puntos X,Y de
 		if (mascara(c1,f1).eq.0) then
 			!Guarda el punto para ser graficado
 			perim_temp(1,1)=(col2-1+OrtoAdi(cont))*dx+xll_loc
-			perim_temp(2,1)=(nrows+2-fil2+mov2(5-cont))*dx+yll_loc
+			perim_temp(2,1)=(nrows+2-fil2+mov2(5-cont))*dy+yll_loc
 			!Da la orden de finalizar 
 			flag1=0
 		endif
@@ -887,7 +887,7 @@ subroutine basin_perim_find(basin_f,nperim,nceldas) !Encuentra los puntos X,Y de
 				!Guarda el punto para ser graficado
 				print *, 'encontro por diagonales'
 				perim_temp(1,1)=(col2-1+OrtoAdi(cont))*dx+xll_loc
-				perim_temp(2,1)=(nrows+2-fil2+mov2(5-cont))*dx+yll_loc
+				perim_temp(2,1)=(nrows+2-fil2+mov2(5-cont))*dy+yll_loc
 		    endif
 		    !se le suma un valor al contador
 		    cont=cont+1
@@ -919,7 +919,7 @@ subroutine basin_perim_find(basin_f,nperim,nceldas) !Encuentra los puntos X,Y de
 				cont=posN(i)
 				!Guarda las coordenadas 
 				perim_temp(1,cont2)=perim_temp(1,cont2-1)+dx*DiagMov3(cont)
-				perim_temp(2,cont2)=perim_temp(2,cont2-1)-dx*OrtoCol(cont)
+				perim_temp(2,cont2)=perim_temp(2,cont2-1)-dy*OrtoCol(cont)
 				cont2=cont2+1
 				!Obtiene la nueva fila columna
 				col2=col2+DiagMov3(cont)
