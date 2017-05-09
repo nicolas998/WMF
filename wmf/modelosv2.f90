@@ -239,9 +239,11 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	!Inicia la variable global de lluvia promedio sobre la cuenca
 	if (allocated(Mean_Rain)) deallocate(Mean_Rain)
 	allocate(Mean_Rain(1,N_reg))
+	Mean_Rain = 0
 	!Inicia la variable global del campo acumulado de lluvia sobre la cuenca.
 	if (allocated(Acum_rain)) deallocate(Acum_rain)
 	allocate(Acum_rain(1,N_cel))
+	Acum_rain = 0
 	!Establece variable de conversion
 	m3_mmHill=elem_area(1,:)/1000.0
 	m3_mmRivers=(stream_long(1,:)*stream_width(1,:))/1000.0
@@ -361,6 +363,8 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 			endif
 		endif
 		rain_sum = 0.0
+		!Actualiza la variable global de acumulacion de lluvia para el periodo de simulacion
+		Acum_rain(1,:) = Acum_rain(1,:) + Rain
 		
 		!--------------------------------------------------------------------------
 		!Iter around the cells or hills
