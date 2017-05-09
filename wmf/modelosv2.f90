@@ -93,6 +93,7 @@ real, allocatable :: Storage(:,:) !Almacenamiento de los 5 tanques del modelo
 real storage_constant !Constante de almacenamiento que puede ser muy baja (0.01 a 0.0001) para corregir bug de separacion de fluxes
 real, allocatable :: Speed_map(:,:) !Mapa de velocidades en los tanques, solo se activa si se da la opcion save_speed
 real, allocatable :: Mean_Rain(:,:) !Serie de lluvia promedio en la cuenca [mm]
+real, allocatable :: Acum_rain(:,:) !Campo de lluvia acumulado para el periodo de simulacion
 real, allocatable :: Fluxes(:,:) !Matriz de flujos separados (3,nelem), 1: Superficial, 2: sub-superficial, 3: subterraneo
 real, allocatable :: Storage_conv(:,:) !Almacenamuiento solo lluvia convectiva 
 real, allocatable :: Storage_stra(:,:) !Almacenamiento solo lluvia stratiforme
@@ -238,6 +239,9 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	!Inicia la variable global de lluvia promedio sobre la cuenca
 	if (allocated(Mean_Rain)) deallocate(Mean_Rain)
 	allocate(Mean_Rain(1,N_reg))
+	!Inicia la variable global del campo acumulado de lluvia sobre la cuenca.
+	if (allocated(Acum_rain)) deallocate(Acum_rain)
+	allocate(Acum_rain(1,N_cel))
 	!Establece variable de conversion
 	m3_mmHill=elem_area(1,:)/1000.0
 	m3_mmRivers=(stream_long(1,:)*stream_width(1,:))/1000.0
