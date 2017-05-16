@@ -172,7 +172,7 @@ contains
 !Modelo
 !-----------------------------------------------------------------------
 
-subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
+subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,N_cel,N_cont,N_contH,N_reg,Q,&
 	& Qsed, Qseparated, Hum, St1, St3, balance, speed, AreaControl, StoOut, ruta_storage, ruta_speed, &
 	& ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain)
     
@@ -186,6 +186,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
     character*500, intent(in), optional :: ruta_storage
     character*500, intent(in), optional :: ruta_binConv, ruta_hdrConv, ruta_binStra, ruta_hdrStra
     character*500, intent(in), optional :: ruta_speed
+    real, intent(in), optional :: StoIn(5, N_cel)
     
 	!Variables de salia
     real, intent(out) :: Hum(N_contH,N_reg),St1(N_contH,N_reg),St3(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !puntos control 
@@ -243,7 +244,13 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,N_cel,N_cont,N_contH,N_reg,Q,&
 	m3_mmRivers=(stream_long(1,:)*stream_width(1,:))/1000.0
 	Q=0.0
 	!Inicia variables para realizar el balance en la cuenca
-	StoOut=Storage + storage_constant
+	if (StoIn(1,1) .gt. 0) then
+		!Si se asigna una variable de almacenamiento no global, la toma
+		StoOut=StoIn
+	else
+		!En el caso contrario toma la variable global
+		StoOut=Storage + storage_constant
+	endif
 	entradas=0
 	salidas=0
 	balance = 0	

@@ -3584,7 +3584,7 @@ class SimuBasin(Basin):
 	# Ejecucion del modelo
 	#------------------------------------------------------	
 	def run_shia(self,Calibracion,
-		rain_rute, N_intervals, start_point = 1, ruta_storage = None, ruta_speed = None,
+		rain_rute, N_intervals, start_point = 1, StorageLoc = None, ruta_storage = None, ruta_speed = None,
 		ruta_conv = None, ruta_stra = None, kinematicN = 5):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
@@ -3610,6 +3610,8 @@ class SimuBasin(Basin):
 		'start_point : Punto donde comienza a usar registros de lluvia.\n'\
 		'	los binarios generados por rain_* generan un archivo de texto.\n'\
 		'	que contiene fechas par aayudar a ubicar el punto de inicio deseado.\n'\
+		'StorageLoc: Variable local de almacenamiento, esto es en el caso de que no se.\n'\
+		'	desee usar la configuracion global de almacenamiento del modelo (5, N).\n'\
 		'ruta_storage : Ruta donde se guardan los estados del modelo en cada intervalo.\n'\
 		'	de tiempo, esta es opcional, solo se guardan si esta variable es asignada.\n'\
 		'ruta_conv : Ruta al binario y hdr indicando las nubes que son convectivas.\n'\
@@ -3676,15 +3678,24 @@ class SimuBasin(Basin):
 			ruta_hdrConv = 'none'
 			ruta_binStra = 'none'
 			ruta_hdrStra = 'none'
+		#Prepara la variable de almacenamiento 
+		if StorageLoc <> None:
+			if StorageLoc.shape <> (5, N):
+				print 'Error: almacenamiento debe ser: (5,'+str(N)+'), y es: ('+str(StorageLoc.shape[0])+','+str(StorageLoc.shape[1])+')' 
+				StorageLoc = np.zeros((5,N))*-9999.0
+		else:
+			StorageLoc = np.zeros((5,N))*-9999.0
 		# Ejecuta el modelo 
 		Qsim,Qsed,Qseparated,Humedad,St1_pc,St3_pc,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
 			rain_ruteHdr,
 			Calibracion,
-			N,
+			#N,
 			NcontrolQ,
 			NcontrolH,
 			N_intervals,
+			StorageLoc,
+			N,
 			ruta_sto_bin,
 			ruta_speed_bin,
 			ruta_binConv,
