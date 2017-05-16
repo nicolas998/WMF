@@ -2098,7 +2098,8 @@ class Basin:
 			pl.show()
 		return Corners
 	#Grafica de variables sobre la red 
-	def Plot_Net(self, vec, vec_c = None,ruta = None, q_compare = None, show = True, 
+	def Plot_Net(self, vec, vec_c = None,ruta = None, 
+		q_compare = None, show = True, 
 		vmin = 0, vmax = 1, umbral = 0.1,**kwargs):
 		'Descripcion: Hace un plot de lass variables sobre el cauce \n'\
 		'\n'\
@@ -3752,7 +3753,9 @@ class SimuBasin(Basin):
 			else:
 				__Save_speed_hdr__(ruta_speed_hdr,rain_ruteHdr,N_intervals,
 					start_point,self)
-			
+		#Campo de lluvia acumulado para el evento 
+		Retornos.update({'Rain_Acum': models.acum_rain})
+		Retornos.update({'Rain_hietogram': models.mean_rain})	
 		#Retornos en caso de simular deslizamientos
 		if models.sim_slides == 1:
 			Retornos.update({'Slides_Map': np.copy(models.sl_slideocurrence)})
