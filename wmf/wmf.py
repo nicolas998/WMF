@@ -504,7 +504,14 @@ def read_mean_rain(ruta,Nintervals=None,FirstInt=0):
 	Rain = Rain[FirstInt:FirstInt+Nintervals]
 	#Regresa el resultado de la funcion
 	return pd.Series(Rain,index = pd.to_datetime(Dates))
-	
+
+def read_rain_struct(ruta):
+	D = pd.read_csv(ruta,skiprows=5,
+	index_col=2, parse_dates=True, 
+	infer_datetime_format=True, 
+	usecols = (1,2,3))
+	return D
+
 def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
 	Mean_Storage = None):
 	#Lee fechas para el intervalo de tiempo
@@ -1935,12 +1942,20 @@ class Basin:
 			'	-xy_lw = Ancho de linea del Scatter .\n'\
 			'	-xy_s = Tamano del scatter.\n'\
 			'	-show = boolean, si es True muestra la grafica.\n'\
+			'	-cbar_ticks: (None) ubicacion de los ticks del cbar.\n'\
+			'	-cbar_ticklabels: (None) Labels a poner sobre los ticks.\n'\
+			'	-cbar_ticksize: (14) Tamano de los ticks.\n'\
 			'Retorno:.\n'\
 			'	-Actualizacion del binario .int\n'\
 			'	-m = Para continuar graficando encima del entorno creado en Basemap\n'\
 			'		Ejemplo:.\n'\
 			'		m = Plot_basin(**args).\n'\
 			'		m.scatter(coordenada_x,coordenada_y).\n'
+			#Prop de la barra de colores
+			cbar_ticklabels = kwargs.get('cbar_ticklabels', None)
+			cbar_ticks = kwargs.get('cbar_ticks', None)
+			cbar_ticksize = kwargs.get('cbar_ticksize', 14)
+			#El mapa
 			Mcols,Mrows=cu.basin_2map_find(self.structure,self.ncells)
 			Map,mxll,myll=cu.basin_2map(self.structure,self.structure[0]
 				,Mcols,Mrows,self.ncells)
@@ -2004,6 +2019,11 @@ class Basin:
 					cbar = m.colorbar(cs,location='bottom',pad="5%")
 					if colorbarLabel<>None:
 						cbar.set_label(colorbarLabel, size = cbar_label_size)
+					if cbar_ticks <> None:
+						cbar.set_ticks(cbar_ticks)
+					if cbar_ticklabels <> None:
+						cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
+						cbar.ax.set_xticklabels(cbar_ticklabels, size = cbar_ticksize,)
 			#Si hay coordenadas de algo las plotea
 			xy_edgecolor = kwargs.get('xy_edgecolor','black')
 			xy_lw = kwargs.get('xy_lw',30)
