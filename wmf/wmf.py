@@ -2984,7 +2984,7 @@ class SimuBasin(Basin):
 			f.close()
 			#Abre con numpy para simplificar las cosas 
 			a = np.loadtxt(ruta_hdr,skiprows=6,dtype='str').T
-			if self.radarCont > 1 and cantidadIds > 1:
+			if self.radarCont >= 1 and cantidadIds > 1:
 				self.radarPos = [int(i.split(',')[0]) for i in a[1]]
 				self.radarMeanRain = [float(i.split(',')[0]) for i in a[2]]
 				for i in a[3]:
