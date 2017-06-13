@@ -513,7 +513,7 @@ def read_rain_struct(ruta):
 	return D
 
 def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
-	Mean_Storage = None):
+	Mean_Storage):
 	#Lee fechas para el intervalo de tiempo
 	S = read_mean_rain(rute_rain,Nintervals,FirstInt)
 	#Escribe el encabezado del archivo 
@@ -525,8 +525,6 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
 	f.write('IDfecha, Tanque 1, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
 	c = 1
 	#Si no hay almacenamiento medio lo coloca en -9999 
-	if Mean_Storage == None:
-		Mean_Storage = np.ones((5,Nintervals))*-9999
 	#Escribe registros medios y fechas de los almacenamientos 
 	for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
 		f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
@@ -2075,8 +2073,7 @@ class Basin:
 		cbar_ticksize = kwargs.get('cbar_ticksize', 14)
 		#Obtiene la matriz 
 		M,p = self.Transform_Basin2Map(vec)
-		M[M == -9999] = np.nan
-		M[M < umbral] = np.nan
+		M[(M == -9999) | (M<umbral)] = np.nan
 		#Calcula esquinas: izquierda, derecha, abajo, arriba.
 		Corners = [p[2], 
 		p[2]+p[0]*p[4], 
@@ -2104,9 +2101,9 @@ class Basin:
 		#colorca colorbar
 		if show_cbar:
 			cbar = pl.colorbar(im, aspect = cbar_aspect, )
-			if cbar_ticks <> None:
+			if cbar_ticks is not None:
 				cbar.set_ticks(cbar_ticks)
-			if cbar_ticklabels <> None:
+			if cbar_ticklabels is not None:
 				cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
 		#Guarda transparente y ajustando bordes
 		if ruta<>None:
@@ -3669,7 +3666,7 @@ class SimuBasin(Basin):
 		else:
 			NcontrolH = np.count_nonzero(models.control_h)
 		#Prepara variables de guardado de variables 
-		if ruta_storage <> None:
+		if ruta_storage is not None:
 			models.save_storage = 1
 			ruta_sto_bin, ruta_sto_hdr = __Add_hdr_bin_2route__(ruta_storage,
 				storage = True)
@@ -3698,7 +3695,7 @@ class SimuBasin(Basin):
 			ruta_binStra = 'none'
 			ruta_hdrStra = 'none'
 		#Prepara la variable de almacenamiento 
-		if StorageLoc <> None:
+		if StorageLoc is not None:
 			if StorageLoc.shape <> (5, N):
 				print 'Error: almacenamiento debe ser: (5,'+str(N)+'), y es: ('+str(StorageLoc.shape[0])+','+str(StorageLoc.shape[1])+')' 
 				StorageLoc = np.zeros((5,N))*-9999.0
@@ -3752,7 +3749,7 @@ class SimuBasin(Basin):
 			#Caso en el que no hay alm medio para cada uno de los 
 			else:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-					start_point,self)
+					start_point,self,Mean_Storage=np.zeros((5,N))*-9999)
 		#Area de la seccion 
 		if models.show_area == 1:
 			Retornos.update({'Sec_Area': Area})
