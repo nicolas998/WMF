@@ -39,6 +39,8 @@ except:
 		pass
 try:
 	from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid, cm
+	from matplotlib.patches import Polygon
+	from matplotlib.collections import PatchCollection
 except:
 	print 'No se logra importar basemap, por lo tanto no funciona Plot_basin'
 	pass
@@ -1901,7 +1903,7 @@ class Basin:
 	# Graficas de la cuenca
 	#------------------------------------------------------
 	def Plot_basin(self,vec=None,Min=None,
-			Max=None,ruta=None,figsize=(10,8),
+			Max=None,ruta=None,figsize=(10,7),
 			ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
 			xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
 			colorbar=True, colorbarLabel = None,axis=None,rutaShp=None,shpWidth = 0.7,
@@ -1943,6 +1945,8 @@ class Basin:
 			'	-cbar_ticks: (None) ubicacion de los ticks del cbar.\n'\
 			'	-cbar_ticklabels: (None) Labels a poner sobre los ticks.\n'\
 			'	-cbar_ticksize: (14) Tamano de los ticks.\n'\
+			'	-ShpIsPolygon: Indica si ese shp cargado es poligono (True) o no (False).\n'\
+			'	-shpAlpha: transparencia del shp (0.5).\n'\
 			'Retorno:.\n'\
 			'	-Actualizacion del binario .int\n'\
 			'	-m = Para continuar graficando encima del entorno creado en Basemap\n'\
@@ -1953,6 +1957,9 @@ class Basin:
 			cbar_ticklabels = kwargs.get('cbar_ticklabels', None)
 			cbar_ticks = kwargs.get('cbar_ticks', None)
 			cbar_ticksize = kwargs.get('cbar_ticksize', 14)
+			show = kwargs.get('show', True)
+			ShpIsPolygon = kwargs.get('ShpIsPolygon',None)
+			shpAlpha = kwargs.get('shpAlpha',0.5)
 			#El mapa
 			Mcols,Mrows=cu.basin_2map_find(self.structure,self.ncells)
 			Map,mxll,myll=cu.basin_2map(self.structure,self.structure[0]
@@ -1964,6 +1971,7 @@ class Basin:
 			show = kwargs.get('show',True)
 			if axis == None:
 				fig=pl.figure(figsize=figsize)
+				ax = fig.add_subplot(111)
 			else:
 				show = False
 			m = Basemap(projection='merc',
@@ -2034,13 +2042,23 @@ class Basin:
 					edgecolor=xy_edgecolor)
 			#Si hay una ruta a un shp lo plotea
 			if rutaShp <> None:
-				m.readshapefile(rutaShp, 'mapashp', linewidth = shpWidth, color = shpColor)
+				if type(rutaShp) == str:
+					m.readshapefile(rutaShp, 'mapashp', linewidth = shpWidth, color = shpColor)
+				elif type(rutaShp) == list:
+					for c,shape in enumerate(rutaShp):
+						m.readshapefile(shape, 'mapashp', linewidth = shpWidth[c], color = shpColor[c])
+						if ShpIsPolygon[c]:
+							patches   = []
+							for shape in m.mapashp:
+								patches.append(Polygon(np.array(shape), True))
+							ax.add_collection(PatchCollection(patches, facecolor= shpColor[c], 
+								edgecolor=shpColor[c], linewidths=shpWidth[c], zorder=2, alpha = shpAlpha[c]))
 			#Guarda
 			if ruta<>None:
 				pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
 			if show==True:
 				pl.show()
-			return m
+			return m,ax
 	#Grafica de plot para montar en paginas web o presentaciones
 	def Plot_basinClean(self, vec, ruta = None, umbral = 0.0, 
 		vmin = 0.0, vmax = None, show_cbar = False, **kwargs):	
@@ -2113,7 +2131,7 @@ class Basin:
 				transparent = True)
 		else:
 			pl.show()
-		return Corners
+		return Corners, ax
 	#Grafica de variables sobre la red 
 	def Plot_Net(self, vec, vec_c = None,ruta = None, 
 		q_compare = None, show = True, 
@@ -2173,10 +2191,10 @@ class Basin:
 			pos = np.where(umbral == 1)[0]
 		x,y = cu.basin_coordxy(self.structure, self.ncells)
 		#Vector para pintar si no tiene el vec_c usa vec
-		if vec_c == None:
+		if vec_c is None:
 			vec_c = np.copy(vec)
 		#Compara o no 
-		if q_compare<>None:
+		if q_compare is not None:
 			vec = vec/q_compare.astype(float)		
 		#Figura
 		fig = pl.figure(figsize=figsize)
