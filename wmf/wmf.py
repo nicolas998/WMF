@@ -1903,7 +1903,7 @@ class Basin:
 	# Graficas de la cuenca
 	#------------------------------------------------------
 	def Plot_basin(self,vec=None,Min=None,
-			Max=None,ruta=None,figsize=(10,8),
+			Max=None,ruta=None,figsize=(10,7),
 			ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
 			xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
 			colorbar=True, colorbarLabel = None,axis=None,rutaShp=None,shpWidth = 0.7,
