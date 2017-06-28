@@ -2079,6 +2079,7 @@ class Basin:
 		'	-cbar_ticks: (None) ubicacion de los ticks del cbar.\n'\
 		'	-cbar_ticklabels: (None) Labels a poner sobre los ticks.\n'\
 		'	-cbar_ticksize: (14) Tamano de los ticks.\n'\
+		'	-show: SE muestra por defecto la figura (True).\n'\
 		'Retorno:.\n'\
 		'	-Figura se muestra y se guarda.\n'\
 		'	-Coordenadas de los bordes del mapa.\n'\
@@ -2089,6 +2090,7 @@ class Basin:
 		cbar_ticklabels = kwargs.get('cbar_ticklabels', None)
 		cbar_ticks = kwargs.get('cbar_ticks', None)
 		cbar_ticksize = kwargs.get('cbar_ticksize', 14)
+		show = kwargs.get('show', True)
 		#Obtiene la matriz 
 		M,p = self.Transform_Basin2Map(vec)
 		M[(M == -9999) | (M<umbral)] = np.nan
@@ -2130,7 +2132,8 @@ class Basin:
 				pad_inches = 0, 
 				transparent = True)
 		else:
-			pl.show()
+			if show:
+				pl.show()
 		return Corners, ax
 	#Grafica de variables sobre la red 
 	def Plot_Net(self, vec, vec_c = None,ruta = None, 
