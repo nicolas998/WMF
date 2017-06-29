@@ -1064,6 +1064,71 @@ class Basin:
 		tamano=np.array(tamano)
 		aportes=(tamano/float(self.ncells))*((self.ncells*cu.dxp**2)/1e6)	
 		self.CellTravelTime=time
+	
+	def GetGeo_WidthFunction(self, binsC = None, binsN = None, 
+		ruta = None, Npos = 10000, **kwargs):
+		'Descripcion: Obtiene la funcion de ancho de la cuenca  \n'\
+		'	Entrega como resultado la distancia de cada elemento a la salida. \n'\
+		'	y grafica la funcion de ancho. \n'\
+		'\n'\
+		'Parametros\n'\
+		'----------\n'\
+		'	self : no necesita nada es autocontenido.\n'\
+		'	Previo a esta funcion se debe usar: cu.Get_Cell_Basics.\n'\
+		'\n'\
+		'Param Opcionales\n'\
+		'	binsC: intervalos de clase para la cuenca.\n'\
+		'	binsN: intervalos de clase para la red.\n'\
+		'	ruta: Ruta donde se guarda la figura.\n'\
+		'	Npos: Cantidad de puntos muestreados.\n'\
+		'Param Kwargs.\n'\
+		'	show: Muestra o no la figura (True).\n'\
+		'	ccolor: Color del histograma de la cuenca.\n'\
+		'	ncolor: Color del histograma de la red hidrica.\n'\
+		'	figsize: Tamano del plot (8,5).\n'\
+		'Retornos\n'\
+		'----------\n'\
+		'Dist2Out : Distancia de cada elemento a la salida.\n'\
+		'Figura de la funcion de ancho.\n'\
+		#Parametros kwargs
+		show = kwargs.get("show", True)
+		ccolor = kwargs.get("ccolor",'b')
+		ncolor = kwargs.get("ncolor",'r')
+		figsize = kwargs.get("figsize", (8,5))
+		#Calcula la velocidad adecuada para que el tiempo coincida
+		self.CellDist2Out = cu.basin_time_to_out(self.structure, 
+			self.CellLong, np.ones(self.ncells), self.ncells)
+		#Cantidad de puntos 
+		pos = np.random.choice(self.ncells, Npos)
+		#Calcula la funcion de ancho para la cuenca y para la red hidrica
+		hc,bc = np.histogram(self.CellDist2Out[pos], bins = binsC)
+		ViajeCauce = self.CellDist2Out*self.CellCauce
+		hn,bn = np.histogram(ViajeCauce[ViajeCauce>0], bins = binsN)
+		hc = hc.astype(float); hc = hc / hc.sum()
+		hn = hn.astype(float); hn = hn / hn.sum()
+		#Grafica
+		fig = pl.figure(figsize=figsize)
+		ax = fig.add_subplot(111)
+		ax.plot(bc[:-1]/1000.0, hc, ccolor, lw = 3, label = 'Basin Width')
+		ax.plot(bn[:-1]/1000.0, hn, ncolor,lw = 3, label = 'Network Width')
+		ax.grid(True)
+		ax.set_xlabel('Distance to Outlet [$km$]', size = 16)
+		ax.set_ylabel('PDF', size = 16)
+		ax.fill_between(bc[:-1]/1000.0, hc, color = ccolor, alpha = 0.3)
+		ax.fill_between(bn[:-1]/1000.0, hn, color = ncolor, alpha = 0.3)
+		ax.set_ylim(0, np.max([hc.max(), hn.max()])+0.01)
+		ax.tick_params(labelsize = 15)
+		ax.legend(loc = 0)
+		ax2 = ax.twinx()
+		ax2.plot(bc[:-1]/1000.0, hc.cumsum(), ccolor, lw = 3, ls = '--', label = 'Basin Width')
+		ax2.plot(bn[:-1]/1000.0, hn.cumsum(), ncolor, lw = 3, ls = '--',label = 'Network Width')
+		ax2.tick_params(labelsize = 15)
+		ax2.set_ylabel('CDF', size = 16)
+		if ruta is not None:
+			pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
+		if show:
+			pl.show()
+	
 	def GetGeo_Ppal_Hipsometric(self,umbral=1000,
 		intervals = 30):
 		'Descripcion: Calcula y grafica la curva hipsometrica de\n'\
