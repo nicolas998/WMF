@@ -173,7 +173,7 @@ contains
 !Modelo
 !-----------------------------------------------------------------------
 
-subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,N_cel,N_cont,N_contH,N_reg,Q,&
+subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N_reg,Q,&
 	& Qsed, Qseparated, Hum, St1, St3, balance, speed, AreaControl, StoOut, ruta_storage, ruta_speed, &
 	& ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain)
     
@@ -188,6 +188,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,N_cel,N_cont,N_contH,N_reg,Q,&
     character*500, intent(in), optional :: ruta_binConv, ruta_hdrConv, ruta_binStra, ruta_hdrStra
     character*500, intent(in), optional :: ruta_speed
     real, intent(in), optional :: StoIn(5, N_cel)
+    real, intent(in), optional :: HspeedIn(4, N_cel)
     
 	!Variables de salia
     real, intent(out) :: Hum(N_contH,N_reg),St1(N_contH,N_reg),St3(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !puntos control 
@@ -264,14 +265,21 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,N_cel,N_cont,N_contH,N_reg,Q,&
 	! Calib 1 2 3 y 4: Velocidad vertical, 1. vel evp, los demas vel prof.
 	! Calib 5 6 7 y 8: Velocidad Hztal tanques 2 3 4 y 5
 	! Calib 9 y 10: Alm maximo capilar y gravitacional
-	do i=1,4
-		vspeed(i,:)=v_coef(i,:)*Calib(i)*dt ! Cantidad [mm] que baja de tanque a tanque
-		if (speed_type(i) .eq. 1) then 
-			hspeed(i,:)=h_coef(i,:)*Calib(i+4) ! Velocidad [mm/seg] que se mueve
-		else
-			hspeed(i,:) = 0.5 ! Velocidad de arranque para las ecuaciones no lineales horizontales
-		endif
-	enddo
+	if (HspeedIn(1,1) .gt. 0) then 
+		!Velocidades horizontales tomadas como condiciones iniciales dadas desde afuera
+		hspeed = HspeedIn
+	else
+		!Velocidades horizontales estimadas desde parametros sin condiciones previas.
+		do i=1,4
+			!Calculo de velocidades iniciales 
+			vspeed(i,:)=v_coef(i,:)*Calib(i)*dt ! Cantidad [mm] que baja de tanque a tanque
+			if (speed_type(i) .eq. 1) then 
+				hspeed(i,:)=h_coef(i,:)*Calib(i+4) ! Velocidad [mm/seg] que se mueve
+			else
+				hspeed(i,:) = 0.5 ! Velocidad de arranque para las ecuaciones no lineales horizontales
+			endif		
+		enddo
+	endif
 	
 	!Calcula parametros estaticos en el tiempo
 	H(1,:)=Max_capilar(1,:)*Calib(9)

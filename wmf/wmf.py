@@ -1972,7 +1972,7 @@ class Basin:
 			ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
 			xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
 			colorbar=True, colorbarLabel = None,axis=None,rutaShp=None,shpWidth = 0.7,
-			shpColor = 'r',
+			shpColor = 'r',axloc = 111, fig = None,
 			**kwargs):
 			#Plotea en la terminal como mapa un vector de la cuenca
 			'Funcion: Plot_basin\n'\
@@ -2034,9 +2034,10 @@ class Basin:
 			X,Y=np.meshgrid(longs,lats)
 			Y=Y[::-1]
 			show = kwargs.get('show',True)
+			if fig is None:
+				fig = pl.figure(figsize = figsize)
 			if axis == None:
-				fig=pl.figure(figsize=figsize)
-				ax = fig.add_subplot(111)
+				ax = fig.add_subplot(axloc)
 			else:
 				show = False
 			m = Basemap(projection='merc',
@@ -3686,7 +3687,7 @@ class SimuBasin(Basin):
 	# Ejecucion del modelo
 	#------------------------------------------------------	
 	def run_shia(self,Calibracion,
-		rain_rute, N_intervals, start_point = 1, StorageLoc = None, ruta_storage = None, ruta_speed = None,
+		rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
 		ruta_conv = None, ruta_stra = None, kinematicN = 5):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
@@ -3714,6 +3715,7 @@ class SimuBasin(Basin):
 		'	que contiene fechas par aayudar a ubicar el punto de inicio deseado.\n'\
 		'StorageLoc: Variable local de almacenamiento, esto es en el caso de que no se.\n'\
 		'	desee usar la configuracion global de almacenamiento del modelo (5, N).\n'\
+		'HspeedLoc: Variable local para setear la velocidad horizontal inicial de ejecucion.\n'\
 		'ruta_storage : Ruta donde se guardan los estados del modelo en cada intervalo.\n'\
 		'	de tiempo, esta es opcional, solo se guardan si esta variable es asignada.\n'\
 		'ruta_conv : Ruta al binario y hdr indicando las nubes que son convectivas.\n'\
@@ -3787,6 +3789,13 @@ class SimuBasin(Basin):
 				StorageLoc = np.zeros((5,N))*-9999.0
 		else:
 			StorageLoc = np.zeros((5,N))*-9999.0
+		#Prepara la variable de velocidad horizontal inicial 
+		if HspeedLoc is not None:
+			if HspeedLoc.shape <> (4, N):
+				print 'Error: velocidad debe ser: (4,'+str(N)+'), y es: ('+str(HspeedLoc.shape[0])+','+str(HspeedLoc.shape[1])+')' 
+				HspeedLoc = np.zeros((4,N))*-9999.0
+		else:
+			HspeedLoc = np.zeros((4,N))*-9999.0
 		# Ejecuta el modelo 
 		Qsim,Qsed,Qseparated,Humedad,St1_pc,St3_pc,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
@@ -3797,6 +3806,7 @@ class SimuBasin(Basin):
 			NcontrolH,
 			N_intervals,
 			StorageLoc,
+			HspeedLoc,
 			N,
 			ruta_sto_bin,
 			ruta_speed_bin,
