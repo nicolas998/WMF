@@ -1972,7 +1972,7 @@ class Basin:
 			ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
 			xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
 			colorbar=True, colorbarLabel = None,axis=None,rutaShp=None,shpWidth = 0.7,
-			shpColor = 'r',axloc = 111, fig = None,
+			shpColor = 'r',axloc = 111, fig = None, EPSG = 4326,backMap = False,
 			**kwargs):
 			#Plotea en la terminal como mapa un vector de la cuenca
 			'Funcion: Plot_basin\n'\
@@ -1991,6 +1991,7 @@ class Basin:
 			'	-rutaShp: Ruta a un vectorial que se quiera mostrar en el mapa.\n'\
 			'	-shpWidth: Ancho de las lineas del shp cargado.\n'\
 			'	-shpColor: Color de las lineas del shp cargado.\n'\
+			'	-backMap: Pone de fondo un mapa tipo arcGIS.\n'\
 			'Otros argumentos:.\n'\
 			'	-axis = Entorno de grafica que contiene elementos de las figuras.\n'\
 			'	-parallels = Grafica Paralelos, list-like.\n'\
@@ -1998,8 +1999,10 @@ class Basin:
 			'		labels = [left,right,top,bottom].\n'\
 			'		Ejemplo:\n'\
 			'		m.drawparallels(parallels,labels=[False,True,True,False]).\n'\
+			'	-parallels_offset: desplazamiento de las coordenadas en X.\n'\
 			'	-meridians = Grafica Meridianos, list-like.\n'\
 			'	-meridians_labels = Etiquetas de los meridianos, list-like.\n'\
+			'	-meridians_offset: desplazamiento de las coordeandas en Y.\n'\
 			'	-per_color = Color del perimetro.\n'\
 			'	-per_lw = Ancho de linea del perimetro.\n'\
 			'	-colorbarLabel = Titulo del colorbar.\n'\
@@ -2045,26 +2048,33 @@ class Basin:
 				urcrnrlat=lats.max()+extra_lat,
 				llcrnrlon=longs.min()-extra_long,
 				urcrnrlon=longs.max()+extra_long,
-				resolution='c')
+				resolution='c',
+				epsg = EPSG)
 			parallels = kwargs.get('parallels',np.arange(lats.min(),
 				lats.max(),lines_spaces))
 			parallels_labels = kwargs.get('parallels_labels',[1,0,0,0])
+			parallel_offset = kwargs.get('parallels_offset', 0.001)
 			m.drawparallels(parallels,
 				labels = parallels_labels,
 				fmt="%.2f",
 				rotation='vertical',
-				xoffset=0.1)
+				xoffset=parallel_offset)
 			meridians = kwargs.get('meridians', np.arange(longs.min(),
 				longs.max(),lines_spaces))
 			meridians_labels = kwargs.get('meridians_labels', [0,0,1,0])
+			meridians_offset = kwargs.get('meridians_offset', 0.001)
 			m.drawmeridians(meridians,
 				labels=meridians_labels, 
 				fmt="%.2f",
-				yoffset=0.1)
+				yoffset=meridians_offset)
 			Xm,Ym=m(X,Y)
+			#plotea el mapa de fondo de arcGIS
+			if backMap:
+				#if backMap == 'arcGIS':
+				m.arcgisimage(server='http://server.arcgisonline.com/ArcGIS', service='World_Topo_Map', xpixels = 1500, verbose = True)
 			#Plotea el contorno de la cuenca y la red 
 			nperim = cu.basin_perim_find(self.structure,self.ncells)
-			perim = cu.basin_perim_cut(nperim)	
+			perim = cu.basin_perim_cut(nperim)
 			xp,yp=m(perim[0],perim[1])
 			per_color = kwargs.get('per_color','r')
 			per_lw = kwargs.get('per_lw',2)
