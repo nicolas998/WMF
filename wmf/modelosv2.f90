@@ -710,9 +710,8 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 		endif
 		
 		!Guarda campo de flujos retorno del modelo
-		if (save_speed .eq. 1) then
+		if (save_retorno .eq. 1) then
 			call write_float_basin(ruta_retorno,retorned,tiempo,N_cel,1)
-			Retorned = 0.0
 		endif
 		
 		!Genera un promedio de cada tanque en caso de que se indique que lo haga  
@@ -729,7 +728,11 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 		if (show_mean_retorno .eq. 1) then 
 			mean_retorno(tiempo) = sum(Retorned)
 		endif
-			
+		
+		!Actualiza Retorno si tiene que hacerlo
+		if (show_mean_retorno .eq. 1 .or. save_retorno .eq. 1) then
+			Retorned = 0.0
+		endif	
 		!Actualiza balance 
 		balance(tiempo) = sum(StoOut)-StoAtras - entradas + salidas
 		entradas = 0
