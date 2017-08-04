@@ -76,9 +76,11 @@ integer sim_slides !Simula (1) o no (0) deslizamientos
 integer sim_floods !Simula (1) o no (0) inundaciones
 integer save_storage !Guarda (1) o no (0) almacenamiento de los tanques en cada intervalo.
 integer save_speed !Guarda (1) o no (0) las velocidades en cada intervalo
+integer save_retorno !Guarda (1) o no (0) el flujo de retorno en cada intervalo de tiempo
 integer show_storage !(1)Calcula el alm medio en la cuenca para cada tanque y lo muestra en la salida. (0) no lo hace.
 integer show_speed !(1) muestra la velocidad en los puntos de control de caudales. (0) no lo hace.
 integer show_mean_speed !(1) muestra la velocidad promedio en cada uno de los 4 tanques. (0) no lo hace
+integer show_mean_retorno !(1) muestra la suma de los milimetros retornados en un intervalo.
 integer show_area !(1) muestra el area en los puntos de control (0) no lo hace
 integer separate_fluxes !Separa (1) o no (0) los flujos que componen el caudal (base, sub-superficial y runoff)
 integer separate_rain !Separa (1) o no (0) los flujos de acuerdo al tipo de lluvia (convectiva, estratiforme)
@@ -99,6 +101,7 @@ real, allocatable :: Storage_conv(:,:) !Almacenamuiento solo lluvia convectiva
 real, allocatable :: Storage_stra(:,:) !Almacenamiento solo lluvia stratiforme
 real, allocatable :: mean_storage(:,:) !Almacenamiento promedio en cada intervalo para toda la cuenca. (5,n_reg)
 real, allocatable :: mean_speed(:,:) !Velocidad promedio en los 4 tanques que vierten de forma hztal. (4,n_reg)
+real, allocatable :: mean_retorno(:) !Promedio de la cantidad de milimetro retornados en un intervalo de tiempo (n_reg)
 
 !variables de sedimentos Par aalojar volumens y demas
 real sed_factor !factor para calibrar el modelo de sedimentos
@@ -175,7 +178,7 @@ contains
 
 subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N_reg,Q,&
 	& Qsed, Qseparated, Hum, St1, St3, balance, speed, AreaControl, StoOut, ruta_storage, ruta_speed, &
-	& ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain)
+	& ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain, ruta_retorno)
     
     !--------------------------------------------------------------------------
     !DECLARACION DE VARIABLES
@@ -186,7 +189,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
     character*500, intent(in) :: ruta_bin, ruta_hdr
     character*500, intent(in), optional :: ruta_storage
     character*500, intent(in), optional :: ruta_binConv, ruta_hdrConv, ruta_binStra, ruta_hdrStra
-    character*500, intent(in), optional :: ruta_speed
+    character*500, intent(in), optional :: ruta_speed, ruta_retorno
     real, intent(in), optional :: StoIn(5, N_cel)
     real, intent(in), optional :: HspeedIn(4, N_cel)
     
@@ -293,6 +296,12 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 		if (allocated(Retorned)) deallocate(Retorned)
 		allocate(Retorned(1,N_cel))
 		Retorned = 0.0
+		!Promedio del retorno 
+		if (show_mean_retorno .eq. 1) then 
+			if (allocated(mean_retorno)) deallocate(mean_retorno)
+			allocate(mean_retorno(N_reg))
+			mean_retorno = 0.0
+		endif
 	endif
 	!Si guarda velocidad aloja la variable 
 	if (save_speed.eq.1) then 
@@ -700,6 +709,12 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 			call write_float_basin(ruta_speed,hspeed,tiempo,N_cel,4)
 		endif
 		
+		!Guarda campo de flujos retorno del modelo
+		if (save_speed .eq. 1) then
+			call write_float_basin(ruta_retorno,retorned,tiempo,N_cel,1)
+			Retorned = 0.0
+		endif
+		
 		!Genera un promedio de cada tanque en caso de que se indique que lo haga  
 		if (show_storage .eq. 1) then 
 			mean_storage(:,tiempo) = sum(StoOut,dim=2) / N_cel
@@ -708,6 +723,11 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 		!Genera el promedio de velocidad en cada tanque en caso de que se indique 
 		if (show_mean_speed .eq. 1) then 
 			mean_speed(:, tiempo) = sum(hspeed,dim=2) / N_cel
+		endif
+		
+		!Genera el promedio de retornos producidos en la cuenca
+		if (show_mean_retorno .eq. 1) then 
+			mean_retorno(tiempo) = sum(Retorned)
 		endif
 			
 		!Actualiza balance 

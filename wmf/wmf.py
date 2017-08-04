@@ -559,6 +559,27 @@ def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
 		c+=1
 	f.close()
 
+def __Save_retorno_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
+	Mean_retorno = None):
+	#Lee fechas para el intervalo de tiempo
+	S = read_mean_rain(rute_rain,Nintervals,FirstInt)
+	#Escribe el encabezado del archivo 
+	f=open(rute,'w')
+	f.write('Numero de celdas: %d \n' % cuenca.ncells)
+	f.write('Numero de laderas: %d \n' % cuenca.nhills)
+	f.write('Numero de registros: %d \n' % Nintervals)
+	f.write('Tipo Modelo: %s \n' % cuenca.modelType)
+	f.write('IDfecha, Retorno[mm], Fecha \n')
+	c = 1
+	#Si no hay almacenamiento medio lo coloca en -9999 
+	if Mean_retorno == None:
+		Mean_retorno = np.ones(Nintervals)*-9999
+	#Escribe registros medios y fechas de los almacenamientos 
+	for d,sto in zip(S.index.to_pydatetime(),Mean_retorno):
+		f.write('%d, \t %.2f, %s \n' % (c, sto,d.strftime('%Y-%m-%d-%H:%M')))
+		c+=1
+	f.close()
+
 def map_acum_to_stream(ACUM,umbral):
 	'Funcion: map_acum_to_stream\n'\
 	'Descripcion: Calcula red hidrica a partir del area acumulada y un.\n'\
@@ -3701,7 +3722,7 @@ class SimuBasin(Basin):
 	#------------------------------------------------------	
 	def run_shia(self,Calibracion,
 		rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
-		ruta_conv = None, ruta_stra = None, kinematicN = 5):
+		ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
 		'	variables requeridas . \n'\
@@ -3733,6 +3754,7 @@ class SimuBasin(Basin):
 		'	de tiempo, esta es opcional, solo se guardan si esta variable es asignada.\n'\
 		'ruta_conv : Ruta al binario y hdr indicando las nubes que son convectivas.\n'\
 		'ruta_stra : Ruta al binario y hdr indicando las nubes que son estratiformes.\n'\
+		'ruta_retorno : Ruta al binario y hdr en donde escribe la serie con los milimetros retornados al tanque runoff.\n'\
 		'kinematicN: Cantidad de iteraciones para la solucion de la onda cinematica.\n'\
 		'	De forma continua: 5 iteraciones, recomendado para cuando el modelo se\n'\
 		'		ejecuta en forma continua Ej: cu.run_shia(Calib, rain_rute, 100)\n'\
@@ -3766,7 +3788,7 @@ class SimuBasin(Basin):
 			NcontrolH = 1
 		else:
 			NcontrolH = np.count_nonzero(models.control_h)
-		#Prepara variables de guardado de variables 
+		#Prepara variables de guardado de almacenamiento
 		if ruta_storage is not None:
 			models.save_storage = 1
 			ruta_sto_bin, ruta_sto_hdr = __Add_hdr_bin_2route__(ruta_storage,
@@ -3784,6 +3806,14 @@ class SimuBasin(Basin):
 			models.save_speed = 0
 			ruta_speed_bin = 'no_guardo_nada.bin'
 			ruta_speed_hdr = 'no_guardo_nada.hdr'
+		#Prepara variables para el almacenamiento de retorno
+		if ruta_retorno is not None:
+			models.save_retorno = 1
+			ruta_ret_bin, ruta_ret_hdr = __Add_hdr_bin_2route__(ruta_retorno)
+		else:
+			models.save_retorno = 0
+			ruta_ret_bin = 'no_guardo_nada.bin'
+			ruta_ret_hdr = 'no_guardo_nada.hdr'
 		#Variables de separacion de flujo por tipo de lluvia 
 		if ruta_conv <> None and ruta_stra <> None:
 			ruta_binConv,ruta_hdrConv = __Add_hdr_bin_2route__(ruta_conv)
@@ -3826,7 +3856,8 @@ class SimuBasin(Basin):
 			ruta_binConv,
 			ruta_binStra,
 			ruta_hdrConv,
-			ruta_hdrStra)	
+			ruta_hdrStra,
+			ruta_ret_bin)
 		#Retorno de variables de acuerdo a lo simulado 
 		Retornos={'Qsim' : Qsim}
 		Retornos.update({'Balance' : Balance})
@@ -3835,14 +3866,6 @@ class SimuBasin(Basin):
 			Retornos.update({'Humedad' : Humedad})
 			Retornos.update({'Humedad_t1' : St1})
 			Retornos.update({'Humedad_t2' : St3})
-		#if np.count_nonzero(models.control_h)>0:
-			#Retornos.update({'St1' : St1})
-		#if np.count_nonzero(models.control_h)>0:
-			#Retornos.update({'St3' : St3})
-                #if np.count_nonzero(models.control_h)>0:
-                        #Retornos.update({'St1_pc' : St1_pc})
-                #if np.count_nonzero(models.control_h)>0:
-                        #Retornos.update({'St3_pc' : St3_pc})
 		if models.sim_sediments == 1:
 			Retornos.update({'Sediments' : Qsed})
 		if models.separate_fluxes == 1:
@@ -3879,6 +3902,15 @@ class SimuBasin(Basin):
 			else:
 				__Save_speed_hdr__(ruta_speed_hdr,rain_ruteHdr,N_intervals,
 					start_point,self)
+		
+		if models.save_retorno == 1:
+			if models.show_mean_retorno == 1:
+				__Save_retorno_hdr__(ruta_ret_hdr, rain_ruteHdr, N_intervals,
+					start_point, self, Mean_retorno = models.mean_retorno)
+			else:
+				__Save_retorno_hdr__(ruta_ret_hdr, rain_ruteHdr, N_intervals,
+					start_point, self)
+		
 		#Campo de lluvia acumulado para el evento 
 		Retornos.update({'Rain_Acum': models.acum_rain})
 		Retornos.update({'Rain_hietogram': models.mean_rain})	
