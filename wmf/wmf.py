@@ -115,7 +115,9 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 		label_size = kwargs.get('label_size',14)
 		ax2.set_ylabel(ylabel,size=label_size)
 		ylim = kwargs.get('rain_ylim',ax2AX.get_ylim() [::-1])
-		ax2AX.set_ylim(ylim)    
+		ax2AX.set_ylim(ylim)
+	else:
+		ax2 = None    
 	#grafica las hidrografas
 	ColorSim=kwargs.get('ColorSim',['r','g','k','c','y'])
 	Qs_lw = kwargs.get('Qs_lw',1.5)
@@ -149,6 +151,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 		pl.savefig(ruta, bbox_inches='tight')
 	if show == True:
 		pl.show()
+	return ax1, ax2
 
 def plot_mean_storage(Mean_Storage, Dates = None, mrain = None, 
 	rute = None, **kwargs):
