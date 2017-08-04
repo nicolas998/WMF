@@ -3807,7 +3807,7 @@ class SimuBasin(Basin):
 		else:
 			HspeedLoc = np.zeros((4,N))*-9999.0
 		# Ejecuta el modelo 
-		Qsim,Qsed,Qseparated,Humedad,St1_pc,St3_pc,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
+		Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
 			rain_ruteHdr,
 			Calibracion,
@@ -3830,14 +3830,16 @@ class SimuBasin(Basin):
 		Retornos.update({'Storage' : Alm})
 		if np.count_nonzero(models.control_h)>0:
 			Retornos.update({'Humedad' : Humedad})
-		if np.count_nonzero(models.control_h)>0:
-			Retornos.update({'St1' : St1})
-		if np.count_nonzero(models.control_h)>0:
-			Retornos.update({'St3' : St3})
-                if np.count_nonzero(models.control_h)>0:
-                        Retornos.update({'St1_pc' : St1_pc})
-                if np.count_nonzero(models.control_h)>0:
-                        Retornos.update({'St3_pc' : St3_pc})
+			Retornos.update({'Humedad_t1' : St1})
+			Retornos.update({'Humedad_t2' : St3})
+		#if np.count_nonzero(models.control_h)>0:
+			#Retornos.update({'St1' : St1})
+		#if np.count_nonzero(models.control_h)>0:
+			#Retornos.update({'St3' : St3})
+                #if np.count_nonzero(models.control_h)>0:
+                        #Retornos.update({'St1_pc' : St1_pc})
+                #if np.count_nonzero(models.control_h)>0:
+                        #Retornos.update({'St3_pc' : St3_pc})
 		if models.sim_sediments == 1:
 			Retornos.update({'Sediments' : Qsed})
 		if models.separate_fluxes == 1:
