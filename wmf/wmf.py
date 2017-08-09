@@ -1825,7 +1825,7 @@ class Basin:
 	#------------------------------------------------------
 	def Save_Net2Map(self,ruta,dx=cu.dxp,umbral=None,
 		qmed=None,Dict=None,DriverFormat='ESRI Shapefile',
-		EPSG=4326, NumTramo = False, formato = '%.2f'):
+		EPSG=4326, NumTramo = True, formato = '%.2f'):
 		'Descripcion: Guarda la red hidrica simulada de la cuenca en .shp \n'\
 		'	Puede contener un diccionario con propiedades de la red hidrica. \n'\
 		'\n'\
@@ -3722,7 +3722,7 @@ class SimuBasin(Basin):
 	#------------------------------------------------------	
 	def run_shia(self,Calibracion,
 		rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
-		ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5):
+		ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
 		'	variables requeridas . \n'\
@@ -3764,6 +3764,8 @@ class SimuBasin(Basin):
 		'			Results = cu.run_shia(Calib, ruta_rain, 1, i)\n'\
 		'			for c,j in enumerate(Results[''Storage'']):\n'\
 		'				cu.set_Storage(j,c)\n'\
+		'QsimDataFrame: Retorna un data frame con los caudales simulados indicando su id de acuerdo con el\n'\
+		'	que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -3919,6 +3921,17 @@ class SimuBasin(Basin):
 			Retornos.update({'Slides_Map': np.copy(models.sl_slideocurrence)})
 			Retornos.update({'Slides_NCell_Serie': np.copy(models.sl_slidencelltime)})
 			Retornos.update({'Slides_Acum':np.copy(models.sl_slideacumulate)})
+		#Caudal simulado en un dataframe 
+		if QsimDataFrame:
+			#Obtiene las fechas 
+			Rain = read_mean_rain(rain, rain_ruteHdr, N_intervals, start_point)
+			#Obtiene ids
+			ids = models.control[models.control<>0]
+			Qdict = {}
+			for i,j in zip(Retornos['Qsim'][1:], ids):
+				Qdict.update({str(j): i})
+				Qdict = pd.DataFrame(Qdict, index=Rain.index[Inicio:Fin])
+			return Retornos, Qdict
 		return Retornos
 
 	def efficiencia(self, Qobs, Qsim):
