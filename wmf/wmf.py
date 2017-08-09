@@ -3184,7 +3184,7 @@ class SimuBasin(Basin):
 			models.unit_type = np.ones((1,self.ncells))*unit_type
 			models.hill_long = np.ones((1,self.ncells))*hill_long
 			models.hill_slope = np.ones((1,self.ncells))*pend
-			models.stream_long = np.ones((1,self.ncells))*hill_long
+			models.stream_long = np.ones((1,self.ncells))*np.percentile(hill_long, 40)
 			models.stream_slope = np.ones((1,self.ncells))*pend
 			models.stream_width = np.ones((1,self.ncells))*stream_width
 			models.elem_area = np.ones((1,self.ncells))*cu.dxp**2.0
@@ -3924,13 +3924,13 @@ class SimuBasin(Basin):
 		#Caudal simulado en un dataframe 
 		if QsimDataFrame:
 			#Obtiene las fechas 
-			Rain = read_mean_rain(rain, rain_ruteHdr, N_intervals, start_point)
+			Rain = read_mean_rain(rain_ruteHdr, N_intervals, start_point)
 			#Obtiene ids
 			ids = models.control[models.control<>0]
 			Qdict = {}
 			for i,j in zip(Retornos['Qsim'][1:], ids):
 				Qdict.update({str(j): i})
-				Qdict = pd.DataFrame(Qdict, index=Rain.index[Inicio:Fin])
+			Qdict = pd.DataFrame(Qdict, index=Rain.index)
 			return Retornos, Qdict
 		return Retornos
 
