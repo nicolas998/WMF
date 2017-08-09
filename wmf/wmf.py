@@ -130,7 +130,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 		if ids is None:
 			ids = np.arange(1,Qs.shape[0]+1)
 		for i,c,d in zip(Qs,ColorSim,ids):
-			ax1.plot(ejeX,i,c,lw=Qs_lw,label='Simulated '+str(d))    
+			ax1.plot(ejeX,i,c,lw=Qs_lw,label=str(d))    
 	else:
 		ax1.plot(ejeX,Qs,Qs_color,lw=Qs_lw,label=Qs_label)    
 	if Qo<>None: ax1.plot(ejeX,Qo,Qo_color,lw=Qo_lw,label=Qo_label)
