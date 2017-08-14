@@ -1503,11 +1503,11 @@ subroutine basin_stream_sections(basin_f, cauces, directions, DEM, &
 					secciones(cont,i) = DEM(col+j*colMov,fil+j*filMov)
 					!where(basin_f(2,:) .eq. col+j*colMov .and. basin_f(3,:) .eq. fil+j*filMov) secciones_cel(cont,:) = basin_f(1,:)
 					call find_xy_in_basin(basin_f,col+j*colMov,fil+j*filMov,posCelda, nceldas)
-					secciones_cel(cont,i) = posCelda					
+					secciones_cel(cont,i) = posCelda
 				else
 					!Caso fuera del mapa 
 					secciones(cont,i) = -9999
-					secciones_cel(cont,i) = -9999					
+					secciones_cel(cont,i) = -9999
 				endif
 				cont = cont + 1 
 			enddo

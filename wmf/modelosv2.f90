@@ -168,6 +168,8 @@ real flood_dw, flood_dsed !Densidad del agua (1000) y densidad de los sedimentos
 real flood_umbral !Velocidad minima para que se evalue inundaciones 
 integer flood_max_iter !Maxima cantidad de iteraciones para determinar celdas inundadas
 real flood_step !Tamano del paso (en metros) para ir generando la mancha de inundacion
+real flood_hmax !profundidad maxima de inundacion
+real, allocatable :: flood_profundidad(:,:) !Diferencia en profundidad simulada en un intervalo de tiempo sobre las secciones
 
 contains
 
@@ -1487,6 +1489,7 @@ subroutine flood_allocate(N_cel) !Aloja las variables propias de deslizamientos
 	if (allocated(flood_loc_hand) .eqv. .false.) allocate(flood_loc_hand(1,N_cel))
 	if (allocated(flood_slope) .eqv. .false.) allocate(flood_slope(1,N_cel))
 	flood_sec_tam = size(flood_sections(:,1))
+	if (allocated(flood_profundidad) .eqv. .false.) allocate(flood_profundidad(int(flood_sec_tam), N_cel))
 	flood_eval = 0
 	flood_flood = 0
 end subroutine
@@ -1500,6 +1503,7 @@ subroutine flood_params(celda) !Calcula los parametros de inundacion para un int
 	cmax = flood_Cmax 
 	!Calcula profundidad y velocidad de friccion
 	flood_h(1,celda) = flood_Q(1,celda) / (flood_speed(1,celda) * flood_w(1,celda))
+	if (flood_h(1,celda) .gt. flood_hmax) flood_h(1,celda) = flood_hmax
 	flood_ufr(1,celda) = flood_speed(1,celda)/((5.75)*log(flood_h(1,celda)/flood_d50(1,celda))+6.25)
 	!Calcula la concentracion
 	cr = flood_Cmax * (0.06*flood_h(1,celda))**(0.2/flood_ufr(1,celda)) 
@@ -1573,6 +1577,7 @@ subroutine flood_debris_flow2(celda,areas,dif) !Calcula: Altura de inundacion pa
 		i = i + 1 
     enddo
     !Inunda 
+    flood_profundidad(:,celda) = diferencias
     positions = 999999
     where(diferencias .gt. 0.0) positions = flood_sec_cells(:,celda)
     call QsortC(positions)
