@@ -1264,7 +1264,7 @@ class Basin:
 		self.GetGeo_Cell_Basics()
 		#Obtiene vector de direcciones 
 		directions = self.Transform_Map2Basin(self.DIR, 
-			[cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, 0.0])
+			[cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy ,0.0])
 		#Obtiene las secciones 
 		self.Sections, self.Sections_Cells = cu.basin_stream_sections(self.structure,
 			self.CellCauce, directions, self.DEM, NumCeldas,
@@ -3225,7 +3225,7 @@ class SimuBasin(Basin):
 			else:
 				models.speed_type[c]=1	
 	
-	def set_Floods(self,var,VarName, umbral = 1000, NumCeldas = 6):
+	def set_Floods(self,var,VarName, umbral = 1000, NumCeldas = 6, Default = False):
 		'Descripcion: Aloja las variables del sub modelo de inundaciones\n'\
 		'\n'\
 		'Parametros\n'\
@@ -3244,6 +3244,7 @@ class SimuBasin(Basin):
 		'	HAND: Modelo de elevacion relativa de celda ladera a celda cauce (ncells), no se ponde nada.\n'\
 		'	umbral: Umbral para determinar corriente segun HAND debe coincidir con el umbral del modelo.\n'\
 		'	Slope: Pendiente del canal, (no se ponde variable)\n'\
+		'	Default: Poner o no parametros por defecto (False)\n'\
 		'Retornos\n'\
 		'----------\n'\
 		'self : variables iniciadas en el modelo bajo los nombres de:.\n'\
@@ -3258,13 +3259,14 @@ class SimuBasin(Basin):
 		if self.modelType[0] == 'h':
 			return 'El modelo por laderas no simula inundaciones.'
 		#Pone el gamma del agua por defecto 
-		models.flood_dw = 1000
-		models.flood_dsed = 2600
-		models.flood_av = 1./200.0
-		models.flood_cmax = 0.75
-		models.flood_umbral = 3.0
-		models.flood_max_iter = 10
-		models.flood_step = 1.0
+		if Default:
+			models.flood_dw = 1000
+			models.flood_dsed = 2600
+			models.flood_av = 1./200.0
+			models.flood_cmax = 0.75
+			models.flood_umbral = 3.0
+			models.flood_max_iter = 10
+			models.flood_step = 1.0
 		#Obtiene el vector que va a alojar en el modelo
 		if VarName <> 'GammaWater' and VarName <> 'GammaSoil' and VarName <> 'VelArea' and VarName <> 'Cmax' and VarName <> 'VelUmbral':
 			isVec=False
