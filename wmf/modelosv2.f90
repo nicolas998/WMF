@@ -1488,6 +1488,7 @@ subroutine flood_allocate(N_cel) !Aloja las variables propias de deslizamientos
 	if (allocated(flood_slope) .eqv. .false.) allocate(flood_slope(1,N_cel))
 	flood_sec_tam = size(flood_sections(:,1))
 	flood_eval = 0
+	flood_flood = 0
 end subroutine
 
 subroutine flood_params(celda) !Calcula los parametros de inundacion para un intervalo de tiempo
