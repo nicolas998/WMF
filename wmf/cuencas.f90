@@ -840,7 +840,7 @@ subroutine basin_perim_find(basin_f,nperim,nceldas) !Encuentra los puntos X,Y de
     col2=basin_f(2,nceldas)
     fil2=basin_f(3,nceldas)
     xll_loc=xll-dx
-    yll_loc=yll-dx
+    yll_loc=yll-dy
     !Genera la matriz de mascara de ceros y unos de la cuenca
     mascara=0
     do i=1,nceldas
