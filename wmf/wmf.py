@@ -3171,7 +3171,7 @@ class SimuBasin(Basin):
 			self.hills_own,cauce,hill_long,
 			pend,self.hills.shape[1],self.ncells)
 		#opbtiene el ancho si noe s dado lo asume igual a uno 
-		if stream_width==None:
+		if stream_width is not None:
 			stream_width=np.ones(self.ncells)
 		#De acuerdo a si el modelo es por laderas o por celdas agrega lass varaibeles 
 		if self.modelType[0]=='c':
