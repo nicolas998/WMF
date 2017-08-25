@@ -211,6 +211,10 @@ def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
 		pl.savefig(rute, bbox_inches='tight')
 	if show == True:
 		pl.show()
+	if c == 0 and mrain <> None:
+		return ax, ax2
+	else:
+		return ax
 
 #-----------------------------------------------------------------------
 #Lectura de informacion y mapas 
