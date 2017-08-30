@@ -2140,7 +2140,7 @@ class Basin:
 			xy_s = kwargs.get('xy_s',0.5)
 			if xy<>None:
 				xc,yc=m(xy[0],xy[1])
-				m.scatter(xc,yc,color=xycolor,
+				m.scatter(xc,yc,c=xycolor,
 					s=xy_s,
 					linewidth=xy_lw,
 					edgecolor=xy_edgecolor)
@@ -2426,6 +2426,7 @@ class Basin:
 		ylabel = kwargs.get('ylabel','Elevacion $[m.s.n.m]$')
 		ax.set_xlabel('Distancia $[km]$',size = fontsize)
 		ax.set_ylabel(ylabel,size = fontsize)
+		ax.tick_params(labelsize = 14)
 		cb = pl.colorbar()
 		cbar_label = kwargs.get('cbar_label',None)
 		if cbar_label <> None:
@@ -2494,19 +2495,19 @@ class Basin:
 		#Genera el plot
 		fig=pl.figure(edgecolor='w',facecolor='w',figsize = figsize)
 		ax=fig.add_subplot(111)
-		box = ax.get_position()
-		ax.set_position([box.x0, box.y0 + box.height * 0.1,
-			box.width, box.height * 0.9])
-		ax.plot(ppal_acum,elevPpal,c='b',lw=2,label='Cacuce Principal')
-		ax.plot(basin_acum,elevBasin,c='r',lw=2,label='Cuenca')
+		#box = ax.get_position()
+		#ax.set_position([box.x0, box.y0 + box.height * 0.1,
+		#	box.width, box.height * 0.9])
+		ax.plot(ppal_acum,elevPpal,c='b',lw=3,label='Cacuce Principal')
+		ax.plot(basin_acum,elevBasin,c='r',lw=3,label='Cuenca')
+		ax.tick_params(labelsize = 14)
 		ax.grid()
-		ax.set_xlabel('Porcentaje Area Acumulada $[\%]$',size=14)
+		ax.set_xlabel('Porcentaje Area Acumulada $[\%]$',size=16)
 		if normed==False:
-			ax.set_ylabel('Elevacion $[m.s.n.m]$',size=14)
+			ax.set_ylabel('Elevacion $[m.s.n.m]$',size=16)
 		elif normed==True:
-			ax.set_ylabel('Elevacion $[\%]$',size=14)
-		lgn1=ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12),
-			fancybox=True, shadow=True, ncol=2)
+			ax.set_ylabel('Elevacion $[\%]$',size=16)
+		lgn1=ax.legend(loc=0)
 		if ruta<>None:
 			pl.savefig(ruta, bbox_inches='tight')
 			pl.close('all')
