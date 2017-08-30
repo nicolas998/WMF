@@ -3937,6 +3937,18 @@ class SimuBasin(Basin):
 			for i,j in zip(Retornos['Qsim'][1:], ids):
 				Qdict.update({str(j): i})
 			Qdict = pd.DataFrame(Qdict, index=Rain.index)
+			#Si separa flujos, entrega el caudal tambien en data frame por flujos
+			if models.separate_fluxes == 1:
+				Qsep = {}
+				tupla = []
+				for z,i,j in zip(Res['Qsim'][1:], Res['Fluxes'][1:], ids):
+					tupla.append((str(j),'run'))
+					tupla.append((str(j),'sub'))
+					tupla.append((str(j),'sup'))
+					Qsep.extend([i[0],i[1],z-i[0]-i[1]])
+				index = pd.MultiIndex.from_tuples(tupla, names=['reach','flux'])
+				QsepDict = pd.DataFrame(Qsep.T, index=Rain.index, columns=index)
+				return Retornos, Qdict, QsepDict
 			return Retornos, Qdict
 		return Retornos
 
