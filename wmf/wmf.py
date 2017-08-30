@@ -2037,6 +2037,7 @@ class Basin:
 			'	-xy_edgecolor = Color de la linea exterior del scatter .\n'\
 			'	-xy_lw = Ancho de linea del Scatter .\n'\
 			'	-xy_s = Tamano del scatter.\n'\
+			'	-xy_colorbar: Coloca o no barra de colores del scatter enviado (False).\n'\
 			'	-show = boolean, si es True muestra la grafica.\n'\
 			'	-cbar_ticks: (None) ubicacion de los ticks del cbar.\n'\
 			'	-cbar_ticklabels: (None) Labels a poner sobre los ticks.\n'\
@@ -2056,6 +2057,7 @@ class Basin:
 			show = kwargs.get('show', True)
 			ShpIsPolygon = kwargs.get('ShpIsPolygon',None)
 			shpAlpha = kwargs.get('shpAlpha',0.5)
+			xy_colorbar = kwargs.get('xy_colorbar', False)
 			#El mapa
 			Mcols,Mrows=cu.basin_2map_find(self.structure,self.ncells)
 			Map,mxll,myll=cu.basin_2map(self.structure,self.structure[0]
@@ -2140,10 +2142,12 @@ class Basin:
 			xy_s = kwargs.get('xy_s',0.5)
 			if xy<>None:
 				xc,yc=m(xy[0],xy[1])
-				m.scatter(xc,yc,c=xycolor,
+				sx = m.scatter(xc,yc,c=xycolor,
 					s=xy_s,
 					linewidth=xy_lw,
 					edgecolor=xy_edgecolor)
+				if xy_colorbar:
+					pl.colorbar(sx)
 			#Si hay una ruta a un shp lo plotea
 			if rutaShp <> None:
 				if type(rutaShp) == str:
@@ -2162,7 +2166,10 @@ class Basin:
 				pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
 			if show==True:
 				pl.show()
-			return m,ax
+			if xy == None:
+				return m,ax
+			else:
+				return m, ax, sx
 	#Grafica de plot para montar en paginas web o presentaciones
 	def Plot_basinClean(self, vec, ruta = None, umbral = 0.0, 
 		vmin = 0.0, vmax = None, show_cbar = False, **kwargs):	
