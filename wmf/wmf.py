@@ -3937,16 +3937,13 @@ class SimuBasin(Basin):
 			if models.separate_fluxes == 1:
 				Qsep = {}
 				tupla = []
-				for i,j in zip(Res['Fluxes'][1:], ids):
+				for z,i,j in zip(Res['Qsim'][1:], Res['Fluxes'][1:], ids):
 					tupla.append((str(j),'run'))
 					tupla.append((str(j),'sub'))
 					tupla.append((str(j),'sup'))
-					Qsep.update({str(j): {'run': i[0],
-						'sub':i[1],
-						'sup':i[2]}})
+					Qsep.extend([i[0],i[1],z-i[0]-i[1]])
 				index = pd.MultiIndex.from_tuples(tupla, names=['reach','flux'])
-				a = np.copy(Res['Fluxes'][1:])
-				QsepDict = pd.DataFrame(a.reshape((1156*3,564)).T, index=Rain.index, columns=index)
+				QsepDict = pd.DataFrame(Qsep.T, index=Rain.index, columns=index)
 				return Retornos, Qdict, QsepDict
 			return Retornos, Qdict
 		return Retornos
