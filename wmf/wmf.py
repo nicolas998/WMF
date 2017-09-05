@@ -103,7 +103,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 	else:
 		ejeX=Dates
 	#Grafica la lluvia
-	if mrain<>None:
+	if mrain is not None:
 		ax1AX=pl.gca()
 		ax2=ax1.twinx()
 		ax2AX=pl.gca()
@@ -133,7 +133,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 			ax1.plot(ejeX,i,c,lw=Qs_lw,label=str(d))    
 	else:
 		ax1.plot(ejeX,Qs,Qs_color,lw=Qs_lw,label=Qs_label)    
-	if Qo<>None: ax1.plot(ejeX,Qo,Qo_color,lw=Qo_lw,label=Qo_label)
+	if Qo is not None: ax1.plot(ejeX,Qo,Qo_color,lw=Qo_lw,label=Qo_label)
 	#Pone elementos en la figura
 	xlabel = kwargs.get('xlabel','Time [$min$]')
 	ylabel = kwargs.get('ylabel','Streamflow $[m^3/seg]$')
@@ -147,7 +147,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
 	if legend == True:
 		lgn1=ax1.legend(loc=loc, bbox_to_anchor=bbox_to_anchor,
 			fancybox=True, shadow=True, ncol=ncol)
-	if ruta<>None:
+	if ruta is not None:
 		pl.savefig(ruta, bbox_inches='tight')
 	if show == True:
 		pl.show()
@@ -199,7 +199,7 @@ def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
 			ax.set_xticklabels([])
 		ax.tick_params(labelsize = labelsize)
 		#Pinta la lluvia en el primer plot
-		if c == 0 and mrain <> None:
+		if c == 0 and mrain  is not  None:
 			ax2=ax.twinx()
 			ax2AX=pl.gca()
 			ax2.fill_between(ejeX,0,mrain,alpha=alpha,color=colorRain,lw=lwRain)
@@ -207,11 +207,11 @@ def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
 			ax2AX.set_ylim(ylim)
 		#Nombre de cada tanque 
 		ax.set_ylabel(nombres[c], size = ysize)
-	if rute<>None:
+	if rute is not None:
 		pl.savefig(rute, bbox_inches='tight')
 	if show == True:
 		pl.show()
-	if c == 0 and mrain <> None:
+	if c == 0 and mrain  is not  None:
 		return ax, ax2
 	else:
 		return ax
@@ -636,7 +636,7 @@ def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],
 	w2=(fhi*(0.667-sigma[1])*(alfa[1]-alfa[0])+sigma[0])*eB
 	w3=(0.5-sigma[2])*eB
 	B=B**(-eB)
-	if pend<>None and area<>None:
+	if pend is not None and area is not None:
 		var = B*(pend**w2)*(area**w3)
 		return var,w1
 	else:
@@ -784,7 +784,7 @@ class Basin:
 		#Si se entrega cauce corrige coordenadas
 		if ruta == None:
 			# Si se da el stream corrige por corriente
-			if stream<>None:
+			if stream is not None:
 				error=[]
 				for i in stream.structure.T:
 					error.append( np.sqrt((lat-i[0])**2+(lon-i[1])**2) )
@@ -1449,7 +1449,7 @@ class Basin:
 			lluviaTr.append(a)
 		lluviaTr=np.array(lluviaTr)
 		#si se da el valor de CN lo calcula
-		if CN<>None:
+		if CN is not None:
 			S=(1000.0/float(CN)-10.0)*25.4; Ia=0.2*S
 			lluviaTrTemp=[]
 			for l in lluviaTrAcum:			
@@ -1474,17 +1474,17 @@ class Basin:
 			Grosor=np.arange(0.5,4,0.2)
 			for l,le,t,g in zip(lluviaTr,lluviaTrEfect,Tr,Grosor):	
 				ax.plot(X,l,c='b',lw=g,label=str(t))
-			if CN<>None:
+			if CN is not None:
 				for l,le,t,g in zip(lluviaTr,lluviaTrEfect,Tr,Grosor):	
 					ax.plot(X,le,c='r',lw=g,label=str(t))
 			ax.set_xlabel('Tiempo $[h]$',size=14)
 			ax.set_ylabel('Precipitacion $[mm]$',size=14)	
 			ax.grid(True)
 			pl.legend(loc=0,ncol=2)
-			if ruta<>None:
+			if ruta is not None:
 				pl.savefig(ruta,bbox_inches='tight')
 			pl.show()
-		if CN<>None:
+		if CN is not None:
 			return lluviaTr,np.array(lluviaTrEfect),S
 		else:
 			return lluviaTr
@@ -1531,7 +1531,7 @@ class Basin:
 		ax.set_xlabel('Tiempo $[min]$',size=14)
 		ax.set_ylabel('HU $[m^3/seg/mm]$',size=14)
 		ax.legend(loc=0)
-		if ruta<>None:
+		if ruta is not None:
 			pl.savefig(ruta,bbox_inches='tight')
 		pl.show()
 	
@@ -1583,7 +1583,7 @@ class Basin:
 		M,mxll,myll = cu.basin_2map(self.structure, BasinVar,
 			map_ncols, map_nrows, self.ncells)
 		# Si exporta el mapa lo guarda si no simplemente devuelve la matriz 
-		if ruta<>None:
+		if ruta is not None:
 			Save_Array2Raster(M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.nodata],
 				ruta = ruta, EPSG = EPSG, Format = DriverFormat)
 		return M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.dy,cu.nodata]
@@ -1626,7 +1626,7 @@ class Basin:
 		'----------\n'\
 		'HillsMap : Vector con las prop agregadas a laderas .\n'\
 		#Si hay mascara la tiene en cuenta
-		if mask<>None:
+		if mask is not None:
 			Ma = np.zeros(self.ncells)
 			if type(mask) is float or type(mask) is int:
 				Ma[CellMap==mask] = 1
@@ -1864,7 +1864,7 @@ class Basin:
 		netsize = cu.basin_netxy_find(self.structure,nodos,cauceHorton,self.ncells)
 		net=cu.basin_netxy_cut(netsize,self.ncells)
 		#Para net con caudal medio
-		if qmed<>None:
+		if qmed is not None:
 			netsize = cu.basin_netxy_find(self.structure,nodos,cauce*qmed,self.ncells)
 			netQmed=cu.basin_netxy_cut(netsize,self.ncells)
 		#Para net con tramos
@@ -1892,10 +1892,10 @@ class Basin:
 		if NumTramo:
 			new_field=osgeo.ogr.FieldDefn('Tramo',osgeo.ogr.OFTInteger)
 			layer.CreateField(new_field)
-		if qmed<>None:
+		if qmed is not None:
 			new_field=osgeo.ogr.FieldDefn('Qmed[m3s]',osgeo.ogr.OFTReal)
 			layer.CreateField(new_field)
-		if Dict<>None:
+		if Dict is not None:
 			if type(Dict==dict):
 				netDict=[]
 				for k in Dict.keys():
@@ -1914,11 +1914,11 @@ class Basin:
 			feature.SetFID(0)
 			feature.SetField('Long[km]',(net[1,i+1:j].size*dx)/1000.0)
 			feature.SetField('Horton',int(net[0,i+1]))
-			if qmed<>None:	
+			if qmed is not None:	
 				feature.SetField('Qmed[m3s]',float(netQmed[0,i+1]))
 			if NumTramo:	
 				feature.SetField('Tramo',int(netTramo[0,i+1]))
-			if Dict<>None:
+			if Dict is not None:
 				if type(Dict==dict):
 					for n,k in zip(netDict,Dict.keys()):					
 						feature.SetField(k[:10],float(formato % n[0,i+1]))
@@ -2110,7 +2110,7 @@ class Basin:
 			per_lw = kwargs.get('per_lw',2)
 			m.plot(xp, yp, color=per_color,lw=per_lw)
 			#hay una variable la monta
-			if vec<>None:
+			if vec is not None:
 				if vmin is None:
 					vmin = vec.min()
 				if vmax is None:
@@ -2120,7 +2120,7 @@ class Basin:
 				MapVec[MapVec==cu.nodata]=np.nan
 				if ZeroAsNaN is 'si':
 					MapVec[MapVec == 0] = np.nan
-				if colorTable<>None:
+				if colorTable is not None:
 					cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,cmap=colorTable,
 						vmin=vmin,vmax=vmax)
 				else:
@@ -2129,18 +2129,18 @@ class Basin:
 				cbar_label_size = kwargs.get('cbar_label_size',16)
 				if colorbar:
 					cbar = m.colorbar(cs,location='bottom',pad="5%")
-					if colorbarLabel<>None:
+					if colorbarLabel is not None:
 						cbar.set_label(colorbarLabel, size = cbar_label_size)
-					if cbar_ticks <> None:
+					if cbar_ticks is not None:
 						cbar.set_ticks(cbar_ticks)
-					if cbar_ticklabels <> None:
+					if cbar_ticklabels is not None:
 						cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
 						cbar.ax.set_xticklabels(cbar_ticklabels, size = cbar_ticksize,)
 			#Si hay coordenadas de algo las plotea
 			xy_edgecolor = kwargs.get('xy_edgecolor','black')
 			xy_lw = kwargs.get('xy_lw',30)
 			xy_s = kwargs.get('xy_s',0.5)
-			if xy<>None:
+			if xy is not None:
 				xc,yc=m(xy[0],xy[1])
 				sx = m.scatter(xc,yc,c=xycolor,
 					s=xy_s,
@@ -2149,7 +2149,7 @@ class Basin:
 				if xy_colorbar:
 					pl.colorbar(sx)
 			#Si hay una ruta a un shp lo plotea
-			if rutaShp <> None:
+			if rutaShp is not None:
 				if type(rutaShp) == str:
 					m.readshapefile(rutaShp, 'mapashp', linewidth = shpWidth, color = shpColor)
 				elif type(rutaShp) == list:
@@ -2162,7 +2162,7 @@ class Basin:
 							ax.add_collection(PatchCollection(patches, facecolor= shpColor[c], 
 								edgecolor=shpColor[c], linewidths=shpWidth[c], zorder=2, alpha = shpAlpha[c]))
 			#Guarda
-			if ruta<>None:
+			if ruta is not None:
 				pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
 			if show==True:
 				pl.show()
@@ -2237,7 +2237,7 @@ class Basin:
 			if cbar_ticklabels is not None:
 				cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
 		#Guarda transparente y ajustando bordes
-		if ruta<>None:
+		if ruta is not None:
 			pl.savefig(ruta, 
 				bbox_inches = 'tight', 
 				pad_inches = 0, 
@@ -2328,9 +2328,9 @@ class Basin:
 		#colorca colorbar
 		if show_cbar:
 			cbar = pl.colorbar(sca, aspect = cbar_aspect, )
-			if cbar_ticks <> None:
+			if cbar_ticks  is not  None:
 				cbar.set_ticks(cbar_ticks)
-			if cbar_ticklabels <> None:
+			if cbar_ticklabels  is not  None:
 				cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
 		
 		ax.set_xlim(x[pos].min(),x[pos].max())
@@ -2345,7 +2345,7 @@ class Basin:
 			ax.set_ylabel('Longitud', size = size)
 			ax.tick_params(labelsize = ticksize)
 		#Guarda transparente y ajustando bordes
-		if ruta<>None:
+		if ruta is not None:
 			pl.savefig(ruta, 
 				bbox_inches = 'tight', 
 				pad_inches = 0, 
@@ -2400,7 +2400,7 @@ class Basin:
 		ax.set_ylabel(ylabel,size=14)
 		ax.grid(True)
 		ax.legend(loc='upper_right',ncol='3',fontsize='medium')
-		if ruta<>None:
+		if ruta is not None:
 			pl.savefig(ruta,bbox_inches='tight')
 		if show == True:
 			pl.show()
@@ -2436,9 +2436,9 @@ class Basin:
 		ax.tick_params(labelsize = 14)
 		cb = pl.colorbar()
 		cbar_label = kwargs.get('cbar_label',None)
-		if cbar_label <> None:
+		if cbar_label  is not  None:
 			cb.set_label(cbar_label,fontsize=fontsize)
-		if ruta<>None:
+		if ruta is not None:
 			pl.savefig(ruta,bbox_inches='tight')
 		if show == True:
 			pl.show()
@@ -2457,7 +2457,7 @@ class Basin:
 		ax.grid(True)
 		ax.set_xlabel('Pendiente',size=14)
 		ax.set_ylabel('$pdf [\%]$',size=14)
-		if ruta<>None:
+		if ruta is not None:
 			pl.savefig(ruta,bbox_inches='tight')
 		pl.show()
 	#Plot de histograma de tiempos de viajes en la cuenca 
@@ -2482,7 +2482,7 @@ class Basin:
 		ax2.set_ylabel('$cdf[\%]$',size=14)
 		ax.set_xticks(b_lib)
 		ax.legend(loc=4)
-		if ruta<>None:
+		if ruta is not None:
 			pl.savefig(ruta,bbox_inches='tight')
 		pl.show()
 	#Plot de curva hipsometrica 
@@ -2515,7 +2515,7 @@ class Basin:
 		elif normed==True:
 			ax.set_ylabel('Elevacion $[\%]$',size=16)
 		lgn1=ax.legend(loc=0)
-		if ruta<>None:
+		if ruta is not None:
 			pl.savefig(ruta, bbox_inches='tight')
 			pl.close('all')
 		else:
@@ -2576,7 +2576,7 @@ class SimuBasin(Basin):
 		#Si no hay ruta traza la cuenca
 		if rute is None:
 			#Si se entrega cauce corrige coordenadas
-			if stream<>None:
+			if stream is not None:
 				error=[]
 				for i in stream.structure.T:
 					error.append( np.sqrt((lat-i[0])**2+(lon-i[1])**2) )
@@ -3039,7 +3039,7 @@ class SimuBasin(Basin):
 		'rain_interpolate_idw: interpola campos mediante la metodologia idw.\n'\
 		'rain_radar2basin_from_asc: Mete campos de lluvia mediante multiples arrays.\n'\
 		#Edita la ruta de salida 
-		if ruta_out <> None:
+		if ruta_out  is not  None:
 			if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
 				ruta_bin = ruta_out[:-3]+'.bin'
 				ruta_hdr = ruta_out[:-3]+'.hdr'
@@ -3814,7 +3814,7 @@ class SimuBasin(Basin):
 			ruta_sto_bin = 'no_guardo_nada.StObin'
 			ruta_sto_hdr = 'no_guardo_nada.StOhdr'
 		#prepara variable para guardado de velocidad 
-		if ruta_speed <> None:
+		if ruta_speed  is not  None:
 			models.save_speed = 1
 			ruta_speed_bin, ruta_speed_hdr = __Add_hdr_bin_2route__(ruta_speed,
 				storage = True)
@@ -3831,7 +3831,7 @@ class SimuBasin(Basin):
 			ruta_ret_bin = 'no_guardo_nada.bin'
 			ruta_ret_hdr = 'no_guardo_nada.hdr'
 		#Variables de separacion de flujo por tipo de lluvia 
-		if ruta_conv <> None and ruta_stra <> None:
+		if ruta_conv  is not  None and ruta_stra  is not  None:
 			ruta_binConv,ruta_hdrConv = __Add_hdr_bin_2route__(ruta_conv)
 			ruta_binStra,ruta_hdrStra = __Add_hdr_bin_2route__(ruta_stra)
 			models.separate_rain = 1
@@ -4277,7 +4277,7 @@ class Stream:
 		ax.set_xlabel('Distancia $[mts]$',size=14)
 		ax.set_ylabel('Elevacion $[m.s.n.m]$',size=14)
 		ax.grid(True)
-		if ruta<>None:
+		if ruta is not None:
 			pl.savefig(ruta,bbox_inches='tight')
 		pl.show()
 	#def Plot_Map(self,ruta=None
