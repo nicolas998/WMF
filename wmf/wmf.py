@@ -2166,7 +2166,7 @@ class Basin:
 				pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
 			if show==True:
 				pl.show()
-			if xy == None:
+			if xy is None:
 				return m,ax
 			else:
 				return m, ax, sx
