@@ -1132,6 +1132,10 @@ class Basin:
 		hc,bc = np.histogram(self.CellDist2Out[pos], bins = binsC)
 		ViajeCauce = self.CellDist2Out*self.CellCauce
 		hn,bn = np.histogram(ViajeCauce[ViajeCauce>0], bins = binsN)
+		#Variables del elemento
+		self.width_hits = hn
+		self.width_distances = bn[:-1]/1000.
+		#Estandariza en terminos de probabilidad
 		hc = hc.astype(float); hc = hc / hc.sum()
 		hn = hn.astype(float); hn = hn / hn.sum()
 		#Grafica
@@ -1152,10 +1156,13 @@ class Basin:
 		ax2.plot(bn[:-1]/1000.0, hn.cumsum(), ncolor, lw = 3, ls = '--',label = 'Network Width')
 		ax2.tick_params(labelsize = 15)
 		ax2.set_ylabel('CDF', size = 16)
+		#Guarda la figura 
 		if ruta is not None:
 			pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
 		if show:
 			pl.show()
+		#Retorna ejes de manipulacion
+		return ax,ax1
 	
 	def GetGeo_Ppal_Hipsometric(self,umbral=1000,
 		intervals = 30):
