@@ -2544,7 +2544,8 @@ class Basin:
 			pl.show()
 class SimuBasin(Basin):
 	
-	def __init__(self,lat=None,lon=None,DEM=None,DIR=None,rute = None, name='NaN',stream=None,umbral=500,
+	def __init__(self,lat=None,lon=None,DEM=None,DIR=None,rute = None, name='NaN',stream=None,
+		umbral=500,useCauceMap = None,
 		noData=-999,modelType='cells',SimSed=False,SimSlides=False,dt=60,
 		SaveStorage='no',SaveSpeed='no',retorno = 0,
 		SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no', SimFloods = 'no',
@@ -2565,6 +2566,8 @@ class SimuBasin(Basin):
 		'	que ser exactas, estas se van a corregir para ubicarse.\n'\
 		'	en el punto mas cercano dentro de la corriente, este.\n'\
 		'	debe ser un objeto del tipo stream.\n'\
+		'useCauceMap: Utiliza un mapa de 1 y 0 representando las celdas que.\n'\
+		'	son canal, con este mapa corrige el punto de trazado de la cuenca.\n'\
 		'umbral : Cantidad minima de celdas para la creacion de cauces.\n'\
 		'	(defecto = 500 ).\n'\
 		'noData : Valor correspondiente a valores sin dato (defecto = -999).\n'\
@@ -2605,6 +2608,9 @@ class SimuBasin(Basin):
 				loc=np.argmin(error)
 				lat=stream.structure[0,loc]
 				lon=stream.structure[1,loc]
+			if useCauceMap is not None and useCauceMap.shape == DEM.shape:
+				lat,lon = cu.stream_find_to_corr(lat,lon,DEM,DIR,useCauceMap,
+					cu.ncols,cu.nrows)
 			#copia la direccion de los mapas de DEM y DIR, para no llamarlos mas
 			self.name=name
 			self.DEM=DEM
