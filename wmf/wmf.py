@@ -219,7 +219,7 @@ def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
 #-----------------------------------------------------------------------
 #Lectura de informacion y mapas 
 #-----------------------------------------------------------------------
-def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None):
+def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = False,DIRformat = 'r.watershed'):
 	'Funcion: read_map\n'\
 	'Descripcion: Lee un mapa raster soportado por GDAL.\n'\
 	'Parametros Obligatorios:.\n'\
@@ -227,6 +227,10 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None):
 	'Parametros Opcionales:.\n'\
 	'	-isDEMorDIR: Pasa las propiedades de los mapas al modulo cuencas \n'\
 	'		escrito en fortran \n'\
+	'	-dxp: tamano plano del mapa\n'\
+	'	-noDataP: Valor para datos nulos en el mapa (-9999)\n'\
+	'	-DIRformat: donde se ha conseguido el mapa dir (r.watershed) \n'\
+	'	-isDIR: (FALSE) es este un mapa de direcciones\n'\
 	'Retorno:.\n'\
 	'	Si no es DEM o DIR retorna todas las propieades del elemento en un vector.\n'\
 	'		En el siguiente orden: ncols,nrows,xll,yll,dx,nodata.\n'\
@@ -250,7 +254,11 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None):
 	if isDEMorDIR==True:
 		cu.ncols=ncols
 		cu.nrows=nrows
-		cu.nodata=noData
+		if noDataP is not None:
+			cu.nodata = noDataP
+			Mapa[Mapa<0] = cu.nodata
+		else:
+			cu.nodata=noData
 		cu.dx=dx
 		cu.dy = dy
 		cu.xll=xll
@@ -258,7 +266,14 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None):
 		if dxp==None:
 			cu.dxp=30.0
 		else:
-			cu.dxp=dxp
+			cu.dxp=dxp		
+		# si es un dir se fija si es de r.watershed 
+		if isDIR:
+			if DIRformat == 'r.watershed':
+				Mapa[Mapa<=0] = cu.nodata.astype(int)
+				Mapa = cu.dir_reclass(Mapa.T,cu.ncols,cu.nrows)
+				return Mapa
+		#retorna el mapa 
 		return Mapa.T
 	else:
 		return Mapa.T,[ncols,nrows,xll,yll,dx,dy,noData]
@@ -1162,7 +1177,7 @@ class Basin:
 		if show:
 			pl.show()
 		#Retorna ejes de manipulacion
-		return ax,ax1
+		return ax,ax2
 	
 	def GetGeo_Ppal_Hipsometric(self,umbral=1000,
 		intervals = 30):
