@@ -38,7 +38,7 @@ y en **modelos**
 
 ## Instalación:
 ___
-### Python Puro:
+### Python:
 
 Para instalar el paquete se deben seguir los siguientes pasos:
 
@@ -80,4 +80,4 @@ luego se debe mover la terminal hasta el directorio
 
 #### Requerimientos:
 
->- Los mismos que para python puro, adicionalmente python dev  
+>- Los mismos que para python, adicionalmente python dev  
