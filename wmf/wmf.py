@@ -1047,13 +1047,19 @@ class Basin:
 		#Obtiene el canal en la cuenca 
 		self.CellCauce = np.zeros(self.ncells)
 		self.CellCauce[self.CellAcum>self.umbral]=1
-	def GetGeo_Horton(self):
+        def GetGeo_Horton(self, MajorBasins = False, umbral = 100, verbose = False):
 		'Descripcion: Obtiene el orden de horton para cada celda de \n'\
 		'	cada ladera y para las celdas de cada cauce.\n'\
 		'\n'\
 		'Parametros\n'\
 		'----------\n'\
 		'self : no necesita nada es autocontenido.\n'\
+                'MajorBasins : Obtiene binarios con las sub-cuencas drenando.\n'\
+                '   unicamente a cuencas de orden mayor (ej: todas las orden 2 que \n'\
+                '   drenan a orden 3 o major).\n'\
+                'umbral: Cantidad minima de celdas para considerar canal (aplica cuando\n'\
+                '   se obtienen las sub-cuencas mayores.\n'\
+                'verbose: Muestra el paso de calculo de cuencas mayores.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1066,7 +1072,40 @@ class Basin:
 		sub_horton,nod_horton = cu.basin_subbasin_horton(sub_basins,self.ncells,n_nodos)
 		self.CellHorton_Hill,sub_basin = cu.basin_subbasin_find(self.structure,nod_horton,n_nodos,self.ncells)	
 		#Obtiene el canal en la cuenca 
-		self.CellHorton_Stream = self.CellCauce * self.CellHorton_Hill		
+		self.CellHorton_Stream = self.CellCauce * self.CellHorton_Hill
+                #Obtiene las cuencas mayores 
+                if MajorBasins:
+                    pos = np.where(models.control>0)[1]
+                    X,Y = cu.basin_coordxy(self.structure, self.ncells)
+                    DictBasins = {}
+                    for Orden in range(1,self.CellHorton_Hill[-1]-1):
+                        #Encuentra cuencas de un orden que drenen a un orden mayor 
+                        pos2 = np.where(self.CellHorton_Stream[pos] == Orden)[0]
+                        drena = self.ncells - self.structure[0]
+                        pos3 = np.where(self.CellHorton_Stream[drena[pos[pos2]]] > Orden)[0]
+                        #Las ubica en un mapa dentro d ela cuenca 
+                        SubCuencas = np.zeros(self.ncells)
+                        cont = 1
+                        for x,y in zip(X[pos[pos2[pos3]]], Y[pos[pos2[pos3]]]):
+                            #Traza la cuenca
+                            cuTemp = SimuBasin(x,y, self.DEM, self.DIR, umbral=umbral)
+                            #La pega en una mascara con las cub-cuencas
+                            Map, prop = cuTemp.Transform_Basin2Map(np.ones(cuTemp.ncells),)
+                            Map[Map == -9999] = 0
+                            Var = self.Transform_Map2Basin(Map, prop)
+                            Var[Var == 0] = -9999
+                            Var[Var == 1] = cont
+                            ptemp = np.where(Var == cont)[0]
+                            #Lo pega en la mascara de sub-uencas 
+                            SubCuencas[ptemp] = SubCuencas[ptemp] + Var[ptemp]
+                            cont+=1
+                        #Agrega al diccionario 
+                        DictBasins.update({str(Orden):SubCuencas})
+                        #Si es verbose muestra en que paso va
+                        if verbose:
+                            print 'Sub-cuencas orden '+str(Orden)+' calculadas'
+                    #Retorna el diccionario con las sub-cuencas mayores
+                    return DictBasins
 	def GetGeo_IsoChrones(self,Tc,Niter=4):
 		'Descripcion: Obtiene el tiempo de viaje aproximado de cada  \n'\
 		'	celda a la salida de la cuenca, para eso usa el tiempo de . \n'\
