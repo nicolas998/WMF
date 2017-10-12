@@ -2211,7 +2211,7 @@ subroutine geo_hand_global(dem,dir,red,hand,nc,nr) !Genera el mapa de Hand para 
 		end do
 	end do
 end subroutine 
-subroutine dir_reclass(Mat_in,Mat_out,nc,nr) !reclasifica los valores de direccion obtenidos a partir de r.watershed de GRASS
+subroutine dir_reclass_rwatershed(Mat_in,Mat_out,nc,nr) !reclasifica los valores de direccion obtenidos a partir de r.watershed de GRASS
 	!Variables de entrada
 	integer, intent(in) :: nc,nr
 	integer, intent(in) :: Mat_in(nc,nr)
@@ -2226,6 +2226,23 @@ subroutine dir_reclass(Mat_in,Mat_out,nc,nr) !reclasifica los valores de direcci
 	where(Mat_in.eq.6) Mat_out=2
 	where(Mat_in.eq.5) Mat_out=1
 	where(Mat_in.eq.4) Mat_out=4
+end subroutine
+
+subroutine dir_reclass_opentopo(Mat_in,Mat_out,nc,nr) !reclasifica los valores de direccion obtenidos a partir de r.watershed de GRASS
+	!Variables de entrada
+	integer, intent(in) :: nc,nr
+	integer, intent(in) :: Mat_in(nc,nr)
+	!Variables de salida
+	integer, intent(out) :: Mat_out(nc,nr)
+	Mat_out=noData
+	where(Mat_in.eq.3) Mat_out=8
+	where(Mat_in.eq.2) Mat_out=9
+	where(Mat_in.eq.1) Mat_out=6
+	where(Mat_in.eq.8) Mat_out=3
+	where(Mat_in.eq.7) Mat_out=2
+	where(Mat_in.eq.6) Mat_out=1
+	where(Mat_in.eq.5) Mat_out=4
+	where(Mat_in.eq.4) Mat_out=7
 end subroutine
 
 !-----------------------------------------------------------------------

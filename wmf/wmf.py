@@ -230,6 +230,8 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = F
 	'	-dxp: tamano plano del mapa\n'\
 	'	-noDataP: Valor para datos nulos en el mapa (-9999)\n'\
 	'	-DIRformat: donde se ha conseguido el mapa dir (r.watershed) \n'\
+	'		- r.watershed: mapa de direcciones obtenido por la funcion de GRASS\n'\
+	'		- opentopo: mapa de direcciones de http://www.opentopography.org/\n'\
 	'	-isDIR: (FALSE) es este un mapa de direcciones\n'\
 	'Retorno:.\n'\
 	'	Si no es DEM o DIR retorna todas las propieades del elemento en un vector.\n'\
@@ -271,7 +273,11 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = F
 		if isDIR:
 			if DIRformat == 'r.watershed':
 				Mapa[Mapa<=0] = cu.nodata.astype(int)
-				Mapa = cu.dir_reclass(Mapa.T,cu.ncols,cu.nrows)
+				Mapa = cu.dir_reclass_rwatershed(Mapa.T,cu.ncols,cu.nrows)
+				return Mapa
+			if DIRformat == 'opentopo':
+				Mapa[Mapa<=0] = cu.nodata.astype(int)
+				Mapa = cu.dir_reclass_opentopo(Mapa.T,cu.ncols,cu.nrows)
 				return Mapa
 		#retorna el mapa 
 		return Mapa.T
