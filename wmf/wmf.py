@@ -2785,7 +2785,7 @@ class SimuBasin(Basin):
 			DIR = read_map_raster(gr.DIR,True,gr.dxp)
 			cu.nodata = -9999.0
 			DIR[DIR<=0]=cu.nodata.astype(int)
-			DIR=cu.dir_reclass(DIR,cu.ncols,cu.nrows)			
+			DIR=cu.dir_reclass_rwatershed(DIR,cu.ncols,cu.nrows)			
 			self.DEM = DEM
 			self.DIR = DIR
 		except:
