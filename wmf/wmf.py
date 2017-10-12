@@ -1110,7 +1110,9 @@ class Basin:
                         #Si es verbose muestra en que paso va
                         if verbose:
                             print 'Sub-cuencas orden '+str(Orden)+' calculadas'
-                    #Retorna el diccionario con las sub-cuencas mayores
+                    #Traza la cuenca original para no danar la estructura de guardado
+                    cuTemp = SimuBasin(X[-1], Y[-1], self.DEM, self.DIR, umbral = umbral)
+                    #Retorna el diccionario con las sub-cuencas mayore                    
                     return DictBasins
 	def GetGeo_IsoChrones(self,Tc,Niter=4):
 		'Descripcion: Obtiene el tiempo de viaje aproximado de cada  \n'\
