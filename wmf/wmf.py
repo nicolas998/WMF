@@ -1053,7 +1053,7 @@ class Basin:
 		#Obtiene el canal en la cuenca 
 		self.CellCauce = np.zeros(self.ncells)
 		self.CellCauce[self.CellAcum>self.umbral]=1
-        def GetGeo_Horton(self, MajorBasins = False, umbral = 100, verbose = False):
+        def GetGeo_Horton(self, MajorBasins = False, umbral = 100, verbose = False, FirtsOrder = 1):
 		'Descripcion: Obtiene el orden de horton para cada celda de \n'\
 		'	cada ladera y para las celdas de cada cauce.\n'\
 		'\n'\
@@ -1066,6 +1066,7 @@ class Basin:
                 'umbral: Cantidad minima de celdas para considerar canal (aplica cuando\n'\
                 '   se obtienen las sub-cuencas mayores.\n'\
                 'verbose: Muestra el paso de calculo de cuencas mayores.\n'\
+                'FirtsOrder: Primer orden a partir dle cual se analizan ordenes mayores.\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -1084,7 +1085,7 @@ class Basin:
                     pos = np.where(models.control>0)[1]
                     X,Y = cu.basin_coordxy(self.structure, self.ncells)
                     DictBasins = {}
-                    for Orden in range(1,self.CellHorton_Hill[-1]-1):
+                    for Orden in range(FirtsOrder,self.CellHorton_Hill[-1]):
                         #Encuentra cuencas de un orden que drenen a un orden mayor 
                         pos2 = np.where(self.CellHorton_Stream[pos] == Orden)[0]
                         drena = self.ncells - self.structure[0]
@@ -2066,7 +2067,7 @@ class Basin:
 	#------------------------------------------------------
 	def Plot_basin(self,vec=None,Min=None,
 			Max=None,ruta=None,figsize=(10,7),
-			ZeroAsNaN = 'no',extra_lat=0.0,extra_long=0.0,lines_spaces=0.02,
+			ZeroAsNaN ='no',extra_lat=0.0,extra_long=0.0,lines_spaces=cu.dx*cu.ncols*0.03,
 			xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
 			colorbar=True, colorbarLabel = None,axis=None,rutaShp=None,shpWidth = 0.7,
 			shpColor = 'r',axloc = 111, fig = None, EPSG = 4326,backMap = False,
