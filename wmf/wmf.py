@@ -51,6 +51,13 @@ try:
 except:
 	print 'No se logra importar deap tools, por lo tanto se deshabilita SimuBasin.Calib_NSGAII'
 	FlagCalib_NSGAII = False
+try:
+    import rasterio.features as __fea__
+    FlagBasinPolygon = True
+except:
+    print 'No se logra importar rasterio, se deshabilita obtencion de poligono de cuenca'
+    FlagBasinPolygon = False
+
 import random
 
 #-----------------------------------------------------------------------
@@ -822,6 +829,7 @@ class Basin:
 				cu.ncols,cu.nrows)
 			self.structure = cu.basin_cut(self.ncells)
 			self.umbral = umbral
+                        self.__GetBasinPolygon__()
 		else:
 			self.__Load_BasinNc(ruta)
 	#Cargador de cuenca 
@@ -958,12 +966,9 @@ class Basin:
 		self.hipso_main,self.hipso_basin=cu.basin_ppal_hipsometric(
 			self.structure,Elev,punto,30,ppal_nceldas,self.ncells)
 		self.main_stream=ppal
-		if GetPerim:
-			nperim = cu.basin_perim_find(self.structure,self.ncells)
-		#Obtiene los parametros 
-		Area=(self.ncells*cu.dxp**2)/1e6
-		if GetPerim:
-			Perim=nperim*cu.dxp/1000.0
+		#Obtiene los parametros 	
+                Perim = self.Polygon.shape[0]*cu.dxp/1000.
+                Area=(self.ncells*cu.dxp**2)/1e6
 		Lcau=ppal[1,-1]/1000.0
 		Scau=np.polyfit(ppal[1,::-1],ppal[0],1)[0]*100
 		Scue=slope.mean()*100
@@ -1029,7 +1034,41 @@ class Basin:
 			v=self.Tc[i]
 			f.write('%s : %.4f \n' % (i,v))
 		f.close()
-	
+
+        #Obtiene la envolvente de la cuenca 
+        def __GetBasinPolygon__(self):
+            'Descripcion: obtiene la envolvente de la cuenca, en coordenadas \n'\
+            '   x,y, esta informacion luego sirve para plot y para escribir el\n'\
+            '   shpfile de la cuenca\n'\
+            #Evalua si se cuenta con rasterio en el sistema o no.
+            if FlagBasinPolygon:
+                #Obtiene mapa raster, propiedades geo y formato para escribir
+                Map, Prop = self.Transform_Basin2Map(np.ones(self.ncells))
+                tt = [Prop[2], Prop[4].tolist(), 0.0,
+                    Prop[1]*Prop[-2] + Prop[3], 0.0, -1*Prop[5].tolist()]
+                #Obtiene los shps con la forma de la o las envolventes de cuenca
+                Map = Map.T
+                mask = Map != -9999.
+                shapes = __fea__.shapes(Map, mask=mask, transform=tt)
+                #Obtiene el poligono de la cuenca completo 
+                Shtemp = []
+                flag = True
+                while flag:
+                    try:
+                        Shtemp.append(shapes.next())
+                    except:
+                        flag = False
+                nData = 0
+                for Sh in Shtemp:
+                    n = len(Sh[0]['coordinates'][0])
+                    if n > nData: 
+                        nData = n
+                        Coord = Sh[0]['coordinates']
+                self.Polygon = np.array(Coord)[0]
+                return 0
+            else:
+                return 1
+
 	#Parametros por mapas (distribuidos)
 	def GetGeo_Cell_Basics(self):
 		'Descripcion: Obtiene: area acumulada, long de celdas, Pendiente \n'\
@@ -2015,8 +2054,9 @@ class Basin:
 		'----------\n'\
 		'Escribe un archivo vectorial de la cuenca.\n'\
 		#Obtiene el perimetro de la cuenca 
-		nperim = cu.basin_perim_find(self.structure,self.ncells)
-		basinPerim=cu.basin_perim_cut(nperim)
+		#nperim = cu.basin_perim_find(self.structure,self.ncells)
+		#basinPerim=cu.basin_perim_cut(nperim)
+
 		#Parametros geomorfo 
 		if GeoParam:
 			self.GetGeo_Parameters()
@@ -2042,7 +2082,7 @@ class Basin:
 				layer.CreateField(new_field)
 		#Calcula el tamano de la muestra
 		ring = osgeo.ogr.Geometry(osgeo.ogr.wkbLinearRing)
-		for i in basinPerim.T:
+		for i in self.Polygon:
 			ring.AddPoint(x=float(i[0]),y=float(i[1]))
 		poly=osgeo.ogr.Geometry(osgeo.ogr.wkbPolygon)
 		poly.AddGeometry(ring)
@@ -2067,7 +2107,7 @@ class Basin:
 	#------------------------------------------------------
 	def Plot_basin(self,vec=None,Min=None,
 			Max=None,ruta=None,figsize=(10,7),
-			ZeroAsNaN ='no',extra_lat=0.0,extra_long=0.0,lines_spaces=cu.dx*cu.ncols*0.03,
+			ZeroAsNaN ='no',extra_lat=0.0,extra_long=0.0,lines_spaces='Default',
 			xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
 			colorbar=True, colorbarLabel = None,axis=None,rutaShp=None,shpWidth = 0.7,
 			shpColor = 'r',axloc = 111, fig = None, EPSG = 4326,backMap = False,
@@ -2128,6 +2168,8 @@ class Basin:
 			ShpIsPolygon = kwargs.get('ShpIsPolygon',None)
 			shpAlpha = kwargs.get('shpAlpha',0.5)
 			xy_colorbar = kwargs.get('xy_colorbar', False)
+                        if lines_spaces == 'Default':
+                            lines_spaces = cu.dx*cu.ncols*0.05
 			#El mapa
 			Mcols,Mrows=cu.basin_2map_find(self.structure,self.ncells)
 			Map,mxll,myll=cu.basin_2map(self.structure,self.structure[0]
@@ -2173,9 +2215,7 @@ class Basin:
 				#if backMap == 'arcGIS':
 				m.arcgisimage(server='http://server.arcgisonline.com/ArcGIS', service='World_Topo_Map', xpixels = 1500, verbose = True)
 			#Plotea el contorno de la cuenca y la red 
-			nperim = cu.basin_perim_find(self.structure,self.ncells)
-			perim = cu.basin_perim_cut(nperim)
-			xp,yp=m(perim[0],perim[1])
+                        xp,yp = m(self.Polygon.T[0], self.Polygon.T[1])
 			per_color = kwargs.get('per_color','r')
 			per_lw = kwargs.get('per_lw',2)
 			m.plot(xp, yp, color=per_color,lw=per_lw)
@@ -2740,6 +2780,8 @@ class SimuBasin(Basin):
 			models.storage_constant = storageConstant
 			#Determina que la geomorfologia no se ha estimado 
 			self.isSetGeo = False
+                        # Obtiene la envolvente de la cuenca 
+                        self.__GetBasinPolygon__()
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
 			self.__Load_SimuBasin(rute, SimSlides)
