@@ -66,6 +66,7 @@ real, allocatable :: h_exp(:,:)  !Exponentes de velocidades horizontales, aplica
 real, allocatable :: Max_capilar(:,:) !Maximo almacenamiento capilar [L] [1,Nceldas]
 real, allocatable :: Max_gravita(:,:) !Maximo almacenamiento gravitacional [L] [1,Nceldas]
 real, allocatable :: Retorned(:,:) !Matriz que indica cuando en una ejecucion se dio retorno del tanque 3 al tanque 2
+real, allocatable :: EvpSerie(:) !Serie de evaporacion mediante la cual el modelo pondera el almacenamiento capilar.
 real retorno !Si es cero no se tiene en cuenta el retorno, si es 1 si.
 
 !Variables de control y configuracion del modelo 
@@ -410,7 +411,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 			vflux(1) = max(0.0, Rain(celda)-H(1,celda)+StoOut(1,celda)) ![mm]
 			StoOut(1,celda)=StoOut(1,celda)+Rain(celda)-vflux(1) ![mm]			
 			!Evaporacion y retira evaporado
-			Evp_loss=min(vspeed(1,celda)*(StoOut(1,celda)/H(1,celda))**0.6,&
+			Evp_loss=min(EvpSerie(tiempo)*vspeed(1,celda)*(StoOut(1,celda)/H(1,celda))**0.6,&
 				&StoOut(1,celda)) ![mm]			
 			!---------------------------------------
 			!SEP_LLUVIA

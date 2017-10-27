@@ -829,9 +829,10 @@ class Basin:
 				cu.ncols,cu.nrows)
 			self.structure = cu.basin_cut(self.ncells)
 			self.umbral = umbral
-                        self.__GetBasinPolygon__()
 		else:
 			self.__Load_BasinNc(ruta)
+                #Genera el poligono de la cuenca 
+                self.__GetBasinPolygon__()
 	#Cargador de cuenca 
 	def __Load_BasinNc(self,ruta,Var2Search=None):
 		'Descripcion: Lee una cuenca posteriormente guardada\n'\
@@ -2780,12 +2781,12 @@ class SimuBasin(Basin):
 			models.storage_constant = storageConstant
 			#Determina que la geomorfologia no se ha estimado 
 			self.isSetGeo = False
-                        # Obtiene la envolvente de la cuenca 
-                        self.__GetBasinPolygon__()
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
 			self.__Load_SimuBasin(rute, SimSlides)
-	
+                # Obtiene la envolvente de la cuenca 
+                self.__GetBasinPolygon__()
+
 	def __Load_SimuBasin(self,ruta, sim_slides = False):
 		'Descripcion: Lee una cuenca posteriormente guardada\n'\
 		'	La cuenca debio ser guardada con SimuBasin.save_SimuBasin\n'\
@@ -2887,8 +2888,58 @@ class SimuBasin(Basin):
 		self.isSetGeo = True
 			
 	#------------------------------------------------------
-	# Subrutinas de lluvia, interpolacion, lectura, escritura
+	# Subrutinas de lluvia, interpolacion, lectura, escritura, agrega funcion para variar evp en
+        # el tiempo
 	#------------------------------------------------------	
+        def __GetEVP_Serie__(self, index):
+            'Descripcion: Genera una serie que pondera la evp '
+            rng=index
+            rad=np.zeros(rng.size)
+            for pos,time in enumerate(rng):
+                Hora=time
+                # Dia del Año
+                dn = Hora.timetuple().tm_yday
+                Theta_d = (2 * np.pi * (dn-1))/ 365.
+                # (d/d)2
+                an = [1.000110, 0.034221, 0.000719]
+                bn = [0,        0.001280, 0.000077]
+                #
+                d   = 0
+                tmp = 0
+                for i in range(3):
+                    tmp = (an[i] * np.cos(i*Theta_d)) + (bn[i] * np.sin(i*Theta_d))
+                    d = d + tmp
+                # Delta
+                a_n = [0.006918, -0.399912, -0.006758, -0.002697]
+                b_n = [0,         0.070257,  0.000907,  0.001480]
+                #
+                Delta = 0
+                tmp   = 0
+                for i in range(4):
+                    tmp = (a_n[i] * np.cos(i*Theta_d)) + (b_n[i] * np.sin(i*Theta_d))
+                    Delta = Delta + tmp
+                #Angulo horario (cada minuto)
+                Minutos = (Hora.hour * 60) + Hora.minute
+                Horario = 180 - (0.25 * Minutos)
+                Horario = (Horario * np.pi)/180.
+                # Coseno de Theta
+                Latitud = (6.2593 * np.pi)/180.
+                Cos_Theta = (np.sin(Latitud)*np.sin(Delta)) + (np.cos(Latitud)*np.cos(Delta)*np.cos(Horario))
+                # Radiacion Teorica
+                So = 1367 #w/m2
+                Q = So * d * Cos_Theta
+                # Escala entre 0 y 1
+                rad_max=1369.8721876806876
+                Q=1*Q/rad_max
+                #Guarda
+                rad[pos]=Q
+            #Se vuelven cero los valores negativos.
+            rad[rad<0]=0
+            #Serie
+            rad=pd.Series(rad,index=rng)
+            models.evpserie = np.copy(rad.values)
+            return rad
+
 	def rain_interpolate_mit(self,coord,registers,ruta, umbral = 0.01):
 		'Descripcion: Interpola la lluvia mediante una malla\n'\
 		'	irregular de triangulos, genera campos que son. \n'\
@@ -3743,7 +3794,7 @@ class SimuBasin(Basin):
 		'----------\n'\
 		'self : Con las variables iniciadas.\n'\
 		#Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto
-		if self.isSetGeo == False:
+		if self.isSetGeo is False:
 			self.set_Geomorphology()
 			print 'Aviso: SE ha estimado la geomorfologia con los umbrales por defecto umbral = [30, 500]'
 		#Guarda la cuenca
@@ -3854,7 +3905,8 @@ class SimuBasin(Basin):
 	#------------------------------------------------------	
 	def run_shia(self,Calibracion,
 		rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
-		ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True):
+		ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5,
+              QsimDataFrame = True, EvpVariable = False):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
 		'	variables requeridas . \n'\
@@ -3898,13 +3950,16 @@ class SimuBasin(Basin):
 		'				cu.set_Storage(j,c)\n'\
 		'QsimDataFrame: Retorna un data frame con los caudales simulados indicando su id de acuerdo con el\n'\
 		'	que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
+                'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
 		'Qsim : Caudal simulado en los puntos de control.\n'\
 		'Hsim : Humedad simulada en los puntos de control.\n'\
-		#genera las rutas 
+                #genera las rutas 
 		rain_ruteBin,rain_ruteHdr = __Add_hdr_bin_2route__(rain_rute)
+		#Obtiene las fechas 
+		Rain = read_mean_rain(rain_ruteHdr, N_intervals, start_point)
 		# De acuerdo al tipo de modelo determina la cantidad de elementos
 		if self.modelType[0] is 'c':
 			N = self.ncells
@@ -3973,7 +4028,12 @@ class SimuBasin(Basin):
 				HspeedLoc = np.zeros((4,N))*-9999.0
 		else:
 			HspeedLoc = np.zeros((4,N))*-9999.0
-		# Ejecuta el modelo 
+		#Implementa o no la EVP variable en funcion de la radiacion
+                if EvpVariable:
+                    Rad = self.__GetEVP_Serie__(Rain.index)
+                else:
+                    models.evpserie = np.ones(N_intervals)
+                # Ejecuta el modelo 
 		Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
 			rain_ruteHdr,
@@ -4055,8 +4115,6 @@ class SimuBasin(Basin):
 			Retornos.update({'Slides_Acum':np.copy(models.sl_slideacumulate)})
 		#Caudal simulado en un dataframe 
 		if QsimDataFrame:
-			#Obtiene las fechas 
-			Rain = read_mean_rain(rain_ruteHdr, N_intervals, start_point)
 			#Obtiene ids
 			ids = models.control[models.control<>0]
 			Qdict = {}
