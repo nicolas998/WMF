@@ -2897,7 +2897,7 @@ class SimuBasin(Basin):
             rad=np.zeros(rng.size)
             for pos,time in enumerate(rng):
                 Hora=time
-                # Dia del Año
+                # Dia del Ano
                 dn = Hora.timetuple().tm_yday
                 Theta_d = (2 * np.pi * (dn-1))/ 365.
                 # (d/d)2
