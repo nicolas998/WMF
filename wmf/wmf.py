@@ -1038,37 +1038,44 @@ class Basin:
 
 	#Obtiene la envolvente de la cuenca 
 	def __GetBasinPolygon__(self):
-		'Descripcion: obtiene la envolvente de la cuenca, en coordenadas \n'\
-		'   x,y, esta informacion luego sirve para plot y para escribir el\n'\
-		'   shpfile de la cuenca\n'\
-		#Evalua si se cuenta con rasterio en el sistema o no.
-		if FlagBasinPolygon:
-			#Obtiene mapa raster, propiedades geo y formato para escribir
-			Map, Prop = self.Transform_Basin2Map(np.ones(self.ncells))
-			tt = [Prop[2], Prop[4].tolist(), 0.0,
-				Prop[1]*Prop[-2] + Prop[3], 0.0, -1*Prop[5].tolist()]
-			#Obtiene los shps con la forma de la o las envolventes de cuenca
-			Map = Map.T
-			mask = Map != -9999.
-			shapes = __fea__.shapes(Map, mask=mask, transform=tt)
-			#Obtiene el poligono de la cuenca completo 
-			Shtemp = []
-			flag = True
-			while flag:
-				try:
-					Shtemp.append(shapes.next())
-				except:
-					flag = False
-			nData = 0
-			for Sh in Shtemp:
-				n = len(Sh[0]['coordinates'][0])
-				if n > nData: 
-					nData = n
-					Coord = Sh[0]['coordinates']
-			self.Polygon = np.array(Coord)[0]
-			return 0
-		else:
-			return 1
+            'Descripcion: obtiene la envolvente de la cuenca, en coordenadas \n'\
+            '   x,y, esta informacion luego sirve para plot y para escribir el\n'\
+            '   shpfile de la cuenca\n'\
+            #Evalua si se cuenta con rasterio en el sistema o no.
+            if FlagBasinPolygon:
+                #Obtiene mapa raster, propiedades geo y formato para escribir
+                Map, Prop = self.Transform_Basin2Map(np.ones(self.ncells))
+                tt = [Prop[2], Prop[4].tolist(), 0.0,
+                        Prop[1]*Prop[-2] + Prop[3], 0.0, -1*Prop[5].tolist()]
+                #Obtiene los shps con la forma de la o las envolventes de cuenca
+                Map = Map.T
+                mask = Map != -9999.
+                shapes = __fea__.shapes(Map, mask=mask, transform=tt)
+                #Obtiene el poligono de la cuenca completo 
+                Shtemp = []
+                flag = True
+                while flag:
+                        try:
+                                Shtemp.append(shapes.next())
+                        except:
+                                flag = False
+                DicPoly = {}
+                for Sh in Shtemp:
+                    Coord = Sh[0]['coordinates']
+                    Value = int(Sh[1])
+                    DicPoly.update({str(Value):{}})
+                    for cont,co in enumerate(Coord):
+                        DicPoly[str(Value)].update({str(cont):np.array(co).T})
+                #Por si hay mas de un poligono al interior
+                Tam = 0
+                for k in DicPoly['1'].keys():
+                    if DicPoly['1'][k].size > Tam:
+                        Tam = DicPoly['1'][k].size
+                        goodKey = k
+                self.Polygon = DicPoly['1'][goodKey]
+                return 0
+            else:
+                return 1
 
 	#Parametros por mapas (distribuidos)
 	def GetGeo_Cell_Basics(self):
@@ -1870,7 +1877,7 @@ class Basin:
 		self.CellQmed,self.CellETR = cu.basin_qmed(
 			self.structure,
 			self.CellHeight,
-			precip,			
+                        precip,
 			Tipo_ETR,
 			mu_choud,
 			self.ncells,)
@@ -2581,24 +2588,46 @@ class Basin:
 			pl.savefig(ruta,bbox_inches='tight')
 		if show == True:
 			pl.show()
+                return ax,cb
 	#Plot de histograma de pendientes 
 	def PlotSlopeHist(self,ruta=None,bins=[0,2,0.2],
-		Nsize=1000, figsize = (8,6)):
-		if Nsize>self.ncells:
+		Nsize=1000, figsize = (8,6), fig = None, show = True,**kwargs):
+		'''Hace un plot del histograma de distribucion de 
+                pendientes en la cuenca.
+                Requiere:
+                    - ruta: ruta de guaradado de la imagen,
+                    - bins: rango inferior, superior y paso para intervalos.
+                    - Nsize: Cantidad de datos a usar para realizar el histograma.
+                Retorna:
+                    - Plot.
+                    - Eje del plot si se quiere continuar editando
+                **kwargs:
+                    - lw: ancho de la linea.
+                    - axissize: tamano de los ejes
+                    - labelsize: tamano de los nombres'''
+                lw = kwargs.get('lw',3)
+                labelsize = kwargs.get('labelsize',16)
+                axissize = kwargs.get('axissize',15)
+                if Nsize>self.ncells:
 			Nsize = self.ncells
 		pos = np.random.choice(self.ncells,Nsize)
 		h,b=np.histogram(self.CellSlope[pos],bins=np.arange(bins[0],bins[1],bins[2]))
 		b=(b[:-1]+b[1:])/2.0
 		h=h.astype(float)/h.astype(float).sum()
-		fig=pl.figure(figsize = figsize, edgecolor='w',facecolor='w')
-		ax=fig.add_subplot(111)
-		ax.plot(b,h,lw=2)
+                if fig is None:
+                    fig=pl.figure(figsize = figsize, edgecolor='w',facecolor='w')
+                ax=fig.add_subplot(111)
+		ax.plot(b,h,lw=lw)
 		ax.grid(True)
-		ax.set_xlabel('Pendiente',size=14)
-		ax.set_ylabel('$pdf [\%]$',size=14)
+                ax.tick_params(labelsize = axissize)
+		ax.set_xlabel('Pendiente',size=labelsize)
+		ax.set_ylabel('$pdf [\%]$',size=labelsize)
 		if ruta is not None:
 			pl.savefig(ruta,bbox_inches='tight')
-		pl.show()
+                if show:
+                    pl.show()
+                return ax
+
 	#Plot de histograma de tiempos de viajes en la cuenca 
 	def Plot_Travell_Hist(self,ruta=None,Nint=10.0):
 		#comparacion histogramas de tiempos de respuestas
