@@ -2118,7 +2118,7 @@ class Basin:
 				layer.CreateField(new_field)
 		#Calcula el tamano de la muestra
 		ring = osgeo.ogr.Geometry(osgeo.ogr.wkbLinearRing)
-		for i in self.Polygon:
+		for i in self.Polygon.T:
 			ring.AddPoint(x=float(i[0]),y=float(i[1]))
 		poly=osgeo.ogr.Geometry(osgeo.ogr.wkbPolygon)
 		poly.AddGeometry(ring)
@@ -2251,7 +2251,7 @@ class Basin:
 				#if backMap == 'arcGIS':
 				m.arcgisimage(server='http://server.arcgisonline.com/ArcGIS', service='World_Topo_Map', xpixels = 1500, verbose = True)
 			#Plotea el contorno de la cuenca y la red 
-                        xp,yp = m(self.Polygon.T[0], self.Polygon.T[1])
+                        xp,yp = m(self.Polygon[0], self.Polygon[1])
 			per_color = kwargs.get('per_color','r')
 			per_lw = kwargs.get('per_lw',2)
 			m.plot(xp, yp, color=per_color,lw=per_lw)
