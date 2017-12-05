@@ -968,7 +968,7 @@ class Basin:
 			self.structure,Elev,punto,30,ppal_nceldas,self.ncells)
 		self.main_stream=ppal
 		#Obtiene los parametros 	
-                Perim = self.Polygon.shape[0]*cu.dxp/1000.
+                Perim = self.Polygon.shape[1]*cu.dxp/1000.
                 Area=(self.ncells*cu.dxp**2)/1e6
 		Lcau=ppal[1,-1]/1000.0
 		Scau=np.polyfit(ppal[1,::-1],ppal[0],1)[0]*100
@@ -1589,14 +1589,15 @@ class Basin:
 			ax=fig.add_subplot(111)
 			X=np.linspace(0,Dur,lluviaTrEfect.shape[1])
 			Grosor=np.arange(0.5,4,0.2)
-			for l,le,t,g in zip(lluviaTr,lluviaTrEfect,Tr,Grosor):	
+			for l,le,t,g in zip(lluviaTr,lluviaTrEfect,Tr,Grosor):
 				ax.plot(X,l,c='b',lw=g,label=str(t))
 			if CN is not None:
-				for l,le,t,g in zip(lluviaTr,lluviaTrEfect,Tr,Grosor):	
-					ax.plot(X,le,c='r',lw=g,label=str(t))
-			ax.set_xlabel('Tiempo $[h]$',size=14)
-			ax.set_ylabel('Precipitacion $[mm]$',size=14)	
+                            for l,le,t,g in zip(lluviaTr,lluviaTrEfect,Tr,Grosor):
+                                ax.plot(X,le,c='r',lw=g,label=str(t))
+			ax.set_xlabel('Tiempo $[h]$',size=16)
+			ax.set_ylabel('Precipitacion $[mm]$',size=16)
 			ax.grid(True)
+                        ax.tick_params(labelsize=15)
 			pl.legend(loc=0,ncol=2)
 			if ruta is not None:
 				pl.savefig(ruta,bbox_inches='tight')
