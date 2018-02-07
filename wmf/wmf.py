@@ -4220,8 +4220,25 @@ class SimuBasin(Basin):
 				index = pd.MultiIndex.from_tuples(tupla, names=['reach','flux'])
 				Qsep = np.array(Qsep)
 				QsepDict = pd.DataFrame(Qsep.T, index=Rain.index, columns=index)
-				return Retornos, Qdict, QsepDict
-			return Retornos, Qdict
+                        #Si simula sedimentos, hace el dataframe
+                        if models.sim_sediments == 1:
+				Qsedi = []
+				tupla = []
+				for z,i,j in zip(Retornos['Qsim'][1:], Retornos['Sediments'][1:], ids):
+					tupla.append((str(j),'Sand'))
+					tupla.append((str(j),'Lime'))
+					tupla.append((str(j),'Clay'))
+					Qsedi.extend([i[0],i[1],z-i[0]-i[1]])
+				index = pd.MultiIndex.from_tuples(tupla, names=['reach','Sediments'])
+				Qsedi = np.array(Qsedi)
+				QsediDict = pd.DataFrame(Qsedi.T, index=Rain.index, columns=index)
+                        if models.separate_fluxes == 1 and models.sim_sediments == 0:
+                            return Retornos, Qdict, QsepDict 
+                        if models.separate_fluxes == 1 and models.sim_sediments == 1:
+                            return Retornos, Qdict, QsepDict, QsediDict
+                        if models.separate_fluxes == 0 and models.sim_sediments == 1:
+                            return Retornos, Qdict, QsediDict
+                        return Retornos, Qdict
 		return Retornos
 
 	def efficiencia(self, Qobs, Qsim):

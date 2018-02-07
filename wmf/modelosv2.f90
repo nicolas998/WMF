@@ -197,7 +197,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
     real, intent(in), optional :: HspeedIn(4, N_cel)
     
 	!Variables de salia
-    real, intent(out) :: Hum(N_contH,N_reg),St1(N_contH,N_reg),St3(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !puntos control 
+    real, intent(out) :: Hum(N_contH,N_reg),St1(N_contH,N_reg),St3(N_contH,N_reg),Q(N_cont,N_reg),Qsed(N_cont,3,N_reg) !puntos control 
     !real, intent(out) :: Hum(N_contH,N_reg),St1_pc(N_contH,N_reg),St3_pc(N_contH,N_reg),Q(N_cont,N_reg),Qsed(3,N_cont,N_reg) !Control humedad en el suelo, Control caudales y almacenamiento capilar y gravitacional en puntos de control. 
     real, intent(out) :: Qseparated(N_cont,3,N_reg) !Si se habilita la funcion de separar flujos, los entrega separados en los puntos de control
     real, intent(out) :: Qsep_byrain(N_cont,2,N_reg) !Si se habilita el separado por tipo de lluvia  
@@ -609,8 +609,10 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 			!--------------------------------------------------------------------------
 			!Si evalua tte de sedimentos calcula el tte en ladera y cauce
 			if (sim_sediments .eq. 1) then
-				Area_coef=m3_mmHill(celda)/(hill_long(1,celda)+hspeed(1,celda)*dt)
+                Area_coef=m3_mmHill(celda)/(hill_long(1,celda)+hspeed(1,celda)*dt)
+                !Area_coef = m3_mmHill(celda)/(hill_long(1,celda)+0.2*dt)
 				section_area=StoOut(2,celda)*Area_coef(celda)
+                !section_area = 1.
 				!Calculo en ladera
 				call sed_hillslope(sed_factor, StoOut(2,celda), hspeed(1,celda)&
 					&, hill_slope(1,celda), section_area, celda, drenaid, unit_type(1,celda))
@@ -620,7 +622,8 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				!Si es la salida registra los sedimentos en la salida 
 				if (drena(1,celda).eq.0) then
 					do i=1,3
-						Qsed(i,1,tiempo)=Vsal_sed(i)
+						Qsed(1,i,tiempo)=Vsal_sed(i)
+                        !Qsed(i,1,tiempo) = Area_coef(celda)
 					enddo  
 				endif
 			endif
@@ -678,7 +681,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				!Si se simularon sedimentos los guarda 
 				if (sim_sediments.eq.1) then
 					do i=1,3
-						Qsed(i,control_cont,tiempo)=Vsal_sed(i)
+						Qsed(control_cont,i,tiempo)=Vsal_sed(i)
 				    enddo
 				endif
 				control_cont=control_cont+1
@@ -1213,7 +1216,8 @@ subroutine sed_hillslope(alfa,S2,v2,So,area_sec,celda,drena_id,tipo) !Subrutina 
     SUStot=0;DEPtot=0    
     !Calcula capacidad de arrastre
     q=area_sec*v2/dxp
-    Qskr=58390*alfa*(So**1.664)*(q**2.035)*Krus(1,celda)*Crus(1,celda)*Prus(1,celda)*dxp*dt
+    !q = 1.0
+    Qskr=alfa*(So**1.664)*(q**2.035)*Krus(1,celda)*Crus(1,celda)*Prus(1,celda)*dxp*dt
     !Calcula Depositacion y atrapamiento      
     do i=1,3
 	if (S2/1000>wi(i)*dt) then
@@ -1231,25 +1235,26 @@ subroutine sed_hillslope(alfa,S2,v2,So,area_sec,celda,drena_id,tipo) !Subrutina 
     enddo    
     !Transporta los sedimentos suspendidos
     do i=1,3	
-	if (Vs(i,celda).gt.0.0) then
-	    if (Qskr .lt. SUStot) then
-		cap=Qskr*Vs(i,celda)/SUStot  ![m3]                         
-		!Volumen que se puede llevar por advección
-		Adv=Vs(i,celda)*v2*dt/(dxp+v2*dt) ![m3]    
-		!Transporta por suspención lo mayor entre: lo que se puede llevar la capacidad
-		!y lo que se puede llevar por advección
-		qsSUS(i)=max(adv,cap) ![m3]
-	    else
-		qsSUS(i)=Vs(i,celda)
-	    endif
-	endif
-	qsSUStot=qsSUStot+qsSUS(i)
-	Vs(i,celda)=Vs(i,celda)-qsSUS(i)
-	if (tipo.eq.1) then
-	    Vs(i,drena_id)=Vs(i,drena_id)+qsSUS(i)
-	else
-	    Vsc(i,celda)=Vsc(i,celda)+qsSUS(i)
-	endif
+        if (Vs(i,celda).gt.0.0) then
+            if (Qskr .lt. SUStot) then
+                cap=Qskr*Vs(i,celda)/SUStot  ![m3]                         
+                !Volumen que se puede llevar por advección
+                Adv=Vs(i,celda)*v2*dt/(dxp+v2*dt) ![m3]    
+                !Transporta por suspención lo mayor entre: lo que se puede llevar la capacidad
+                !y lo que se puede llevar por advección
+                !qsSUS(i)=min(max(cap,Adv),Vs(i,celda)) ![m3]
+                qsSUS(i) = max(cap,Adv)
+            else
+                qsSUS(i)=Vs(i,celda)
+            endif
+        endif
+        qsSUStot=qsSUStot+qsSUS(i)
+        Vs(i,celda)=Vs(i,celda)-qsSUS(i)
+        if (tipo.eq.1) then
+            Vs(i,drena_id)=Vs(i,drena_id)+qsSUS(i)
+        else
+            Vsc(i,celda)=Vsc(i,celda)+qsSUS(i)
+        endif
     enddo	
     !Capacidad de transporte de exceso
     totXSScap=max(0.0,Qskr-qsSUStot)
