@@ -3742,7 +3742,7 @@ class SimuBasin(Basin):
 		return IdsConvert,xyNew
 	
 	
-	def set_sediments(self,var,varName, wi = [0.036, 2.2e-4, 8.6e-7],
+	def set_sediments(self,var,VarName, wi = [0.036, 2.2e-4, 8.6e-7],
 		diametro = [0.35, 0.016, 0.001]):
 		'Descripcion: Alojas las variables requeridas para la ejecucion\n'\
 		'	del modelo de sedimentos.\n'\
@@ -3767,11 +3767,40 @@ class SimuBasin(Basin):
 		'	wmf.models.parliac.\n'\
 		'	wmf.models.wi.\n'\
 		'	wmf.models.diametro.\n'\
-		#Inicia las variables 
+                #Determina el tipo de unidades del modelo 
+		if self.modelType[0] is 'c':
+			N = self.ncells
+		elif self.modelType[0] is 'h':
+			N = self.nhills
+                #Se fija que tipo de variable es 
+		isVec=False
+		if type(var) is str:
+			#Si es un string lee el mapa alojado en esa ruta 
+			Map,Pp = read_map_raster(var)
+			Vec = self.Transform_Map2Basin(Map,Pp)
+			isVec=True
+		elif type(var) is int or float:
+			Vec = np.ones((1,self.ncells))*var
+			isVec=True
+		elif type(var) is np.ndarray and var.shape[0] == self.ncells:
+			Vec = var
+			isVec=True
+		#Si el modelo es tipo ladera agrega la variable 
+		if self.modelType[0] is 'h':
+			Vec = self.Transform_Basin2Hills(Vec,mask=mask)
+                #Inicia las variables 
 		if VarName == 'Krus':
-			 models.krus = np.ones((1,N))*Vec
-		
-		
+                    models.krus = np.ones((1,N))*Vec
+                if VarName == 'Prus':
+                    models.prus = np.ones((1,N))*Vec
+                if VarName == 'Crus':
+                    models.crus = np.ones((1,N))*Vec
+                if VarName == 'PArLiAc':
+                    models.parliac = np.ones((3,N))*Vec
+                #Variables de diametro y velocidad de caida
+                models.wi = wi
+                models.diametro = diametro
+
 	def set_Slides(self,var,VarName):
 		'Descripcion: Alojas las variables requeridas para la ejecucion\n'\
 		'	del modelo de deslizamientos.\n'\
