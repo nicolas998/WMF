@@ -4228,7 +4228,7 @@ class SimuBasin(Basin):
 					tupla.append((str(j),'Sand'))
 					tupla.append((str(j),'Lime'))
 					tupla.append((str(j),'Clay'))
-					Qsedi.extend([i[0],i[1],z-i[0]-i[1]])
+					Qsedi.extend([i[0],i[1],i[2]])#  [i[0],i[1],z-i[0]-i[1]])
 				index = pd.MultiIndex.from_tuples(tupla, names=['reach','Sediments'])
 				Qsedi = np.array(Qsedi)
 				QsediDict = pd.DataFrame(Qsedi.T, index=Rain.index, columns=index)

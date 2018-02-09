@@ -1220,26 +1220,27 @@ subroutine sed_hillslope(alfa,S2,v2,So,area_sec,celda,drena_id,tipo) !Subrutina 
     Qskr=alfa*(So**1.664)*(q**2.035)*Krus(1,celda)*Crus(1,celda)*Prus(1,celda)*dxp*dt
     !Calcula Depositacion y atrapamiento      
     do i=1,3
-	if (S2/1000>wi(i)*dt) then
-	    Te(i)=wi(i)*dt*1000/S2
-	else
-	    Te(i)=1
-	endif
-	!Calcula los sedimentos depositados en la celda
-	Vd(i,celda)=Vd(i,celda)+Te(i)*Vs(i,celda)
-	Vs(i,celda)=Vs(i,celda)-Te(i)*Vs(i,celda) 
-	DEP(i)=Te(i)*Vs(i,celda)
-	!Calcula totales de suspendidos y depositados
-	SUStot=SUStot+Vs(i,celda)
-	DEPtot=DEPtot+Vd(i,celda)	
+        if (S2/1000>wi(i)*dt) then
+            Te(i)=wi(i)*dt*1000/S2
+        else
+            Te(i)=1
+        endif
+        !Calcula los sedimentos depositados en la celda
+        Vd(i,celda)=Vd(i,celda)+Te(i)*Vs(i,celda)
+        Vs(i,celda)=Vs(i,celda)-Te(i)*Vs(i,celda) 
+        DEP(i)=Te(i)*Vs(i,celda)
+        !Calcula totales de suspendidos y depositados
+        SUStot=SUStot+Vs(i,celda)
+        DEPtot=DEPtot+Vd(i,celda)
     enddo    
     !Transporta los sedimentos suspendidos
-    do i=1,3	
+    do i=1,3
         if (Vs(i,celda).gt.0.0) then
             if (Qskr .lt. SUStot) then
                 cap=Qskr*Vs(i,celda)/SUStot  ![m3]                         
                 !Volumen que se puede llevar por advección
-                Adv=Vs(i,celda)*v2*dt/(dxp+v2*dt) ![m3]    
+                Adv=Vs(i,celda)*v2*dt/(dxp+v2*dt) ![m3]   
+                !Adv = Vs(i,celda)*v2*dt/dxp !version julien  
                 !Transporta por suspención lo mayor entre: lo que se puede llevar la capacidad
                 !y lo que se puede llevar por advección
                 !qsSUS(i)=min(max(cap,Adv),Vs(i,celda)) ![m3]
@@ -1255,34 +1256,34 @@ subroutine sed_hillslope(alfa,S2,v2,So,area_sec,celda,drena_id,tipo) !Subrutina 
         else
             Vsc(i,celda)=Vsc(i,celda)+qsSUS(i)
         endif
-    enddo	
+    enddo
     !Capacidad de transporte de exceso
     totXSScap=max(0.0,Qskr-qsSUStot)
     !Transporta los sedimentos depositados	
     if (totXSScap>0.0 .and. DEPtot>0.0) then
-	do i=1,3			
-	    if (Vd(i,celda)>0.0) then    
-		!Observa si la cap excedente es mayor a la cant total depositada
-		if (totXSScap<DEPtot) then
-		    !tta porcentaje del volumen depositado de la fracción
-		    qsBM(i)=totXSScap*Vd(i,celda)/DEPtot ![m3]
-		else
-		    !tta todo el volumen depositado de la fracción
-		    qsBM(i)=Vd(i,celda) ![m3]
-		endif
-	    endif
-	    !Acumula lo que se tta de cada fracción en el tot de transportado por cama
-	    qsBMtot=qsBMtot+qsBM(i) ![m3]
-	    !Actualiza lo que se fue del vol depositado de cada fracción
-	    DEP(i)=DEP(i)-qsBM(i) ![m3]
-	    if (DEP(i).lt.0) DEP(i)=0	    
-	    Vd(i,celda)=Vd(i,celda)-qsBM(i)
-	    if (tipo.eq.1) then
-		Vs(i,drena_id)=Vs(i,drena_id)+qsBM(i)
-	    else
-		Vsc(i,celda)=Vsc(i,celda)+qsBM(i)
-	    endif
-	enddo
+        do i=1,3
+            if (Vd(i,celda)>0.0) then    
+            !Observa si la cap excedente es mayor a la cant total depositada
+            if (totXSScap<DEPtot) then
+                !tta porcentaje del volumen depositado de la fracción
+                qsBM(i)=totXSScap*Vd(i,celda)/DEPtot ![m3]
+            else
+                !tta todo el volumen depositado de la fracción
+                qsBM(i)=Vd(i,celda) ![m3]
+            endif
+            endif
+            !Acumula lo que se tta de cada fracción en el tot de transportado por cama
+            qsBMtot=qsBMtot+qsBM(i) ![m3]
+            !Actualiza lo que se fue del vol depositado de cada fracción
+            DEP(i)=DEP(i)-qsBM(i) ![m3]
+            if (DEP(i).lt.0) DEP(i)=0	    
+            Vd(i,celda)=Vd(i,celda)-qsBM(i)
+            if (tipo.eq.1) then
+            Vs(i,drena_id)=Vs(i,drena_id)+qsBM(i)
+            else
+            Vsc(i,celda)=Vsc(i,celda)+qsBM(i)
+            endif
+        enddo
     endif
     DEPt=DEPt+DEP
     !Capacidad residual 
