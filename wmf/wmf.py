@@ -3109,7 +3109,7 @@ class SimuBasin(Basin):
 		'----------\n'\
 		'self : .\n'\
 		'coord : Array (2,Ncoord) con las coordenadas de estaciones.\n'\
-		'registers : Array (Nest,Nregisters) con los registros de lluvia.\n'\
+		'registers : DataFrame de pandas (Nest,Nregisters) con los registros de lluvia.\n'\
 		'p :  exponente para la interpolacion de lluvia.\n'\
 		'ruta : Ruta con nombre en donde se guardara el binario con.\n'\
 		'	la informacion de lluvia.\n'\
