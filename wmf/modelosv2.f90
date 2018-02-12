@@ -107,6 +107,7 @@ real, allocatable :: mean_retorno(:) !Promedio de la cantidad de milimetro retor
 !variables de sedimentos Par aalojar volumens y demas
 real sed_factor !factor para calibrar el modelo de sedimentos
 real wi(3), Qskr,G,diametro(3)
+real qlin_sed !Caudal lineal de sedimentos para el tte en ladera
 real ERO(3),EROt(3),DEP(3),DEPt(3)
 real, allocatable :: VolERO(:),VolDEPo(:) !Volumen erosionado por celda, Volumen depositado en la celda
 real, allocatable :: Vs(:,:),Vd(:,:)
@@ -282,7 +283,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 			if (speed_type(i) .eq. 1) then 
 				hspeed(i,:)=h_coef(i,:)*Calib(i+4) ! Velocidad [mm/seg] que se mueve
 			else
-				hspeed(i,:) = 0.5 ! Velocidad de arranque para las ecuaciones no lineales horizontales
+				hspeed(i,:) = 0.0 ! Velocidad de arranque para las ecuaciones no lineales horizontales
 			endif		
 		enddo
 	endif
@@ -457,305 +458,303 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 			salidas=salidas+vflux(4)+Evp_loss ![mm]			
 			
 			!--------------------------------------------------------------------------
-			!Calcula el flujo que sale de los tanques 2 a 4
-			do i=1,3
-				!calcula la velocidad de transferencia
-				select case(speed_type(i))
-					!Caso por defecto es lineal 
-					case(1)
-						hflux(i)=(1-hill_long(1,celda)/(hspeed(i,celda)*dt+&
-							& hill_long(1,celda)))*StoOut(i+1,celda)						
-					!Caso no lineal potencial 
-					case(2)	
-						!Itera para calcular la velocidad de salida y el area de la seccion por onda cinematica
-						call calc_speed(StoOut(i+1,celda)*m3_mmHill(celda), h_coef(i,celda)*Calib(i+4),&
-							& h_exp(i,celda), hill_long(1,celda), hspeed(i,celda), section_area)
-						!con la velocidad y el area calcula la cantidad de agua que sale del tanque
-						hflux(i)=min(section_area*hspeed(i,celda)*dt/m3_mmHill(celda),&
-							& StoOut(i+1,celda))![mm]
-				end select
-				!---------------------------------------
-				!SEP_LLUVIA
-				!Si hay separacion por lluvia, actualiza 
-				if (separate_rain .eq. 1) then 
-					!Flujos que salen de cada tanque lo hacen en proporcion a la cantidad de agua de cada tipo
-					if (StoOut(i+1,celda).gt.0) then
-						hflux_c(i) = hflux(i)*Storage_conv(i+1,celda)/StoOut(i+1,celda)
-						hflux_s(i) = hflux(i)*Storage_stra(i+1,celda)/StoOut(i+1,celda)
-					else
-						hflux_c(i) = 0
-						hflux_s(i) = 0
-					endif
-					!Actualiza almacenamiento 
-					Storage_conv(i+1,celda) = Storage_conv(i+1,celda) - hflux_c(i)
-					Storage_stra(i+1,celda) = Storage_stra(i+1,celda) - hflux_s(i)
-				endif
-				!Actualiza el almacenamiento
-				StoOut(i+1,celda)=StoOut(i+1,celda)-hflux(i)	
-			enddo	
-			
-			!--------------------------------------------------------------------------	
-			!Envia los flujos que salieron de acuerdo al tipo de celda 
-			if (unit_type(1,celda).eq.1) then
-				if (drena(1,celda).ne.0) then
-					StoOut(2:4,drenaid)=StoOut(2:4,drenaid)+hflux(1:3)
-					!---------------------------------------
-					!SEP_LLUVIA
-					!Separacion flujos de lluvia 
-					if (separate_rain .eq. 1) then 
-						Storage_conv(2:4,drenaid) = Storage_conv(2:4,drenaid) + hflux_c(1:3)
-						Storage_stra(2:4,drenaid) = Storage_stra(2:4,drenaid) + hflux_s(1:3)
-					endif
-				else
-					Q(1,tiempo)=Q(1,tiempo)+sum(hflux(1:3))*m3_mmHill(celda) ![m3/s]
-					salidas=salidas+sum(hflux(1:3))
-				endif
-			
-			elseif (unit_type(1,celda).gt.1) then
-				
-				!Envia los flujos de acuerdo al tipo de celda
-				StoOut(4,drenaid)=StoOut(4,drenaid)+hflux(3)*&
-					&(3-unit_type(1,celda)) !celda tipo 3 esta ec se anula
-				StoOut(5,celda)=StoOut(5,celda)+sum(hflux(1:2))+&
-					& hflux(3)*(unit_type(1,celda)-2) !celda tipo 2 se anula el flujo del tanque 4
-				!---------------------------------------
-				!SEP_LLUVIA
-				if (separate_rain .eq. 1) then 
-					Storage_conv(4,drenaid) = Storage_conv(4,drenaid)+hflux_c(3)*(3-unit_type(1,celda))
-					Storage_stra(4,drenaid) = Storage_stra(4,drenaid)+hflux_s(3)*(3-unit_type(1,celda))
-					Storage_conv(5,celda) = Storage_conv(5,celda)+sum(hflux_c(1:2))+hflux_c(3)*(unit_type(1,celda)-2)
-					Storage_stra(5,celda) = Storage_stra(5,celda)+sum(hflux_s(1:2))+hflux_s(3)*(unit_type(1,celda)-2)
-				endif
-				
-				!Resuelve el transporte en el canal por onda cinematica
-				call calc_speed(StoOut(5,celda)*m3_mmRivers(celda), h_coef(4,celda)*Calib(8),&
-					& h_exp(4,celda), stream_long(1,celda), hspeed(4,celda), section_area)
-				!Calcula la cantidad de agua que sale del canal.
-				hflux(4)=min(section_area*hspeed(4,celda)*dt/m3_mmRivers(celda),&
-					&StoOut(5,celda)) ![mm]				
-				
-				!---------------------------------------
-				!SEP_LLUVIA
-				if (separate_rain .eq. 1) then 
-					if (StoOut(5,celda) .ne. 0) then 
-						hflux_c(4) = hflux(4)*Storage_conv(5,celda)/StoOut(5,celda)
-						hflux_s(4) = hflux(4)*Storage_stra(5,celda)/StoOut(5,celda)
-					else
-						hflux_c(4) = 0
-						hflux_s(4) = 0
-					endif
-					Storage_conv(5,celda) = Storage_conv(5,celda) - hflux_c(4)
-					Storage_stra(5,celda) = Storage_stra(5,celda) - hflux_s(4)
-				endif
-				
-				!!!!!!! Separacion de flujo (solo funciona si la activan) !!!!!!!!
-				if (separate_fluxes .eq. 1) then
-					Fluxes(1:3,celda) = Fluxes(1:3,celda) + hflux(1:3)
-					if (StoOut(5,celda) .gt. 0) then 
-						Fluxes(1:3,celda) = Fluxes(1:3,celda) - Fluxes(1:3,celda) * (hflux(4)/StoOut(5,celda))
-					else
-						Fluxes(1:3,celda) = 0.0
-					endif
-				endif
-				
-				!Actualiza el almacenamiento en el cauce 
-				StoOut(5,celda) = StoOut(5,celda) - hflux(4)
-				
-				!Envia el flujo en el cauce aguas abajo
-				if (drena(1,celda).ne.0) then
-					StoOut(5,drenaid) = StoOut(5,drenaid)+hflux(4)					
-					!Actualizacion de flujos separados por tipo de almacenamiento 
-					if (separate_fluxes .eq. 1) then
-						if (StoOut(5,celda) .gt. 0) then 
-							Fluxes(1:3,drenaid) = Fluxes(1:3,drenaid) + Fluxes(1:3,celda) * (hflux(4)/StoOut(5,celda))
-						else
-							Fluxes(1:3, drenaid) = 0.0
-						endif
-					endif
-					!---------------------------------------
-					!SEP_LLUVIA
-					if (separate_rain .eq. 1) then 
-						Storage_conv(5,drenaid) = Storage_conv(5,drenaid) + hflux_c(4)
-						Storage_stra(5,drenaid) = Storage_stra(5,drenaid) + hflux_s(4)
-					endif
-				else
-					Q(1,tiempo)=hflux(4)*m3_mmRivers(celda)/dt ![m3/s]      
-					salidas=salidas+hflux(4) ![mm]
-					!Registro de flujos separados por tipo de almacenamiento
-					if (separate_fluxes .eq. 1) then
-						if (StoOut(5,celda) .gt. 0) then
-							Qseparated(1,:,tiempo) = Fluxes(1:3,celda) &
-								&* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
-						else
-							Qseparated(1,:,tiempo) = 0.0
-						endif
-					endif
-					!Control de la velocidad en la salida de la cuenca 
-					if (show_speed .eq. 1) then 
-						Speed(1,tiempo) = hspeed(4,celda)
-						AreaControl(1, tiempo) = section_area
-					endif 
-					!---------------------------------------
-					!SEP_LLUVIA					
-					!Registro de flujos de lluvia separados por tipo de lluvia 
-					if (separate_rain .eq. 1) then 
-						Qsep_byrain(1,1,tiempo) = hflux_c(4)*m3_mmRivers(celda)/dt
-						Qsep_byrain(1,2,tiempo) = hflux_s(4)*m3_mmRivers(celda)/dt
-					endif
-				endif
-				
-			endif
-			
-			!--------------------------------------------------------------------------
-			!Si evalua tte de sedimentos calcula el tte en ladera y cauce
-			if (sim_sediments .eq. 1) then
-                Area_coef=m3_mmHill(celda)/(hill_long(1,celda)+hspeed(1,celda)*dt)
-                !Area_coef = m3_mmHill(celda)/(hill_long(1,celda)+0.2*dt)
-				section_area=StoOut(2,celda)*Area_coef(celda)
-                !section_area = 1.
-				!Calculo en ladera
-				call sed_hillslope(sed_factor, StoOut(2,celda), hspeed(1,celda)&
-					&, hill_slope(1,celda), section_area, celda, drenaid, unit_type(1,celda))
-				!Calculo en cauce
-				call sed_channel(StoOut(5,celda),hspeed(4,celda),hflux(4)*m3_mmRivers(celda)/dt,&
-					& stream_slope(1,celda), section_area,celda,drenaid,Vsal_sed)
-				!Si es la salida registra los sedimentos en la salida 
-				if (drena(1,celda).eq.0) then
-					do i=1,3
-						Qsed(1,i,tiempo)=Vsal_sed(i)
-                        !Qsed(i,1,tiempo) = Area_coef(celda)
-					enddo  
-				endif
-			endif
-			
-			!--------------------------------------------------------------------------
-			!Si evalua deslizamientos
-			if (sim_slides.eq.1) call slide_ocurrence(N_cel, tiempo, celda, StoOut(3,celda)&
-				&, H(2,celda))
-			
-			!--------------------------------------------------------------------------
-			!Si evalua inundaciones 
-			if (sim_floods .eq. 1) then 
-				!Guarda los caudales y velocidades de cada  celda, para luego evaluar inundaciones
-				if (unit_type(1,celda).eq.3 .and. hspeed(4,celda)*flood_AV .gt. flood_umbral) then 
-					!Calcula caudal y velocidad
-					flood_Q(1,celda) = hflux(4)*m3_mmRivers(celda)/dt
-					flood_speed(1,celda) = hspeed(4,celda) * flood_AV
-					!Calcula los parametros de la hidraulica incluyendo concentraciones 
-					call flood_params(celda)
-					!Calcula la diferencia de hand 
-					!call flood_find_hdiff(celda)
-					!Calcula el area de inundacion equivalente 
-					!call flood_debris_flow(celda, flood_area, flood_diff)
-					call flood_debris_flow2(celda, flood_area, flood_diff)
-					!Inunda celdas
-					!where(flood_aquien .eq. celda .and. flood_hand .lt. flood_diff) flood_flood = 1
-				endif
-			endif
-			
-			!--------------------------------------------------------------------------
-			!Record de variables y resultados del modelo
-			!Caudales en el punto de control
-			if (control(1,celda).ne.0) then
-				Q(control_cont,tiempo)=hflux(4)*m3_mmRivers(celda)/dt ![m3/s]      
-				!Si hay control por separacion de flujos, los registra 
-				if (separate_fluxes .eq. 1) then
-					if (StoOut(5,celda) .gt. 0) then
-						Qseparated(control_cont,:,tiempo) = Fluxes(1:3,celda) &
-							&* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
-					else
-						Qseparated(control_cont,:,tiempo) = 0.0
-					endif
-				endif
-				!Si se quiere llevar control de la velocidad en el canal lo registra 
-				if (show_speed .eq. 1) then 
-					Speed(control_cont, tiempo) = hspeed(4,celda)
-					AreaControl(control_cont, tiempo) = section_area
-				endif
-				!---------------------------------------
-				!SEP_LLUVIA
-				if (separate_rain .eq. 1) then 
-					Qsep_byrain(control_cont,1,tiempo) = hflux_c(4)*m3_mmRivers(celda)/dt ![m3/s]      
-					Qsep_byrain(control_cont,2,tiempo) = hflux_s(4)*m3_mmRivers(celda)/dt ![m3/s]      
-				endif	
-				!Si se simularon sedimentos los guarda 
-				if (sim_sediments.eq.1) then
-					do i=1,3
-						Qsed(control_cont,i,tiempo)=Vsal_sed(i)
-				    enddo
-				endif
-				control_cont=control_cont+1
-			endif
-			!Humedad en puntos de control
-			if (control_h(1,celda).ne.0) then 
-				Hum(controlh_cont,tiempo)=sum((/ StoOut(1,celda), StoOut(3,celda)/))
-				St1(controlh_cont,tiempo)=StoOut(1,celda)
-				St3(controlh_cont,tiempo)=StoOut(3,celda)
-				!St1_pc(controlh_cont,tiempo) = StoOut(1,celda)
-				!St3_pc(controlh_cont,tiempo) = StoOut(3,celda)
-				controlh_cont=controlh_cont+1
-			endif
+            !Calcula el flujo que sale de los tanques 2 a 4
+            do i=1,3
+                !calcula la velocidad de transferencia
+                select case(speed_type(i))
+                    !Caso por defecto es lineal 
+                    case(1)
+                        hflux(i)=(1-hill_long(1,celda)/(hspeed(i,celda)*dt+&
+                            & hill_long(1,celda)))*StoOut(i+1,celda)
+                    !Caso no lineal potencial 
+                    case(2)	
+                        !Itera para calcular la velocidad de salida y el area de la seccion por onda cinematica
+                        call calc_speed(StoOut(i+1,celda)*m3_mmHill(celda), h_coef(i,celda)*Calib(i+4),&
+                            & h_exp(i,celda), hill_long(1,celda), hspeed(i,celda), section_area)
+                        !con la velocidad y el area calcula la cantidad de agua que sale del tanque
+                        hflux(i)=min(section_area*hspeed(i,celda)*dt/m3_mmHill(celda),&
+                            & StoOut(i+1,celda))![mm]
+                    !Simulacion de sedimentos 
+                    if (sim_sediments .eq. 1 .and. i .eq. 1) then
+                        !Calcula el caudal lineal
+                        qlin_sed = hflux(i)*m3_mmHill(celda)/(dt*dxp)
+                        !Calcula la produccion de sedimentos
+                        call sed_hillslope(sed_factor,hspeed(1,celda),StoOut(2,celda),hill_slope(1,celda)&
+                            &,celda,drenaid,unit_type(1,celda)) !Subrutina para calcular los sedimentos en ladera
+                    end if
+                end select
+                !---------------------------------------
+                !SEP_LLUVIA
+                !Si hay separacion por lluvia, actualiza 
+                if (separate_rain .eq. 1) then 
+                    !Flujos que salen de cada tanque lo hacen en proporcion a la cantidad de agua de cada tipo
+                    if (StoOut(i+1,celda).gt.0) then
+                        hflux_c(i) = hflux(i)*Storage_conv(i+1,celda)/StoOut(i+1,celda)
+                        hflux_s(i) = hflux(i)*Storage_stra(i+1,celda)/StoOut(i+1,celda)
+                    else
+                        hflux_c(i) = 0
+                        hflux_s(i) = 0
+                    endif
+                    !Actualiza almacenamiento 
+                    Storage_conv(i+1,celda) = Storage_conv(i+1,celda) - hflux_c(i)
+                    Storage_stra(i+1,celda) = Storage_stra(i+1,celda) - hflux_s(i)
+                endif
+                !Actualiza el almacenamiento
+                StoOut(i+1,celda)=StoOut(i+1,celda)-hflux(i)	
+            enddo	
+            
+            !--------------------------------------------------------------------------	
+            !Envia los flujos que salieron de acuerdo al tipo de celda 
+            if (unit_type(1,celda).eq.1) then
+                if (drena(1,celda).ne.0) then
+                    StoOut(2:4,drenaid)=StoOut(2:4,drenaid)+hflux(1:3)
+                    !---------------------------------------
+                    !SEP_LLUVIA
+                    !Separacion flujos de lluvia 
+                    if (separate_rain .eq. 1) then 
+                        Storage_conv(2:4,drenaid) = Storage_conv(2:4,drenaid) + hflux_c(1:3)
+                        Storage_stra(2:4,drenaid) = Storage_stra(2:4,drenaid) + hflux_s(1:3)
+                    endif
+                else
+                    Q(1,tiempo)=Q(1,tiempo)+sum(hflux(1:3))*m3_mmHill(celda) ![m3/s]
+                    salidas=salidas+sum(hflux(1:3))
+                endif
+            
+            elseif (unit_type(1,celda).gt.1) then
+                
+                !Envia los flujos de acuerdo al tipo de celda
+                StoOut(4,drenaid)=StoOut(4,drenaid)+hflux(3)*&
+                    &(3-unit_type(1,celda)) !celda tipo 3 esta ec se anula
+                StoOut(5,celda)=StoOut(5,celda)+sum(hflux(1:2))+&
+                    & hflux(3)*(unit_type(1,celda)-2) !celda tipo 2 se anula el flujo del tanque 4
+                !---------------------------------------
+                !SEP_LLUVIA
+                if (separate_rain .eq. 1) then 
+                    Storage_conv(4,drenaid) = Storage_conv(4,drenaid)+hflux_c(3)*(3-unit_type(1,celda))
+                    Storage_stra(4,drenaid) = Storage_stra(4,drenaid)+hflux_s(3)*(3-unit_type(1,celda))
+                    Storage_conv(5,celda) = Storage_conv(5,celda)+sum(hflux_c(1:2))+hflux_c(3)*(unit_type(1,celda)-2)
+                    Storage_stra(5,celda) = Storage_stra(5,celda)+sum(hflux_s(1:2))+hflux_s(3)*(unit_type(1,celda)-2)
+                endif
+                
+                !Resuelve el transporte en el canal por onda cinematica
+                call calc_speed(StoOut(5,celda)*m3_mmRivers(celda), h_coef(4,celda)*Calib(8),&
+                    & h_exp(4,celda), stream_long(1,celda), hspeed(4,celda), section_area)
+                !Calcula la cantidad de agua que sale del canal.
+                hflux(4)=min(section_area*hspeed(4,celda)*dt/m3_mmRivers(celda),&
+                    &StoOut(5,celda)) ![mm]				
+                !Calcula sedimentos 
+                if (sim_sediments .eq. 1) then
+                    Vsal_sed = 0.0
+                    call sed_channel(StoOut(5,celda),hspeed(4,celda),hflux(4)*m3_mmRivers(celda)/dt,&
+                        & stream_slope(1,celda), section_area,celda,drenaid,Vsal_sed)
+                end if
 
-		!---------------------------------------------------------------------
-		!---------------------------------------------------------------------
-		!---------------------------------------------------------------------
-		!Termina de iterar celdas
-		enddo
-		
-		!--------------------------------------------------------------------------
-		!Obtiene la lluvia promedio para el intervalo de tiempo
-		Mean_Rain(1,tiempo)=rain_sum/N_cel
-				
-		!Guarda campo de estados del modelo 
-		if (save_storage .eq. 1) then
-			call write_float_basin(ruta_storage,StoOut,tiempo,N_cel,5)
-		endif
-		!Guarda campo de velocidades del modelo
-		if (save_speed .eq. 1) then
-			call write_float_basin(ruta_speed,hspeed,tiempo,N_cel,4)
-		endif
-		
-		!Guarda campo de flujos retorno del modelo
-		if (save_retorno .eq. 1) then
-			call write_float_basin(ruta_retorno,retorned,tiempo,N_cel,1)
-		endif
-		
-		!Genera un promedio de cada tanque en caso de que se indique que lo haga  
-		if (show_storage .eq. 1) then 
-			mean_storage(:,tiempo) = sum(StoOut,dim=2) / N_cel
-		endif
-		
-		!Genera el promedio de velocidad en cada tanque en caso de que se indique 
-		if (show_mean_speed .eq. 1) then 
-			mean_speed(:, tiempo) = sum(hspeed,dim=2) / N_cel
-		endif
-		
-		!Genera el promedio de retornos producidos en la cuenca
-		if (show_mean_retorno .eq. 1) then 
-			mean_retorno(tiempo) = sum(Retorned)
-		endif
-		
-		!Actualiza Retorno si tiene que hacerlo
-		if (show_mean_retorno .eq. 1 .or. save_retorno .eq. 1) then
-			Retorned = 0.0
-		endif	
-		!Actualiza balance 
-		balance(tiempo) = sum(StoOut)-StoAtras - entradas + salidas
-		entradas = 0
-		salidas = 0
-		
-		!Si se indica que imprima en pantalla lo va haciendo 
-		if (verbose .eq. 1) then 
-			tiempo_r = tiempo
-			print *, tiempo_r/N_reg
-		endif
-	
-	!---------------------------------------------------------------------
-	!---------------------------------------------------------------------
-	!---------------------------------------------------------------------
-	!Termina de iterar tiempos
-	enddo
-	
+                !---------------------------------------
+                !SEP_LLUVIA
+                if (separate_rain .eq. 1) then 
+                    if (StoOut(5,celda) .ne. 0) then 
+                        hflux_c(4) = hflux(4)*Storage_conv(5,celda)/StoOut(5,celda)
+                        hflux_s(4) = hflux(4)*Storage_stra(5,celda)/StoOut(5,celda)
+                    else
+                        hflux_c(4) = 0
+                        hflux_s(4) = 0
+                    endif
+                    Storage_conv(5,celda) = Storage_conv(5,celda) - hflux_c(4)
+                    Storage_stra(5,celda) = Storage_stra(5,celda) - hflux_s(4)
+                endif
+                
+                !!!!!!! Separacion de flujo (solo funciona si la activan) !!!!!!!!
+                if (separate_fluxes .eq. 1) then
+                    Fluxes(1:3,celda) = Fluxes(1:3,celda) + hflux(1:3)
+                    if (StoOut(5,celda) .gt. 0) then 
+                        Fluxes(1:3,celda) = Fluxes(1:3,celda) - Fluxes(1:3,celda) * (hflux(4)/StoOut(5,celda))
+                    else
+                        Fluxes(1:3,celda) = 0.0
+                    endif
+                endif
+                
+                !Actualiza el almacenamiento en el cauce 
+                StoOut(5,celda) = StoOut(5,celda) - hflux(4)
+                
+                !Envia el flujo en el cauce aguas abajo
+                if (drena(1,celda).ne.0) then
+                    StoOut(5,drenaid) = StoOut(5,drenaid)+hflux(4)
+                    !Actualizacion de flujos separados por tipo de almacenamiento 
+                    if (separate_fluxes .eq. 1) then
+                        if (StoOut(5,celda) .gt. 0) then 
+                            Fluxes(1:3,drenaid) = Fluxes(1:3,drenaid) + Fluxes(1:3,celda) * (hflux(4)/StoOut(5,celda))
+                        else
+                            Fluxes(1:3, drenaid) = 0.0
+                        endif
+                    endif
+                    !---------------------------------------
+                    !SEP_LLUVIA
+                    if (separate_rain .eq. 1) then 
+                        Storage_conv(5,drenaid) = Storage_conv(5,drenaid) + hflux_c(4)
+                        Storage_stra(5,drenaid) = Storage_stra(5,drenaid) + hflux_s(4)
+                    endif
+                else
+                    Q(1,tiempo)=hflux(4)*m3_mmRivers(celda)/dt ![m3/s]      
+                    salidas=salidas+hflux(4) ![mm]
+                    !Registro de sedimentos a la salida 
+                    if (sim_sediments .eq. 1) then
+                        do i = 1,3
+                            Qsed(1,i,tiempo)=Vsal_sed(i)
+                        enddo
+                    endif
+                    !Registro de flujos separados por tipo de almacenamiento
+                    if (separate_fluxes .eq. 1) then
+                        if (StoOut(5,celda) .gt. 0) then
+                            Qseparated(1,:,tiempo) = Fluxes(1:3,celda) &
+                                &* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
+                        else
+                            Qseparated(1,:,tiempo) = 0.0
+                        endif
+                    endif
+                    !Control de la velocidad en la salida de la cuenca 
+                    if (show_speed .eq. 1) then 
+                        Speed(1,tiempo) = hspeed(4,celda)
+                        AreaControl(1, tiempo) = section_area
+                    endif 
+                    !---------------------------------------
+                    !SEP_LLUVIA					
+                    !Registro de flujos de lluvia separados por tipo de lluvia 
+                    if (separate_rain .eq. 1) then 
+                        Qsep_byrain(1,1,tiempo) = hflux_c(4)*m3_mmRivers(celda)/dt
+                        Qsep_byrain(1,2,tiempo) = hflux_s(4)*m3_mmRivers(celda)/dt
+                    endif
+                endif
+                
+            endif
+        
+            !--------------------------------------------------------------------------
+            !Si evalua deslizamientos
+            if (sim_slides.eq.1) call slide_ocurrence(N_cel, tiempo, celda, StoOut(3,celda)&
+                &, H(2,celda))
+            
+            !--------------------------------------------------------------------------
+            !Si evalua inundaciones 
+            if (sim_floods .eq. 1) then 
+                !Guarda los caudales y velocidades de cada  celda, para luego evaluar inundaciones
+                if (unit_type(1,celda).eq.3 .and. hspeed(4,celda)*flood_AV .gt. flood_umbral) then 
+                    !Calcula caudal y velocidad
+                    flood_Q(1,celda) = hflux(4)*m3_mmRivers(celda)/dt
+                    flood_speed(1,celda) = hspeed(4,celda) * flood_AV
+                    !Calcula los parametros de la hidraulica incluyendo concentraciones 
+                    call flood_params(celda)
+                    !Calcula la diferencia de hand 
+                    !call flood_find_hdiff(celda)
+                    !Calcula el area de inundacion equivalente 
+                    !call flood_debris_flow(celda, flood_area, flood_diff)
+                    call flood_debris_flow2(celda, flood_area, flood_diff)
+                    !Inunda celdas
+                    !where(flood_aquien .eq. celda .and. flood_hand .lt. flood_diff) flood_flood = 1
+                endif
+            endif
+            
+            !--------------------------------------------------------------------------
+            !Record de variables y resultados del modelo
+            !Caudales en el punto de control
+            if (control(1,celda).ne.0) then
+                Q(control_cont,tiempo)=hflux(4)*m3_mmRivers(celda)/dt ![m3/s]      
+                !Si hay control por separacion de flujos, los registra 
+                if (separate_fluxes .eq. 1) then
+                    if (StoOut(5,celda) .gt. 0) then
+                        Qseparated(control_cont,:,tiempo) = Fluxes(1:3,celda) &
+                            &* (hflux(4)/StoOut(5,celda))*m3_mmRivers(celda)/dt 
+                    else
+                        Qseparated(control_cont,:,tiempo) = 0.0
+                    endif
+                endif
+                !Si se quiere llevar control de la velocidad en el canal lo registra 
+                if (show_speed .eq. 1) then 
+                    Speed(control_cont, tiempo) = hspeed(4,celda)
+                    AreaControl(control_cont, tiempo) = section_area
+                endif
+                !---------------------------------------
+                !SEP_LLUVIA
+                if (separate_rain .eq. 1) then 
+                    Qsep_byrain(control_cont,1,tiempo) = hflux_c(4)*m3_mmRivers(celda)/dt ![m3/s]      
+                    Qsep_byrain(control_cont,2,tiempo) = hflux_s(4)*m3_mmRivers(celda)/dt ![m3/s]      
+                endif	
+                !Si se simularon sedimentos los guarda 
+                if (sim_sediments.eq.1) then
+                    do i=1,3
+                        Qsed(control_cont,i,tiempo)=Vsal_sed(i)
+                    enddo
+                endif
+                control_cont=control_cont+1
+            endif
+            !Humedad en puntos de control
+            if (control_h(1,celda).ne.0) then 
+                Hum(controlh_cont,tiempo)=sum((/ StoOut(1,celda), StoOut(3,celda)/))
+                St1(controlh_cont,tiempo)=StoOut(1,celda)
+                St3(controlh_cont,tiempo)=StoOut(3,celda)
+                !St1_pc(controlh_cont,tiempo) = StoOut(1,celda)
+                !St3_pc(controlh_cont,tiempo) = StoOut(3,celda)
+                controlh_cont=controlh_cont+1
+            endif
+
+        !---------------------------------------------------------------------
+        !---------------------------------------------------------------------
+        !---------------------------------------------------------------------
+        !Termina de iterar celdas
+        enddo
+        
+        !--------------------------------------------------------------------------
+        !Obtiene la lluvia promedio para el intervalo de tiempo
+        Mean_Rain(1,tiempo)=rain_sum/N_cel
+                
+        !Guarda campo de estados del modelo 
+        if (save_storage .eq. 1) then
+            call write_float_basin(ruta_storage,StoOut,tiempo,N_cel,5)
+        endif
+        !Guarda campo de velocidades del modelo
+        if (save_speed .eq. 1) then
+            call write_float_basin(ruta_speed,hspeed,tiempo,N_cel,4)
+        endif
+        
+        !Guarda campo de flujos retorno del modelo
+        if (save_retorno .eq. 1) then
+            call write_float_basin(ruta_retorno,retorned,tiempo,N_cel,1)
+        endif
+        
+        !Genera un promedio de cada tanque en caso de que se indique que lo haga  
+        if (show_storage .eq. 1) then 
+            mean_storage(:,tiempo) = sum(StoOut,dim=2) / N_cel
+        endif
+        
+        !Genera el promedio de velocidad en cada tanque en caso de que se indique 
+        if (show_mean_speed .eq. 1) then 
+            mean_speed(:, tiempo) = sum(hspeed,dim=2) / N_cel
+        endif
+        
+        !Genera el promedio de retornos producidos en la cuenca
+        if (show_mean_retorno .eq. 1) then 
+            mean_retorno(tiempo) = sum(Retorned)
+        endif
+        
+        !Actualiza Retorno si tiene que hacerlo
+        if (show_mean_retorno .eq. 1 .or. save_retorno .eq. 1) then
+            Retorned = 0.0
+        endif	
+        !Actualiza balance 
+        balance(tiempo) = sum(StoOut)-StoAtras - entradas + salidas
+        entradas = 0
+        salidas = 0
+        
+        !Si se indica que imprima en pantalla lo va haciendo 
+        if (verbose .eq. 1) then 
+            tiempo_r = tiempo
+            print *, tiempo_r/N_reg
+        endif
+
+    !---------------------------------------------------------------------
+    !---------------------------------------------------------------------
+    !---------------------------------------------------------------------
+    !Termina de iterar tiempos
+    enddo
+
 end subroutine
 
 
@@ -1080,81 +1079,81 @@ subroutine rain_mit(xy_basin,coord,rain,tin,tin_perte,nceldas,nhills,ncoord,&
 	enddo
 end subroutine 
 subroutine rain_idw(xy_basin,coord,rain,pp,nceldas,ncoord,nreg,nhills,ruta,umbral,&
-	& meanRain, posIds,maskVector)	
-	!Variables de entrada
-	integer, intent(in) :: nceldas,ncoord,nreg,nhills
-	integer, intent(in) :: maskVector(nceldas)
-	character*255, intent(in) :: ruta
-	real, intent(in) :: xy_basin(2,nceldas),coord(2,ncoord),rain(ncoord,nreg),pp,umbral
-	!Variables de salida
-	real, intent(out) :: meanRain(nreg)
-	integer, intent(out) :: posIds(nreg)
-	!Variables locales 
-	integer tiempo, celda, i, cont, celdas_hills
-	real W(ncoord,nceldas),Wr,campo(nceldas),valor,campoHill(nhills)
-	integer campoInt(nceldas),campoIntHill(nhills),mascara(nceldas)
-	!Mira si la cuenca es celdas o laderas 
-	if (sum(maskVector) .eq. nceldas) then
-		celdas_hills = 1 !celdas
-	else
-		celdas_hills = 2 !laderas
-	endif
-	!Guarda un campo vacio que va a ser el usado en 
-	!los casos en que no tenga valores de lluvia sobre toda la cuenca
-	campoInt = 0
-	mascara = 1
-	if (celdas_hills .eq. 2) then
-		!Si es por laderas guarda la primera entrada como ceros		
-		call basin_subbasin_map2subbasin(maskVector,campo,campoHill,&
-			&nhills,nceldas,mascara,celdas_hills)
-		campoIntHill = campoHill
-		call write_int_basin(ruta,campoIntHill,1,nhills,1)
-	elseif (celdas_hills .eq. 1) then
-		!Si es por celdas guarda la primera como nceldas de ceros
-		call write_int_basin(ruta,campoInt,1,nceldas,1)
-	endif
-	!Calcula el peso 
-	do i=1,ncoord
-		W(i,:)=1.0/(sqrt(((coord(1,i)-xy_basin(1,:))**2+(coord(2,i)-xy_basin(2,:))**2)))**pp
+    & meanRain, posIds,maskVector)	
+    !Variables de entrada
+    integer, intent(in) :: nceldas,ncoord,nreg,nhills
+    integer, intent(in) :: maskVector(nceldas)
+    character*255, intent(in) :: ruta
+    real, intent(in) :: xy_basin(2,nceldas),coord(2,ncoord),rain(ncoord,nreg),pp,umbral
+    !Variables de salida
+    real, intent(out) :: meanRain(nreg)
+    integer, intent(out) :: posIds(nreg)
+    !Variables locales 
+    integer tiempo, celda, i, cont, celdas_hills
+    real W(ncoord,nceldas),Wr,campo(nceldas),valor,campoHill(nhills)
+    integer campoInt(nceldas),campoIntHill(nhills),mascara(nceldas)
+    !Mira si la cuenca es celdas o laderas 
+    if (sum(maskVector) .eq. nceldas) then
+        celdas_hills = 1 !celdas
+    else
+        celdas_hills = 2 !laderas
+    endif
+    !Guarda un campo vacio que va a ser el usado en 
+    !los casos en que no tenga valores de lluvia sobre toda la cuenca
+    campoInt = 0
+    mascara = 1
+    if (celdas_hills .eq. 2) then
+        !Si es por laderas guarda la primera entrada como ceros		
+        call basin_subbasin_map2subbasin(maskVector,campo,campoHill,&
+            &nhills,nceldas,mascara,celdas_hills)
+        campoIntHill = campoHill
+        call write_int_basin(ruta,campoIntHill,1,nhills,1)
+    elseif (celdas_hills .eq. 1) then
+        !Si es por celdas guarda la primera como nceldas de ceros
+        call write_int_basin(ruta,campoInt,1,nceldas,1)
+    endif
+    !Calcula el peso 
+    do i=1,ncoord
+        W(i,:)=1.0/(sqrt(((coord(1,i)-xy_basin(1,:))**2+(coord(2,i)-xy_basin(2,:))**2)))**pp
     end do
-	!Itera para todos los tiempos para todas las celdas 
-	cont = 2
-	do tiempo=1,nreg
-		!Interpola para el intervalo de tiempo
-		do celda=1,nceldas
-			Wr=sum(W(:,celda)*rain(:,tiempo),mask=rain(:,tiempo).gt.0.0)
-			valor = max(Wr/sum(W(:,celda),mask=rain(:,tiempo).ge.0.0),0.0)				
-			if (valor .eq. valor-1) then
-				campo(celda) = 0.0
-			else
-				campo(celda) = valor
-			endif
-		enddo
-		!Si el campo tiene algun valor diferente de cero lo mete en la media 
-		!Y tambien lo guarda.
-		if (sum(campo) .gt. umbral .and. count(campo .gt. umbral) .gt. 0) then
-			!Obtiene la media
-			meanRain(tiempo) = sum(campo)/count(campo .gt. 0)			
-			!Guarda el campo interpolado para el tiempo		
-			if (celdas_hills .eq. 1) then 
-				!Caso de celdas 
-				campoInt = campo*1000
-				call write_int_basin(ruta,campoInt,cont,nceldas,1)
-			elseif (celdas_hills .eq. 2) then 
-				!Caso de laderas
-				call basin_subbasin_map2subbasin(maskVector,campo,campoHill,&
-				&nhills,nceldas,mascara,celdas_hills)
-				campoIntHill = campoHill*1000
-				call write_int_basin(ruta,campoIntHill,cont,nhills,1)
-			endif
-			!Actualiza el conteo de la posicion de los campos
-			posIds(tiempo) = cont
-			cont = cont+1			
-		else
-			meanRain(tiempo) = 0.0
-			posIds(tiempo) = 1
-		endif
-	enddo
+    !Itera para todos los tiempos para todas las celdas 
+    cont = 2
+    do tiempo=1,nreg
+        !Interpola para el intervalo de tiempo
+        do celda=1,nceldas
+            Wr=sum(W(:,celda)*rain(:,tiempo),mask=rain(:,tiempo).gt.0.0)
+            valor = max(Wr/sum(W(:,celda),mask=rain(:,tiempo).ge.0.0),0.0)
+            if (valor .eq. valor-1) then
+                campo(celda) = 0.0
+            else
+                campo(celda) = valor
+            endif
+        enddo
+        !Si el campo tiene algun valor diferente de cero lo mete en la media 
+        !Y tambien lo guarda.
+        if (sum(campo) .gt. umbral .and. count(campo .gt. umbral) .gt. 0) then
+            !Obtiene la media
+            meanRain(tiempo) = sum(campo)/count(campo .gt. 0)
+            !Guarda el campo interpolado para el tiempo		
+            if (celdas_hills .eq. 1) then 
+                !Caso de celdas 
+                campoInt = campo*1000
+                call write_int_basin(ruta,campoInt,cont,nceldas,1)
+            elseif (celdas_hills .eq. 2) then 
+                !Caso de laderas
+                call basin_subbasin_map2subbasin(maskVector,campo,campoHill,&
+                &nhills,nceldas,mascara,celdas_hills)
+                campoIntHill = campoHill*1000
+                call write_int_basin(ruta,campoIntHill,cont,nhills,1)
+            endif
+            !Actualiza el conteo de la posicion de los campos
+            posIds(tiempo) = cont
+            cont = cont+1
+        else
+            meanRain(tiempo) = 0.0
+            posIds(tiempo) = 1
+        endif
+    enddo
 end subroutine 
 
 !-----------------------------------------------------------------------
@@ -1196,12 +1195,15 @@ subroutine sed_allocate(N_cel) !Funcion para alojar variables si se van a calcul
     VD=0![m3]
     VSc=0 ![m3]
     VDc=0 ![m3]
-    VolERO=0; VolDEPo=0 ![m3]
-    EROt=0; DEPt=0
+    VolERO=0
+    VolDEPo=0 ![m3]
+    EROt=0
+    DEPt=0
 end subroutine
-subroutine sed_hillslope(alfa,S2,v2,So,area_sec,celda,drena_id,tipo) !Subrutina para calcular los sedimentos en ladera
+
+subroutine sed_hillslope(alfa,v2,S2,So,celda,drena_id,tipo) !Subrutina para calcular los sedimentos en ladera
     !Variables de entrada
-    real, intent(in) :: S2,v2,So,area_sec,alfa
+    real, intent(in) :: v2,So,alfa,S2
     integer, intent(in) :: celda,drena_id,tipo
     !Variables locales 
     integer i
@@ -1215,9 +1217,9 @@ subroutine sed_hillslope(alfa,S2,v2,So,area_sec,celda,drena_id,tipo) !Subrutina 
     qsSUS=0;qsBM=0;qsERO=0                
     SUStot=0;DEPtot=0    
     !Calcula capacidad de arrastre
-    q=area_sec*v2/dxp
+    !q=area_sec*v2/dxp
     !q = 1.0
-    Qskr=alfa*(So**1.664)*(q**2.035)*Krus(1,celda)*Crus(1,celda)*Prus(1,celda)*dxp*dt
+    Qskr=alfa*(So**1.664)*(qlin_sed**2.035)*Krus(1,celda)*Crus(1,celda)*Prus(1,celda)*dxp*dt
     !Calcula Depositacion y atrapamiento      
     do i=1,3
         if (S2/1000>wi(i)*dt) then
@@ -1264,24 +1266,24 @@ subroutine sed_hillslope(alfa,S2,v2,So,area_sec,celda,drena_id,tipo) !Subrutina 
         do i=1,3
             if (Vd(i,celda)>0.0) then    
             !Observa si la cap excedente es mayor a la cant total depositada
-            if (totXSScap<DEPtot) then
-                !tta porcentaje del volumen depositado de la fracción
-                qsBM(i)=totXSScap*Vd(i,celda)/DEPtot ![m3]
-            else
-                !tta todo el volumen depositado de la fracción
-                qsBM(i)=Vd(i,celda) ![m3]
-            endif
+                if (totXSScap<DEPtot) then
+                    !tta porcentaje del volumen depositado de la fracción
+                    qsBM(i)=totXSScap*Vd(i,celda)/DEPtot ![m3]
+                else
+                    !tta to_do el volumen depositado de la fracción
+                    qsBM(i)=Vd(i,celda) ![m3]
+                endif
             endif
             !Acumula lo que se tta de cada fracción en el tot de transportado por cama
             qsBMtot=qsBMtot+qsBM(i) ![m3]
             !Actualiza lo que se fue del vol depositado de cada fracción
             DEP(i)=DEP(i)-qsBM(i) ![m3]
-            if (DEP(i).lt.0) DEP(i)=0	    
+            if (DEP(i).lt.0) DEP(i)=0    
             Vd(i,celda)=Vd(i,celda)-qsBM(i)
             if (tipo.eq.1) then
-            Vs(i,drena_id)=Vs(i,drena_id)+qsBM(i)
+                Vs(i,drena_id)=Vs(i,drena_id)+qsBM(i)
             else
-            Vsc(i,celda)=Vsc(i,celda)+qsBM(i)
+                Vsc(i,celda)=Vsc(i,celda)+qsBM(i)
             endif
         enddo
     endif
@@ -1290,23 +1292,131 @@ subroutine sed_hillslope(alfa,S2,v2,So,area_sec,celda,drena_id,tipo) !Subrutina 
     REScap=max(0.0, totXSScap-qsBMtot) ![m3]
     !Si la capacidad residual es mayor a cero, se presenta erosión
     if (REScap>0.0) then
-	!Evalua para cada fracción de tamaño
-	do i=1,3
-	    !Eroda y agrega a esa fracción de acuerdo a la porción presente en el suelo
-	    qsERO(i)=PArLiAc(i,celda)*REScap/100.0 ![m3]
-	    qsEROtot=qsEROtot+qsERO(i) ![m3]
-	    if (tipo.eq.1) then
-		Vs(i,drena_id)=Vs(i,drena_id)+qsERO(i)
-	    else
-		Vsc(i,celda)=Vsc(i,celda)+qsERO(i)
-	    endif
-	end do
+        !Evalua para cada fracción de tamaño
+        do i=1,3
+            !Eroda y agrega a esa fracción de acuerdo a la porción presente en el suelo
+            qsERO(i)=PArLiAc(i,celda)*REScap/100.0 ![m3]
+            qsEROtot=qsEROtot+qsERO(i) ![m3]
+            if (tipo.eq.1) then
+                Vs(i,drena_id)=Vs(i,drena_id)+qsERO(i)
+            else
+                Vsc(i,celda)=Vsc(i,celda)+qsERO(i)
+            endif
+        end do
     endif
     EROt=EROt+qsERO    
     !Actualiza el mapa total de erosion y depositacion
     VolERO(celda)=VolERO(celda)+sum(qsERO)
     VolDEPo(celda)=VolDEPo(celda)+sum(DEP)
 end subroutine
+!subroutine sed_hillslope(alfa,S2,v2,So,area_sec,celda,drena_id,tipo) !Subrutina para calcular los sedimentos en ladera
+!    !Variables de entrada
+!    real, intent(in) :: S2,v2,So,area_sec,alfa
+!    integer, intent(in) :: celda,drena_id,tipo
+!    !Variables locales 
+!    integer i
+!    real qsSUStot,qsBMtot,qsEROtot,qsSUS(3),qsBM(3),qsERO(3) !deposit y transporte
+!    real SUStot,DEPtot
+!    real totXSScap, REScap !Capacidades de transporte
+!    real q,Qskr,cap,Adv,Te(3) !Caudal lateral y Capacidad de arrastre
+!    !Inicia Variables propias    
+!    DEP=0
+!    qsSUStot=0;qsBMtot=0;qsEROtot=0
+!    qsSUS=0;qsBM=0;qsERO=0                
+!    SUStot=0;DEPtot=0    
+!    !Calcula capacidad de arrastre
+!    q=area_sec*v2/dxp
+!    !q = 1.0
+!    Qskr=alfa*(So**1.664)*(q**2.035)*Krus(1,celda)*Crus(1,celda)*Prus(1,celda)*dxp*dt
+!    !Calcula Depositacion y atrapamiento      
+!    do i=1,3
+!        if (S2/1000>wi(i)*dt) then
+!            Te(i)=wi(i)*dt*1000/S2
+!        else
+!            Te(i)=1
+!        endif
+!        !Calcula los sedimentos depositados en la celda
+!        Vd(i,celda)=Vd(i,celda)+Te(i)*Vs(i,celda)
+!        Vs(i,celda)=Vs(i,celda)-Te(i)*Vs(i,celda) 
+!        DEP(i)=Te(i)*Vs(i,celda)
+!        !Calcula totales de suspendidos y depositados
+!        SUStot=SUStot+Vs(i,celda)
+!        DEPtot=DEPtot+Vd(i,celda)
+!    enddo    
+!    !Transporta los sedimentos suspendidos
+!    do i=1,3
+!        if (Vs(i,celda).gt.0.0) then
+!            if (Qskr .lt. SUStot) then
+!                cap=Qskr*Vs(i,celda)/SUStot  ![m3]                         
+!                !Volumen que se puede llevar por advección
+!                Adv=Vs(i,celda)*v2*dt/(dxp+v2*dt) ![m3]   
+!                !Adv = Vs(i,celda)*v2*dt/dxp !version julien  
+!                !Transporta por suspención lo mayor entre: lo que se puede llevar la capacidad
+!                !y lo que se puede llevar por advección
+!                !qsSUS(i)=min(max(cap,Adv),Vs(i,celda)) ![m3]
+!                qsSUS(i) = max(cap,Adv)
+!            else
+!                qsSUS(i)=Vs(i,celda)
+!            endif
+!        endif
+!        qsSUStot=qsSUStot+qsSUS(i)
+!        Vs(i,celda)=Vs(i,celda)-qsSUS(i)
+!        if (tipo.eq.1) then
+!            Vs(i,drena_id)=Vs(i,drena_id)+qsSUS(i)
+!        else
+!            Vsc(i,celda)=Vsc(i,celda)+qsSUS(i)
+!        endif
+!    enddo
+!    !Capacidad de transporte de exceso
+!    totXSScap=max(0.0,Qskr-qsSUStot)
+!    !Transporta los sedimentos depositados	
+!    if (totXSScap>0.0 .and. DEPtot>0.0) then
+!        do i=1,3
+!            if (Vd(i,celda)>0.0) then    
+!            !Observa si la cap excedente es mayor a la cant total depositada
+!                if (totXSScap<DEPtot) then
+!                    !tta porcentaje del volumen depositado de la fracción
+!                    qsBM(i)=totXSScap*Vd(i,celda)/DEPtot ![m3]
+!                else
+!                    !tta to_do el volumen depositado de la fracción
+!                    qsBM(i)=Vd(i,celda) ![m3]
+!                endif
+!            endif
+!            !Acumula lo que se tta de cada fracción en el tot de transportado por cama
+!            qsBMtot=qsBMtot+qsBM(i) ![m3]
+!            !Actualiza lo que se fue del vol depositado de cada fracción
+!            DEP(i)=DEP(i)-qsBM(i) ![m3]
+!            if (DEP(i).lt.0) DEP(i)=0    
+!            Vd(i,celda)=Vd(i,celda)-qsBM(i)
+!            if (tipo.eq.1) then
+!                Vs(i,drena_id)=Vs(i,drena_id)+qsBM(i)
+!            else
+!                Vsc(i,celda)=Vsc(i,celda)+qsBM(i)
+!            endif
+!        enddo
+!    endif
+!    DEPt=DEPt+DEP
+!    !Capacidad residual 
+!    REScap=max(0.0, totXSScap-qsBMtot) ![m3]
+!    !Si la capacidad residual es mayor a cero, se presenta erosión
+!    if (REScap>0.0) then
+!        !Evalua para cada fracción de tamaño
+!        do i=1,3
+!            !Eroda y agrega a esa fracción de acuerdo a la porción presente en el suelo
+!            qsERO(i)=PArLiAc(i,celda)*REScap/100.0 ![m3]
+!            qsEROtot=qsEROtot+qsERO(i) ![m3]
+!            if (tipo.eq.1) then
+!                Vs(i,drena_id)=Vs(i,drena_id)+qsERO(i)
+!            else
+!                Vsc(i,celda)=Vsc(i,celda)+qsERO(i)
+!            endif
+!        end do
+!    endif
+!    EROt=EROt+qsERO    
+!    !Actualiza el mapa total de erosion y depositacion
+!    VolERO(celda)=VolERO(celda)+sum(qsERO)
+!    VolDEPo(celda)=VolDEPo(celda)+sum(DEP)
+!end subroutine
 subroutine sed_channel(S5,v5,Q5,So,area_sec,celda,drena_id,VolSal) !subrutina para calcular seduimentos en el canals
     !Variables de entrada
     real, intent(in) :: S5,v5,So,area_sec,Q5
@@ -1326,57 +1436,57 @@ subroutine sed_channel(S5,v5,Q5,So,area_sec,celda,drena_id,VolSal) !subrutina pa
     qsSUS=0;qsBM=0                
     !Longitud de la seccion y Radio Hidraulico
     if (S5.gt.0.0) then 
-	L=area_sec*1000/S5
-	Rh=L*S5/(1000*L+2*S5)
+        L=area_sec*1000/S5
+        Rh=L*S5/(1000*L+2*S5)
     else
-	Rh=0.0
+        Rh=0.0
     endif
     !Calcula Depositacion y atrapamiento      
     do i=1,3
-	!Concentracion de sedimentos por Engelund y Hansen        
-	Cw(i)=0.05*(Gsed/(Gsed-1))*(v5*So)/(sqrt((Gsed-1)*grav*diametro(i)/1000.0))*sqrt((Rh*So)/((Gsed-1)*(diametro(i)/1000.0)))
-	!Tasa de atrapamiento
-	if (S5/1000>wi(i)*dt) then
-	    Te(i)=wi(i)*dt*1000/S5
-	else
-	    Te(i)=1
-	endif
-	!Calcula los sedimentos depositados en la celda
-	VDc(i,celda)=VDc(i,celda)+Te(i)*Vsc(i,celda)
-	Vsc(i,celda)=Vsc(i,celda)-Te(i)*Vsc(i,celda)
-	DEP(i)=DEP(i)+Te(i)*Vsc(i,celda)
-    enddo	    
+        !Concentracion de sedimentos por Engelund y Hansen        
+        Cw(i)=0.05*(Gsed/(Gsed-1))*(v5*So)/(sqrt((Gsed-1)*grav*diametro(i)/1000.0))*sqrt((Rh*So)/((Gsed-1)*(diametro(i)/1000.0)))
+        !Tasa de atrapamiento
+        if (S5/1000>wi(i)*dt) then
+            Te(i)=wi(i)*dt*1000/S5
+        else
+            Te(i)=1
+        endif
+        !Calcula los sedimentos depositados en la celda
+        VDc(i,celda)=VDc(i,celda)+Te(i)*Vsc(i,celda)
+        Vsc(i,celda)=Vsc(i,celda)-Te(i)*Vsc(i,celda)
+        DEP(i)=DEP(i)+Te(i)*Vsc(i,celda)
+    enddo
     !Mueve los sedimentos suspendidos
     do i=1,3
-    !Calcula lo que hay de seimdneots de la fracción
-	supply=Vsc(i,celda)+Vdc(i,celda) ![m3] 
-	!inicializa el volumen suspendido de la fracción en cero
-	qsSUS(i)=0.0   
-	!Si lo que hay es mayor que cero, lo transporta
-	if (supply.gt.0.0) then
-	    !Calcula el vol que puede ser transportado por EH
-	    VolEH=Q5*Cw(i)*dt/2.65 ![m3]   !Ojo: Creemos que falta multiplicar por dt
-	    !Calcula factor de tte por advección
-	    AdvF=min(1.0,v5*dt/(dxp+v5*dt)) ![adim]
-	    !Realiza el transporte por advección
-	    qsSUS(i)=Vsc(i,celda)*AdvF ![m3]
-	    !Calcula la capacidad de Exceso sobrante
-	    XSScap=max(0.0,VolEH-qsSUS(i))
-	    !Calcula lo que se va de lo depositado
-	    qsBM(i)=Vdc(i,celda)*Advf ![m3]
-	    qsBM(i)=min(XSScap,qsBM(i)) ![m3] 	    
-	    DEP(i)=DEP(i)-qsBM(i)
-	    if (DEP(i).lt.0.0) DEP(i)=0.0           
-	    !Actulia los almacenamientos 
-	    Vsc(i,celda)=Vsc(i,celda)-qsSUS(i)
-	    Vdc(i,celda)=Vdc(i,celda)-qsBM(i)
-	    !Envia aguas abajo lo que se ha transportado
-	    if (drena_id.ne.0.0) Vsc(i,drena_id)=Vsc(i,drena_id)+qsSUS(i)+qsBM(i)
-	    !Reporta el volumen saliente en el intervalo de tiempo
-	    VolSal(i)=(qsSUS(i)+qsBM(i))/dt
-	endif
+        !Calcula lo que hay de seimdneots de la fracción
+        supply=Vsc(i,celda)+Vdc(i,celda) ![m3] 
+        !inicializa el volumen suspendido de la fracción en cero
+        qsSUS(i)=0.0   
+        !Si lo que hay es mayor que cero, lo transporta
+        if (supply.gt.0.0) then
+            !Calcula el vol que puede ser transportado por EH
+            VolEH=Q5*Cw(i)*dt/2.65 ![m3]   !Ojo: Creemos que falta multiplicar por dt
+            !Calcula factor de tte por advección
+            AdvF=min(1.0,v5*dt/(dxp+v5*dt)) ![adim]
+            !Realiza el transporte por advección
+            qsSUS(i)=Vsc(i,celda)*AdvF ![m3]
+            !Calcula la capacidad de Exceso sobrante
+            XSScap=max(0.0,VolEH-qsSUS(i))
+            !Calcula lo que se va de lo depositado
+            qsBM(i)=Vdc(i,celda)*Advf ![m3]
+            qsBM(i)=min(XSScap,qsBM(i)) ![m3] 	    
+            DEP(i)=DEP(i)-qsBM(i)
+            if (DEP(i).lt.0.0) DEP(i)=0.0           
+            !Actulia los almacenamientos 
+            Vsc(i,celda)=Vsc(i,celda)-qsSUS(i)
+            Vdc(i,celda)=Vdc(i,celda)-qsBM(i)
+            !Envia aguas abajo lo que se ha transportado
+            if (drena_id.ne.0.0) Vsc(i,drena_id)=Vsc(i,drena_id)+qsSUS(i)+qsBM(i)
+            !Reporta el volumen saliente en el intervalo de tiempo
+            VolSal(i)=(qsSUS(i)+qsBM(i))/dt
+        endif
     enddo
-    DEPt=DEPt+DEP
+    !DEPt=DEPt+DEP
     VolDEPo(celda)=VolDEPo(celda)+sum(DEP)
 end subroutine
 
