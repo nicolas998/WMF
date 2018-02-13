@@ -970,7 +970,10 @@ class Basin:
 		#Obtiene los parametros 	
                 Perim = self.Polygon.shape[1]*cu.dxp/1000.
                 Area=(self.ncells*cu.dxp**2)/1e6
-		Lcau=ppal[1,-1]/1000.0
+		TotalCauces = self.CellCauce*self.CellLong
+                TotalCauces = TotalCauces.sum() / 1000. #[km]
+                Densidad = TotalCauces / Area #[km/km2]
+                Lcau=ppal[1,-1]/1000.0
 		Scau=np.polyfit(ppal[1,::-1],ppal[0],1)[0]*100
 		Scue=slope.mean()*100
 		Hmin=Elev[-1]; Hmax=Elev[puntto]; Hmean=Elev.mean()
@@ -978,7 +981,7 @@ class Basin:
 		x,y = cu.basin_coordxy(self.structure,self.ncells)
 		CentXY = [np.median(x),np.median(y)]
 		#Genera un diccionario con las propiedades de la cuenca 
-		self.GeoParameters={'Area[km2]': Area,			
+		self.GeoParameters={'Area[km2]': Area,
 			'Pend_Cauce [%]':Scau,
 			'Long_Cau [km]': Lcau,
 			'Pend_Cuenca [%]': Scue,
@@ -988,7 +991,9 @@ class Basin:
 			'Hmean_[m]':Hmean,
 			'H Cauce_Max [m]':HCmax,
 			'Centro_[X]': CentXY[0],
-			'Centro_[Y]': CentXY[1]}
+			'Centro_[Y]': CentXY[1],
+                        'Long_tot_cauces[km]': TotalCauces,
+                        'Densidad_drenaje[km/km2]': Densidad}
 		if GetPerim:
 			self.GeoParameters.update({'Perimetro[km]':Perim})
 		#Calcula los tiempos de concentracion
@@ -3743,7 +3748,7 @@ class SimuBasin(Basin):
 	
 	
 	def set_sediments(self,var,VarName, wi = [0.036, 2.2e-4, 8.6e-7],
-		diametro = [0.35, 0.016, 0.001]):
+		diametro = [0.35, 0.016, 0.001], G = 9.8):
 		'Descripcion: Alojas las variables requeridas para la ejecucion\n'\
 		'	del modelo de sedimentos.\n'\
 		'\n'\
@@ -3800,6 +3805,7 @@ class SimuBasin(Basin):
                 #Variables de diametro y velocidad de caida
                 models.wi = wi
                 models.diametro = diametro
+                models.g = G
 
 	def set_Slides(self,var,VarName):
 		'Descripcion: Alojas las variables requeridas para la ejecucion\n'\
