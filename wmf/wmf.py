@@ -1105,7 +1105,7 @@ class Basin:
 		#Obtiene el canal en la cuenca 
 		self.CellCauce = np.zeros(self.ncells)
 		self.CellCauce[self.CellAcum>self.umbral]=1
-        def GetGeo_Horton(self, MajorBasins = False, umbral = 100, verbose = False, FirtsOrder = 1):
+        def GetGeo_StreamOrder(self, MajorBasins = False, umbral = 100, verbose = False, FirtsOrder = 1):
 		'Descripcion: Obtiene el orden de horton para cada celda de \n'\
 		'	cada ladera y para las celdas de cada cauce.\n'\
 		'\n'\
