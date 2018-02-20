@@ -1208,7 +1208,7 @@ class Basin:
 		aportes=(tamano/float(self.ncells))*((self.ncells*cu.dxp**2)/1e6)	
 		self.CellTravelTime=time
 	
-	def GetGeo_WidthFunction(self, binsC = None, binsN = None, 
+	def GetGeo_WidthFunction(self, binsC = 50, binsN = 50, 
 		ruta = None, Npos = 10000, **kwargs):
 		'Descripcion: Obtiene la funcion de ancho de la cuenca  \n'\
 		'	Entrega como resultado la distancia de cada elemento a la salida. \n'\
@@ -1231,7 +1231,7 @@ class Basin:
 		'	figsize: Tamano del plot (8,5).\n'\
 		'Retornos\n'\
 		'----------\n'\
-		'Dist2Out : Distancia de cada elemento a la salida.\n'\
+		'self.CellDist2Out : Distancia de cada elemento a la salida guardado en objeto\n'\
 		'Figura de la funcion de ancho.\n'\
 		#Parametros kwargs
 		show = kwargs.get("show", True)
