@@ -1184,15 +1184,18 @@ end subroutine
 subroutine sed_allocate(N_cel) !Funcion para alojar variables si se van a calcular sed
     integer, intent(in) :: N_cel
     !Tamaño a los vectores de sedimentos en suspención y depositads
-    if (allocated(VS) .eqv. .false.) allocate(VS(3,N_cel))
-    if (allocated(VD) .eqv. .false.) allocate(VD(3,N_cel))
+    if (allocated(Vd) .eqv. .false.) then 
+        allocate(Vd(3,N_cel))
+        Vd = 0.0 !m3
+    endif
+    if (allocated(Vs) .eqv. .false.) allocate(Vs(3,N_cel))
     if (allocated(VolERO) .eqv. .false.) allocate(VolERO(N_cel))
     if (allocated(VolDEPo) .eqv. .false.) allocate(VolDEPo(N_cel))
     if (allocated(VSc) .eqv. .false.) allocate(VSc(3,N_cel))
     if (allocated(VDc) .eqv. .false.) allocate(VDc(3,N_cel))    
     !estado inicial del almacenamiento de sedimentos
     VS=0 ![m3]
-    VD=0![m3]
+    !VD=0![m3]
     VSc=0 ![m3]
     VDc=0 ![m3]
     VolERO=0
