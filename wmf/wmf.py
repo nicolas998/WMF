@@ -2343,6 +2343,7 @@ class Basin:
 		'	-cbar_ticklabels: (None) Labels a poner sobre los ticks.\n'\
 		'	-cbar_ticksize: (14) Tamano de los ticks.\n'\
 		'	-show: SE muestra por defecto la figura (True).\n'\
+		'	-interpolation: Tipo de interpolacion utilizada por la funcion imshow (ver opciones en matplotlib).\n'\
 		'Retorno:.\n'\
 		'	-Figura se muestra y se guarda.\n'\
 		'	-Coordenadas de los bordes del mapa.\n'\
@@ -2353,6 +2354,7 @@ class Basin:
 		cbar_ticklabels = kwargs.get('cbar_ticklabels', None)
 		cbar_ticks = kwargs.get('cbar_ticks', None)
 		cbar_ticksize = kwargs.get('cbar_ticksize', 14)
+		interpolation = kwargs.get('None')
 		show = kwargs.get('show', True)
 		#Obtiene la matriz 
 		M,p = self.Transform_Basin2Map(vec)
@@ -2368,12 +2370,12 @@ class Basin:
 		#plot
 		if vmax == None:
 			im = pl.imshow(M.T,
-				interpolation='None',
+				interpolation=interpolation,
 				cmap= pl.get_cmap(cmap), 
 				vmin = vmin)
 		else:
 			im = pl.imshow(M.T,
-				interpolation='None',
+				interpolation=interpolation,
 				cmap= pl.get_cmap(cmap), 
 				vmin = vmin,
 				vmax = vmax)
