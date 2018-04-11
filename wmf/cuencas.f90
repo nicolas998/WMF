@@ -1826,32 +1826,101 @@ subroutine basin_propagate(basin_f,var,var_prop,nceldas)
 	enddo
 end subroutine
 !funciones de sub-cuencas (nodos y laderas)
-subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,nodos_fin,n_nodos) !obtiene vectores: celdas cauce, nodos hidrologicos, puntos de trazado
-    !variables de entrada
-    integer, intent(in) :: nceldas !numero de celdas que componen la cuenca
-    integer, intent(in) :: basin_f(3,nceldas),acum(nceldas) !vector de cuenca y de celdas acum
-    integer, intent(in) :: umbral !umbral de area a partir del cual se considera cauce
-    !Variables de salida
-    integer, intent(out) :: cauce(nceldas),nodos_fin(nceldas),n_nodos
-    !f2py intent(in) :: nceldas,basin_f,acum,umbral
-    !f2py intent(out) :: cauce,nodos,n_nodos
-    integer i,drenaid,contador,nodos(nceldas),cont,cont2,posi
-    logical flag1,flag2
-    !Encuentra las celdas que son cauce
-    cauce=0    
-    where(acum.ge.umbral) cauce=1
-    n_cauce=count(cauce.eq.1)
-    !Encuentra los nodos
-    nodos=0
-    n_nodos=0
-    do i=1,nceldas
+subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,topo,&
+		& topo_mincel, topo_neighbors, topo_slope2, topo_window,&
+		& topo_dist, topo_elev, nodos_fin,n_nodos) !obtiene vectores: celdas cauce, nodos hidrologicos, puntos de trazado
+	!variables de entrada
+	integer, intent(in) :: nceldas !numero de celdas que componen la cuenca
+	integer, intent(in) :: basin_f(3,nceldas),acum(nceldas) !vector de cuenca y de celdas acum
+	integer, intent(in) :: umbral !umbral de area a partir del cual se considera cauce
+	integer, intent(in) :: topo !Encuentra o no nodos topograficos
+	real, intent(in) :: topo_slope2 !Pendiente minima para que se identifiquen nodos topograficos
+	integer, intent(in) :: topo_mincel, topo_window, topo_neighbors !minimo celdas cauce, ventana busqueda, cantidad nodos
+	real, intent(in) :: topo_elev(nceldas), topo_dist(nceldas) !elevacion celda y longitud de recorrido de celda (para nodos topograficos)
+	!Variables de salida
+	integer, intent(out) :: cauce(nceldas),nodos_fin(nceldas),n_nodos
+	!f2py intent(in) :: nceldas,basin_f,acum,umbral
+	!f2py intent(out) :: cauce,nodos,n_nodos
+	integer i,drenaid,contador,nodos(nceldas),cont,cont2,posi
+	logical flag1,flag2, flag
+	real highpoints(1,nceldas)
+	integer postemp(100000),j,loca,z(1) !posicion temporal en el tramo y bobadas
+	real SecXY(2,100000) !Seccion a evaluar en nodos topograficos
+	real, allocatable :: Slope2(:) !Doble derivada en el tramo
+	real cauce2(nceldas) !Para nodos tropograficos
+	!Encuentra las celdas que son cauce
+	cauce=0    
+	where(acum.ge.umbral) cauce=1
+	n_cauce=count(cauce.eq.1)
+	!Encuentra los nodos
+	nodos=0
+	n_nodos=0
+	do i=1,nceldas
 		!Determina la celda a la que se drena
 		drenaid=nceldas-basin_f(1,i)+1
 		!Calcula el area acumulada por la red
 		if (basin_f(1,i).ne.0 .and. cauce(i)==1) then
 		    nodos(drenaid)=nodos(drenaid)+1
 		endif
-    enddo         
+	enddo
+    !Encuentra nodos topograficos
+    if (topo .eq. 1) then
+		!Encuentra los nacimientos 
+		cauce2 = cauce
+		call basin_acum_var(basin_f(1,:),nceldas,cauce2,highpoints)
+		where(highpoints(1,:) .gt. 1) nodos = 3
+		!Determina quienes son los nodos
+		where(nodos.lt.2) nodos=0
+		cont = 0
+		!Busqueda de nodos topograficos
+		do i =1, ncells
+			!Condicion de borde y de ser canal
+			if (basin_f(1,i) .ne. 0 .and. (nodos(i) .eq. 2 .or. nodos(i) .eq. 3)) then
+				!Define variables para encontrar el perfil de ese tramo
+				flag = .true.
+				cont = 1
+				postemp(1) = i
+				SecXY = 0
+				SecXY(1,1) = topo_dist(i)
+				SecXY(1,2) = topo_elev(i)
+				drenaid = i
+				!Busca todo el canal entre ese punto y un nodo aguas abajo
+				do while (flag)
+					drenaid = ncells - basin_f(1,drenaid)+1
+					!Evalua que no sea la salida de la cuenca
+					if (drenaid .le. ncells) then
+						!Si aguas abajo no es nodo incrementa el perfil 
+						if (nodos(drenaid) .ne. 2) then
+							cont = cont+1
+							SecXY(1,cont) = SecXY(1,cont-1) + topo_dist(drenaid)
+							SecXY(2,cont) = topo_elev(drenaid)
+							postemp(cont) = drenaid
+						!Si es nodo, para
+						else
+							flag = .false.
+							!Si el tramo tiene mas celdas de las indicadas evalua 
+							if (cont > topo_mincel) then
+								allocate(Slope2(cont))
+								!Obtiene la segunda derivada del tramo con una ventana 
+								call second_derivate(SecXY(1,1:cont), SecXY(2,1:cont),cont,topo_window,Slope2)
+								!Evalua si el tramo tiene o no nodos topograficos
+								cont = 0
+								do while (maxval(Slope2) .gt. topo_slope2 .and. cont .lt. topo_neighbors)
+									z = maxloc(Slope2)
+									if (cont .gt. 0) nodos(postemp(z(1))) = 4
+									Slope2(z(1)-2:z(1)+2) = 0
+									cont = cont+1
+								enddo
+								deallocate(Slope2)                            
+							endif
+						endif
+					else
+						flag = .false.
+					endif
+				enddo
+			endif
+		enddo 
+    endif
     !Determina quienes son los nodos
     where(nodos.lt.2) nodos=0 
     !Encuentra los nodos de verdad
@@ -1861,15 +1930,20 @@ subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,nodos_fin,n_nodo
 		if (cauce(i).eq.1) then
 		    !Determina la celda a la que se drena
 		    drenaid=nceldas-basin_f(1,i)+1
-		    !Si la celda destino es nodo esta se hace nodo final
+		    !Si la celda destino es nodo hidrologico, esta se hace nodo final
 		    if (drenaid .le. nceldas) then !si la celda destino no es la ultima de la cuenca
-				if (nodos(drenaid).ne.0) then
+				if (nodos(drenaid).eq.2) then
 				    nodos_fin(i)=1
 				endif
 		    endif
 		endif
-    enddo    
-    n_nodos=sum(nodos_fin)
+    enddo
+    !Evalua si hay nodos topograficos 
+    if (topo .eq. 1) then 
+		where(nodos .eq. 4) nodos_fin = 2
+    endif
+    !n_nodos=sum(nodos_fin)
+    n_nodos = count(nodos_fin .gt. 0)
     !Si no esta alojado el vector de sub-cuencas lo aloja, pone las condiciones del nodo de salida
     if (allocated(sub_basins_temp) .eqv. .true.) deallocate(sub_basins_temp)
     if (.not. allocated(sub_basins_temp)) allocate(sub_basins_temp(2,n_nodos))
@@ -2696,3 +2770,39 @@ subroutine drain_colfil(dir,col_obj,fil_obj) !Encuentra lo que hay que sumar o r
     endif
 end subroutine
 
+subroutine second_derivate(X,Y,tam,w,So2) !Encuentra la segunda derivada de un conjunto X,Y evaluando por ventanas w
+    !Variables de entrada
+    integer, intent(in) :: tam !tamano de muestra
+    real, intent(in) :: w
+    real, intent(in) :: X(tam), Y(tam) !X y Y para obtener pendiente
+    !Variables de salida
+    real, intent(out) :: So2(tam) !La doble pendiente
+    !Variables locales
+    integer ws
+    real So(tam)
+    real Xt(int(w)), Yt(int(w)), Xsum, Ysum, XYsum, X2sum
+    !Dimensiona
+    ws = floor(w/2)
+    !Itera dentro de la ventana
+    So = 0
+    do i = 1+ws,tam-ws
+        !Toma la porcion a evaluar
+        Xt = X(i-ws:i+ws)
+        Yt = Y(i-ws:i+ws)
+        !Obtiene pendiente
+        Xsum = sum(Xt); Ysum = sum(Yt); XYsum = sum(Xt*Yt)
+        X2sum = sum(Xt**2)
+        So(i) = (w*XYsum-Xsum*Ysum)/(w*X2sum-Xsum*Xsum)
+    enddo
+    So2 = 0
+    do i = 1+ws*2, tam-ws*2
+        !Toma la porcion a evaluar
+        Xt = X(i-ws:i+ws)
+        Yt = So(i-ws:i+ws)
+        !Obtiene pendiente
+        Xsum = sum(Xt); Ysum = sum(Yt); XYsum = sum(Xt*Yt)
+        X2sum = sum(Xt**2)
+        So2(i) = (w*XYsum-Xsum*Ysum)/(w*X2sum-Xsum*Xsum)
+    enddo
+    So2 = abs(So2)
+end subroutine

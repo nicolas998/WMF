@@ -2700,10 +2700,8 @@ class SimuBasin(Basin):
 	
 	def __init__(self,lat=None,lon=None,DEM=None,DIR=None,rute = None, name='NaN',stream=None,
 		umbral=500,useCauceMap = None,
-		noData=-999,modelType='cells',SimSed=False,SimSlides=False,dt=60,
-		SaveStorage='no',SaveSpeed='no',retorno = 0,
-		SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no', SimFloods = 'no',
-		controlNodos = True, storageConstant = 0.001):
+		noData=-999,modelType='cells',SimSed=False,SimSlides=False,dt=60, SimFloods = 'no',
+		controlNodos = True, storageConstant = 0.001, TopoNodes = False, **kwargs):
 		'Descripcion: Inicia un objeto para simulacion \n'\
 		'	el objeto tiene las propieades de una cuenca con. \n'\
 		'	la diferencia de que inicia las variables requeridas. \n'\
@@ -2714,6 +2712,9 @@ class SimuBasin(Basin):
 		'self : Inicia las variables vacias.\n'\
 		'lat : Coordenada en X de la salida de la cuenca.\n'\
 		'lon : Coordenada en Y de la salida de la cuenca.\n'\
+		'rute : por defecto es None, si se coloca la ruta, el programa no.\n'\
+		'	hace una cuenca, si no que trata de leer una en el lugar especificado.\n'\
+		'	Ojo: la cuenca debio ser guardada con la funcion: Save_SimuBasin().\n'\
 		'name : Nombre con el que se va a conocer la cuenca.\n'\
 		'	(defecto = NaN).\n'\
 		'stream : Opcional, si se coloca, las coordenadas no tienen.\n'\
@@ -2732,21 +2733,36 @@ class SimuBasin(Basin):
 		'SimSed : Simula si, o no simula sedimentos no.\n'\
 		'SimSlides : Simula si, o no simula deslizamientos no.\n'\
 		'dt : Tamano del intervlao de tiempo en que trabaj el modelo (defecto=60seg) [secs].\n'\
+		'controlNodos: Coloca por defecto puntos de control en todos los nodos (True) o no (False).\n'\
+		'TopoNodes: Encuentra (True) o no (False) nodos topograficos al interior de los tramos.\n'\
+		'	- TopoNodes_minLenght: Tamano minimo en celdas que debe tener un tramo para ser evaluado (30).\n'\
+		'	- TopoNodes_window: Tamano de ventana de busqueda de celdas en el tramo (9).\n'\
+		'	- TopoNodes_threshold: Umbral de cambio de pendiente minimo para considerar un quiebre (0.0025).\n'\
+		'		valores recomendados entre 0.001 y 0.005.\n'\
+		'\n'\
+		'Otros opcionales\n'\
+		'----------\n'\
 		'SaveStorage : Guarda o no el almacenamiento.\n'\
 		'SaveSpeed : Guarda o no mapas de velocidad.\n'\
-		'rute : por defecto es None, si se coloca la ruta, el programa no.\n'\
-		'	hace una cuenca, si no que trata de leer una en el lugar especificado.\n'\
-		'	Ojo: la cuenca debio ser guardada con la funcion: Save_SimuBasin().\n'\
 		'retorno : (defecto = 0), si es cero no se considera alm maximo en .\n'\
 		'	el tanque 3, si es 1, si se considera.\n'\
 		'SeparateFluxes : Separa el flujo en base, sub-superficial y escorrentia.\n'\
 		'SeparateRain : Separa el flujo proveniente de convectivas y de estratiformes.\n'\
 		'ShowStorage : Muestra en la salida del modelo el alm promedio en cada uno de los tanques.\n'\
-		'controlNodos: Coloca por defecto puntos de control en todos los nodos (True) o no (False).\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
 		'self : Con las variables iniciadas.\n'\
+		#Variables **kwargs
+		SaveStorage = kwargs.get('SaveStorage','no')
+		SaveSpeed = kwargs.get('SaveSpeed','no')
+		SeparateFluxes = kwargs.get('SeparateFluxes','no')
+		SeparateRain = kwargs.get('SeparateRain','no')
+		ShowStorage = kwargs.get('ShowStorage','no')
+		retorno = kwargs.get('retorno',0)
+		TopoNodes_minLenght  = kwargs.get('TopoNodes_minLenght',30)
+		TopoNodes_window  = kwargs.get('TopoNodes_window',9)
+		TopoNodes_threshold  = kwargs.get('TopoNodes_threshold',0.0025)
 		#Variables de radar
 		self.radarDates = []
 		self.radarPos = []
