@@ -173,6 +173,10 @@ real flood_step !Tamano del paso (en metros) para ir generando la mancha de inun
 real flood_hmax !profundidad maxima de inundacion
 real, allocatable :: flood_profundidad(:,:) !Diferencia en profundidad simulada en un intervalo de tiempo sobre las secciones
 
+!Variables de transbase
+real, allocatable :: httbe(:) !Serie en mm de transbase Se debe calcular teniendo en cuenta el Dx y el W.
+integer celdaTtbe !Celda dentro de la topologia donde se esta haciendo el transbase.
+
 contains
 
 
@@ -394,9 +398,17 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 		!Actualiza la variable global de acumulacion de lluvia para el periodo de simulacion
 		Acum_rain(1,:) = Acum_rain(1,:) + Rain
 		
+		
 		!--------------------------------------------------------------------------
 		!Iter around the cells or hills
 		do celda=1,N_cel
+				
+			!Transbase si lo hay
+			if (allocated(httbe)) then
+				if (celda .eq. celdaTtbse) then
+					StoOut(5,celda) = StoOut(5,celda)+httbe(tiempo)
+				endif
+			endif	
 			
 			!determina el elemento objetivo y realiza balance de lluvia
 			drenaid = N_cel-drena(1,celda)+1

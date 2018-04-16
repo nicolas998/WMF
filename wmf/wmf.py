@@ -2768,6 +2768,8 @@ class SimuBasin(Basin):
 		self.radarPos = []
 		self.radarMeanRain = []
 		self.radarCont = 1
+		#Variables de transbase 
+		models.celdaTtbe = 0
 		#Si no hay ruta traza la cuenca
 		if rute is None:
 			#Si se entrega cauce corrige coordenadas
