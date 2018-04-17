@@ -175,7 +175,7 @@ real, allocatable :: flood_profundidad(:,:) !Diferencia en profundidad simulada 
 
 !Variables de transbase
 real, allocatable :: httbe(:) !Serie en mm de transbase Se debe calcular teniendo en cuenta el Dx y el W.
-integer celdaTtbe !Celda dentro de la topologia donde se esta haciendo el transbase.
+integer celdaTtbse !Celda dentro de la topologia donde se esta haciendo el transbase.
 
 contains
 
