@@ -60,7 +60,7 @@
             <property name="title">
              <string>Explorador Binarios *.nc</string>
             </property>
-            <widget class="QWidget" name="">
+            <widget class="QWidget" name="layoutWidget">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -72,6 +72,12 @@
              <layout class="QVBoxLayout" name="verticalLayoutExploradoBinariosNC">
               <item>
                <widget class="QLabel" name="labelExploradorBinariosNC">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Seleccionar ruta al archivo .nc con la topología de la cuenca.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Seleccionar ruta al archivo .nc con la topología de la cuenca.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string>Path Archivos Binarios *.nc</string>
                 </property>
@@ -113,7 +119,7 @@
              </layout>
             </widget>
            </widget>
-           <widget class="QWidget" name="">
+           <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
               <x>10</x>
@@ -125,8 +131,14 @@
             <layout class="QVBoxLayout" name="verticalLayoutConfiguracionGeneral">
              <item>
               <widget class="QLabel" name="labelDEM">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dirección al MDE (modelo digital de elevación), este se usa como base para un proyecto.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dirección al MDE (modelo digital de elevación), este se usa como base para un proyecto.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
-                <string>Mapa DEM:</string>
+                <string>Mapa MDE:</string>
                </property>
               </widget>
              </item>
@@ -162,6 +174,12 @@
              </item>
              <item>
               <widget class="QLabel" name="labelDIR">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
                 <string>Mapa DIR:</string>
                </property>
@@ -199,6 +217,12 @@
              </item>
              <item>
               <widget class="QLabel" name="labelUmbral">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umbral de celdas necesarias (100) para que se genere red hídrica en la cuenca.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umbral de celdas necesarias (100) para que se genere red hídrica en la cuenca.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
                 <string>Umbral:</string>
                </property>
@@ -212,6 +236,29 @@
           </widget>
          </item>
         </layout>
+       </widget>
+       <widget class="QListWidget" name="ncListVariables">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>490</y>
+          <width>341</width>
+          <height>221</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="ncVariablesText">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>470</y>
+          <width>241</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Variables archivo de cuenca .nc</string>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="tabTrazadores">
@@ -245,7 +292,7 @@
             <property name="title">
              <string>Cuencas:</string>
             </property>
-            <widget class="QWidget" name="">
+            <widget class="QWidget" name="layoutWidget">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -412,18 +459,8 @@
               </item>
              </layout>
             </widget>
-            <zorder>labelLatitudTrazadorCuencas</zorder>
-            <zorder>labelLongitudTrazadorCuencas</zorder>
-            <zorder>labelInputCorrienteShapefileTrazadorCuencas</zorder>
-            <zorder>labelOutputTrazadorCuencasShapefile</zorder>
-            <zorder>spinBoxLatitudTrazadorCuencas</zorder>
-            <zorder>spinBoxLongitudTrazadorCuencas</zorder>
-            <zorder>layoutWidget_4</zorder>
-            <zorder>lineEditInputCorrienteShapefileTrazadorCuencas</zorder>
-            <zorder>layoutWidget_5</zorder>
-            <zorder>layoutWidget_6</zorder>
            </widget>
-           <widget class="QWidget" name="">
+           <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
               <x>10</x>
