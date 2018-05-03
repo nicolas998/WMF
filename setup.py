@@ -3,7 +3,8 @@ import os
 from numpy.distutils.core import setup, Extension
 
 ext1 = Extension(name = 'cu',
-                 sources = ['wmf/cuencas.f90'])
+                 sources = ['wmf/cuencas.f90'],
+		f2py_options = ['--opt = O3'])
 ext2 = Extension(name = 'models',
                  sources = ['wmf/modelosv2.f90'])
 

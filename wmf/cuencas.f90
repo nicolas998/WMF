@@ -1845,29 +1845,29 @@ subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,nodos_fin,n_nodo
     nodos=0
     n_nodos=0
     do i=1,nceldas
-		!Determina la celda a la que se drena
-		drenaid=nceldas-basin_f(1,i)+1
-		!Calcula el area acumulada por la red
-		if (basin_f(1,i).ne.0 .and. cauce(i)==1) then
-		    nodos(drenaid)=nodos(drenaid)+1
-		endif
+        !Determina la celda a la que se drena
+        drenaid=nceldas-basin_f(1,i)+1
+        !Calcula el area acumulada por la red
+        if (basin_f(1,i).ne.0 .and. cauce(i)==1) then
+            nodos(drenaid)=nodos(drenaid)+1
+        endif
     enddo         
     !Determina quienes son los nodos
     where(nodos.lt.2) nodos=0 
     !Encuentra los nodos de verdad
     nodos_fin=0; nodos_fin(nceldas)=1    
     do i=1,nceldas
-		!Verifica que la celda sea cauce
-		if (cauce(i).eq.1) then
-		    !Determina la celda a la que se drena
-		    drenaid=nceldas-basin_f(1,i)+1
-		    !Si la celda destino es nodo esta se hace nodo final
-		    if (drenaid .le. nceldas) then !si la celda destino no es la ultima de la cuenca
-				if (nodos(drenaid).ne.0) then
-				    nodos_fin(i)=1
-				endif
-		    endif
-		endif
+        !Verifica que la celda sea cauce
+        if (cauce(i).eq.1) then
+            !Determina la celda a la que se drena
+            drenaid=nceldas-basin_f(1,i)+1
+            !Si la celda destino es nodo esta se hace nodo final
+            if (drenaid .le. nceldas) then !si la celda destino no es la ultima de la cuenca
+                if (nodos(drenaid).ne.0) then
+                    nodos_fin(i)=1
+                endif
+            endif
+        endif
     enddo    
     n_nodos=sum(nodos_fin)
     !Si no esta alojado el vector de sub-cuencas lo aloja, pone las condiciones del nodo de salida
@@ -1878,38 +1878,38 @@ subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,nodos_fin,n_nodo
     !Comienza a iterar de abajo hacia arriba 
     cont=1;cont2=0; flag1=.true.
     do while (flag1)
-	!Examina si hay nodo para evaluar o no
-		if (sub_basins_temp(1,n_nodos-cont+1).ne.0) then	   
-		    !Si hay nodo toma su posicion para buscar otros
-		    posi=sub_basins_temp(1,n_nodos-cont+1)
-		    do j=1,posi-1
-				if (nodos_fin(posi-j).ne.0) then
-				    !si es nodo averigua hasta abajo si este le drena al nodo anterior
-				    drenaid=nceldas-basin_f(1,posi-j)+1 ; flag2=.true.
-				    do while (flag2)
-						if (nodos_fin(drenaid).eq.0) then			
-						    if (drenaid.ne.posi) then
-								drenaid=nceldas-basin_f(1,drenaid)+1					    
-						    endif
-						elseif (nodos_fin(drenaid).ne.0 .and. drenaid.eq.posi) then
-						    cont2=cont2+1
-						    sub_basins_temp(1,n_nodos-cont2)=posi-j
-						    sub_basins_temp(2,n_nodos-cont2)=cont
-						    nodos_fin(posi-j)=cont2+1
-						    flag2=.false.			    
-						else
-						    flag2=.false.
-						endif
-				    enddo		    
-				endif
-		    enddo
-		    !Cuando termina actualiza el contador
-		    cont=cont+1
-		    if (cont.gt.n_nodos) flag1=.false.
-		else
-		    !Si no hay mas nodos para evaluar termina la ejecucion
-		    flag1=.false.
-		endif
+    !Examina si hay nodo para evaluar o no
+        if (sub_basins_temp(1,n_nodos-cont+1).ne.0) then 
+            !Si hay nodo toma su posicion para buscar otros
+            posi=sub_basins_temp(1,n_nodos-cont+1)
+            do j=1,posi-1
+                if (nodos_fin(posi-j).ne.0) then
+                    !si es nodo averigua hasta abajo si este le drena al nodo anterior
+                    drenaid=nceldas-basin_f(1,posi-j)+1 ; flag2=.true.
+                    do while (flag2)
+                        if (nodos_fin(drenaid).eq.0) then 
+                            if (drenaid.ne.posi) then
+                                drenaid=nceldas-basin_f(1,drenaid)+1
+                            endif
+                        elseif (nodos_fin(drenaid).ne.0 .and. drenaid.eq.posi) then
+                            cont2=cont2+1
+                            sub_basins_temp(1,n_nodos-cont2)=posi-j
+                            sub_basins_temp(2,n_nodos-cont2)=cont
+                            nodos_fin(posi-j)=cont2+1
+                            flag2=.false.
+                        else
+                            flag2=.false.
+                        endif
+                    enddo
+                endif
+            enddo
+            !Cuando termina actualiza el contador
+            cont=cont+1
+            if (cont.gt.n_nodos) flag1=.false.
+        else
+            !Si no hay mas nodos para evaluar termina la ejecucion
+            flag1=.false.
+        endif
     enddo
 end subroutine
 subroutine basin_subbasin_cut(n_nodos,sub_basins) !Corta el vector de la topologia de las sub-cuencas
