@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/HydroSEDPlugin" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

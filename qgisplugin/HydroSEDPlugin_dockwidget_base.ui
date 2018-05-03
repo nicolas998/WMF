@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>HydroSEDPluginDockWidgetBase</class>
+ <widget class="QDockWidget" name="HydroSEDPluginDockWidgetBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>383</width>
+    <height>869</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowOpacity">
+   <double>0.500000000000000</double>
+  </property>
+  <property name="windowTitle">
+   <string>Hydro-SED</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QTabWidget" name="tabPanelDockOpciones">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tabConfiguracion">
+       <attribute name="title">
+        <string>Configuración</string>
+       </attribute>
+       <widget class="QWidget" name="verticalLayoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>361</width>
+          <height>451</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayoutTabConfiguracion">
+         <item>
+          <widget class="QGroupBox" name="groupBoxConfiguracionGeneral">
+           <property name="title">
+            <string>Configuración General</string>
+           </property>
+           <widget class="QGroupBox" name="groupBoxExploradorBinariosNC">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>230</y>
+              <width>359</width>
+              <height>211</height>
+             </rect>
+            </property>
+            <property name="title">
+             <string>Explorador Binarios *.nc</string>
+            </property>
+            <widget class="QWidget" name="">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>31</y>
+               <width>341</width>
+               <height>181</height>
+              </rect>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayoutExploradoBinariosNC">
+              <item>
+               <widget class="QLabel" name="labelExploradorBinariosNC">
+                <property name="text">
+                 <string>Path Archivos Binarios *.nc</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayoutSelectorBinarioNC">
+                <item>
+                 <widget class="QLineEdit" name="lineEditSelectorBinarioNC">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="botonSelectorBinarioNC">
+                  <property name="minimumSize">
+                   <size>
+                    <width>30</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QTreeView" name="treeViewExploradorBinariosNC"/>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+           <widget class="QWidget" name="">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>21</y>
+              <width>341</width>
+              <height>201</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayoutConfiguracionGeneral">
+             <item>
+              <widget class="QLabel" name="labelDEM">
+               <property name="text">
+                <string>Mapa DEM:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayoutSelectorArchivosMapaDEM">
+               <item>
+                <widget class="QLineEdit" name="lineEditMapaDEM">
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="botonSelectorMapaDEM">
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>30</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelDIR">
+               <property name="text">
+                <string>Mapa DIR:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayoutSelectorArchivosMapaDIR">
+               <item>
+                <widget class="QLineEdit" name="lineEditMapaDIR">
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="botonSelectorMapaDIR">
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>30</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelUmbral">
+               <property name="text">
+                <string>Umbral:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="spinBoxUmbral"/>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tabTrazadores">
+       <attribute name="title">
+        <string>Trazadores</string>
+       </attribute>
+       <widget class="QWidget" name="verticalLayoutWidget_3">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>361</width>
+          <height>641</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayoutTabTrazadores">
+         <item>
+          <widget class="QGroupBox" name="groupBoxTrazadorCorrientes">
+           <property name="title">
+            <string>Corrientes:</string>
+           </property>
+           <widget class="QGroupBox" name="groupBoxTrazadorCuencas">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>250</y>
+              <width>359</width>
+              <height>381</height>
+             </rect>
+            </property>
+            <property name="title">
+             <string>Cuencas:</string>
+            </property>
+            <widget class="QWidget" name="">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>22</y>
+               <width>341</width>
+               <height>351</height>
+              </rect>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayoutTrazadorCuencas">
+              <item>
+               <widget class="QLabel" name="labelLatitudTrazadorCuencas">
+                <property name="text">
+                 <string>Latitud:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCuencas"/>
+              </item>
+              <item>
+               <widget class="QLabel" name="labelLongitudTrazadorCuencas">
+                <property name="text">
+                 <string>Longitud:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCuencas"/>
+              </item>
+              <item>
+               <widget class="QLabel" name="labelInputCorrienteShapefileTrazadorCuencas">
+                <property name="text">
+                 <string>Path Corriente:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayoutSelectorInputCorrienteShapefileTrazadorCuencas">
+                <item>
+                 <widget class="QLineEdit" name="lineEditInputCorrienteShapefileTrazadorCuencas">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="botonInputCorrienteShapefileTrazadorCuencas">
+                  <property name="minimumSize">
+                   <size>
+                    <width>30</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile">
+                <property name="text">
+                 <string>Path Salida (*.shp):</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaShapefileTrazadorCuencas">
+                <item>
+                 <widget class="QLineEdit" name="lineEditOutputCuencaShapefileTrazadorCuencas">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="botonOutputCuencaShapefileTrazadorCuencas">
+                  <property name="minimumSize">
+                   <size>
+                    <width>30</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QLabel" name="labelOutputTrazadorCuencasNC">
+                <property name="text">
+                 <string>Path Salida (*.nc):</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaNCTrazadorCuencas">
+                <item>
+                 <widget class="QLineEdit" name="lineEditOutputCuencaNCTrazadorCuencas">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="botonOutputCuencaNCTrazadorCuencas">
+                  <property name="minimumSize">
+                   <size>
+                    <width>30</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayoutEjecutarTrazadorCuencas">
+                <item>
+                 <spacer name="horizontalSpacerEjecutarTrazadorCuencas">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="botonEjecutarTrazadorCuencas">
+                  <property name="text">
+                   <string>Ejecutar Trazador</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <zorder>labelLatitudTrazadorCuencas</zorder>
+            <zorder>labelLongitudTrazadorCuencas</zorder>
+            <zorder>labelInputCorrienteShapefileTrazadorCuencas</zorder>
+            <zorder>labelOutputTrazadorCuencasShapefile</zorder>
+            <zorder>spinBoxLatitudTrazadorCuencas</zorder>
+            <zorder>spinBoxLongitudTrazadorCuencas</zorder>
+            <zorder>layoutWidget_4</zorder>
+            <zorder>lineEditInputCorrienteShapefileTrazadorCuencas</zorder>
+            <zorder>layoutWidget_5</zorder>
+            <zorder>layoutWidget_6</zorder>
+           </widget>
+           <widget class="QWidget" name="">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>22</y>
+              <width>341</width>
+              <height>221</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayoutTrazadorCorrientes">
+             <item>
+              <widget class="QLabel" name="labelLatitudTrazadorCorrientes">
+               <property name="text">
+                <string>Latitud:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCorrientes"/>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelLongitudTrazadorCorrientes">
+               <property name="text">
+                <string>Longitud:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCorrientes"/>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelFileOutputTrazadorCorrientesShapefile">
+               <property name="text">
+                <string>Path Salida (*.shp):</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayoutSelectorOutputCorrienteShapefileTrazadorCorrientes">
+               <item>
+                <widget class="QLineEdit" name="lineEditSelectorOutputCorrienteShapefileTrazadorCorrientes">
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="botonSelectorOutputCorrienteShapefileTrazadorCorrientes">
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>30</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayoutEjecutarTrazadorCorrientes">
+               <item>
+                <spacer name="horizontalSpacerTrazadorCorrientes">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="botonEjecutarTrazadorCorrientes">
+                 <property name="text">
+                  <string>Ejecutar Trazador</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
