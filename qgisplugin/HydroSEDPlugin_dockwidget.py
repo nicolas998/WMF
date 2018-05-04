@@ -29,6 +29,8 @@ from PyQt4.QtCore import pyqtSignal
 from qgis.gui import QgsMessageBar
 from PyQt4.QtGui import QFileDialog
 
+import os.path
+
 from wmf import wmf
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -39,7 +41,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     closingPlugin = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, iface = None, parent=None):
 
         """Constructor."""
         super(HydroSEDPluginDockWidget, self).__init__(parent)
@@ -51,6 +53,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.setupUi(self)
         self.setupUIInputsOutputs ()
         self.setupUIButtonEvents ()
+
+        if not (iface is None):
+            self.iface = iface
 
     def closeEvent(self, event):
 
@@ -83,6 +88,14 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def setupUIInputsOutputs (self):
 
+        def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
+
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
+
+            if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
+
+                self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
+
         def setupLineEditButtonOpenFileDialog (lineEditHolder, fileDialogHolder):
 
             lineEditHolder.setText (fileDialogHolder.getOpenFileName ())
@@ -93,11 +106,13 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         def clickEventSelectorMapaDEM ():
 
-            setupLineEditButtonOpenFileDialog (self.lineEditMapaDEM, QFileDialog)
+#            setupLineEditButtonOpenFileDialog (self.lineEditMapaDEM, QFileDialog)
+            setupLineEditButtonOpenShapeFileDialog (self.lineEditMapaDEM, QFileDialog)
 
         def clickEventSelectorMapaDIR ():
 
-            setupLineEditButtonOpenFileDialog (self.lineEditMapaDIR, QFileDialog)
+#            setupLineEditButtonOpenFileDialog (self.lineEditMapaDIR, QFileDialog)
+            setupLineEditButtonOpenShapeFileDialog (self.lineEditMapaDIR, QFileDialog)
 
         def clickEventSelectorBinarioNC ():
 
@@ -109,7 +124,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         def clickEventSelectorInputCorrienteShapefileTrazadorCuencas ():
 
-            setupLineEditButtonOpenFileDialog (self.lineEditInputCorrienteShapefileTrazadorCuencas, QFileDialog)
+#            setupLineEditButtonOpenFileDialog (self.lineEditInputCorrienteShapefileTrazadorCuencas, QFileDialog)
+            setupLineEditButtonOpenShapeFileDialog (self.lineEditInputCorrienteShapefileTrazadorCuencas, QFileDialog)
 
         def clickEventSelectorOutputCuencaShapefileTrazadorCuencas ():
 
