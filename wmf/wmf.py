@@ -2739,6 +2739,7 @@ class SimuBasin(Basin):
 		'	- TopoNodes_window: Tamano de ventana de busqueda de celdas en el tramo (9).\n'\
 		'	- TopoNodes_threshold: Umbral de cambio de pendiente minimo para considerar un quiebre (0.0025).\n'\
 		'		valores recomendados entre 0.001 y 0.005.\n'\
+                '       - TopoNodes_Neighbors: Cantidad maxima de nodos topograficos por tramo.\n'\
 		'\n'\
 		'Otros opcionales\n'\
 		'----------\n'\
@@ -2763,6 +2764,7 @@ class SimuBasin(Basin):
 		TopoNodes_minLenght  = kwargs.get('TopoNodes_minLenght',30)
 		TopoNodes_window  = kwargs.get('TopoNodes_window',9)
 		TopoNodes_threshold  = kwargs.get('TopoNodes_threshold',0.0025)
+                TopoNodes_Neighbors = kwargs.get('TopoNodes_Neighbors',4)
 		#Variables de radar
 		self.radarDates = []
 		self.radarPos = []
@@ -2794,12 +2796,25 @@ class SimuBasin(Basin):
 			self.structure = cu.basin_cut(self.ncells)
 			#traza las sub-cuencas
 			acum=cu.basin_acum(self.structure,self.ncells)
+                        #Prop para obtener nodos topograficos
+                        if TopoNodes:
+                            self.GetGeo_Cell_Basics()
+                            elev = np.copy(self.CellHeight)
+                            dist = np.copy(self.CellLong)
+                            topoFlag = 1
+                        else:
+                            elev = np.ones(self.ncells)
+                            dist = np.ones(self.ncells)
+                            topoFlag = 0
 			cauce,nodos,self.nhills = cu.basin_subbasin_nod(self.structure
-				,acum,umbral,self.ncells)
+				,acum,umbral,topoFlag,TopoNodes_minLenght,
+                                TopoNodes_Neighbors,TopoNodes_threshold, TopoNodes_window, dist,
+                                elev, self.ncells)
 			self.hills_own,sub_basin = cu.basin_subbasin_find(self.structure,
 				nodos,self.nhills,self.ncells)
 			self.hills = cu.basin_subbasin_cut(self.nhills)
-			models.drena=self.structure		
+                        self.nodos = nodos
+			models.drena=self.structure
 			#Determina la cantidad de celdas para alojar
 			if modelType=='cells':
 				N=self.ncells
@@ -2823,11 +2838,15 @@ class SimuBasin(Basin):
 			if controlNodos:
 				if modelType == 'cells':
 					self.GetGeo_Cell_Basics()
-					cauce,nodos,n_nodos = cu.basin_subbasin_nod(
-						self.structure,
-						self.CellAcum,
-						umbral,
-						self.ncells)
+                                        cauce,nodos,self.nhills = cu.basin_subbasin_nod(self.structure
+                                                ,acum,umbral,topoFlag,TopoNodes_minLenght,
+                                                TopoNodes_Neighbors,TopoNodes_threshold, TopoNodes_window, dist,
+                                                elev, self.ncells)
+                                        #cauce,nodos,n_nodos = cu.basin_subbasin_nod(
+					#	self.structure,
+					#	self.CellAcum,
+					#	umbral,
+					#	self.ncells)
 					pos = np.where(nodos<>0)[0]
 					x,y = cu.basin_coordxy(self.structure,self.ncells)
 					idsOrd,xy = self.set_Control(np.vstack([x[pos],y[pos]]),nodos[pos])

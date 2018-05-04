@@ -1863,19 +1863,19 @@ subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,topo,&
 		    nodos(drenaid)=nodos(drenaid)+1
 		endif
 	enddo
+    where(nodos.lt.2) nodos = 0
     !Encuentra nodos topograficos
     if (topo .eq. 1) then
 		!Encuentra los nacimientos 
 		cauce2 = cauce
 		call basin_acum_var(basin_f(1,:),nceldas,cauce2,highpoints)
-		where(highpoints(1,:) .gt. 1) nodos = 3
+		where(highpoints(1,:) .eq. 1) nodos = -1
 		!Determina quienes son los nodos
-		where(nodos.lt.2) nodos=0
 		cont = 0
 		!Busqueda de nodos topograficos
 		do i =1, ncells
 			!Condicion de borde y de ser canal
-			if (basin_f(1,i) .ne. 0 .and. (nodos(i) .eq. 2 .or. nodos(i) .eq. 3)) then
+			if (basin_f(1,i) .ne. 0 .and. (nodos(i) .eq. 2 .or. nodos(i) .eq. -1)) then
 				!Define variables para encontrar el perfil de ese tramo
 				flag = .true.
 				cont = 1
@@ -1920,9 +1920,8 @@ subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,topo,&
 				enddo
 			endif
 		enddo 
+        where(nodos.eq.-1) nodos = 0
     endif
-    !Determina quienes son los nodos
-    where(nodos.lt.2) nodos=0 
     !Encuentra los nodos de verdad
     nodos_fin=0; nodos_fin(nceldas)=1    
     do i=1,nceldas
@@ -1940,7 +1939,7 @@ subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,topo,&
     enddo
     !Evalua si hay nodos topograficos 
     if (topo .eq. 1) then 
-		where(nodos .eq. 4) nodos_fin = 2
+        where(nodos .eq. 4) nodos_fin = 2
     endif
     !n_nodos=sum(nodos_fin)
     n_nodos = count(nodos_fin .gt. 0)
