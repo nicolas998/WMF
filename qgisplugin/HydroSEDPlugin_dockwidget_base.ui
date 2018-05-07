@@ -355,16 +355,16 @@
                <item>
                 <widget class="QLabel" name="label_set_dxp">
                  <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  <string>Valor en metros del tamano de una celda en el mapa.</string>
                  </property>
                  <property name="whatsThis">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  <string>Valor en metros del tamano de una celda en el mapa.</string>
                  </property>
                  <property name="layoutDirection">
                   <enum>Qt::LeftToRight</enum>
                  </property>
                  <property name="text">
-                  <string>Valor Dxp</string>
+                  <string>Valor Dxp [m]</string>
                  </property>
                 </widget>
                </item>
@@ -375,6 +375,9 @@
                    <width>100</width>
                    <height>0</height>
                   </size>
+                 </property>
+                 <property name="value">
+                  <double>12.699999999999999</double>
                  </property>
                 </widget>
                </item>
@@ -807,7 +810,6 @@
   </widget>
  </widget>
  <resources>
-  
  </resources>
  <connections/>
 </ui>

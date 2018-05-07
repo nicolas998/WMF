@@ -102,7 +102,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
 
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName ())
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", "*",
+				QtGui.QFileDialog.DontUseNativeDialog))
 
         def setupLineEditButtonOpenFileDialog (lineEditHolder, fileDialogHolder):
 
