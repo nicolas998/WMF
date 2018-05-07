@@ -57,3 +57,8 @@ class controlHS:
 			self.DIR = 1
 		return retornoCargaLayerMapaRaster
 	
+	def trazador_corriente(x,y, name = 'None'):
+		self.stream = wmf.Stream(x, y, self.DEM, self.DIR, name = name)		
+		
+	def trazador_cuenca(x,y,name = 'None', TopoNodes = False):
+		self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR, stream=self.stream, TopoNodes=TopoNodes)
