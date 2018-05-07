@@ -31,7 +31,7 @@
       </property>
       <widget class="QWidget" name="tabConfiguracion">
        <attribute name="icon">
-        <iconset>
+        <iconset resource="resources.qrc">
          <normaloff>:/plugins/HydroSEDPlugin/icons/config.png</normaloff>:/plugins/HydroSEDPlugin/icons/config.png</iconset>
        </attribute>
        <attribute name="title">
@@ -114,7 +114,7 @@
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset>
+                   <iconset resource="resources.qrc">
                     <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                   </property>
                  </widget>
@@ -219,7 +219,7 @@
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
+                  <iconset resource="resources.qrc">
                    <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                  </property>
                 </widget>
@@ -303,7 +303,7 @@
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
+                  <iconset resource="resources.qrc">
                    <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                  </property>
                 </widget>
@@ -360,6 +360,9 @@
                  <property name="whatsThis">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
+                 <property name="layoutDirection">
+                  <enum>Qt::LeftToRight</enum>
+                 </property>
                  <property name="text">
                   <string>Valor Dxp</string>
                  </property>
@@ -372,29 +375,6 @@
                    <width>100</width>
                    <height>0</height>
                   </size>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="horizontalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item>
-                <widget class="QPushButton" name="Boton_setDxp">
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Establece el DIR y sus propiedades como el mapa base para WMF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="text">
-                  <string>Establecer</string>
                  </property>
                 </widget>
                </item>
@@ -421,6 +401,7 @@
             <zorder>labelDEM</zorder>
             <zorder>labelDIR</zorder>
             <zorder>Tabla_PropMDE</zorder>
+            <zorder>layoutWidget_2</zorder>
            </widget>
           </widget>
          </item>
@@ -429,7 +410,7 @@
       </widget>
       <widget class="QWidget" name="tabTrazadores">
        <attribute name="icon">
-        <iconset>
+        <iconset resource="resources.qrc">
          <normaloff>:/plugins/HydroSEDPlugin/icons/cuenca.ico</normaloff>:/plugins/HydroSEDPlugin/icons/cuenca.ico</iconset>
        </attribute>
        <attribute name="title">
@@ -781,6 +762,10 @@
        </widget>
       </widget>
       <widget class="QWidget" name="tab_2">
+       <attribute name="icon">
+        <iconset>
+         <normaloff>:/plugins/HydroSEDPlugin/icons/geomorfologia.ico</normaloff>:/plugins/HydroSEDPlugin/icons/geomorfologia.ico</iconset>
+       </attribute>
        <attribute name="title">
         <string>Geomorfología</string>
        </attribute>
@@ -821,6 +806,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  
+ </resources>
  <connections/>
 </ui>

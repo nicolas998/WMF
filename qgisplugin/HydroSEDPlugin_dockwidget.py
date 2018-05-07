@@ -31,7 +31,7 @@ from PyQt4.QtGui import QFileDialog
 
 import os.path
 
-from HydroSEDPluginUtils import cargar_mapa_raster, cargar_mapa_dem_wmf
+import HydroSEDPluginUtils as HSutils
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'HydroSEDPlugin_dockwidget_base.ui'))
@@ -56,6 +56,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         if not (iface is None):
             self.iface = iface
+        self.HSutils = HSutils.controlHS()
 
     def closeEvent(self, event):
 
@@ -125,7 +126,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
             pathMapaDEM = self.lineEditMapaDEM.text ().strip ()
 
-            flagCargaMapaDEM = cargar_mapa_raster (pathMapaDEM)
+            flagCargaMapaDEM = self.HSutils.cargar_mapa_raster (pathMapaDEM)
 
             if flagCargaMapaDEM:
 
@@ -135,12 +136,27 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                 self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa MDE. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
 
+        def clickEventVisualizarMapaDIR ():
+
+            pathMapaDIR = self.lineEditMapaDIR.text ().strip ()
+
+            flagCargaMapaDIR = self.HSutils.cargar_mapa_raster (pathMapaDIR)
+
+            if flagCargaMapaDIR:
+
+                self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa DIR de forma exitosa')
+
+            else:
+
+                self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa DIR. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
+
+
         def clickEventCargarWMFMapaDEM ():
 
             pathMapaDEM = self.lineEditMapaDEM.text ().strip ()
-            dxpMapaDEM  = self.spinBox_dxPlano.value ()
+            dxpMapaDEM  = self.spinBox_dxPlano.value()
 
-            flagCargaMapaDEM_WMF = cargar_mapa_dem_wmf (pathMapaDEM, dxpMapaDEM)
+            flagCargaMapaDEM_WMF = self.HSutils.cargar_mapa_dem_wmf (pathMapaDEM, dxpMapaDEM)
 
             if flagCargaMapaDEM_WMF:
 
@@ -149,6 +165,15 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
 
                 self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa MDE al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
+
+        def clickEventCargarWMFMapaDIR():
+            pathMapaDIR = self.lineEditMapaDIR.text ().strip ()
+            dxpMapaDIR  = self.spinBox_dxPlano.value ()
+            flagCargaMapaDIR_WMF = self.HSutils.cargar_mapa_dir_wmf (pathMapaDIR, dxpMapaDIR)
+            if flagCargaMapaDIR_WMF:
+                self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa DIR al WMF de forma exitosa')
+            else:
+                self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa DIR al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
 
         def clickEventSelectorBinarioNC ():
 
@@ -175,7 +200,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.botonSelectorMapaDIR.clicked.connect (clickEventSelectorMapaDIR)
 
         self.Boton_verMDE.clicked.connect (clickEventVisualizarMapaDEM)
+        self.Boton_verDIR.clicked.connect (clickEventVisualizarMapaDIR)
         self.Boton_MDE2WMF.clicked.connect (clickEventCargarWMFMapaDEM)
+        self.Boton_DIR2WMF.clicked.connect (clickEventCargarWMFMapaDIR)
 #        self.Boton_verDIR.clicked.connect (clickEventVisualizarMapaDIR)
 
         self.botonSelectorBinarioNC.clicked.connect (clickEventSelectorBinarioNC)
