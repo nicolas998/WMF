@@ -31,7 +31,7 @@ from PyQt4.QtGui import QFileDialog
 
 import os.path
 
-from wmf import wmf
+from HydroSEDPluginUtils import cargar_mapa_raster, cargar_mapa_dem_wmf
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'HydroSEDPlugin_dockwidget_base.ui'))
@@ -86,15 +86,22 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 #        print filename1
 #        print filename2
 
+
+
     def setupUIInputsOutputs (self):
 
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
 
+#            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
 
             if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
 
                 self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
+
+        def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
+
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName ())
 
         def setupLineEditButtonOpenFileDialog (lineEditHolder, fileDialogHolder):
 
@@ -107,12 +114,41 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventSelectorMapaDEM ():
 
 #            setupLineEditButtonOpenFileDialog (self.lineEditMapaDEM, QFileDialog)
-            setupLineEditButtonOpenShapeFileDialog (self.lineEditMapaDEM, QFileDialog)
+            setupLineEditButtonOpenRasterFileDialog (self.lineEditMapaDEM, QFileDialog)
 
         def clickEventSelectorMapaDIR ():
 
 #            setupLineEditButtonOpenFileDialog (self.lineEditMapaDIR, QFileDialog)
-            setupLineEditButtonOpenShapeFileDialog (self.lineEditMapaDIR, QFileDialog)
+            setupLineEditButtonOpenRasterFileDialog (self.lineEditMapaDIR, QFileDialog)
+
+        def clickEventVisualizarMapaDEM ():
+
+            pathMapaDEM = self.lineEditMapaDEM.text ().strip ()
+
+            flagCargaMapaDEM = cargar_mapa_raster (pathMapaDEM)
+
+            if flagCargaMapaDEM:
+
+                self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa MDE de forma exitosa')
+
+            else:
+
+                self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa MDE. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
+
+        def clickEventCargarWMFMapaDEM ():
+
+            pathMapaDEM = self.lineEditMapaDEM.text ().strip ()
+            dxpMapaDEM  = self.spinBox_dxPlano.value ()
+
+            flagCargaMapaDEM_WMF = cargar_mapa_dem_wmf (pathMapaDEM, dxpMapaDEM)
+
+            if flagCargaMapaDEM_WMF:
+
+                self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa MDE al WMF de forma exitosa')
+
+            else:
+
+                self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa MDE al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
 
         def clickEventSelectorBinarioNC ():
 
@@ -137,6 +173,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         self.botonSelectorMapaDEM.clicked.connect (clickEventSelectorMapaDEM)
         self.botonSelectorMapaDIR.clicked.connect (clickEventSelectorMapaDIR)
+
+        self.Boton_verMDE.clicked.connect (clickEventVisualizarMapaDEM)
+        self.Boton_MDE2WMF.clicked.connect (clickEventCargarWMFMapaDEM)
+#        self.Boton_verDIR.clicked.connect (clickEventVisualizarMapaDIR)
+
         self.botonSelectorBinarioNC.clicked.connect (clickEventSelectorBinarioNC)
         self.botonSelectorOutputCorrienteShapefileTrazadorCorrientes.clicked.connect (clickEventSelectorOutputCorrienteShapefileTrazadorCorrientes)
         self.botonInputCorrienteShapefileTrazadorCuencas.clicked.connect (clickEventSelectorInputCorrienteShapefileTrazadorCuencas)
