@@ -32,6 +32,7 @@ from PyQt4.QtGui import QFileDialog
 import os.path
 
 import HydroSEDPluginUtils as HSutils
+import HydroGetCoordinates as HSCoord
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'HydroSEDPlugin_dockwidget_base.ui'))
@@ -57,21 +58,23 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         if not (iface is None):
             self.iface = iface
         self.HSutils = HSutils.controlHS()
+        self.GetCoords = HSCoord.PointTool(self.iface.mapCanvas(), self.spinBoxLatitudTrazadorCorrientes,
+            self.spinBoxLongitudTrazadorCorrientes)
+        #self.iface.mapCanvas().setMapTool(GetCoords)
 
     def closeEvent(self, event):
 
         self.closingPlugin.emit()
         event.accept()
 
+    def handleClickCoordCorrientes(self):
+        self.iface.mapCanvas().setMapTool(self.GetCoords)
+
     def handleClickEventEjecutarTrazadorCorrientes (self):
-		x = self.spinBoxLatitudTrazadorCorrientes.value ()
-		y = self.spinBoxLongitudTrazadorCorrientes.value ()
-		OutPath = self.PathCorriente_out.text ()
-		self.HSutils.trazador_corriente(x,y, OutPath)
-        #print wmf
-        #print self.spinBoxLatitudTrazadorCorrientes.value ()
-        #print self.spinBoxLongitudTrazadorCorrientes.value ()
-        #print self.PathCorriente_out.text ()
+        y = self.spinBoxLatitudTrazadorCorrientes.value ()
+        x = self.spinBoxLongitudTrazadorCorrientes.value ()
+        OutPath = self.PathCorriente_out.text ()
+        self.HSutils.trazador_corriente(x,y, OutPath)
 
 
     def handleClickEventEjecutarTrazadorCuencas (self):
@@ -106,7 +109,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
 
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", "*",
-				QtGui.QFileDialog.DontUseNativeDialog))
+                QtGui.QFileDialog.DontUseNativeDialog))
 
         def setupLineEditButtonOpenFileDialog (lineEditHolder, fileDialogHolder):
 
@@ -211,9 +214,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         self.botonSelectorBinarioNC.clicked.connect (clickEventSelectorBinarioNC)
         self.botonSelectorOutputCorrienteShapefileTrazadorCorrientes.clicked.connect (clickEventSelectorOutputCorrienteShapefileTrazadorCorrientes)
-        
+
         self.botonEjecutarTrazadorCorrientes.clicked.connect (self.handleClickEventEjecutarTrazadorCorrientes)
-        
+
+        self.BotonCoord_corriente.clicked.connect(self.handleClickCoordCorrientes)
         #self.botonOutputCuencaShapefileTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaShapefileTrazadorCuencas)
         #self.botonOutputCuencaNCTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaNCTrazadorCuencas)
 
