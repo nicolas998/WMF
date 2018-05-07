@@ -52,7 +52,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.setupUIInputsOutputs ()
-        self.setupUIButtonEvents ()
+        #self.setupUIButtonEvents ()
 
         if not (iface is None):
             self.iface = iface
@@ -64,11 +64,14 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         event.accept()
 
     def handleClickEventEjecutarTrazadorCorrientes (self):
-
-        print wmf
-        print self.spinBoxLatitudTrazadorCorrientes.value ()
-        print self.spinBoxLongitudTrazadorCorrientes.value ()
-        print self.lineEditSelectorOutputCorrienteShapefileTrazadorCorrientes.text ()
+		x = self.spinBoxLatitudTrazadorCorrientes.value ()
+		y = self.spinBoxLongitudTrazadorCorrientes.value ()
+		OutPath = self.PathCorriente_out.text ()
+		self.HSutils.trazador_corriente(x,y, OutPath)
+        #print wmf
+        #print self.spinBoxLatitudTrazadorCorrientes.value ()
+        #print self.spinBoxLongitudTrazadorCorrientes.value ()
+        #print self.PathCorriente_out.text ()
 
 
     def handleClickEventEjecutarTrazadorCuencas (self):
@@ -182,7 +185,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         def clickEventSelectorOutputCorrienteShapefileTrazadorCorrientes ():
 
-            setupLineEditButtonSaveFileDialog (self.lineEditSelectorOutputCorrienteShapefileTrazadorCorrientes, QFileDialog)
+            setupLineEditButtonSaveFileDialog (self.PathCorriente_out, QFileDialog)
 
         def clickEventSelectorInputCorrienteShapefileTrazadorCuencas ():
 
@@ -208,14 +211,17 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         self.botonSelectorBinarioNC.clicked.connect (clickEventSelectorBinarioNC)
         self.botonSelectorOutputCorrienteShapefileTrazadorCorrientes.clicked.connect (clickEventSelectorOutputCorrienteShapefileTrazadorCorrientes)
-        self.botonInputCorrienteShapefileTrazadorCuencas.clicked.connect (clickEventSelectorInputCorrienteShapefileTrazadorCuencas)
-        self.botonOutputCuencaShapefileTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaShapefileTrazadorCuencas)
-        self.botonOutputCuencaNCTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaNCTrazadorCuencas)
-
-    def setupUIButtonEvents (self):
-
+        
         self.botonEjecutarTrazadorCorrientes.clicked.connect (self.handleClickEventEjecutarTrazadorCorrientes)
-        self.botonEjecutarTrazadorCuencas.clicked.connect (self.handleClickEventEjecutarTrazadorCuencas)
+        
+        #self.botonOutputCuencaShapefileTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaShapefileTrazadorCuencas)
+        #self.botonOutputCuencaNCTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaNCTrazadorCuencas)
+
+    #def setupUIButtonEvents (self):
+
+        #self.botonEjecutarTrazadorCorrientes.clicked.connect(self.handleClickEventEjecutarTrazadorCorrientes)
+        #self.botonEjecutarTrazadorCorrientes.clicked.connect (self.handleClickEventEjecutarTrazadorCorrientes)
+        #self.botonEjecutarTrazadorCuencas.clicked.connect (self.handleClickEventEjecutarTrazadorCuencas)
 
 
 

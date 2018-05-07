@@ -464,7 +464,17 @@
                </widget>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCuencas"/>
+               <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCuencas">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-200.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>200.000000000000000</double>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QLabel" name="labelLongitudTrazadorCuencas">
@@ -474,7 +484,17 @@
                </widget>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCuencas"/>
+               <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCuencas">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-200.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>200.000000000000000</double>
+                </property>
+               </widget>
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayoutSelectorOutputCorrienteShapefileTrazadorCorrientes_2">
@@ -678,7 +698,17 @@
               </widget>
              </item>
              <item>
-              <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCorrientes"/>
+              <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCorrientes">
+               <property name="decimals">
+                <number>6</number>
+               </property>
+               <property name="minimum">
+                <double>-200.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>200.000000000000000</double>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QLabel" name="labelLongitudTrazadorCorrientes">
@@ -688,7 +718,17 @@
               </widget>
              </item>
              <item>
-              <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCorrientes"/>
+              <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCorrientes">
+               <property name="decimals">
+                <number>6</number>
+               </property>
+               <property name="minimum">
+                <double>-200.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>200.000000000000000</double>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QLabel" name="labelFileOutputTrazadorCorrientesShapefile">
@@ -856,7 +896,6 @@
   </widget>
  </widget>
  <resources>
-  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
