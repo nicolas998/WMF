@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>383</width>
+    <width>391</width>
     <height>869</height>
    </rect>
   </property>
@@ -27,11 +27,15 @@
     <item>
      <widget class="QTabWidget" name="tabPanelDockOpciones">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabConfiguracion">
+       <attribute name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/plugins/HydroSEDPlugin/icons/config.png</normaloff>:/plugins/HydroSEDPlugin/icons/config.png</iconset>
+       </attribute>
        <attribute name="title">
-        <string>Configuración</string>
+        <string/>
        </attribute>
        <widget class="QWidget" name="verticalLayoutWidget">
         <property name="geometry">
@@ -39,7 +43,7 @@
           <x>0</x>
           <y>0</y>
           <width>361</width>
-          <height>451</height>
+          <height>781</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayoutTabConfiguracion">
@@ -52,9 +56,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>230</y>
+              <y>330</y>
               <width>359</width>
-              <height>211</height>
+              <height>451</height>
              </rect>
             </property>
             <property name="title">
@@ -66,7 +70,7 @@
                <x>10</x>
                <y>31</y>
                <width>341</width>
-               <height>181</height>
+               <height>361</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayoutExploradoBinariosNC">
@@ -107,7 +111,11 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>...</string>
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="resources.qrc">
+                    <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -115,6 +123,48 @@
               </item>
               <item>
                <widget class="QTreeView" name="treeViewExploradorBinariosNC"/>
+              </item>
+              <item>
+               <widget class="QLabel" name="ncVariablesText">
+                <property name="text">
+                 <string>Variables archivo de cuenca .nc</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListWidget" name="ncListVariables"/>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="horizontalLayoutWidget_3">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>400</y>
+               <width>341</width>
+               <height>41</height>
+              </rect>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_5">
+                <property name="text">
+                 <string>Cargar Variable</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -125,7 +175,7 @@
               <x>10</x>
               <y>21</y>
               <width>341</width>
-              <height>201</height>
+              <height>301</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayoutConfiguracionGeneral">
@@ -166,7 +216,48 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <item>
+                <spacer name="horizontalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_7">
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carga el MDE en el layout de mapas de Qgis.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string>Visualizar</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_6">
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Establece el MDE y sus propiedades como el mapa base para WMF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string>Cargar</string>
                  </property>
                 </widget>
                </item>
@@ -209,59 +300,87 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                  </property>
                 </widget>
                </item>
               </layout>
              </item>
              <item>
-              <widget class="QLabel" name="labelUmbral">
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+               <item>
+                <spacer name="horizontalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_8">
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carga el DIR en el layout de mapas de Qgis.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string>Visualizar</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_4">
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Establece el DIR y sus propiedades como el mapa base para WMF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string>Cargar</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelDIR_2">
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umbral de celdas necesarias (100) para que se genere red hídrica en la cuenca.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="whatsThis">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Umbral de celdas necesarias (100) para que se genere red hídrica en la cuenca.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
-                <string>Umbral:</string>
+                <string>Propiedades mapas</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QDoubleSpinBox" name="spinBoxUmbral"/>
+              <widget class="QTableView" name="tableView"/>
              </item>
             </layout>
+            <zorder>labelDIR_2</zorder>
+            <zorder>labelDEM</zorder>
+            <zorder>labelDIR</zorder>
+            <zorder>horizontalLayoutWidget</zorder>
+            <zorder>horizontalLayoutWidget_2</zorder>
+            <zorder>tableView</zorder>
            </widget>
           </widget>
          </item>
         </layout>
        </widget>
-       <widget class="QListWidget" name="ncListVariables">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>490</y>
-          <width>341</width>
-          <height>221</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="ncVariablesText">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>470</y>
-          <width>241</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Variables archivo de cuenca .nc</string>
-        </property>
-       </widget>
       </widget>
       <widget class="QWidget" name="tabTrazadores">
+       <attribute name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/plugins/HydroSEDPlugin/icons/cuenca.ico</normaloff>:/plugins/HydroSEDPlugin/icons/cuenca.ico</iconset>
+       </attribute>
        <attribute name="title">
         <string>Trazadores</string>
        </attribute>
@@ -562,10 +681,88 @@
        <attribute name="title">
         <string>Hidrología</string>
        </attribute>
+       <widget class="QPushButton" name="pushButton">
+        <property name="geometry">
+         <rect>
+          <x>110</x>
+          <y>520</y>
+          <width>99</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>PushButton</string>
+        </property>
+       </widget>
+       <widget class="QScrollArea" name="scrollArea">
+        <property name="geometry">
+         <rect>
+          <x>-10</x>
+          <y>0</y>
+          <width>381</width>
+          <height>511</height>
+         </rect>
+        </property>
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>379</width>
+           <height>509</height>
+          </rect>
+         </property>
+         <widget class="QWidget" name="verticalLayoutWidget_2">
+          <property name="geometry">
+           <rect>
+            <x>-10</x>
+            <y>0</y>
+            <width>381</width>
+            <height>131</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout"/>
+         </widget>
+        </widget>
+       </widget>
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
         <string>Geomorfología</string>
+       </attribute>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="geometry">
+         <rect>
+          <x>110</x>
+          <y>50</y>
+          <width>99</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>PushButton</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_3">
+        <property name="geometry">
+         <rect>
+          <x>130</x>
+          <y>100</y>
+          <width>99</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>PushButton</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Simulación</string>
        </attribute>
       </widget>
      </widget>
@@ -573,6 +770,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
