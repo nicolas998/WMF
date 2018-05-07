@@ -452,7 +452,7 @@
                <x>10</x>
                <y>22</y>
                <width>341</width>
-               <height>421</height>
+               <height>428</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayoutTrazadorCuencas">
@@ -461,7 +461,7 @@
                 <item>
                  <widget class="QLabel" name="labelLatitudTrazadorCorrientes_2">
                   <property name="text">
-                   <string>Latitud:</string>
+                   <string>Ubicación</string>
                   </property>
                  </widget>
                 </item>
@@ -479,7 +479,7 @@
                  </spacer>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="BotonCoordCapture_2">
+                 <widget class="QPushButton" name="BotonCoord_cuenca">
                   <property name="text">
                    <string/>
                   </property>
@@ -492,37 +492,64 @@
                </layout>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCuencas">
-                <property name="decimals">
-                 <number>6</number>
-                </property>
-                <property name="minimum">
-                 <double>-200.000000000000000</double>
-                </property>
-                <property name="maximum">
-                 <double>200.000000000000000</double>
-                </property>
-               </widget>
+               <layout class="QHBoxLayout" name="horizontalLayout_11">
+                <item>
+                 <widget class="QLabel" name="labelLongitudTrazadorCorrientes_5">
+                  <property name="toolTip">
+                   <string>Coordenada en X del punto de inicio.</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>Coordenada en X del punto de inicio.</string>
+                  </property>
+                  <property name="text">
+                   <string>Latitud: </string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCuencas_2">
+                  <property name="decimals">
+                   <number>6</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-200.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item>
-               <widget class="QLabel" name="labelLongitudTrazadorCuencas">
-                <property name="text">
-                 <string>Longitud:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCuencas">
-                <property name="decimals">
-                 <number>6</number>
-                </property>
-                <property name="minimum">
-                 <double>-200.000000000000000</double>
-                </property>
-                <property name="maximum">
-                 <double>200.000000000000000</double>
-                </property>
-               </widget>
+               <layout class="QHBoxLayout" name="horizontalLayout_10">
+                <item>
+                 <widget class="QLabel" name="labelLongitudTrazadorCorrientes_4">
+                  <property name="toolTip">
+                   <string>Coordenada en Y del punto de inicio.</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>Coordenada en Y del punto de inicio.</string>
+                  </property>
+                  <property name="text">
+                   <string>Longitud</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCuencas_2">
+                  <property name="decimals">
+                   <number>6</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-200.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayoutSelectorOutputCorrienteShapefileTrazadorCorrientes_2">
@@ -747,7 +774,7 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QPushButton" name="BotonCoordCapture">
+                <widget class="QPushButton" name="BotonCoord_corriente">
                  <property name="toolTip">
                   <string>Obtener coordenadas dando click sobre el mapa</string>
                  </property>
