@@ -27,7 +27,7 @@
     <item>
      <widget class="QTabWidget" name="tabPanelDockOpciones">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabConfiguracion">
        <attribute name="icon">
@@ -425,7 +425,7 @@
           <x>0</x>
           <y>0</y>
           <width>361</width>
-          <height>641</height>
+          <height>781</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayoutTabTrazadores">
@@ -440,7 +440,7 @@
               <x>0</x>
               <y>250</y>
               <width>359</width>
-              <height>381</height>
+              <height>521</height>
              </rect>
             </property>
             <property name="title">
@@ -452,7 +452,7 @@
                <x>10</x>
                <y>22</y>
                <width>341</width>
-               <height>351</height>
+               <height>421</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayoutTrazadorCuencas">
@@ -477,23 +477,69 @@
                <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCuencas"/>
               </item>
               <item>
-               <widget class="QLabel" name="labelInputCorrienteShapefileTrazadorCuencas">
+               <layout class="QHBoxLayout" name="horizontalLayoutSelectorOutputCorrienteShapefileTrazadorCorrientes_2">
+                <item>
+                 <widget class="QLabel" name="labelInputCorrienteShapefileTrazadorCuencas">
+                  <property name="toolTip">
+                   <string>Usar la ultima corriente trazada para corregir la coordenada de trazado de cuenca</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>Usar la ultima corriente trazada para corregir la coordenada de trazado de cuenca</string>
+                  </property>
+                  <property name="text">
+                   <string>Usar ultima corriente</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_4">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="UltimaCorriente">
+                  <property name="toolTip">
+                   <string>Si usar o no usar ultima corriente</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>Si usar o no usar ultima corriente</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile">
                 <property name="text">
-                 <string>Path Corriente:</string>
+                 <string>Ruta divisoria de aguas (*.shp):</string>
                 </property>
                </widget>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayoutSelectorInputCorrienteShapefileTrazadorCuencas">
+               <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaShapefileTrazadorCuencas">
                 <item>
-                 <widget class="QLineEdit" name="lineEditInputCorrienteShapefileTrazadorCuencas">
+                 <widget class="QLineEdit" name="PathOutputDivisoria">
                   <property name="readOnly">
                    <bool>true</bool>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="botonInputCorrienteShapefileTrazadorCuencas">
+                 <widget class="QPushButton" name="BotonPathDivisoria">
                   <property name="minimumSize">
                    <size>
                     <width>30</width>
@@ -514,23 +560,23 @@
                </layout>
               </item>
               <item>
-               <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile">
+               <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile_3">
                 <property name="text">
-                 <string>Path Salida (*.shp):</string>
+                 <string>Ruta red hidrica (*.shp):</string>
                 </property>
                </widget>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaShapefileTrazadorCuencas">
+               <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaShapefileTrazadorCuencas_2">
                 <item>
-                 <widget class="QLineEdit" name="lineEditOutputCuencaShapefileTrazadorCuencas">
+                 <widget class="QLineEdit" name="PathOutputRed">
                   <property name="readOnly">
                    <bool>true</bool>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="botonOutputCuencaShapefileTrazadorCuencas">
+                 <widget class="QPushButton" name="BotonPathRed">
                   <property name="minimumSize">
                    <size>
                     <width>30</width>
@@ -560,14 +606,14 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaNCTrazadorCuencas">
                 <item>
-                 <widget class="QLineEdit" name="lineEditOutputCuencaNCTrazadorCuencas">
+                 <widget class="QLineEdit" name="PathOutputNETCDF">
                   <property name="readOnly">
                    <bool>true</bool>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="botonOutputCuencaNCTrazadorCuencas">
+                 <widget class="QPushButton" name="BotonPathNC">
                   <property name="minimumSize">
                    <size>
                     <width>30</width>
@@ -647,14 +693,14 @@
              <item>
               <widget class="QLabel" name="labelFileOutputTrazadorCorrientesShapefile">
                <property name="text">
-                <string>Path Salida (*.shp):</string>
+                <string>Ruta corriente trazada (*.shp):</string>
                </property>
               </widget>
              </item>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayoutSelectorOutputCorrienteShapefileTrazadorCorrientes">
                <item>
-                <widget class="QLineEdit" name="lineEditSelectorOutputCorrienteShapefileTrazadorCorrientes">
+                <widget class="QLineEdit" name="PathCorriente_out">
                  <property name="readOnly">
                   <bool>true</bool>
                  </property>
@@ -810,6 +856,7 @@
   </widget>
  </widget>
  <resources>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
