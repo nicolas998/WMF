@@ -438,9 +438,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>250</y>
+              <y>310</y>
               <width>359</width>
-              <height>521</height>
+              <height>471</height>
              </rect>
             </property>
             <property name="title">
@@ -457,11 +457,39 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayoutTrazadorCuencas">
               <item>
-               <widget class="QLabel" name="labelLatitudTrazadorCuencas">
-                <property name="text">
-                 <string>Latitud:</string>
-                </property>
-               </widget>
+               <layout class="QHBoxLayout" name="horizontalLayout_7">
+                <item>
+                 <widget class="QLabel" name="labelLatitudTrazadorCorrientes_2">
+                  <property name="text">
+                   <string>Latitud:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_6">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="BotonCoordCapture_2">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="resources.qrc">
+                    <normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</iconset>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item>
                <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCuencas">
@@ -686,49 +714,116 @@
               <x>10</x>
               <y>22</y>
               <width>341</width>
-              <height>221</height>
+              <height>271</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayoutTrazadorCorrientes">
              <item>
-              <widget class="QLabel" name="labelLatitudTrazadorCorrientes">
-               <property name="text">
-                <string>Latitud:</string>
-               </property>
-              </widget>
+              <layout class="QHBoxLayout" name="horizontalLayout_6">
+               <item>
+                <widget class="QLabel" name="labelLatitudTrazadorCorrientes">
+                 <property name="toolTip">
+                  <string>Punto de inicio de trazado de la corriente</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>Punto de inicio de trazado de la corriente</string>
+                 </property>
+                 <property name="text">
+                  <string>Ubicación</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_5">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="BotonCoordCapture">
+                 <property name="toolTip">
+                  <string>Obtener coordenadas dando click sobre el mapa</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>Obtener coordenadas dando click sobre el mapa</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</iconset>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item>
-              <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCorrientes">
-               <property name="decimals">
-                <number>6</number>
-               </property>
-               <property name="minimum">
-                <double>-200.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>200.000000000000000</double>
-               </property>
-              </widget>
+              <layout class="QHBoxLayout" name="horizontalLayout_8">
+               <item>
+                <widget class="QLabel" name="labelLongitudTrazadorCorrientes_2">
+                 <property name="toolTip">
+                  <string>Coordenada en X del punto de inicio.</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>Coordenada en X del punto de inicio.</string>
+                 </property>
+                 <property name="text">
+                  <string>Latitud: </string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCorrientes">
+                 <property name="decimals">
+                  <number>6</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-200.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>200.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item>
-              <widget class="QLabel" name="labelLongitudTrazadorCorrientes">
-               <property name="text">
-                <string>Longitud:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCorrientes">
-               <property name="decimals">
-                <number>6</number>
-               </property>
-               <property name="minimum">
-                <double>-200.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>200.000000000000000</double>
-               </property>
-              </widget>
+              <layout class="QHBoxLayout" name="horizontalLayout_9">
+               <item>
+                <widget class="QLabel" name="labelLongitudTrazadorCorrientes_3">
+                 <property name="toolTip">
+                  <string>Coordenada en Y del punto de inicio.</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>Coordenada en Y del punto de inicio.</string>
+                 </property>
+                 <property name="text">
+                  <string>Longitud</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCorrientes">
+                 <property name="decimals">
+                  <number>6</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-200.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>200.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item>
               <widget class="QLabel" name="labelFileOutputTrazadorCorrientesShapefile">
@@ -760,6 +855,12 @@
                    <height>16777215</height>
                   </size>
                  </property>
+                 <property name="toolTip">
+                  <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                 </property>
                  <property name="text">
                   <string>...</string>
                  </property>
@@ -784,6 +885,12 @@
                </item>
                <item>
                 <widget class="QPushButton" name="botonEjecutarTrazadorCorrientes">
+                 <property name="toolTip">
+                  <string>Ejecutar la función de trazado de corriente.</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>Ejecutar la función de trazado de corriente.</string>
+                 </property>
                  <property name="text">
                   <string>Ejecutar Trazador</string>
                  </property>
@@ -896,6 +1003,7 @@
   </widget>
  </widget>
  <resources>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
