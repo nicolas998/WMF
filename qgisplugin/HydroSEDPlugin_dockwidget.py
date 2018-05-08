@@ -94,10 +94,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def handleClickEventEjecutarTrazadorCuencas (self):
         #Obtiene coordenadas
-        #y = self.spinBoxLatitudTrazadorCuencas.value ()
-        #x = self.spinBoxLongitudTrazadorCuencas.value ()
-        
-        #OutPathDivisoria = self.PathOutputDivisoria.text()
+        y = self.spinBoxLatitudTrazadorCuencas.value ()
+        x = self.spinBoxLongitudTrazadorCuencas.value ()
+        #Paths para guardar la cuenca 
+        OutPathDivisoria = self.PathOutputDivisoria.text()
         #try:
             #self.HSutils.trazador_corriente(x,y, OutPath)
             #ret, layer = self.HSutils.cargar_mapa_vector(OutPath)
@@ -213,42 +213,55 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa DIR al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
 
         def clickEventSelectorBinarioNC ():
-
             setupLineEditButtonOpenFileDialog (self.lineEditSelectorBinarioNC, QFileDialog)
 
-        def clickEventSelectorOutputCorrienteShapefileTrazadorCorrientes ():
+        def clickEventSelectorOutputCorrienteShapefileTrazadorCorrientes():
+            setupLineEditButtonSaveFileDialog(self.PathCorriente_out, QFileDialog)
 
-            setupLineEditButtonSaveFileDialog (self.PathCorriente_out, QFileDialog)
-
-        def clickEventSelectorInputCorrienteShapefileTrazadorCuencas ():
-
-#            setupLineEditButtonOpenFileDialog (self.lineEditInputCorrienteShapefileTrazadorCuencas, QFileDialog)
-            setupLineEditButtonOpenShapeFileDialog (self.lineEditInputCorrienteShapefileTrazadorCuencas, QFileDialog)
+        def clickEventSelectorInputCorrienteShapefileTrazadorCuencas():
+            #Hace set del path para la divisoria
+            setupLineEditButtonSaveFileDialog(self.PathOutputDivisoria, QFileDialog)
+            #Obtiene solo el path y el nombre
+            PathOnly = os.path.dirname(self.PathOutputDivisoria.text().strip())
+            #PathOnly = self.PathOutputDivisoria
+            NameOnly = os.path.basename(self.PathOutputDivisoria.text().strip())
+            NameOnly = os.path.splitext(NameOnly)[0]
+            #Genera las rutas de la red y del nc
+            PathRed = PathOnly +'/' +NameOnly + '_Red.shp'
+            PathNC = PathOnly + '/'+NameOnly + 'Topo.nc'
+            #Hace un set del path de la red y del nc.
+            self.PathOutputRed.setText(PathRed)
+            self.PathOutputNETCDF.setText(PathNC)
+            
 
         def clickEventSelectorOutputCuencaShapefileTrazadorCuencas ():
-
             setupLineEditButtonSaveFileDialog (self.lineEditOutputCuencaShapefileTrazadorCuencas, QFileDialog)
 
         def clickEventSelectorOutputCuencaNCTrazadorCuencas ():
-
             setupLineEditButtonSaveFileDialog (self.lineEditOutputCuencaNCTrazadorCuencas, QFileDialog)
 
         self.botonSelectorMapaDEM.clicked.connect (clickEventSelectorMapaDEM)
         self.botonSelectorMapaDIR.clicked.connect (clickEventSelectorMapaDIR)
-
+        
+        #Botones para cargar y visualizar mapas DEM y DIR
         self.Boton_verMDE.clicked.connect (clickEventVisualizarMapaDEM)
         self.Boton_verDIR.clicked.connect (clickEventVisualizarMapaDIR)
         self.Boton_MDE2WMF.clicked.connect (clickEventCargarWMFMapaDEM)
         self.Boton_DIR2WMF.clicked.connect (clickEventCargarWMFMapaDIR)
-#        self.Boton_verDIR.clicked.connect (clickEventVisualizarMapaDIR)
 
         self.botonSelectorBinarioNC.clicked.connect (clickEventSelectorBinarioNC)
+        
+        #Botones para establecer la ruta de guardado del terazador de corrientes yd e cuencas
         self.botonSelectorOutputCorrienteShapefileTrazadorCorrientes.clicked.connect (clickEventSelectorOutputCorrienteShapefileTrazadorCorrientes)
+        self.BotonPathDivisoria.clicked.connect(clickEventSelectorInputCorrienteShapefileTrazadorCuencas)
 
-        self.botonEjecutarTrazadorCorrientes.clicked.connect (self.handleClickEventEjecutarTrazadorCorrientes)
-
+        #Botones para agarrar coordenadqas de trazado
         self.BotonCoord_corriente.clicked.connect(self.handleClickCoordCorrientes)
         self.BotonCoord_cuenca.clicked.connect(self.handleClickCoordCuencas)
+        
+        #Botones ejecucion trazadores
+        self.botonEjecutarTrazadorCorrientes.clicked.connect (self.handleClickEventEjecutarTrazadorCorrientes)
+        
         #self.botonOutputCuencaShapefileTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaShapefileTrazadorCuencas)
         #self.botonOutputCuencaNCTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaNCTrazadorCuencas)
 

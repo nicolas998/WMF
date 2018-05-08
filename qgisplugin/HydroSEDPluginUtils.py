@@ -79,7 +79,9 @@ class controlHS:
         return retornoCargaLayerMapaRaster
     
     def trazador_corriente(self,x,y, path = None):
+        #Traza la corriente en las coordenadas especificadas
         self.stream = wmf.Stream(x, y, self.DEM, self.DIR)
+        #Guarda la corriente.
         if path is not None:
             self.stream.Save_Stream2Map(path)
         
