@@ -7,6 +7,9 @@ from wmf import wmf
 
 class controlHS:
     
+    TIPO_STYLE_POLIGONO  = 1
+    TIPO_STYLE_POLILINEA = 2
+
     def __init__(self):
         self.DEM = 0
         self.DIR = 0
@@ -31,34 +34,44 @@ class controlHS:
     
         return retornoCargaLayerMapaRaster
     
-    def cargar_mapa_vector(self, pathMapaVector, color = (50,50,250), width = 0.5):
+    def cargar_mapa_vector(self, pathMapaVector, tipo_style, color = (50,50,250), width = 0.5):
         #Inicia vandera de cargado y ruta del vector
         retornoCargarMapaVector = False
         pathMapaVector = pathMapaVector.strip()
         #verifica existencia y dado el caso carga
+
         if os.path.exists(pathMapaVector):
+
             baseNameMapaVector = os.path.basename(pathMapaVector)
             baseNameMapaVector = os.path.splitext(baseNameMapaVector)[0]
             layerMapaVector = QgsVectorLayer(pathMapaVector, baseNameMapaVector, 'ogr')
             QgsMapLayerRegistry.instance().addMapLayer(layerMapaVector)
-            
-            symbols = layerMapaVector.rendererV2().symbols()
-            symbol = symbols[0]
-            symbol.setColor(QtGui.QColor.fromRgb(color[0],color[1],color[2]))
-            symbol.setWidth(width)
+
+            if tipo_style == self.TIPO_STYLE_POLILINEA:
+
+                symbols = layerMapaVector.rendererV2().symbols()
+                symbol = symbols[0]
+                symbol.setColor(QtGui.QColor.fromRgb(color[0],color[1],color[2]))
+                symbol.setWidth(width)
+
             #try:
             #    symbol.setWidth(width)
             #except:
             #    symbol.setBorderWidth(width)
             #if layerMapVector.geometryType() == QGis.Polygon:
-            #Render = layerMapaVector.rendererV2()            
-            #mySymbol1 = QgsFillSymbolV2.createSimple({'color':'blue', 
-            #  'color_border':color,
-              #'width_border':width,
-            #  'style':'no',
-            #  'style_border':'solid'})
-            #Render.setSymbol(mySymbol1)
-            
+
+            elif tipo_style == self.TIPO_STYLE_POLIGONO:
+
+                Render = layerMapaVector.rendererV2()
+                mySymbol1 = QgsFillSymbolV2.createSimple({'color':'blue', 
+                                                          'color_border':'#%02x%02x%02x' % color,
+                                                          'width_border':str(width),
+                                                          'style':'no',
+                                                          'style_border':'solid'})
+
+                Render.setSymbol(mySymbol1)
+                layerMapaVector.triggerRepaint()
+
             retornoCargarMapaVector = layerMapaVector.isValid()
         return retornoCargarMapaVector, layerMapaVector
     
