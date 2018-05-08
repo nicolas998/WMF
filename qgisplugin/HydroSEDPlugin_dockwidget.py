@@ -77,7 +77,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         OutPath = self.PathCorriente_out.text()
         try:
             self.HSutils.trazador_corriente(x,y, OutPath)
-            self.HSutils.cargar_mapa_vector(OutPath)
+            ret, layer = self.HSutils.cargar_mapa_vector(OutPath)
+            
+            self.iface.mapCanvas().refresh() 
+            self.iface.legendInterface().refreshLayerSymbology(layer)
+            
             self.iface.messageBar().pushInfo(u'Hydro-SED',u'Se ha trazado la corriente de forma exitosa')
         except:
             pass

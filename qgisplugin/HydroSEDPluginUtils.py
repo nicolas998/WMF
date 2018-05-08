@@ -1,6 +1,7 @@
 import os.path
 
 from qgis.core import QgsRasterLayer, QgsMapLayerRegistry, QgsVectorLayer
+from PyQt4 import QtGui, uic
 
 from wmf import wmf
 
@@ -40,8 +41,14 @@ class controlHS:
             baseNameMapaVector = os.path.splitext(baseNameMapaVector)[0]
             layerMapaVector = QgsVectorLayer(pathMapaVector, baseNameMapaVector, 'ogr')
             QgsMapLayerRegistry.instance().addMapLayer(layerMapaVector)
+            
+            symbols = layerMapaVector.rendererV2().symbols()
+            symbol = symbols[0]
+            symbol.setColor(QtGui.QColor.fromRgb(50,50,250))
+            symbol.setWidth(0.5)
+            
             retornoCargarMapaVector = layerMapaVector.isValid()
-        return retornoCargarMapaVector
+        return retornoCargarMapaVector, layerMapaVector
     
     def cargar_mapa_dem_wmf (self,pathMapaDEM, dxp):
     
