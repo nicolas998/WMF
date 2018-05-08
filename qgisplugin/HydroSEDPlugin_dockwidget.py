@@ -85,7 +85,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         OutPath = self.PathCorriente_out.text()
         try:
             self.HSutils.trazador_corriente(x,y, OutPath)
-            ret, layer = self.HSutils.cargar_mapa_vector(OutPath)
+            ret, layer = self.HSutils.cargar_mapa_vector(OutPath, self.HSutils.TIPO_STYLE_POLILINEA)
             
             self.iface.mapCanvas().refresh() 
             self.iface.legendInterface().refreshLayerSymbology(layer)
@@ -106,14 +106,17 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #Traza la cuenca
         self.HSutils.trazador_cuenca(x,y, self.spinBox_dxPlano.value(),
             self.spinBoxUmbralRed.value(),OutPathDivisoria, OutPathRed, OutPathNC)
+
         #Carga la divisoria
-        ret, layer = self.HSutils.cargar_mapa_vector(OutPathDivisoria, color = (255,0,0), width = 0.6)            
+        ret, layer = self.HSutils.cargar_mapa_vector(OutPathDivisoria, self.HSutils.TIPO_STYLE_POLIGONO, color = (255,0,0), width = 0.6)            
         self.iface.mapCanvas().refresh() 
         self.iface.legendInterface().refreshLayerSymbology(layer)            
+
         #Carga la red 
-        ret, layer = self.HSutils.cargar_mapa_vector(OutPathRed, width = 0.4)
+        ret, layer = self.HSutils.cargar_mapa_vector(OutPathRed, self.HSutils.TIPO_STYLE_POLILINEA, width = 0.4)
         self.iface.mapCanvas().refresh() 
         self.iface.legendInterface().refreshLayerSymbology(layer)         
+
         #mensaje de exito
         self.iface.messageBar().pushInfo(u'Hydro-SED',u'Se ha trazado la cuenca de forma exitosa')
         #except:
