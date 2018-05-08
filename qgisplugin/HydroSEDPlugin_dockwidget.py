@@ -98,32 +98,24 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         x = self.spinBoxLongitudTrazadorCuencas.value ()
         #Paths para guardar la cuenca 
         OutPathDivisoria = self.PathOutputDivisoria.text()
+        OutPathRed = self.PathOutputRed.text()
+        OutPathNC = self.PathOutputNETCDF.text()
         #try:
-            #self.HSutils.trazador_corriente(x,y, OutPath)
-            #ret, layer = self.HSutils.cargar_mapa_vector(OutPath)
-            
-            #self.iface.mapCanvas().refresh() 
-            #self.iface.legendInterface().refreshLayerSymbology(layer)
-            
-            #self.iface.messageBar().pushInfo(u'Hydro-SED',u'Se ha trazado la corriente de forma exitosa')
+        #Traza la cuenca
+        self.HSutils.trazador_cuenca(x,y, self.spinBox_dxPlano.value(),
+            self.spinBoxUmbralRed.value(),OutPathDivisoria, OutPathRed, OutPathNC)
+        #Carga la divisoria
+        ret, layer = self.HSutils.cargar_mapa_vector(OutPathDivisoria, color = (255,0,0), width = 0.6)            
+        self.iface.mapCanvas().refresh() 
+        self.iface.legendInterface().refreshLayerSymbology(layer)            
+        #Carga la red 
+        ret, layer = self.HSutils.cargar_mapa_vector(OutPathRed, width = 0.4)
+        self.iface.mapCanvas().refresh() 
+        self.iface.legendInterface().refreshLayerSymbology(layer)         
+        #mensaje de exito
+        self.iface.messageBar().pushInfo(u'Hydro-SED',u'Se ha trazado la cuenca de forma exitosa')
         #except:
-            #pass
-        
-        print wmf
-        print self.spinBoxLatitudTrazadorCuencas.value ()
-        print self.spinBoxLongitudTrazadorCuencas.value ()
-        print self.lineEditInputCorrienteShapefileTrazadorCuencas.text ()
-        print self.lineEditOutputCuencaShapefileTrazadorCuencas.text ()
-        print self.lineEditOutputCuencaNCTrazadorCuencas.text ()
-
-
-#        from PyQt4.QtGui import QFileDialog
-#        filename1 = QFileDialog.getOpenFileName()
-#        filename2 = QFileDialog.getSaveFileName()
-#        print filename1
-#        print filename2
-
-
+         #   pass
 
     def setupUIInputsOutputs (self):
 
@@ -218,7 +210,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventSelectorOutputCorrienteShapefileTrazadorCorrientes():
             setupLineEditButtonSaveFileDialog(self.PathCorriente_out, QFileDialog)
 
-        def clickEventSelectorInputCorrienteShapefileTrazadorCuencas():
+        def clickEventSelectorInputCuencaShapefileTrazadorCuencas():
             #Hace set del path para la divisoria
             setupLineEditButtonSaveFileDialog(self.PathOutputDivisoria, QFileDialog)
             #Obtiene solo el path y el nombre
@@ -232,7 +224,14 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Hace un set del path de la red y del nc.
             self.PathOutputRed.setText(PathRed)
             self.PathOutputNETCDF.setText(PathNC)
-            
+        
+        def clickEventSelectorInputRedShapefileTrazadorCuencas():
+            #Hace set del path para la red
+            setupLineEditButtonSaveFileDialog(self.PathOutputRed, QFileDialog)
+        
+        def clickEventSelectorInputNC_ShapefileTrazadorCuencas():
+            #Hace set del path para el nc
+            setupLineEditButtonSaveFileDialog(self.PathOutputNETCDF, QFileDialog)
 
         def clickEventSelectorOutputCuencaShapefileTrazadorCuencas ():
             setupLineEditButtonSaveFileDialog (self.lineEditOutputCuencaShapefileTrazadorCuencas, QFileDialog)
@@ -253,7 +252,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         #Botones para establecer la ruta de guardado del terazador de corrientes yd e cuencas
         self.botonSelectorOutputCorrienteShapefileTrazadorCorrientes.clicked.connect (clickEventSelectorOutputCorrienteShapefileTrazadorCorrientes)
-        self.BotonPathDivisoria.clicked.connect(clickEventSelectorInputCorrienteShapefileTrazadorCuencas)
+        self.BotonPathDivisoria.clicked.connect(clickEventSelectorInputCuencaShapefileTrazadorCuencas)
+        #Botones para ruta de red y de nc.
+        self.BotonPathRed.clicked.connect(clickEventSelectorInputRedShapefileTrazadorCuencas)
+        self.BotonPathNC.clicked.connect(clickEventSelectorInputNC_ShapefileTrazadorCuencas)
 
         #Botones para agarrar coordenadqas de trazado
         self.BotonCoord_corriente.clicked.connect(self.handleClickCoordCorrientes)
@@ -261,7 +263,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         #Botones ejecucion trazadores
         self.botonEjecutarTrazadorCorrientes.clicked.connect (self.handleClickEventEjecutarTrazadorCorrientes)
-        
+        self.botonEjecutarTrazadorCuencas.clicked.connect(self.handleClickEventEjecutarTrazadorCuencas)
         #self.botonOutputCuencaShapefileTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaShapefileTrazadorCuencas)
         #self.botonOutputCuencaNCTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaNCTrazadorCuencas)
 

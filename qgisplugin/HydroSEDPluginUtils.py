@@ -31,7 +31,7 @@ class controlHS:
     
         return retornoCargaLayerMapaRaster
     
-    def cargar_mapa_vector(self, pathMapaVector):
+    def cargar_mapa_vector(self, pathMapaVector, color = (50,50,250), width = 0.5):
         #Inicia vandera de cargado y ruta del vector
         retornoCargarMapaVector = False
         pathMapaVector = pathMapaVector.strip()
@@ -44,8 +44,8 @@ class controlHS:
             
             symbols = layerMapaVector.rendererV2().symbols()
             symbol = symbols[0]
-            symbol.setColor(QtGui.QColor.fromRgb(50,50,250))
-            symbol.setWidth(0.5)
+            symbol.setColor(QtGui.QColor.fromRgb(color[0],color[1],color[2]))
+            symbol.setWidth(width)
             
             retornoCargarMapaVector = layerMapaVector.isValid()
         return retornoCargarMapaVector, layerMapaVector
@@ -85,11 +85,16 @@ class controlHS:
         if path is not None:
             self.stream.Save_Stream2Map(path)
         
-    def trazador_cuenca(self,x,y,name = 'None', TopoNodes = False, LastStream = True):
+    def trazador_cuenca(self,x,y, dxp,umbral,PathDiv, PathRed, PathNC,TopoNodes = False, LastStream = True):
         # Traza la cuenca con y sin la ultima corriente.
         if LastStream:
-            self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR, stream=self.stream, TopoNodes=TopoNodes)
+            self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR, stream=self.stream)
         else:
-            self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR, TopoNodes=TopoNodes)
-        # Mira si guarda el shp de la cuenca.
+            self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR)
+        # Guarda los shapes de divisoria y de red hidrica.
+        if len(PathDiv)>2:
+            self.cuenca.Save_Basin2Map(PathDiv, dxp)
+        if len(PathRed)>2:
+            self.cuenca.Save_Net2Map(PathRed, dxp, umbral)
         
+            

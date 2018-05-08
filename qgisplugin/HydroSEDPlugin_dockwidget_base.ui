@@ -493,7 +493,7 @@
               <x>0</x>
               <y>210</y>
               <width>359</width>
-              <height>331</height>
+              <height>451</height>
              </rect>
             </property>
             <property name="title">
@@ -505,7 +505,7 @@
                <x>10</x>
                <y>20</y>
                <width>341</width>
-               <height>310</height>
+               <height>361</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayoutTrazadorCuencas">
@@ -662,7 +662,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="UltimaCorriente">
+                 <widget class="QCheckBox" name="CheckUltimaCorriente">
                   <property name="toolTip">
                    <string>Si usar o no usar ultima corriente</string>
                   </property>
@@ -689,6 +689,13 @@
                  </widget>
                 </item>
                </layout>
+              </item>
+              <item>
+               <widget class="Line" name="line_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile">
@@ -732,11 +739,55 @@
                </layout>
               </item>
               <item>
+               <widget class="Line" name="line_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile_3">
                 <property name="text">
                  <string>Ruta red hidrica (*.shp):</string>
                 </property>
                </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_13">
+                <item>
+                 <widget class="QCheckBox" name="CheckTopoNodes">
+                  <property name="toolTip">
+                   <string>Obtiene automaticamente los nodos topograficos.</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>Obtiene automaticamente los nodos topograficos.</string>
+                  </property>
+                  <property name="text">
+                   <string>Topo Nodes</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="CheckGeomorfo">
+                  <property name="toolTip">
+                   <string>Obtiene parametros geomorfologicos de la cuenca.</string>
+                  </property>
+                  <property name="text">
+                   <string>GetGeo</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="CheckAnchoCanal">
+                  <property name="toolTip">
+                   <string>Obtiene el ancho del canal en cada tramo.</string>
+                  </property>
+                  <property name="text">
+                   <string>Ancho canal</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaShapefileTrazadorCuencas_2">
@@ -771,6 +822,13 @@
                  </widget>
                 </item>
                </layout>
+              </item>
+              <item>
+               <widget class="Line" name="line_4">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QLabel" name="labelOutputTrazadorCuencasNC">
