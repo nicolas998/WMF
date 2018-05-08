@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>387</width>
+    <width>389</width>
     <height>869</height>
    </rect>
   </property>
@@ -491,9 +491,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>230</y>
+              <y>170</y>
               <width>359</width>
-              <height>481</height>
+              <height>331</height>
              </rect>
             </property>
             <property name="title">
@@ -505,7 +505,7 @@
                <x>10</x>
                <y>20</y>
                <width>341</width>
-               <height>362</height>
+               <height>271</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayoutTrazadorCuencas">
@@ -560,7 +560,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCuencas_2">
+                 <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCuencas">
                   <property name="decimals">
                    <number>6</number>
                   </property>
@@ -590,7 +590,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCuencas_2">
+                 <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCuencas">
                   <property name="decimals">
                    <number>6</number>
                   </property>
@@ -622,7 +622,7 @@
                 <item>
                  <widget class="QDoubleSpinBox" name="spinBoxUmbralRed">
                   <property name="decimals">
-                   <number>2</number>
+                   <number>0</number>
                   </property>
                   <property name="minimum">
                    <double>10.000000000000000</double>
@@ -632,23 +632,6 @@
                   </property>
                   <property name="value">
                    <double>100.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayoutSelectorOutputCorrienteShapefileTrazadorCorrientes_2">
-                <item>
-                 <widget class="QLabel" name="labelInputCorrienteShapefileTrazadorCuencas">
-                  <property name="toolTip">
-                   <string>Usar la ultima corriente trazada para corregir la coordenada de trazado de cuenca</string>
-                  </property>
-                  <property name="whatsThis">
-                   <string>Usar la ultima corriente trazada para corregir la coordenada de trazado de cuenca</string>
-                  </property>
-                  <property name="text">
-                   <string>Usar ultima corriente</string>
                   </property>
                  </widget>
                 </item>
@@ -666,6 +649,19 @@
                  </spacer>
                 </item>
                 <item>
+                 <widget class="QLabel" name="labelInputCorrienteShapefileTrazadorCuencas">
+                  <property name="toolTip">
+                   <string>Usar la ultima corriente trazada para corregir la coordenada de trazado de cuenca</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>Usar la ultima corriente trazada para corregir la coordenada de trazado de cuenca</string>
+                  </property>
+                  <property name="text">
+                   <string>Ultima corriente</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QCheckBox" name="UltimaCorriente">
                   <property name="toolTip">
                    <string>Si usar o no usar ultima corriente</string>
@@ -678,6 +674,17 @@
                   </property>
                   <property name="checked">
                    <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="botonEjecutarTrazadorCuencas">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="resources.qrc">
+                    <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -714,7 +721,11 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>...</string>
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="resources.qrc">
+                    <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -751,7 +762,11 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>...</string>
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="resources.qrc">
+                    <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -788,31 +803,11 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>...</string>
+                   <string/>
                   </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayoutEjecutarTrazadorCuencas">
-                <item>
-                 <spacer name="horizontalSpacerEjecutarTrazadorCuencas">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="botonEjecutarTrazadorCuencas">
-                  <property name="text">
-                   <string>Ejecutar y Visualizar</string>
+                  <property name="icon">
+                   <iconset resource="resources.qrc">
+                    <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -827,7 +822,7 @@
               <x>10</x>
               <y>22</y>
               <width>341</width>
-              <height>188</height>
+              <height>141</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayoutTrazadorCorrientes">
@@ -975,26 +970,13 @@
                   <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                  </property>
                 </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayoutEjecutarTrazadorCorrientes">
-               <item>
-                <spacer name="horizontalSpacerTrazadorCorrientes">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
                </item>
                <item>
                 <widget class="QPushButton" name="botonEjecutarTrazadorCorrientes">
@@ -1005,7 +987,11 @@
                   <string>Ejecutar la función de trazado de corriente.</string>
                  </property>
                  <property name="text">
-                  <string>Ejecutar y Visualizar</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -1016,8 +1002,8 @@
            <widget class="Line" name="line">
             <property name="geometry">
              <rect>
-              <x>7</x>
-              <y>220</y>
+              <x>10</x>
+              <y>160</y>
               <width>341</width>
               <height>20</height>
              </rect>

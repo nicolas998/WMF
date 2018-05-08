@@ -58,8 +58,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         if not (iface is None):
             self.iface = iface
         self.HSutils = HSutils.controlHS()
-        self.GetCoords = HSCoord.PointTool(self.iface.mapCanvas(), self.spinBoxLatitudTrazadorCorrientes,
+        self.GetCoordsCorriente = HSCoord.PointTool(self.iface.mapCanvas(), self.spinBoxLatitudTrazadorCorrientes,
             self.spinBoxLongitudTrazadorCorrientes)
+        self.GetCoordsCuenca = HSCoord.PointTool(self.iface.mapCanvas(), self.spinBoxLatitudTrazadorCuencas,
+            self.spinBoxLongitudTrazadorCuencas)
         #self.iface.mapCanvas().setMapTool(GetCoords)
 
     def closeEvent(self, event):
@@ -68,7 +70,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         event.accept()
 
     def handleClickCoordCorrientes(self):
-        self.iface.mapCanvas().setMapTool(self.GetCoords)
+        self.iface.mapCanvas().setMapTool(self.GetCoordsCorriente)
+
+    def handleClickCoordCuencas(self):
+        self.iface.mapCanvas().setMapTool(self.GetCoordsCuenca)
+
 
     def handleClickEventEjecutarTrazadorCorrientes (self):
         #Traza la corriente
@@ -87,6 +93,22 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             pass
 
     def handleClickEventEjecutarTrazadorCuencas (self):
+        #Obtiene coordenadas
+        #y = self.spinBoxLatitudTrazadorCuencas.value ()
+        #x = self.spinBoxLongitudTrazadorCuencas.value ()
+        
+        #OutPathDivisoria = self.PathOutputDivisoria.text()
+        #try:
+            #self.HSutils.trazador_corriente(x,y, OutPath)
+            #ret, layer = self.HSutils.cargar_mapa_vector(OutPath)
+            
+            #self.iface.mapCanvas().refresh() 
+            #self.iface.legendInterface().refreshLayerSymbology(layer)
+            
+            #self.iface.messageBar().pushInfo(u'Hydro-SED',u'Se ha trazado la corriente de forma exitosa')
+        #except:
+            #pass
+        
         print wmf
         print self.spinBoxLatitudTrazadorCuencas.value ()
         print self.spinBoxLongitudTrazadorCuencas.value ()
@@ -226,6 +248,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.botonEjecutarTrazadorCorrientes.clicked.connect (self.handleClickEventEjecutarTrazadorCorrientes)
 
         self.BotonCoord_corriente.clicked.connect(self.handleClickCoordCorrientes)
+        self.BotonCoord_cuenca.clicked.connect(self.handleClickCoordCuencas)
         #self.botonOutputCuencaShapefileTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaShapefileTrazadorCuencas)
         #self.botonOutputCuencaNCTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaNCTrazadorCuencas)
 
