@@ -34,6 +34,8 @@ import os.path
 import HydroSEDPluginUtils as HSutils
 import HydroGetCoordinates as HSCoord
 
+import GdalTools_utils as GdalTools_utils
+
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'HydroSEDPlugin_dockwidget_base.ui'))
 
@@ -130,8 +132,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
 
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", "*",
+#            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", "*",
+#                QtGui.QFileDialog.DontUseNativeDialog))
+
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
                 QtGui.QFileDialog.DontUseNativeDialog))
+
 
         def setupLineEditButtonOpenFileDialog (lineEditHolder, fileDialogHolder):
 
