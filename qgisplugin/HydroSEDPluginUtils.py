@@ -1,6 +1,6 @@
 import os.path
 
-from qgis.core import QgsRasterLayer, QgsMapLayerRegistry, QgsVectorLayer
+from qgis.core import QgsRasterLayer, QgsMapLayerRegistry, QgsVectorLayer, QgsFillSymbolV2
 from PyQt4 import QtGui, uic
 
 from wmf import wmf
@@ -46,6 +46,18 @@ class controlHS:
             symbol = symbols[0]
             symbol.setColor(QtGui.QColor.fromRgb(color[0],color[1],color[2]))
             symbol.setWidth(width)
+            #try:
+            #    symbol.setWidth(width)
+            #except:
+            #    symbol.setBorderWidth(width)
+            #if layerMapVector.geometryType() == QGis.Polygon:
+            #Render = layerMapaVector.rendererV2()            
+            #mySymbol1 = QgsFillSymbolV2.createSimple({'color':'blue', 
+            #  'color_border':color,
+              #'width_border':width,
+            #  'style':'no',
+            #  'style_border':'solid'})
+            #Render.setSymbol(mySymbol1)
             
             retornoCargarMapaVector = layerMapaVector.isValid()
         return retornoCargarMapaVector, layerMapaVector
