@@ -71,14 +71,18 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.iface.mapCanvas().setMapTool(self.GetCoords)
 
     def handleClickEventEjecutarTrazadorCorrientes (self):
+        #Traza la corriente
         y = self.spinBoxLatitudTrazadorCorrientes.value ()
         x = self.spinBoxLongitudTrazadorCorrientes.value ()
-        OutPath = self.PathCorriente_out.text ()
-        self.HSutils.trazador_corriente(x,y, OutPath)
-
+        OutPath = self.PathCorriente_out.text()
+        try:
+            self.HSutils.trazador_corriente(x,y, OutPath)
+            self.HSutils.cargar_mapa_vector(OutPath)
+            self.iface.messageBar().pushInfo(u'Hydro-SED',u'Se ha trazado la corriente de forma exitosa')
+        except:
+            pass
 
     def handleClickEventEjecutarTrazadorCuencas (self):
-
         print wmf
         print self.spinBoxLatitudTrazadorCuencas.value ()
         print self.spinBoxLongitudTrazadorCuencas.value ()
