@@ -4001,7 +4001,7 @@ class SimuBasin(Basin):
 	def run_shia(self,Calibracion,
 		rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
 		ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5,
-              QsimDataFrame = True, EvpVariable = False):
+              QsimDataFrame = True, EvpVariable = False, WheretoStore = None):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
 		'	variables requeridas . \n'\
@@ -4045,7 +4045,8 @@ class SimuBasin(Basin):
 		'				cu.set_Storage(j,c)\n'\
 		'QsimDataFrame: Retorna un data frame con los caudales simulados indicando su id de acuerdo con el\n'\
 		'	que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
-                'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
+                'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de laradiacion\n'\
+                'WheretoStore: (None) Serie de pandas indicando en que fechas el modelo guarda condiciones\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -4128,6 +4129,11 @@ class SimuBasin(Basin):
                     Rad = self.__GetEVP_Serie__(Rain.index)
                 else:
                     models.evpserie = np.ones(N_intervals)
+                #Set del vector de guardado de condiciones del modelo 
+                if WheretoStore is None:
+                    models.guarda_cond = np.zeros(N_intervals)
+                else:
+                    models.guarda_cond = np.copy(WheretoStore.values)
                 # Ejecuta el modelo 
 		Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
