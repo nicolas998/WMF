@@ -841,9 +841,12 @@ subroutine write_float_basin(ruta,vect,record,N_cel,N_col)
     !Escritura     
     estado='old'
     if (record.eq.1) estado='replace'
-    open(10,file=ruta,form='unformatted',status=estado,access='direct',RECL=4*N_col*N_cel)
-		write(10,rec=record) vect
-    close(10)
+    !Solo guarda condiciones si el record de guardado es mayor a cero
+    if (record.gt.0) then 
+        open(10,file=ruta,form='unformatted',status=estado,access='direct',RECL=4*N_col*N_cel)
+		    write(10,rec=record) vect
+        close(10)
+    endif 
 end subroutine
 !Lee los datos flotantes de un binario de cuenca en los records ordenados
 subroutine write_int_basin(ruta,vect,record,N_cel,N_col) 
