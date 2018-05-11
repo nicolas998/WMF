@@ -105,7 +105,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #try:
         #Traza la cuenca
         self.HSutils.trazador_cuenca(x,y, self.spinBox_dxPlano.value(),
-            self.spinBoxUmbralRed.value(),OutPathDivisoria, OutPathRed, OutPathNC)
+            self.spinBoxUmbralRed.value(),OutPathDivisoria, OutPathRed, OutPathNC, self.lineEditMapaDEM,
+            self.lineEditMapaDIR)
 
         #Carga la divisoria
         ret, layer = self.HSutils.cargar_mapa_vector(OutPathDivisoria, self.HSutils.TIPO_STYLE_POLIGONO, color = (255,0,0), width = 0.6)            

@@ -110,7 +110,7 @@ class controlHS:
         if path is not None:
             self.stream.Save_Stream2Map(path)
         
-    def trazador_cuenca(self,x,y, dxp,umbral,PathDiv, PathRed, PathNC,TopoNodes = False, LastStream = True):
+    def trazador_cuenca(self,x,y, dxp,umbral,PathDiv, PathRed, PathNC,PathDEM, PathDIR,TopoNodes = False, LastStream = True):
         # Traza la cuenca con y sin la ultima corriente.
         if LastStream:
             self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR, stream=self.stream)
@@ -121,5 +121,8 @@ class controlHS:
             self.cuenca.Save_Basin2Map(PathDiv, dxp)
         if len(PathRed)>2:
             self.cuenca.Save_Net2Map(PathRed, dxp, umbral)
+        # Guarda el nc de la cuenca 
+        if len(PathNC)>2:
+            self.cuenca.Save_SimuBasin(PathNC,PathDEM, PathDIR)
         
             
