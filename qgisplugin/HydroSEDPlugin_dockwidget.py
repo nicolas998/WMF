@@ -82,6 +82,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #Traza la corriente
         y = self.spinBoxLatitudTrazadorCorrientes.value ()
         x = self.spinBoxLongitudTrazadorCorrientes.value ()
+        #Camino a los temporales
+        if len(self.PathCorriente_out.text()) == 0:
+            self.PathCorriente_out.setText('/tmp/HydroSED/Corriente.shp')
         OutPath = self.PathCorriente_out.text()
         try:
             self.HSutils.trazador_corriente(x,y, OutPath)
@@ -98,11 +101,15 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #Obtiene coordenadas
         y = self.spinBoxLatitudTrazadorCuencas.value ()
         x = self.spinBoxLongitudTrazadorCuencas.value ()
+        #Camino a los temporales
+        if len(self.PathOutputDivisoria.text()) == 0:
+            self.PathOutputDivisoria.setText('/tmp/HydroSED/Cuenca.shp')
+        if len(self.PathOutputRed.text()) == 0:
+            self.PathOutputRed.setText('/tmp/HydroSED/Cuenca_Red.shp')
         #Paths para guardar la cuenca 
         OutPathDivisoria = self.PathOutputDivisoria.text()
         OutPathRed = self.PathOutputRed.text()
         OutPathNC = self.PathOutputNETCDF.text()
-        #try:
         #Traza la cuenca
         self.HSutils.trazador_cuenca(x,y, self.spinBox_dxPlano.value(),
             self.spinBoxUmbralRed.value(),OutPathDivisoria, OutPathRed, OutPathNC, self.lineEditMapaDEM,

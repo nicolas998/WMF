@@ -24,7 +24,7 @@ from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
 from PyQt4.QtGui import QAction, QIcon
 # Initialize Qt resources from file resources.py
 import resources
-
+import os
 # Import the code for the DockWidget
 from HydroSEDPlugin_dockwidget import HydroSEDPluginDockWidget
 import os.path
@@ -230,4 +230,10 @@ class HydroSEDPlugin:
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
+            
+            #Crea un directorio temporal 
+            try:
+                os.makedirs('/tmp/HydroSED')
+            except:
+                pass
 

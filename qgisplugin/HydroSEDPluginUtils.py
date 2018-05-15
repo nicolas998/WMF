@@ -9,13 +9,16 @@ class controlHS:
     
     TIPO_STYLE_POLIGONO  = 1
     TIPO_STYLE_POLILINEA = 2
-
+    
     def __init__(self):
         self.DEM = 0
         self.DIR = 0
         self.xll = 0
         self.yll = 0
         self.nodata = 0
+        self.BasinsCount = 0
+        self.StreamsCount = 0
+
 
     def cargar_mapa_raster (self,pathMapaRaster):
     
@@ -117,12 +120,10 @@ class controlHS:
         else:
             self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR)
         # Guarda los shapes de divisoria y de red hidrica.
-        if len(PathDiv)>2:
-            self.cuenca.Save_Basin2Map(PathDiv, dxp)
-        if len(PathRed)>2:
-            self.cuenca.Save_Net2Map(PathRed, dxp, umbral)
+        self.cuenca.Save_Basin2Map(PathDiv, dxp)
+        self.cuenca.Save_Net2Map(PathRed, dxp, umbral)
         # Guarda el nc de la cuenca 
         if len(PathNC)>2:
-            self.cuenca.Save_SimuBasin(PathNC,PathDEM, PathDIR)
+            self.cuenca.Save_SimuBasin(PathNC,ruta_dem = PathDEM, ruta_dir = PathDIR)
         
             
