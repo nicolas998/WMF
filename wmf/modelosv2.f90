@@ -723,7 +723,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
         Mean_Rain(1,tiempo)=rain_sum/N_cel
                 
         !Guarda campo de estados del modelo 
-        if (save_storage .eq. 1) then
+        if (guarda_cond(tiempo) .gt. 0 .and. save_storage .eq. 1) then
             call write_float_basin(ruta_storage,StoOut,guarda_cond(tiempo),N_cel,5)
         endif
         !Guarda campo de velocidades del modelo

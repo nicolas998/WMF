@@ -550,7 +550,7 @@ def read_rain_struct(ruta):
 	return D
 
 def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
-	Mean_Storage):
+	Mean_Storage,WhereStored):
 	#Lee fechas para el intervalo de tiempo
 	S = read_mean_rain(rute_rain,Nintervals,FirstInt)
 	#Escribe el encabezado del archivo 
@@ -563,10 +563,10 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
 	c = 1
 	#Si no hay almacenamiento medio lo coloca en -9999 
 	#Escribe registros medios y fechas de los almacenamientos 
-	for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
+	for d,sto,c in zip(S.index.to_pydatetime(),Mean_Storage.T, WhereStored):
 		f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
 			(c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
-		c+=1
+		#c+=1
 	f.close()
 
 def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
@@ -4076,6 +4076,7 @@ class SimuBasin(Basin):
 		#Prepara variables de guardado de almacenamiento
 		if ruta_storage is not None:
 			models.save_storage = 1
+                        models.show_storage = 1
 			ruta_sto_bin, ruta_sto_hdr = __Add_hdr_bin_2route__(ruta_storage,
 				storage = True)
 		else:
@@ -4174,7 +4175,8 @@ class SimuBasin(Basin):
 			#Caso en el que se registra el alm medio 
 			if models.show_storage == 1:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-					start_point,self,Mean_Storage = np.copy(models.mean_storage))
+					start_point,self,np.copy(models.mean_storage),
+                                        WheretoStore.values)
 			#Caso en el que no hay alm medio para cada uno de los 
 			else:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
