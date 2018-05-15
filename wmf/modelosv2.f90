@@ -362,20 +362,20 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 
     !Prepara en caso de que se vayan a guardar condiciones, este cambio busca 
     !que se guarden condiciones de forma especifica 
-    if (save_storage .eq. 1) then 
+    !if (save_storage .eq. 1) then 
         !Verifica si no esta alojada la vairable, en caso de que no no guarda condiciones
-        if (allocated(guarda_cond) .eqv. .false.) then 
-            allocate(guarda_cond(N_reg))
-            guarda_cond = 0
-        else    
+     !   if (allocated(guarda_cond) .eqv. .false.) then 
+      !      allocate(guarda_cond(N_reg))
+       !     guarda_cond = 0
+        !else    
             !Si esta aojada, pero no coincide con la cantidad de registros, tampoco guarda nada
-            if (sizeof(guarda_cond) .ne. N_reg) then 
-                deallocate(guarda_cond)
-                allocate(guarda_cond(N_reg))
-                guarda_cond = 0
-            endif    
-        endif
-    endif 
+         !   if (sizeof(guarda_cond) .ne. N_reg) then 
+          !      deallocate(guarda_cond)
+           !     allocate(guarda_cond(N_reg))
+           !     guarda_cond = 0
+           ! endif    
+        !endif
+    !endif 
 
 	!--------------------------------------------------------------------------
     !EJECUCION DEL MODELO 
