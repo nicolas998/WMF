@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>343</width>
+    <width>360</width>
     <height>839</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -27,7 +27,7 @@
     <item>
      <widget class="QTabWidget" name="tabPanelDockOpciones">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tabConfiguracion">
        <attribute name="icon">
@@ -480,7 +480,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>320</width>
+          <width>331</width>
           <height>600</height>
          </rect>
         </property>
@@ -492,8 +492,8 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>300</width>
-          <height>600</height>
+          <width>50000</width>
+          <height>50000</height>
          </size>
         </property>
         <property name="verticalScrollBarPolicy">
@@ -509,8 +509,8 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>-162</y>
-           <width>368</width>
+           <y>0</y>
+           <width>318</width>
            <height>744</height>
           </rect>
          </property>
@@ -546,7 +546,7 @@
               <rect>
                <x>0</x>
                <y>30</y>
-               <width>291</width>
+               <width>301</width>
                <height>187</height>
               </rect>
              </property>
@@ -768,7 +768,7 @@
               <rect>
                <x>0</x>
                <y>30</y>
-               <width>291</width>
+               <width>301</width>
                <height>367</height>
               </rect>
              </property>
@@ -1174,37 +1174,155 @@
        <attribute name="title">
         <string>Hidrología</string>
        </attribute>
-       <widget class="QWidget" name="verticalLayoutWidget_3">
+       <widget class="QScrollArea" name="scrollArea">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>361</width>
-          <height>781</height>
+          <width>331</width>
+          <height>600</height>
          </rect>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayoutTabTrazadores">
-         <item>
-          <widget class="QGroupBox" name="groupBoxTrazadorCorrientes">
-           <property name="title">
-            <string>Corrientes:</string>
-           </property>
-           <widget class="Line" name="line">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>190</y>
-              <width>341</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </widget>
-         </item>
-        </layout>
+        <property name="minimumSize">
+         <size>
+          <width>320</width>
+          <height>600</height>
+         </size>
+        </property>
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>329</width>
+           <height>598</height>
+          </rect>
+         </property>
+         <widget class="QgsCollapsibleGroupBox" name="mGroupBox_4">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>10</y>
+            <width>311</width>
+            <height>200</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Balance Largo Plazo</string>
+          </property>
+          <layout class="QVBoxLayout" name="Balance">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_6">
+               <item>
+                <widget class="QLabel" name="label_11">
+                 <property name="text">
+                  <string>Lluvia</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="PathInRain">
+                 <property name="readOnly">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_8">
+               <item>
+                <widget class="QLabel" name="label_12">
+                 <property name="text">
+                  <string>ETR   </string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="PathInETR">
+                 <property name="readOnly">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_4">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_7">
+               <item>
+                <widget class="QRadioButton" name="radioButton_3">
+                 <property name="text">
+                  <string>Choudry</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButton_2">
+                 <property name="text">
+                  <string>Cenicafe</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButton">
+                 <property name="text">
+                  <string>Turc</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButton_4">
+                 <property name="text">
+                  <string>Map</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
        </widget>
       </widget>
       <widget class="QWidget" name="tabGeomorfologia">
@@ -1252,7 +1370,7 @@
           <x>10</x>
           <y>10</y>
           <width>341</width>
-          <height>800</height>
+          <height>400</height>
          </rect>
         </property>
         <property name="minimumSize">
@@ -1306,7 +1424,7 @@
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>100</height>
+              <height>16777215</height>
              </size>
             </property>
             <property name="title">
@@ -1337,7 +1455,7 @@
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>300</height>
+              <height>16777215</height>
              </size>
             </property>
             <property name="title">
@@ -1398,7 +1516,7 @@
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>300</height>
+              <height>16777215</height>
              </size>
             </property>
             <property name="title">
@@ -1466,6 +1584,7 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
