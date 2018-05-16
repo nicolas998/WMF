@@ -4248,12 +4248,30 @@ class SimuBasin(Basin):
 				index = pd.MultiIndex.from_tuples(tupla, names=['reach','Sediments'])
 				Qsedi = np.array(Qsedi)
 				QsediDict = pd.DataFrame(Qsedi.T, index=Rain.index, columns=index)
+                        #Si separo tipo de lluvia en el caudal
+                        if models.separate_rain == 1:
+				Qrain = []
+				tupla = []
+				for i,j in zip(Retornos['Rain_Sep'][1:], ids):
+					tupla.append((str(j),'Convective'))
+					tupla.append((str(j),'Stratiform'))
+					Qrain.extend([i[0],i[1],i[2]])#  [i[0],i[1],z-i[0]-i[1]])
+				index = pd.MultiIndex.from_tuples(tupla, names=['reach','Rain_sep'])
+				Qrain = np.array(Qrain)
+				QRainDict = pd.DataFrame(Qrain.T, index=Rain.index, columns=index)
+
+
+                        #Determina los retornos en funcion de las banderas que se activaron
                         if models.separate_fluxes == 1 and models.sim_sediments == 0:
                             return Retornos, Qdict, QsepDict 
                         if models.separate_fluxes == 1 and models.sim_sediments == 1:
                             return Retornos, Qdict, QsepDict, QsediDict
                         if models.separate_fluxes == 0 and models.sim_sediments == 1:
                             return Retornos, Qdict, QsediDict
+                        if models.separate_rain == 1 and models.separate_fluxes == 0:
+                            return Retornos, Qdict, QRainDict
+                        if models.separate_rain == 1 and models.separate_fluxes == 1:
+                            return Retornos, Qdict, QsepDict, QRainDict
                         return Retornos, Qdict
 		return Retornos
 
