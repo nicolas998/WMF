@@ -2172,6 +2172,8 @@ class Basin:
 			'	-shpWidth: Ancho de las lineas del shp cargado.\n'\
 			'	-shpColor: Color de las lineas del shp cargado.\n'\
 			'	-backMap: Pone de fondo un mapa tipo arcGIS.\n'\
+                        '	    - Topo: topografia.\n'\
+                        '	    - Hillshade: fondo con mapa de sombras.\n'\
 			'Otros argumentos:.\n'\
 			'	-axis = Entorno de grafica que contiene elementos de las figuras.\n'\
 			'	-parallels = Grafica Paralelos, list-like.\n'\
@@ -2253,9 +2255,11 @@ class Basin:
 				yoffset=meridians_offset)
 			Xm,Ym=m(X,Y)
 			#plotea el mapa de fondo de arcGIS
-			if backMap:
-				#if backMap == 'arcGIS':
-				m.arcgisimage(server='http://server.arcgisonline.com/ArcGIS', service='World_Topo_Map', xpixels = 1500, verbose = True)
+			if backMap is not None:
+				if backMap == 'Topo':
+                                    m.arcgisimage(server='http://server.arcgisonline.com/ArcGIS', service='World_Topo_Map', xpixels = 1500, verbose = True)
+                                elif backMap == 'Hillshade':
+                                    m.arcgisimage(server='http://server.arcgisonline.com/ArcGIS',service='World_Shaded_Relief', xpixels = 1500, verbose = True)
 			#Plotea el contorno de la cuenca y la red 
                         xp,yp = m(self.Polygon[0], self.Polygon[1])
 			per_color = kwargs.get('per_color','r')
