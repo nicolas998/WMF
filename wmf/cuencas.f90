@@ -1848,79 +1848,81 @@ subroutine basin_subbasin_nod(basin_f,acum,nceldas,umbral,cauce,topo,&
 	real SecXY(2,100000) !Seccion a evaluar en nodos topograficos
 	real, allocatable :: Slope2(:) !Doble derivada en el tramo
 	real cauce2(nceldas) !Para nodos tropograficos
-	!Encuentra las celdas que son cauce
-	cauce=0    
-	where(acum.ge.umbral) cauce=1
-	n_cauce=count(cauce.eq.1)
-	!Encuentra los nodos
-	nodos=0
-	n_nodos=0
-	do i=1,nceldas
-		!Determina la celda a la que se drena
-		drenaid=nceldas-basin_f(1,i)+1
-		!Calcula el area acumulada por la red
-		if (basin_f(1,i).ne.0 .and. cauce(i)==1) then
-		    nodos(drenaid)=nodos(drenaid)+1
-		endif
-	enddo
+    !Encuentra las celdas que son cauce
+    cauce=0    
+    where(acum.ge.umbral) cauce=1
+    n_cauce=count(cauce.eq.1)
+    !Encuentra los nodos
+    nodos=0
+    n_nodos=0
+    do i=1,nceldas
+        !Determina la celda a la que se drena
+        drenaid=nceldas-basin_f(1,i)+1
+        !Calcula el area acumulada por la red
+        if (basin_f(1,i).ne.0 .and. cauce(i)==1) then
+            nodos(drenaid)=nodos(drenaid)+1
+        endif
+    enddo
     where(nodos.lt.2) nodos = 0
     !Encuentra nodos topograficos
     if (topo .eq. 1) then
-		!Encuentra los nacimientos 
-		cauce2 = cauce
-		call basin_acum_var(basin_f(1,:),nceldas,cauce2,highpoints)
-		where(highpoints(1,:) .eq. 1) nodos = -1
-		!Determina quienes son los nodos
-		cont = 0
-		!Busqueda de nodos topograficos
-		do i =1, ncells
-			!Condicion de borde y de ser canal
-			if (basin_f(1,i) .ne. 0 .and. (nodos(i) .eq. 2 .or. nodos(i) .eq. -1)) then
-				!Define variables para encontrar el perfil de ese tramo
-				flag = .true.
-				cont = 1
-				postemp(1) = i
-				SecXY = 0
-				SecXY(1,1) = topo_dist(i)
-				SecXY(1,2) = topo_elev(i)
-				drenaid = i
-				!Busca todo el canal entre ese punto y un nodo aguas abajo
-				do while (flag)
-					drenaid = ncells - basin_f(1,drenaid)+1
-					!Evalua que no sea la salida de la cuenca
-					if (drenaid .le. ncells) then
-						!Si aguas abajo no es nodo incrementa el perfil 
-						if (nodos(drenaid) .ne. 2) then
-							cont = cont+1
-							SecXY(1,cont) = SecXY(1,cont-1) + topo_dist(drenaid)
-							SecXY(2,cont) = topo_elev(drenaid)
-							postemp(cont) = drenaid
-						!Si es nodo, para
-						else
-							flag = .false.
-							!Si el tramo tiene mas celdas de las indicadas evalua 
-							if (cont > topo_mincel) then
-								allocate(Slope2(cont))
-								!Obtiene la segunda derivada del tramo con una ventana 
-								call second_derivate(SecXY(1,1:cont), SecXY(2,1:cont),cont,topo_window,Slope2)
-								!Evalua si el tramo tiene o no nodos topograficos
-								cont = 0
-								do while (maxval(Slope2) .gt. topo_slope2 .and. cont .lt. topo_neighbors)
-									z = maxloc(Slope2)
-									if (cont .gt. 0) nodos(postemp(z(1))) = 4
-									Slope2(z(1)-2:z(1)+2) = 0
-									cont = cont+1
-								enddo
-								deallocate(Slope2)                            
-							endif
-						endif
-					else
-						flag = .false.
-					endif
-				enddo
-			endif
-		enddo 
-        where(nodos.eq.-1) nodos = 0
+        !Encuentra los nacimientos 
+        cauce2 = cauce
+        call basin_acum_var(basin_f(1,:),nceldas,cauce2,highpoints)
+        where(highpoints(1,:) .eq. 1) nodos = -1
+        !Determina quienes son los nodos
+        cont = 0
+        !Busqueda de nodos topograficos
+        do i =1, ncells
+            !Condicion de borde y de ser canal
+            if (basin_f(1,i) .ne. 0 .and. (nodos(i) .eq. 2 .or. nodos(i) .eq. -1)) then
+                !Define variables para encontrar el perfil de ese tramo
+                flag = .true.
+                cont = 1
+                postemp(1) = i
+                SecXY = 0
+                SecXY(1,1) = topo_dist(i)
+                SecXY(1,2) = topo_elev(i)
+                drenaid = i
+                !Busca todo el canal entre ese punto y un nodo aguas abajo
+                do while (flag)
+                    drenaid = ncells - basin_f(1,drenaid)+1
+                    !Evalua que no sea la salida de la cuenca
+                    if (drenaid .le. ncells) then
+                        !Si aguas abajo no es nodo incrementa el perfil 
+                        if (nodos(drenaid) .ne. 2) then
+                            cont = cont+1
+                            SecXY(1,cont) = SecXY(1,cont-1) + topo_dist(drenaid)
+                            SecXY(2,cont) = topo_elev(drenaid)
+                            postemp(cont) = drenaid
+                        !Si es nodo, para
+                        else
+                            flag = .false.
+                            nodos(postemp(3)) = 4
+                            !Si el tramo tiene mas celdas de las indicadas evalua 
+                            if (cont > topo_mincel) then
+                                allocate(Slope2(cont))
+                                !Obtiene la segunda derivada del tramo con una ventana 
+                                call second_derivate(SecXY(1,1:cont), SecXY(2,1:cont),cont,topo_window,Slope2)
+                                !Evalua si el tramo tiene o no nodos topograficos
+
+                                !cont = 0
+                                !do while (maxval(Slope2) .gt. topo_slope2 .and. cont .lt. topo_neighbors)
+                                    !z = maxloc(Slope2)
+                                    !if (cont .gt. 0) nodos(postemp(z(1))) = 4
+                                    !Slope2(z(1)-2:z(1)+2) = 0
+                                    !cont = cont+1
+                                !enddo
+                                deallocate(Slope2)                            
+                            endif
+                        endif
+                    else
+                        flag = .false.
+                    endif
+                enddo
+            endif
+        enddo 
+    where(nodos.eq.-1) nodos = 0
     endif
     !Encuentra los nodos de verdad
     nodos_fin=0; nodos_fin(nceldas)=1    
