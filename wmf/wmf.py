@@ -1369,7 +1369,8 @@ class Basin:
 		self.CellHAND_class=handC
 		self.CellHDND=hdnd
 		self.CellHAND_drainCell=hand_destiny
-	
+
+
 	def GetGeo_Sections(self, NumCeldas = 6):
 		'Descripcion: Obtiene secciones transversales a traves de todos.\n'\
 		'	los elementos de la red de drenaje, las secciones se obtienen\n'\
@@ -2562,7 +2563,8 @@ class Basin:
 			pl.savefig(ruta,bbox_inches='tight')
 		if show == True:
 			pl.show()
-	#Plot de cuace ppal
+
+#Plot de cuace ppal
 	def PlotPpalStream(self,ruta = None, figsize = (8,6),axis=None,**kwargs):
 		'''GRAFICA EL PERFIL DEL CAUCE PRINCIPAL
 		===================================================================================
