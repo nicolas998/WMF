@@ -595,9 +595,9 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-16</y>
+             <y>0</y>
              <width>412</width>
-             <height>744</height>
+             <height>753</height>
             </rect>
            </property>
            <property name="minimumSize">
@@ -617,8 +617,8 @@
              <widget class="QWidget" name="widget" native="true">
               <property name="minimumSize">
                <size>
-                <width>300</width>
-                <height>220</height>
+                <width>299</width>
+                <height>180</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -633,7 +633,7 @@
                  <x>0</x>
                  <y>30</y>
                  <width>381</width>
-                 <height>187</height>
+                 <height>161</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayoutTrazadorCorrientes_2">
@@ -745,6 +745,13 @@
                  </layout>
                 </item>
                 <item>
+                 <widget class="Line" name="line_6">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QLabel" name="labelFileOutputTrazadorCorrientesShapefile_2">
                   <property name="text">
                    <string>Ruta corriente trazada (*.shp):</string>
@@ -836,6 +843,13 @@
              </widget>
             </item>
             <item>
+             <widget class="Line" name="line_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QWidget" name="widget_2" native="true">
               <property name="minimumSize">
                <size>
@@ -855,7 +869,7 @@
                  <x>0</x>
                  <y>30</y>
                  <width>381</width>
-                 <height>367</height>
+                 <height>341</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayoutTrazadorCuencas_3">
@@ -1351,7 +1365,7 @@
                 </size>
                </property>
                <property name="title">
-                <string>Balance Largo Plazo</string>
+                <string>Balance Largo Plazo, Q = A(P-E)</string>
                </property>
                <property name="collapsed">
                 <bool>false</bool>
@@ -1373,6 +1387,12 @@
                       <width>0</width>
                       <height>10</height>
                      </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
                     </property>
                     <property name="text">
                      <string>Datos de entrada:</string>
@@ -1419,6 +1439,25 @@
                       <property name="icon">
                        <iconset resource="resources.qrc">
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_HidroViewRain">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Visualizar shp con el caudal calculado por tramos.</string>
+                      </property>
+                      <property name="text">
+                       <string>Ver</string>
                       </property>
                      </widget>
                     </item>
@@ -1499,8 +1538,14 @@
                   </item>
                   <item>
                    <widget class="QLabel" name="label_16">
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
                     <property name="text">
-                     <string>Resultados:</string>
+                     <string>Datos de salida:</string>
                     </property>
                     <property name="textFormat">
                      <enum>Qt::AutoText</enum>
@@ -1578,11 +1623,19 @@
                    <layout class="QHBoxLayout" name="horizontalLayout_19">
                     <item>
                      <widget class="QLabel" name="label_18">
+                      <property name="font">
+                       <font>
+                        <pointsize>7</pointsize>
+                        <weight>75</weight>
+                        <italic>true</italic>
+                        <bold>true</bold>
+                       </font>
+                      </property>
                       <property name="whatsThis">
                        <string>El valor de la escorrentía como un mapa Raster</string>
                       </property>
                       <property name="text">
-                       <string>Escorrentía [mm]</string>
+                       <string>Escorrentía [mm/año]</string>
                       </property>
                      </widget>
                     </item>
@@ -1719,6 +1772,12 @@
                    <layout class="QHBoxLayout" name="horizontalLayout_22">
                     <item>
                      <widget class="QLabel" name="label_20">
+                      <property name="font">
+                       <font>
+                        <weight>75</weight>
+                        <bold>true</bold>
+                       </font>
+                      </property>
                       <property name="whatsThis">
                        <string>El valor del caudal calculado solo a la salida de la cuenca.</string>
                       </property>
@@ -2199,7 +2258,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
