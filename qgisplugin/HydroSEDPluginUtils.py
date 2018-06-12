@@ -126,4 +126,17 @@ class controlHS:
         if len(PathNC)>2:
             self.cuenca.Save_SimuBasin(PathNC,ruta_dem = PathDEM, ruta_dir = PathDIR)
         
-            
+    def hidologia_balance(self, dxp, umbral, PathRain, PathETR, PathQmed):
+        #Se fija si la lluvia es un path o un valor 
+        try:
+            Rain = float(PathRain)
+        except:
+            Rain, prop = wmf.Butto_Ejec_HidroBalance(PathRain) 
+            Rain = self.cuenca.Transform_Map2Basin(Rain, Path)
+        #Realiza el balance 
+        self.cuenca.GetQ_Balance(Rain, Tipo_ETR = PathETR)
+        # Guarda el resultado 
+        if len(PathQmed)>2:
+            self.cuenca.Save_Net2Map(PathQmed, dxp, umbral, qmed = self.cuenca.CellQmed)
+		#Retorna el resultado a la salida 
+		return self.cuenca.CellQmed[-1]

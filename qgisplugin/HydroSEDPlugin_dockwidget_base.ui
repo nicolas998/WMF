@@ -1405,14 +1405,14 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="PathInRain_2">
+                     <widget class="QLineEdit" name="PathInHydro_Rain">
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="Button_HidroLoadRain">
+                     <widget class="QPushButton" name="Boton_HidroLoadRain">
                       <property name="text">
                        <string/>
                       </property>
@@ -1450,40 +1450,15 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="PathInETR_2">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroLoadETR">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_13">
-                    <item>
-                     <widget class="QRadioButton" name="RadioBalance_ETR_Choudry">
+                     <widget class="QRadioButton" name="RadioBalance_ETR_Turc">
                       <property name="whatsThis">
-                       <string>Metodología de cálculo Choudry.</string>
+                       <string>Metodología de cálculo Turc.</string>
                       </property>
                       <property name="text">
-                       <string>Choudry</string>
+                       <string>Turc</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -1496,34 +1471,24 @@
                        <string>Cenicafe</string>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QRadioButton" name="RadioBalance_ETR_Turc">
-                      <property name="whatsThis">
-                       <string>Metodología de cálculo Turc.</string>
-                      </property>
-                      <property name="text">
-                       <string>Turc</string>
-                      </property>
-                      <property name="checked">
                        <bool>false</bool>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QRadioButton" name="RadioBalance_ETR_Mapa">
+                     <widget class="QRadioButton" name="RadioBalance_ETR_Choudry">
                       <property name="whatsThis">
-                       <string>Cargar ETR de un mapa o un valor constante.</string>
+                       <string>Metodología de cálculo Choudry.</string>
                       </property>
                       <property name="text">
-                       <string>Map</string>
+                       <string>Choudry</string>
                       </property>
                      </widget>
                     </item>
                    </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_13"/>
                   </item>
                   <item>
                    <widget class="Line" name="line_3">
@@ -1546,6 +1511,9 @@
                    <layout class="QHBoxLayout" name="horizontalLayout_18">
                     <item>
                      <widget class="QLabel" name="label_17">
+                      <property name="whatsThis">
+                       <string>El valor del caudal calculado en cada tramo hidrológico.</string>
+                      </property>
                       <property name="text">
                        <string>Qmed*[m3/s]</string>
                       </property>
@@ -1565,14 +1533,17 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="PathInRain_3">
+                     <widget class="QLineEdit" name="PathOutHydro_Qmed">
+                      <property name="whatsThis">
+                       <string>Ruta de guardado</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_3">
+                     <widget class="QPushButton" name="Button_HidroSaveQmed">
                       <property name="text">
                        <string/>
                       </property>
@@ -1583,7 +1554,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_9">
+                     <widget class="QPushButton" name="Button_HidroViewQmed">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -1592,6 +1563,9 @@
                         <width>40</width>
                         <height>16777215</height>
                        </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Visualizar shp con el caudal calculado por tramos.</string>
                       </property>
                       <property name="text">
                        <string>Ver</string>
@@ -1604,6 +1578,9 @@
                    <layout class="QHBoxLayout" name="horizontalLayout_19">
                     <item>
                      <widget class="QLabel" name="label_18">
+                      <property name="whatsThis">
+                       <string>El valor de la escorrentía como un mapa Raster</string>
+                      </property>
                       <property name="text">
                        <string>Escorrentía [mm]</string>
                       </property>
@@ -1623,14 +1600,17 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="PathInRain_4">
+                     <widget class="QLineEdit" name="PathOutHydro_Runoff">
+                      <property name="whatsThis">
+                       <string>Ruta de guardado</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_6">
+                     <widget class="QPushButton" name="Button_HidroSaveRunoff">
                       <property name="text">
                        <string/>
                       </property>
@@ -1641,7 +1621,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_10">
+                     <widget class="QPushButton" name="Button_HidroViewRunoff">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -1650,6 +1630,9 @@
                         <width>40</width>
                         <height>16777215</height>
                        </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Visualizar raster con la escorrentia calculada.</string>
                       </property>
                       <property name="text">
                        <string>Ver</string>
@@ -1662,6 +1645,9 @@
                    <layout class="QHBoxLayout" name="horizontalLayout_20">
                     <item>
                      <widget class="QLabel" name="label_19">
+                      <property name="whatsThis">
+                       <string>El valor de la evaporacion estimada como un Raster</string>
+                      </property>
                       <property name="text">
                        <string>ETR [mm/año]</string>
                       </property>
@@ -1681,14 +1667,17 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="PathInRain_5">
+                     <widget class="QLineEdit" name="PathOutHydro_ETR">
+                      <property name="whatsThis">
+                       <string>Ruta de guardado</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_7">
+                     <widget class="QPushButton" name="Button_HidroSaveETR">
                       <property name="text">
                        <string/>
                       </property>
@@ -1699,7 +1688,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_11">
+                     <widget class="QPushButton" name="Button_HidroViewETR">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -1709,6 +1698,9 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="whatsThis">
+                       <string>Visualizar raster con la ETR calculada.</string>
+                      </property>
                       <property name="text">
                        <string>Ver</string>
                       </property>
@@ -1717,7 +1709,24 @@
                    </layout>
                   </item>
                   <item>
+                   <widget class="Line" name="line_4">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_22">
+                    <item>
+                     <widget class="QLabel" name="label_20">
+                      <property name="whatsThis">
+                       <string>El valor del caudal calculado solo a la salida de la cuenca.</string>
+                      </property>
+                      <property name="text">
+                       <string>Q salida [m3/s]:</string>
+                      </property>
+                     </widget>
+                    </item>
                     <item>
                      <spacer name="horizontalSpacer_12">
                       <property name="orientation">
@@ -1734,12 +1743,15 @@
                     <item>
                      <widget class="QLineEdit" name="ShowResultQmed">
                       <property name="readOnly">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
                     <item>
                      <widget class="QPushButton" name="Butto_Ejec_HidroBalance">
+                      <property name="whatsThis">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
                       <property name="text">
                        <string>Ejecutar</string>
                       </property>
@@ -2187,6 +2199,7 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>

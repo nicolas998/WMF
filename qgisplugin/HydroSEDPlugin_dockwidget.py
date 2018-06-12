@@ -55,6 +55,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.setupUIInputsOutputs ()
+        self.setupHidro_Balance()
         #self.setupUIButtonEvents ()
 
         if not (iface is None):
@@ -93,7 +94,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.mapCanvas().refresh() 
             self.iface.legendInterface().refreshLayerSymbology(layer)
             
-            self.iface.messageBar().pushInfo(u'Hydro-SED',u'Se ha trazado la corriente de forma exitosa')
+            self.iface.messageBar().pushInfo(u'HidroSIG',u'Se ha trazado la corriente de forma exitosa')
         except:
             pass
 
@@ -126,14 +127,67 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.iface.legendInterface().refreshLayerSymbology(layer)         
 
         #mensaje de exito
-        self.iface.messageBar().pushInfo(u'Hydro-SED',u'Se ha trazado la cuenca de forma exitosa')
+        self.iface.messageBar().pushInfo(u'HidroSIG',u'Se ha trazado la cuenca de forma exitosa')
         #except:
          #   pass
 
     def setupHidro_Balance(self):
-		
-		
-    
+        
+        def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
+            '''Hace que solo se busquen formatos aceptados por GDAL'''
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
+                QtGui.QFileDialog.DontUseNativeDialog))
+        def setupLineEditButtonSaveFileDialog (lineEditHolder, fileDialogHolder):
+            '''Pone la ruta elegida en el dialogo de texto para guardado'''
+            lineEditHolder.setText (fileDialogHolder.getSaveFileName ())
+        
+        #Funciones para Cargar variables
+        def clickEventSelectorRaster():
+            '''click para seleccionar el raster de lluvia'''
+            setupLineEditButtonOpenRasterFileDialog(self.PathInHydro_Rain, QFileDialog)
+        
+        #Funciones para decir donde se van a guardar las variables.
+        def clickEventOutQmed():
+            '''Habilita la ruta para decir donde se va a guardar la variable de caudal medio'''
+            setupLineEditButtonSaveFileDialog(self.PathOutHydro_Qmed, QFileDialog)
+        def clickEventOutRunoff():
+            '''Habilita la ruta para decir donde se va a guardar la variable de caudal medio'''
+            setupLineEditButtonSaveFileDialog(self.PathOutHydro_Runoff, QFileDialog)
+        def clickEventOutETR():
+            '''Habilita la ruta para decir donde se va a guardar la variable de caudal medio'''
+            setupLineEditButtonSaveFileDialog(self.PathOutHydro_ETR, QFileDialog)
+            
+        #Funciones para el calculo de balance    
+        def hadleClickEventEjecutarBalance():
+            '''Hace el balance hidrologico una ves que se da click en el boton: Butto_Ejec_HidroBalance'''
+            #Selecciona el tipo de etr
+            if self.RadioBalance_ETR_Choudry.isChecked():
+                TipoETR = 3
+            if self.RadioBalance_ETR_Cenicafe.isChecked():
+                TipoETR = 2
+            if self.RadioBalance_ETR_Turc.isChecked():
+                TipoETR = 1
+            #Invoca la funcion
+            QSalida = self.HSutils.hidologia_balance(self.spinBox_dxPlano.value(),
+                self.spinBoxUmbralRed.value(), 
+                self.PathInHydro_Rain.text(), 
+                TipoETR, 
+                self.PathOutHydro_Qmed.text())
+			#Pone el valor de cadual medio en el cuadro
+			textoCaudal = '%.3f' % Qsalida
+			self.ShowResultQmed.setText(textoCaudal)
+			#Mensaje de exito 
+			self.iface.messageBar().pushInfo(u'HidroSIG:',u'Se ha realizado el balance de caudal con exito.')
+        
+        #Botones para variables de entrada 
+        self.Boton_HidroLoadRain.clicked.connect(clickEventSelectorRaster)
+        #Botones para variables de salida
+        self.Button_HidroSaveQmed.clicked.connect(clickEventOutQmed)
+        self.Button_HidroSaveRunoff.clicked.connect(clickEventOutRunoff)
+        self.Button_HidroSaveETR.clicked.connect(clickEventOutETR)
+        #Botones para ejecutar
+        self.Butto_Ejec_HidroBalance.clicked.connect(hadleClickEventEjecutarBalance)
+        
     def setupUIInputsOutputs (self):
 
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
@@ -148,15 +202,15 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 QtGui.QFileDialog.DontUseNativeDialog))
 
         def setupLineEditButtonOpenFileDialog (lineEditHolder, fileDialogHolder):
-			'''Pone la ruta elegida en el dialogo de texto para cargar'''
+            '''Pone la ruta elegida en el dialogo de texto para cargar'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName ())
 
         def setupLineEditButtonSaveFileDialog (lineEditHolder, fileDialogHolder):
-			'''Pone la ruta elegida en el dialogo de texto para guardado'''
+            '''Pone la ruta elegida en el dialogo de texto para guardado'''
             lineEditHolder.setText (fileDialogHolder.getSaveFileName ())
 
         def clickEventSelectorMapaDEM ():
-			'''Evento de click: selecciona mapa DEM'''
+            '''Evento de click: selecciona mapa DEM'''
             setupLineEditButtonOpenRasterFileDialog (self.lineEditMapaDEM, QFileDialog)
 
         def clickEventSelectorMapaDIR ():
