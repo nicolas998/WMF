@@ -130,37 +130,33 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #except:
          #   pass
 
+    def setupHidro_Balance(self):
+		
+		
+    
     def setupUIInputsOutputs (self):
 
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
-
-#            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
+            '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
-
             if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
-
                 self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
 
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
-
-#            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", "*",
-#                QtGui.QFileDialog.DontUseNativeDialog))
-
+            '''Hace que solo0 se busquen formatos aceptados por GDAL'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
                 QtGui.QFileDialog.DontUseNativeDialog))
 
-
         def setupLineEditButtonOpenFileDialog (lineEditHolder, fileDialogHolder):
-
+			'''Pone la ruta elegida en el dialogo de texto para cargar'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName ())
 
         def setupLineEditButtonSaveFileDialog (lineEditHolder, fileDialogHolder):
-
+			'''Pone la ruta elegida en el dialogo de texto para guardado'''
             lineEditHolder.setText (fileDialogHolder.getSaveFileName ())
 
         def clickEventSelectorMapaDEM ():
-
-#            setupLineEditButtonOpenFileDialog (self.lineEditMapaDEM, QFileDialog)
+			'''Evento de click: selecciona mapa DEM'''
             setupLineEditButtonOpenRasterFileDialog (self.lineEditMapaDEM, QFileDialog)
 
         def clickEventSelectorMapaDIR ():
@@ -265,7 +261,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Boton_MDE2WMF.clicked.connect (clickEventCargarWMFMapaDEM)
         self.Boton_DIR2WMF.clicked.connect (clickEventCargarWMFMapaDIR)
 
-        self.botonSelectorBinarioNC.clicked.connect (clickEventSelectorBinarioNC)
+        #self.botonSelectorBinarioNC.clicked.connect (clickEventSelectorBinarioNC)
         
         #Botones para establecer la ruta de guardado del terazador de corrientes yd e cuencas
         self.botonSelectorOutputCorrienteShapefileTrazadorCorrientes.clicked.connect (clickEventSelectorOutputCorrienteShapefileTrazadorCorrientes)
