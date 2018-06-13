@@ -1202,32 +1202,32 @@ subroutine basin_2map_find(basin,map_ncols,map_nrows,nceldas) !Determina los lim
 	map_nrows=fil_max-fil_min+1
 end subroutine
 subroutine basin_2map(basin,var,mapa,map_ncols,map_nrows,map_xll,map_yll,nceldas) !Genera un mapa de la cuenca tomando los limites encontrados por basin_2map_find
-	!Variables de entrada
-	integer, intent(in) :: nceldas
-	integer, intent(in) :: basin(3,nceldas)
-	real, intent(in) :: var(nceldas)
-	integer, intent(in) :: map_ncols,map_nrows
-	!Variables de salida
-	real, intent(out) :: mapa(map_ncols,map_nrows),map_xll,map_yll
-	!f2py intent(in) :: nceldas, basin, var, map_ncols, map_nrows
-	!f2py intent(out) :: mapa,map_xll,map_yll
-	!Variables locales
-	integer i,j
-	integer col_min,col_max,fil_min,fil_max
-	integer col_rel,fil_rel
-	!Encuentra la fila columna maxima y minima
-	col_min=minval(basin(2,:)); col_max=maxval(basin(2,:))
-	fil_min=minval(basin(3,:)); fil_max=maxval(basin(3,:))
-	!Encuentra el xll y el yll nuevos
-	map_xll=xll+dx*(col_min-1)
-	map_yll=yll+dx*(nrows-fil_max)
-	!Aloja la matriz y comienza a llenarla de datos
-	mapa=nodata
-	do i=1,nceldas
-		col_rel=basin(2,i)-col_min+1
-		fil_rel=basin(3,i)-fil_min+1
-		mapa(col_rel,fil_rel)=var(i)
-	enddo
+    !Variables de entrada
+    integer, intent(in) :: nceldas
+    integer, intent(in) :: basin(3,nceldas)
+    real, intent(in) :: var(nceldas)
+    integer, intent(in) :: map_ncols,map_nrows
+    !Variables de salida
+    real, intent(out) :: mapa(map_ncols,map_nrows),map_xll,map_yll
+    !f2py intent(in) :: nceldas, basin, var, map_ncols, map_nrows
+    !f2py intent(out) :: mapa,map_xll,map_yll
+    !Variables locales
+    integer i,j
+    integer col_min,col_max,fil_min,fil_max
+    integer col_rel,fil_rel
+    !Encuentra la fila columna maxima y minima
+    col_min=minval(basin(2,:)); col_max=maxval(basin(2,:))
+    fil_min=minval(basin(3,:)); fil_max=maxval(basin(3,:))
+    !Encuentra el xll y el yll nuevos
+    map_xll=xll+dx*(col_min-1)
+    map_yll=yll+dx*(nrows-fil_max)
+    !Aloja la matriz y comienza a llenarla de datos
+    mapa=nodata
+    do i=1,nceldas
+        col_rel=basin(2,i)-col_min+1
+        fil_rel=basin(3,i)-fil_min+1
+        mapa(col_rel,fil_rel)=var(i)
+    enddo
 end subroutine
 subroutine basin_point2var(basin_f,id_coord,xy_coord,res_coord,basin_pts,ncoord,nceldas) !Obtiene el vector basin_pts con los puntos de control 
     !Variables de entrada
