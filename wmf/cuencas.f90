@@ -605,57 +605,55 @@ subroutine basin_cut(nceldas,basin_f) !Genera una matriz con la cuenca final
 	print *, 'Error: La variable basin_temp no se encuentra alojada'
     endif
 end subroutine
-subroutine basin_basics(basin_f,DEM,DIR,nc,nf,nceldas,acum,long,pend,elev) !calcula: acumulada, longitud y pendiente
+subroutine basin_basics(basin_f,DEM,DIR,nceldas,acum,long,pend,elev) !calcula: acumulada, longitud y pendiente
     !variables de entrada
-    integer, intent(in) :: nceldas,nc,nf
-    integer, intent(in) :: basin_f(3,nceldas), DIR(nc,nf)
-    real, intent(in) :: DEM(nc,nf)
+    integer, intent(in) :: nceldas
+    integer, intent(in) :: basin_f(3,nceldas), DIR(nceldas)
+    real, intent(in) :: DEM(nceldas)
     !variables de salida
     integer, intent(out) :: acum(nceldas)
-    real, intent(out) :: long(nceldas),pend(nceldas),elev(nceldas)
+    real, intent(out) :: long(nceldas),pend(nceldas), elev(nceldas)
     !f2py intent(in) :: nceldas,nc,nf,basin_f,DEM,DIR
     !f2py intent(out) :: acum,long,pend,elev
     integer i,drenaid,col_pos,fil_pos
     real X(nceldas),Y(nceldas)
-    !Calcula la elevacion
-    do i=1,nceldas 
-	elev(i)=DEM(basin_f(2,i),basin_f(3,i))
-    end do
     !Calcula Longitudes, acum y pendiente
+    elev = DEM
     acum=1
     do i=1,nceldas
-	!Determina la celda a la que se drena
-	drenaid=nceldas-basin_f(1,i)+1
-	!Obtiene la longitud de la celda
-	prueba=mod(DIR(basin_f(2,i),basin_f(3,i)),2)
-	if (prueba.eq.0.0) then
-	    long(i)=dxp
-	else
-	    long(i)=dxp*sqrt(2.0)
-	endif
-	!Calcula el area acumulada
-	if (basin_f(1,i).ne.0) then
-	    acum(drenaid)=acum(drenaid)+acum(i)
-	    pend(i)=abs(elev(i)-elev(drenaid))/long(i)
-	else
-	    call drain_colfil(DIR(basin_f(2,i),basin_f(3,i)),col_pos,fil_pos)
-	    pend(i)=abs(elev(i)-DEM(basin_f(2,i)+col_pos,basin_f(3,i)+fil_pos))/long(i)
-	endif
-	!Si la pendiente es plana 0, le da un poco de pendiente
-	if (pend(i).eq.0) pend(i)=0.001
+		!Determina la celda a la que se drena
+		drenaid=nceldas-basin_f(1,i)+1
+		!Obtiene la longitud de la celda
+		prueba=mod(DIR(i),2)
+		if (prueba.eq.0.0) then
+		    long(i)=dxp
+		else
+		    long(i)=dxp*sqrt(2.0)
+		endif
+		!Calcula el area acumulada
+		if (basin_f(1,i).ne.0) then
+		    acum(drenaid)=acum(drenaid)+acum(i)
+		    pend(i)=abs(DEM(i)-DEM(drenaid))/long(i)
+		else
+		    !call drain_colfil(DIR(basin_f(2,i),basin_f(3,i)),col_pos,fil_pos)
+		    !pend(i)=abs(DEM(i)-DEM(basin_f(2,i)+col_pos,basin_f(3,i)+fil_pos))/long(i)
+		    pend(i)=pend(i-1)
+		endif
+		!Si la pendiente es plana 0, le da un poco de pendiente
+		if (pend(i).eq.0) pend(i)=0.001
     end do
     !Calcula escalares genericos de la cuenca
     area=nceldas*dxp**2/1e6 
     pend_media=sum(pend)/nceldas
-    elevacion=sum(elev)/nceldas
+    elevacion=sum(DEM)/nceldas
     !Calcula las coordenadas del centroide de la cuenca
     call basin_coordXY(basin_f,X,Y,nceldas)
     call QsortC(X)
     call QsortC(Y)
     if (mod(nceldas,2).eq.0.0) then
-	centroX=X(nceldas/2); centroY=Y(nceldas/2)
+		centroX=X(nceldas/2); centroY=Y(nceldas/2)
     else
-	centroX=X((nceldas+1)/2); centroY=Y((nceldas+1)/2)
+		centroX=X((nceldas+1)/2); centroY=Y((nceldas+1)/2)
     endif
 end subroutine
 subroutine basin_acum(basin_f,nceldas,acum) !calcula: acumulada

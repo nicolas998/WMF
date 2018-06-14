@@ -1099,7 +1099,7 @@ class Basin:
 		'CellHeight : Elevacion de cada una de las celdas [m.s.n.m].\n'\
 		#obtiene los parametros basicos por celdas
 		acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
-			self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
+			self.DEMvec,self.DIRvec,self.ncells)
 		self.CellAcum=acum; self.CellLong=longCeld
 		self.CellSlope=S0; self.CellHeight=Elev
 		#Obtiene el canal en la cuenca 
@@ -3423,7 +3423,7 @@ class SimuBasin(Basin):
 		'	models.elem_area : Area de cada celda (cu.dxp**2) o ladera (nceldasLadera * cu.dxp**2). \n'\
 		#Obtiene lo basico para luego pasar argumentos
 		acum,hill_long,pend,elev = cu.basin_basics(self.structure,
-			self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
+			self.DEMvec,self.DIRvec,self.ncells)
 		#Obtiene la pendiente y la longitud de las corrientes
 		cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(
 			self.structure,acum,umbrales[1],self.ncells)
@@ -3894,7 +3894,7 @@ class SimuBasin(Basin):
 	#------------------------------------------------------
 	# Guardado y Cargado de modelos de cuencas preparados 
 	#------------------------------------------------------	
-	def Save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None, SimSlides = False,
+	def Save_SimuBasin(self,ruta,SimSlides = False,
 		ExtraVar = None):
 		'Descripcion: guarda una cuenca previamente ejecutada\n'\
 		'\n'\
@@ -3921,22 +3921,17 @@ class SimuBasin(Basin):
 			N = self.ncells
 		elif self.modelType[0] is 'h':
 			N = self.nhills
-		#Determina las rutas
-		#if ruta_dem is None:
-	#		ruta_dem = 'not rute'
-		#if ruta_dir is None:
-		#	ruta_dir = 'not rute'
-		Dict = {'nombre':self.name,
-                    'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
-                    'ncells':self.ncells,'nhills':self.nhills,
-                    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno,
-                    'storageConst' :models.storage_constant,
-                    'ncols':cu.ncols,
-                    'nrows':cu.nrows,
-                    'xll':cu.xll,
-                    'yll':cu.yll,
-                    'dx':cu.dx,
-                    'dy':cu.dy}
+		#Dict = {'nombre':self.name,
+                    #'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
+                    #'ncells':self.ncells,'nhills':self.nhills,
+                    #'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno,
+                    #'storageConst' :models.storage_constant,
+                    #'ncols':cu.ncols,
+                    #'nrows':cu.nrows,
+                    #'xll':cu.xll,
+                    #'yll':cu.yll,
+                    #'dx':cu.dx,
+                    #'dy':cu.dy}
 		if SimSlides:
 			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
 		#abre el archivo 
@@ -3954,7 +3949,7 @@ class SimuBasin(Basin):
 		#Crea variables
 		VarDEM = gr.createVariable('DEM','f4',('ncell',),zlib = True)
 		VarDIR = gr.createVariable('DIR','i4',('ncell',),zlib = True)
-                VarStruc = gr.createVariable('structure','i4',('col3','ncell'),zlib=True)
+		VarStruc = gr.createVariable('structure','i4',('col3','ncell'),zlib=True)
 		VarHills = gr.createVariable('hills','i4',('col2','nhills'),zlib=True)
 		VarHills_own = gr.createVariable('hills_own','i4',('ncell',),zlib=True)
 		VarH_coef = gr.createVariable('h_coef','f4',('col4','Nelem'),zlib=True)
@@ -3986,9 +3981,9 @@ class SimuBasin(Basin):
 			ZSoil = gr.createVariable('z_soil','f4',('Nelem',),zlib = True)
 			RadSlope = gr.createVariable('rad_slope','f4',('Nelem',),zlib = True)
 		#Asigna valores a las variables
-                VarDEM[:] = self.DEMvec
-                VarDIR[:] = self.DIRvec
-                VarStruc[:] = self.structure
+		VarDEM[:] = self.DEMvec
+		VarDIR[:] = self.DIRvec
+		VarStruc[:] = self.structure
 		VarHills[:] = self.hills
 		VarHills_own[:] = self.hills_own
 		VarH_coef[:] = models.h_coef
@@ -4024,7 +4019,7 @@ class SimuBasin(Basin):
 				Var = gr.createVariable(k,ExtraVar[k]['type'],('ncell',),zlib=True)
 				Var[:] = ExtraVar[k]['Data']
 		#asigna las prop a la cuenca 
-		gr.setncatts(Dict)
+		#gr.setncatts(Dict)
 		#Cierra el archivo 
 		gr.close()
 		#Sale del programa
