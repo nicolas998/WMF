@@ -1099,7 +1099,7 @@ class Basin:
 		'CellHeight : Elevacion de cada una de las celdas [m.s.n.m].\n'\
 		#obtiene los parametros basicos por celdas
 		acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
-			self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
+			self.DEMvec,self.DIRvec,self.ncells)
 		self.CellAcum=acum; self.CellLong=longCeld
 		self.CellSlope=S0; self.CellHeight=Elev
 		#Obtiene el canal en la cuenca 
@@ -1710,7 +1710,7 @@ class Basin:
 			Save_Array2Raster(M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.nodata],
 				ruta = ruta, EPSG = EPSG, Format = DriverFormat)
 		return M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.dy,cu.nodata]
-		
+
 	def Transform_Hills2Basin(self,HillsMap):
 		'Descripcion: A partir de un vector con propiedades de las laderas\n'\
 		'	obtiene un vector con las propiedades por celda, ojo estas \n'\
@@ -2776,14 +2776,27 @@ class SimuBasin(Basin):
 			self.ncells = cu.basin_find(lat,lon,DIR,
 				cu.ncols,cu.nrows)
 			self.structure = cu.basin_cut(self.ncells)
-			#traza las sub-cuencas
+			#Obtiene las propiedades para el tamano de la cuenca.
+                        self.DEMvec = self.Transform_Map2Basin(DEM,
+                            [cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy])
+                        self.DIRvec = self.Transform_Map2Basin(DIR,
+                            [cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy])
+                       # self.DEM,prop =self.Transform_Basin2Map(self.DEMvec)
+                       # self.DIR,prop =self.Transform_Basin2Map(self.DIRvec)
+                       # cu.ncols = prop[0]
+                       # cu.nrows = prop[1]
+                       # cu.xll = prop[2]
+                       # cu.yll = prop[3]
+                        #cu.dx = prop[4]
+                        #cu.dy = prop[5]
+                        #traza las sub-cuencas
 			acum=cu.basin_acum(self.structure,self.ncells)
 			cauce,nodos,self.nhills = cu.basin_subbasin_nod(self.structure
 				,acum,umbral,self.ncells)
 			self.hills_own,sub_basin = cu.basin_subbasin_find(self.structure,
 				nodos,self.nhills,self.ncells)
 			self.hills = cu.basin_subbasin_cut(self.nhills)
-			models.drena=self.structure		
+			models.drena=self.structure
 			#Determina la cantidad de celdas para alojar
 			if modelType=='cells':
 				N=self.ncells
@@ -2889,21 +2902,28 @@ class SimuBasin(Basin):
 			models.sim_slides = 1
 			models.sl_fs = gr.sl_fs
 			models.gullienogullie = gr.sl_gullie
-			models.sl_gammaw = gr.sl_gammaw			
-		#Asigna dem y DIr a partir de la ruta 
-		try:
-			DEM = read_map_raster(gr.DEM,True,gr.dxp)
-			DIR = read_map_raster(gr.DIR,True,gr.dxp)
-			cu.nodata = -9999.0
-			DIR[DIR<=0]=cu.nodata.astype(int)
-			DIR=cu.dir_reclass_rwatershed(DIR,cu.ncols,cu.nrows)			
-			self.DEM = DEM
-			self.DIR = DIR
-		except:
-			print 'No se encuentran el DEM y el DIR en la ruta:'
-			print gr.DEM
-			print gr.DIR
-			pass
+			models.sl_gammaw = gr.sl_gammaw
+		#Nueva metodologia de geoespacial de la cuenca 
+                cu.ncols = gr.ncols
+                cu.nrows = gr.nrows
+                cu.xll = gr.xll
+                cu.yll = gr.yll
+                cu.dx = gr.dx
+                cu.dy = gr.dy
+                #Asigna dem y DIr a partir de la ruta 
+#                try:
+#			DEM = read_map_raster(gr.DEM,True,gr.dxp)
+#			DIR = read_map_raster(gr.DIR,True,gr.dxp)
+#			cu.nodata = -9999.0
+#			DIR[DIR<=0]=cu.nodata.astype(int)
+#			DIR=cu.dir_reclass_rwatershed(DIR,cu.ncols,cu.nrows)			
+#			self.DEM = DEM
+#			self.DIR = DIR
+#		except:
+#			print 'No se encuentran el DEM y el DIR en la ruta:'
+#			print gr.DEM
+#			print gr.DIR
+#			pass
 		#de acuerdo al tipo de modeloe stablece numero de elem
 		if self.modelType[0] is 'c':
 			N = self.ncells
@@ -2913,6 +2933,10 @@ class SimuBasin(Basin):
 		self.structure = gr.variables['structure'][:]
 		self.hills = gr.variables['hills'][:]
 		self.hills_own = gr.variables['hills_own'][:]
+                self.DEMvec = gr.variables['DEM'][:]
+                self.DIRvec = gr.variables['DIR'][:]
+                self.DEM = self.Transform_Basin2Map(self.DEMvec)
+                self.DIR = self.Transform_Basin2Map(self.DIRvec)
 		#obtiene las propieades del modelo 
 		models.h_coef = np.ones((4,N)) * gr.variables['h_coef'][:]
 		models.v_coef = np.ones((4,N)) * gr.variables['v_coef'][:]
@@ -2920,11 +2944,11 @@ class SimuBasin(Basin):
 		models.v_exp = np.ones((4,N)) * gr.variables['v_exp'][:]
 		models.max_capilar = np.ones((1,N)) * gr.variables['h1_max'][:]
 		models.max_gravita = np.ones((1,N)) * gr.variables['h3_max'][:]
-		
-		if self.modelType[0] is 'c':			
+		#Variable de drena de acuerdo al tipo de modelo 
+		if self.modelType[0] is 'c':
 			models.drena = np.ones((3,N)) *gr.variables['drena'][:]
 		elif self.modelType[0] is 'h':
-			models.drena = np.ones((1,N)) * gr.variables['drena'][:]			
+			models.drena = np.ones((1,N)) * gr.variables['drena'][:]
 		models.unit_type = np.ones((1,N)) * gr.variables['unit_type'][:]
 		models.hill_long = np.ones((1,N)) * gr.variables['hill_long'][:]
 		models.hill_slope = np.ones((1,N)) * gr.variables['hill_slope'][:]
@@ -3399,7 +3423,7 @@ class SimuBasin(Basin):
 		'	models.elem_area : Area de cada celda (cu.dxp**2) o ladera (nceldasLadera * cu.dxp**2). \n'\
 		#Obtiene lo basico para luego pasar argumentos
 		acum,hill_long,pend,elev = cu.basin_basics(self.structure,
-			self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
+			self.DEMvec,self.DIRvec,self.ncells)
 		#Obtiene la pendiente y la longitud de las corrientes
 		cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(
 			self.structure,acum,umbrales[1],self.ncells)
@@ -3870,7 +3894,7 @@ class SimuBasin(Basin):
 	#------------------------------------------------------
 	# Guardado y Cargado de modelos de cuencas preparados 
 	#------------------------------------------------------	
-	def Save_SimuBasin(self,ruta,ruta_dem = None,ruta_dir = None, SimSlides = False,
+	def Save_SimuBasin(self,ruta,SimSlides = False,
 		ExtraVar = None):
 		'Descripcion: guarda una cuenca previamente ejecutada\n'\
 		'\n'\
@@ -3897,29 +3921,34 @@ class SimuBasin(Basin):
 			N = self.ncells
 		elif self.modelType[0] is 'h':
 			N = self.nhills
-		#Determina las rutas
-		if ruta_dem is None:
-			ruta_dem = 'not rute'
-		if ruta_dir is None:
-			ruta_dir = 'not rute'
-		Dict = {'nombre':self.name,'DEM':ruta_dem,
-			'DIR':ruta_dir,
-		    'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
-		    'ncells':self.ncells,'nhills':self.nhills,
-		    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno, 'storageConst' : models.storage_constant}
+		#Dict = {'nombre':self.name,
+                    #'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
+                    #'ncells':self.ncells,'nhills':self.nhills,
+                    #'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno,
+                    #'storageConst' :models.storage_constant,
+                    #'ncols':cu.ncols,
+                    #'nrows':cu.nrows,
+                    #'xll':cu.xll,
+                    #'yll':cu.yll,
+                    #'dx':cu.dx,
+                    #'dy':cu.dy}
 		if SimSlides:
 			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
 		#abre el archivo 
 		gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
-		#Establece tamano de las variables 
+		#Variables del DEM y del DIR
+                #DEMdim = gr.createDimension('ncols',DEM
+                #Establece tamano de las variables 
 		DimNcell = gr.createDimension('ncell',self.ncells)
 		DimNhill = gr.createDimension('nhills',self.nhills)
 		DimNelem = gr.createDimension('Nelem',N)
 		DimCol3 = gr.createDimension('col3',3)
 		DimCol2 = gr.createDimension('col2',2)
 		DimCol4 = gr.createDimension('col4',4)
-		DimCol5 = gr.createDimension('col5',5)		
+		DimCol5 = gr.createDimension('col5',5)
 		#Crea variables
+		VarDEM = gr.createVariable('DEM','f4',('ncell',),zlib = True)
+		VarDIR = gr.createVariable('DIR','i4',('ncell',),zlib = True)
 		VarStruc = gr.createVariable('structure','i4',('col3','ncell'),zlib=True)
 		VarHills = gr.createVariable('hills','i4',('col2','nhills'),zlib=True)
 		VarHills_own = gr.createVariable('hills_own','i4',('ncell',),zlib=True)
@@ -3952,6 +3981,8 @@ class SimuBasin(Basin):
 			ZSoil = gr.createVariable('z_soil','f4',('Nelem',),zlib = True)
 			RadSlope = gr.createVariable('rad_slope','f4',('Nelem',),zlib = True)
 		#Asigna valores a las variables
+		VarDEM[:] = self.DEMvec
+		VarDIR[:] = self.DIRvec
 		VarStruc[:] = self.structure
 		VarHills[:] = self.hills
 		VarHills_own[:] = self.hills_own
@@ -3963,7 +3994,6 @@ class SimuBasin(Basin):
 		Var_H3max[:] = models.max_gravita
 		Control[:] = models.control
 		ControlH[:] = models.control_h
-		
 		drena[:] = models.drena
 		unitType[:] = models.unit_type
 		hill_long[:] = models.hill_long
@@ -3989,7 +4019,7 @@ class SimuBasin(Basin):
 				Var = gr.createVariable(k,ExtraVar[k]['type'],('ncell',),zlib=True)
 				Var[:] = ExtraVar[k]['Data']
 		#asigna las prop a la cuenca 
-		gr.setncatts(Dict)
+		#gr.setncatts(Dict)
 		#Cierra el archivo 
 		gr.close()
 		#Sale del programa

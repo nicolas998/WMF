@@ -124,7 +124,7 @@ class controlHS:
         self.cuenca.Save_Net2Map(PathRed, dxp, umbral)
         # Guarda el nc de la cuenca 
         if len(PathNC)>2:
-            self.cuenca.Save_SimuBasin(PathNC,ruta_dem = PathDEM, ruta_dir = PathDIR)
+            self.cuenca.Save_SimuBasin(PathNC)
         
     def hidologia_balance(self, dxp, umbral, PathRain, PathETR, PathQmed, PathETROUT, PathRunoff):
         #Se fija si la lluvia es un path o un valor 

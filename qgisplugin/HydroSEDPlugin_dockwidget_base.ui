@@ -1604,6 +1604,9 @@
                    <layout class="QHBoxLayout" name="horizontalLayout_11">
                     <item>
                      <widget class="QLabel" name="label_13">
+                      <property name="toolTip">
+                       <string>Mapa raster (o valor) con la precipitación anual en la cuenca [mm/año]</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Mapa raster (o valor) con la precipitación anual en la cuenca [mm/año]</string>
                       </property>
@@ -1634,6 +1637,9 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="Boton_HidroLoadRain">
+                      <property name="toolTip">
+                       <string>Establecer ruta donde se aloja el mapa de precipitación.</string>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
@@ -1654,6 +1660,9 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Visualizar shp con el caudal calculado por tramos.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Visualizar shp con el caudal calculado por tramos.</string>
                       </property>
@@ -1668,6 +1677,9 @@
                    <layout class="QHBoxLayout" name="horizontalLayout_12">
                     <item>
                      <widget class="QLabel" name="label_14">
+                      <property name="toolTip">
+                       <string>Estimación de la evaporación anual (mm/año), seleccionar metodología o cargar mapa.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Estimación de la evaporación anual (mm/año), seleccionar metodología o cargar mapa.</string>
                       </property>
@@ -1691,6 +1703,9 @@
                     </item>
                     <item>
                      <widget class="QRadioButton" name="RadioBalance_ETR_Turc">
+                      <property name="toolTip">
+                       <string>Metodología de cálculo Turc.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Metodología de cálculo Turc.</string>
                       </property>
@@ -1704,6 +1719,9 @@
                     </item>
                     <item>
                      <widget class="QRadioButton" name="RadioBalance_ETR_Cenicafe">
+                      <property name="toolTip">
+                       <string>Metodología de cálculo Cenicafe.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Metodología de cálculo Cenicafe.</string>
                       </property>
@@ -1717,6 +1735,9 @@
                     </item>
                     <item>
                      <widget class="QRadioButton" name="RadioBalance_ETR_Choudry">
+                      <property name="toolTip">
+                       <string>Metodología de cálculo Choudry.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Metodología de cálculo Choudry.</string>
                       </property>
@@ -1757,6 +1778,9 @@
                    <layout class="QHBoxLayout" name="horizontalLayout_18">
                     <item>
                      <widget class="QLabel" name="label_17">
+                      <property name="toolTip">
+                       <string>El valor del caudal calculado en cada tramo hidrológico.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>El valor del caudal calculado en cada tramo hidrológico.</string>
                       </property>
@@ -1810,6 +1834,9 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Visualizar shp con el caudal calculado por tramos.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Visualizar shp con el caudal calculado por tramos.</string>
                       </property>
@@ -1826,17 +1853,20 @@
                      <widget class="QLabel" name="label_18">
                       <property name="font">
                        <font>
-                        <pointsize>7</pointsize>
-                        <weight>75</weight>
-                        <italic>true</italic>
-                        <bold>true</bold>
+                        <pointsize>11</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>El valor de la escorrentía como un mapa Raster [mm/año]</string>
                       </property>
                       <property name="whatsThis">
                        <string>El valor de la escorrentía como un mapa Raster</string>
                       </property>
                       <property name="text">
-                       <string>Escorrentía [mm/año]</string>
+                       <string>Escorrentía</string>
                       </property>
                      </widget>
                     </item>
@@ -1885,6 +1915,9 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Visualizar raster con la escorrentia calculada.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Visualizar raster con la escorrentia calculada.</string>
                       </property>
@@ -1899,11 +1932,14 @@
                    <layout class="QHBoxLayout" name="horizontalLayout_20">
                     <item>
                      <widget class="QLabel" name="label_19">
+                      <property name="toolTip">
+                       <string>El valor de la evaporacion estimada como un Raster [mm/año]</string>
+                      </property>
                       <property name="whatsThis">
                        <string>El valor de la evaporacion estimada como un Raster</string>
                       </property>
                       <property name="text">
-                       <string>ETR [mm/año]</string>
+                       <string>ETR</string>
                       </property>
                      </widget>
                     </item>
@@ -1952,6 +1988,9 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Visualizar raster con la ETR calculada.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Visualizar raster con la ETR calculada.</string>
                       </property>
@@ -1978,6 +2017,9 @@
                         <weight>75</weight>
                         <bold>true</bold>
                        </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>El valor del caudal calculado solo a la salida de la cuenca.</string>
                       </property>
                       <property name="whatsThis">
                        <string>El valor del caudal calculado solo a la salida de la cuenca.</string>
@@ -2009,8 +2051,631 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="Butto_Ejec_HidroBalance">
+                      <property name="toolTip">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string>Ejecutar</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QgsCollapsibleGroupBox" name="Collapsed_HidroBalance_2">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>290</y>
+                 <width>395</width>
+                 <height>351</height>
+                </rect>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>350</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="title">
+                <string>Interpolación Campo de lluvia</string>
+               </property>
+               <property name="collapsed">
+                <bool>false</bool>
+               </property>
+               <layout class="QVBoxLayout" name="Balance_3">
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_13">
+                  <item>
+                   <widget class="Line" name="line_7">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_21">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>10</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Datos de entrada:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_21">
+                    <item>
+                     <widget class="QLabel" name="label_22">
+                      <property name="toolTip">
+                       <string>Vectorial con los puntos de los pluviometros a interpolar.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Vectorial con los puntos de los pluviometros a interpolar.</string>
+                      </property>
+                      <property name="text">
+                       <string>Pluviómetros</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_13">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>10</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="PathInHydro_Interpol_Pluvios">
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Boton_HidroLoad_Pluvios">
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_HidroViewPluvioPoints">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Visualizar puntos de pluviómetros.</string>
+                      </property>
+                      <property name="text">
+                       <string>Ver</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_29">
+                    <item>
+                     <widget class="QLabel" name="label_26">
+                      <property name="toolTip">
+                       <string>Campo de atributos a partir del cual se realiza la interpolación.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Campo de atributos a partir del cual se realiza la interpolación.</string>
+                      </property>
+                      <property name="text">
+                       <string>Campo</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_16">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>10</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="PathInHydro_Interpol_Pluvios_2">
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_HidroViewPluvioPoints_2">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>30</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Seleccionar el campo a interpolar.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar el campo a interpolar.</string>
+                      </property>
+                      <property name="text">
+                       <string>Campo</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="radioButton_5">
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_31">
+                    <item>
+                     <widget class="QLabel" name="label_27">
+                      <property name="toolTip">
+                       <string>Archivo de excel con las series de tiempo de los puntos a interpolar.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Archivo de excel con las series de tiempo de los puntos a interpolar.</string>
+                      </property>
+                      <property name="text">
+                       <string>Archivo excel</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_17">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>10</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="PathInHydro_Interpol_Pluvios_3">
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_HidroViewPluvioPoints_3">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Establecer archivo de excel a utilizar.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Establecer archivo de excel a utilizar.</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="radioButton_6">
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_28">
+                    <item>
+                     <widget class="QLabel" name="label_23">
+                      <property name="toolTip">
+                       <string>Metodología utilizada para la interpolación: IDW (inverse distance weighted), TIN (Triangular irregular network)</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Metodología utilizada para la interpolación: IDW (inverse distance weighted), TIN (Triangular irregular network)</string>
+                      </property>
+                      <property name="text">
+                       <string>Metodología</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_14">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>10</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="RadioInterpol_IDW">
+                      <property name="toolTip">
+                       <string>Metodología de interpolación IDW.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Metodología de interpolación IDW.</string>
+                      </property>
+                      <property name="text">
+                       <string>IDW</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="RadioInterpol_TIN">
+                      <property name="toolTip">
+                       <string>Metodología de interpolación TIN.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Metodología de interpolación TIN.</string>
+                      </property>
+                      <property name="text">
+                       <string>TIN</string>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_34">
+                    <item>
+                     <widget class="QLabel" name="label_29">
+                      <property name="toolTip">
+                       <string>Exponente para ponderar la distancia en la metodología IDW.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Exponente para ponderar la distancia en la metodología IDW.</string>
+                      </property>
+                      <property name="text">
+                       <string>Exponente distancia IDW</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_20">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>10</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="spinBox_Interpol_P_IDW">
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="minimum">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>20.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="Line" name="line_11">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_24">
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Datos de salida:</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_30">
+                    <item>
+                     <widget class="QLabel" name="label_25">
+                      <property name="toolTip">
+                       <string>Ruta de guardado del campo de lluvia.tif (en el caso de que sea solo un intervalo).</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta de guardado del campo de lluvia.tif (en el caso de que sea solo un intervalo).</string>
+                      </property>
+                      <property name="text">
+                       <string>Campo de lluvia</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_15">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>10</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="PathOutHydro_Interpol_RainField">
+                      <property name="whatsThis">
+                       <string>Ruta de guardado</string>
+                      </property>
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_HidroSaveQmed_2">
+                      <property name="whatsThis">
+                       <string>Establecer ruta del raster de lluvia interpolado.</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_HidroViewRainField">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Visualiza el raster del campo de lluvia interpolado.</string>
+                      </property>
+                      <property name="text">
+                       <string>Ver</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_32">
+                    <item>
+                     <widget class="QLabel" name="label_28">
+                      <property name="toolTip">
+                       <string>Ruta de guardado del binario de fortran con la serie de precipitación interpolada.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta de guardado del binario de fortran con la serie de precipitación interpolada.</string>
+                      </property>
+                      <property name="text">
+                       <string>Binario de lluvia</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_19">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>10</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="PathOutHydro_Interpol_RainField_2">
+                      <property name="whatsThis">
+                       <string>Ruta de guardado</string>
+                      </property>
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_HidroSaveQmed_3">
+                      <property name="whatsThis">
+                       <string>Establecer ruta de guardado del binario de lluvia.</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="spinBoxVerCampoInterpol">
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Entrada del binario de lluvia a visualizar.</string>
+                      </property>
+                      <property name="decimals">
+                       <number>0</number>
+                      </property>
+                      <property name="minimum">
+                       <double>0.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_HidroViewRainFieldBinary">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Visualiza una entrada del binario de lluvia interpolado.</string>
+                      </property>
+                      <property name="text">
+                       <string>Ver</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="Line" name="line_12">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_33">
+                    <item>
+                     <spacer name="horizontalSpacer_18">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>10</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Butto_Ejec_HidroInterpol">
+                      <property name="toolTip">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
                       </property>
                       <property name="text">
                        <string>Ejecutar</string>
