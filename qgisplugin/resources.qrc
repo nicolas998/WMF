@@ -6,5 +6,9 @@
     <file>icons/folder.png</file>
     <file>icons/cuenca.ico</file>
     <file>icon.png</file>
+    <file>icons/icono-borrar.png</file>
+    <file>icons/icono-flecha-abajo.png</file>
+    <file>icons/icono-flecha-arriba.png</file>
+    <file>icons/icono-ver.png</file>
   </qresource>
 </RCC>
