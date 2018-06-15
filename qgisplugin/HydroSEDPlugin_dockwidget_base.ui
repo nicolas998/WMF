@@ -42,7 +42,7 @@
           <rect>
            <x>10</x>
            <y>20</y>
-           <width>421</width>
+           <width>455</width>
            <height>81</height>
           </rect>
          </property>
@@ -74,7 +74,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
+               <iconset resource="resources.qrc">
                 <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
               </property>
              </widget>
@@ -93,6 +93,65 @@
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <widget class="QLabel" name="labelLongitudTrazadorCorrientes_15">
+              <property name="toolTip">
+               <string>Coordenada en X del punto de inicio.</string>
+              </property>
+              <property name="whatsThis">
+               <string>Coordenada en X del punto de inicio.</string>
+              </property>
+              <property name="text">
+               <string>Cuenca: </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="LabelBasinName">
+              <property name="toolTip">
+               <string>Coordenada en X del punto de inicio.</string>
+              </property>
+              <property name="whatsThis">
+               <string>Coordenada en X del punto de inicio.</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line_14">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelLongitudTrazadorCorrientes_18">
+              <property name="toolTip">
+               <string>Coordenada en X del punto de inicio.</string>
+              </property>
+              <property name="whatsThis">
+               <string>Coordenada en X del punto de inicio.</string>
+              </property>
+              <property name="text">
+               <string>Área [km2]: </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="LabelBasinArea">
+              <property name="toolTip">
+               <string>Coordenada en X del punto de inicio.</string>
+              </property>
+              <property name="whatsThis">
+               <string>Coordenada en X del punto de inicio.</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
             <item>
              <spacer name="horizontalSpacer_3">
               <property name="orientation">
@@ -154,6 +213,25 @@
           </item>
          </layout>
         </widget>
+        <widget class="QLabel" name="labelLongitudTrazadorCorrientes_17">
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>90</y>
+           <width>57</width>
+           <height>34</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Coordenada en X del punto de inicio.</string>
+         </property>
+         <property name="whatsThis">
+          <string>Coordenada en X del punto de inicio.</string>
+         </property>
+         <property name="text">
+          <string>Cuenca: </string>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
@@ -185,7 +263,7 @@
         </property>
         <widget class="QWidget" name="tabConfiguracion">
          <attribute name="icon">
-          <iconset>
+          <iconset resource="resources.qrc">
            <normaloff>:/plugins/HydroSEDPlugin/icons/config.png</normaloff>:/plugins/HydroSEDPlugin/icons/config.png</iconset>
          </attribute>
          <attribute name="title">
@@ -225,8 +303,8 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-40</y>
-             <width>446</width>
+             <y>0</y>
+             <width>443</width>
              <height>768</height>
             </rect>
            </property>
@@ -322,7 +400,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                     </property>
                    </widget>
@@ -424,7 +502,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                     </property>
                    </widget>
@@ -526,6 +604,58 @@
                  </layout>
                 </item>
                 <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_35">
+                  <item>
+                   <widget class="QLabel" name="label_set_dxp_2">
+                    <property name="toolTip">
+                     <string>Valor en metros del tamano de una celda en el mapa.</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>Valor en metros del tamano de una celda en el mapa.</string>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::LeftToRight</enum>
+                    </property>
+                    <property name="text">
+                     <string>Proyección EPSG</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="spinBox_dxPlano_2">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>150</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="decimals">
+                     <number>0</number>
+                    </property>
+                    <property name="maximum">
+                     <double>10002.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>4326.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="Line" name="line_13">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_28">
                   <item>
                    <widget class="QLabel" name="labelDIR_2">
@@ -571,7 +701,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                     </property>
                    </widget>
@@ -594,7 +724,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</iconset>
                     </property>
                    </widget>
@@ -650,7 +780,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-arriba.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-arriba.png</iconset>
                     </property>
                    </widget>
@@ -673,7 +803,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-abajo.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-abajo.png</iconset>
                     </property>
                    </widget>
@@ -716,7 +846,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                     </property>
                    </widget>
@@ -739,7 +869,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</iconset>
                     </property>
                    </widget>
@@ -756,7 +886,7 @@
         </widget>
         <widget class="QWidget" name="tabTrazadores">
          <attribute name="icon">
-          <iconset>
+          <iconset resource="resources.qrc">
            <normaloff>:/plugins/HydroSEDPlugin/icons/cuenca.ico</normaloff>:/plugins/HydroSEDPlugin/icons/cuenca.ico</iconset>
          </attribute>
          <attribute name="title">
@@ -767,7 +897,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>430</width>
+            <width>461</width>
             <height>730</height>
            </rect>
           </property>
@@ -797,7 +927,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>415</width>
+             <width>446</width>
              <height>728</height>
             </rect>
            </property>
@@ -833,7 +963,7 @@
                 <rect>
                  <x>0</x>
                  <y>30</y>
-                 <width>381</width>
+                 <width>421</width>
                  <height>168</height>
                 </rect>
                </property>
@@ -878,7 +1008,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</iconset>
                     </property>
                    </widget>
@@ -992,7 +1122,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                     </property>
                    </widget>
@@ -1009,8 +1139,8 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
-                      <normaloff>:/plugins/HydroSEDPlugin/icons/config.png</normaloff>:/plugins/HydroSEDPlugin/icons/config.png</iconset>
+                     <iconset resource="resources.qrc">
+                      <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                     </property>
                    </widget>
                   </item>
@@ -1069,7 +1199,7 @@
                 <rect>
                  <x>0</x>
                  <y>30</y>
-                 <width>381</width>
+                 <width>421</width>
                  <height>367</height>
                 </rect>
                </property>
@@ -1105,7 +1235,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</iconset>
                     </property>
                    </widget>
@@ -1251,7 +1381,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                     </property>
                    </widget>
@@ -1299,7 +1429,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                     </property>
                    </widget>
@@ -1384,7 +1514,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                     </property>
                    </widget>
@@ -1432,7 +1562,7 @@
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                     </property>
                    </widget>
@@ -1472,7 +1602,7 @@
         </widget>
         <widget class="QWidget" name="tabHidrologia">
          <attribute name="icon">
-          <iconset>
+          <iconset resource="resources.qrc">
            <normaloff>:/plugins/HydroSEDPlugin/icons/cuenca.ico</normaloff>:/plugins/HydroSEDPlugin/icons/cuenca.ico</iconset>
          </attribute>
          <attribute name="title">
@@ -1483,7 +1613,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>430</width>
+            <width>461</width>
             <height>730</height>
            </rect>
           </property>
@@ -1513,7 +1643,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>415</width>
+             <width>443</width>
              <height>1918</height>
             </rect>
            </property>
@@ -1549,7 +1679,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>395</width>
+                 <width>431</width>
                  <height>290</height>
                 </rect>
                </property>
@@ -1644,7 +1774,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="resources.qrc">
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -1818,7 +1948,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="resources.qrc">
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -1899,7 +2029,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="resources.qrc">
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -1972,7 +2102,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="resources.qrc">
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -2073,7 +2203,7 @@
                 <rect>
                  <x>0</x>
                  <y>290</y>
-                 <width>395</width>
+                 <width>431</width>
                  <height>351</height>
                 </rect>
                </property>
@@ -2737,7 +2867,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>415</width>
+             <width>412</width>
              <height>1918</height>
             </rect>
            </property>
@@ -2820,7 +2950,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="resources.qrc">
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -2849,7 +2979,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="resources.qrc">
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -2934,7 +3064,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>326</width>
+             <width>323</width>
              <height>930</height>
             </rect>
            </property>
@@ -3123,6 +3253,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
