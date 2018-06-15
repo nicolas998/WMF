@@ -3921,17 +3921,17 @@ class SimuBasin(Basin):
 			N = self.ncells
 		elif self.modelType[0] is 'h':
 			N = self.nhills
-		#Dict = {'nombre':self.name,
-                    #'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
-                    #'ncells':self.ncells,'nhills':self.nhills,
-                    #'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno,
-                    #'storageConst' :models.storage_constant,
-                    #'ncols':cu.ncols,
-                    #'nrows':cu.nrows,
-                    #'xll':cu.xll,
-                    #'yll':cu.yll,
-                    #'dx':cu.dx,
-                    #'dy':cu.dy}
+		Dict = {'nombre':self.name,
+                    'modelType':self.modelType,'noData':self.nodata,'umbral':self.umbral,
+                    'ncells':self.ncells,'nhills':self.nhills,
+                    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno,
+                    'storageConst' :models.storage_constant,
+                    'ncols':cu.ncols,
+                    'nrows':cu.nrows,
+                    'xll':cu.xll,
+                    'yll':cu.yll,
+                    'dx':cu.dx,
+                    'dy':cu.dy}
 		if SimSlides:
 			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
 		#abre el archivo 
@@ -4019,7 +4019,7 @@ class SimuBasin(Basin):
 				Var = gr.createVariable(k,ExtraVar[k]['type'],('ncell',),zlib=True)
 				Var[:] = ExtraVar[k]['Data']
 		#asigna las prop a la cuenca 
-		#gr.setncatts(Dict)
+		gr.setncatts(Dict)
 		#Cierra el archivo 
 		gr.close()
 		#Sale del programa

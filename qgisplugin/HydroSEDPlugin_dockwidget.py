@@ -57,6 +57,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.setupUIInputsOutputs ()
         self.setupHidro_Balance()
         self.setupTableEdicionAlmacenamientoParametrosWMFNC ()
+        self.setupBasinManager()
         #self.setupUIButtonEvents ()
 
         if not (iface is None):
@@ -128,10 +129,35 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.iface.legendInterface().refreshLayerSymbology(layer)         
 
         #mensaje de exito
-        self.iface.messageBar().pushInfo(u'HidroSIG',u'Se ha trazado la cuenca de forma exitosa')
-        #except:
-         #   pass
+        self.iface.messageBar().pushInfo(u'HidroSIG',u'Se ha trazado la cuenca de forma exitosa')        
 
+    def setupBasinManager(self):
+        '''Conjunto de herramientas y variables que permiten cargar y actualizar archivos .nc
+        de cuencas'''
+        
+        def setupLineEditButtonOpenBasinFileDialog (lineEditHolder, fileDialogHolder):
+            '''Busca un proyecto de cuenca ya guardado anteriormente'''
+            #lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"",
+            #   QtGui.QFileDialog.DontUseNativeDialog))
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "Cargador de cuencas", "*","Cuenca en NetCDF4(*.nc);;", 
+                QtGui.QFileDialog.DontUseNativeDialog))
+        
+        #Funciones para Cargar variables
+        def clickEventSelectorBasin():
+            '''click para seleccionar un proyecto de cuenca'''
+            #Pone el texto de la ruta 
+            setupLineEditButtonOpenBasinFileDialog(self.lineEditRutaCuenca, QFileDialog)
+            #Habilita visualizarlo 
+            if len(self.lineEditRutaCuenca.text())>2:
+                self.ButtonLoadBasinProyect.setEnabled(True)
+        def clickEventBasin2WMF():
+            '''Agrega el proyecto de cuenca a WMF'''
+            self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
+        
+        #Botones para variables de entrada 
+        self.botonSelectorProyectBasin.clicked.connect(clickEventSelectorBasin)
+        self.ButtonLoadBasinProyect.clicked.connect(clickEventBasin2WMF)
+        
     def setupHidro_Balance(self):
         
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):

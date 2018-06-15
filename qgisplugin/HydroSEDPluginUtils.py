@@ -2,7 +2,7 @@ import os.path
 
 from qgis.core import QgsRasterLayer, QgsMapLayerRegistry, QgsVectorLayer, QgsFillSymbolV2
 from PyQt4 import QtGui, uic
-
+import netCDF4
 from wmf import wmf
 
 class controlHS:
@@ -18,6 +18,7 @@ class controlHS:
         self.nodata = 0
         self.BasinsCount = 0
         self.StreamsCount = 0
+        self.DicBasinNc = {}
 
 
     def cargar_mapa_raster (self,pathMapaRaster):
@@ -146,3 +147,26 @@ class controlHS:
                 
         #Retorna el resultado a la salida 
         return self.cuenca.CellQmed[-1]
+
+    def Basin_LoadBasin(self, PathNC):
+		#Cargar la cuenca y sus variables base a WMF 
+		self.cuenca = wmf.SimuBasin(rute = PathNC)
+		#Cargar las variables de la cuenca a un diccionario.
+		g = netCDF4.Dataset(PathNC)
+		for k in g.variables.keys():
+			#Evalua si tiene la misma cantidad de celdas y puede ser un mapa
+			shape = g.variables[k].shape
+			MapaRaster = False
+			for s in shape:
+				if s == self.cuenca.ncells:
+					MapaRaster = True
+			#Actualiza el diccionario
+			self.DicBasinNc.update({k:
+				{'nombre':k,
+				'tipo':g.variables[k].dtype.name,
+				'shape':g.variables[k].shape,
+				'raster':MapaRaster,
+				'basica': True}})
+		g.close()
+
+	

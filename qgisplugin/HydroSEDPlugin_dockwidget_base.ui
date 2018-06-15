@@ -81,6 +81,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="ButtonLoadBasinProyect">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="whatsThis">
                <string>Carga el proyecto cuenca a WMF, de manera que puede ser usada para operar con ella.</string>
               </property>
@@ -3254,7 +3257,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
