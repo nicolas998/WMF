@@ -165,8 +165,8 @@ class controlHS:
 				{'nombre':k,
 				'tipo':g.variables[k].dtype.name,
 				'shape':g.variables[k].shape,
-				'raster':MapaRaster}})
-			print self.DicBasinNc[k]
+				'raster':MapaRaster,
+				'basica': True}})
 		g.close()
-		#print self.DicBasinNc.keys()
+
 	
