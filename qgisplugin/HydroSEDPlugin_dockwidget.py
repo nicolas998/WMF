@@ -152,11 +152,38 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.ButtonLoadBasinProyect.setEnabled(True)
         def clickEventBasin2WMF():
             '''Agrega el proyecto de cuenca a WMF'''
-            self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
+            Area = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
+            #Habilita los botones de visualizacion de red hidrica y divisoria 
+            self.Boton_verDivisoria.setEnabled(True)
+            self.Boton_verRedHidrica.setEnabled(True)
+            #Pone el area de la cuenca 
+            texto = '%.1f'%Area
+            self.LabelBasinArea.setText(texto)
+            
+        def clickEventBasinLoadDivisory():
+            '''Carga la divisoria de la cuenca cargada a WMF'''
+            OutPathDivisoria = '/tmp/HydroSED/CuencaCargada.shp'
+            self.HSutils.Basin_LoadBasinDivisory(OutPathDivisoria)
+            #Carga la divisoria
+            ret, layer = self.HSutils.cargar_mapa_vector(OutPathDivisoria, self.HSutils.TIPO_STYLE_POLIGONO, color = (255,0,0), width = 0.6)            
+            self.iface.mapCanvas().refresh() 
+            self.iface.legendInterface().refreshLayerSymbology(layer)      
+        def clickEventBasinLoadNetwork():
+            '''Carga la divisoria de la cuenca cargada a WMF'''
+            OutPathNetwork = '/tmp/HydroSED/RedCargada.shp'
+            self.HSutils.Basin_LoadBasinNetwork(OutPathNetwork)
+            #Carga la red 
+            ret, layer = self.HSutils.cargar_mapa_vector(OutPathNetwork, self.HSutils.TIPO_STYLE_POLILINEA, width = 0.4)
+            self.iface.mapCanvas().refresh() 
+            self.iface.legendInterface().refreshLayerSymbology(layer)   
         
         #Botones para variables de entrada 
         self.botonSelectorProyectBasin.clicked.connect(clickEventSelectorBasin)
         self.ButtonLoadBasinProyect.clicked.connect(clickEventBasin2WMF)
+        #Botones para visualizar polilineas y poligonos 
+        self.Boton_verDivisoria.clicked.connect(clickEventBasinLoadDivisory)
+        self.Boton_verRedHidrica.clicked.connect(clickEventBasinLoadNetwork)
+
         
     def setupHidro_Balance(self):
         

@@ -262,7 +262,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tabConfiguracion">
          <attribute name="icon">
@@ -1203,7 +1203,7 @@
                  <x>0</x>
                  <y>30</y>
                  <width>421</width>
-                 <height>367</height>
+                 <height>402</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayoutTrazadorCuencas_3">
@@ -1375,17 +1375,6 @@
                     </property>
                     <property name="checked">
                      <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="botonEjecutarTrazadorCuencas">
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="resources.qrc">
-                      <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                     </property>
                    </widget>
                   </item>
@@ -1567,6 +1556,54 @@
                     <property name="icon">
                      <iconset resource="resources.qrc">
                       <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaNCTrazadorCuencas_4">
+                  <item>
+                   <widget class="QLabel" name="labelOutputTrazadorCuencasNC_4">
+                    <property name="toolTip">
+                     <string>Nombre interno que identifica a la cuenca trazada (Cuenca)</string>
+                    </property>
+                    <property name="text">
+                     <string>Nombre: </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="NombreCuenca">
+                    <property name="text">
+                     <string>Cuenca</string>
+                    </property>
+                    <property name="readOnly">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_21">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="botonEjecutarTrazadorCuencas">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="resources.qrc">
+                      <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                     </property>
                    </widget>
                   </item>
