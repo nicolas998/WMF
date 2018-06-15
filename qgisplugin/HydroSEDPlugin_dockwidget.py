@@ -27,7 +27,7 @@ from PyQt4 import QtGui, uic
 from PyQt4.QtCore import pyqtSignal
 
 from qgis.gui import QgsMessageBar
-from PyQt4.QtGui import QFileDialog
+from PyQt4.QtGui import QFileDialog, QTableWidgetItem
 
 import os.path
 
@@ -56,6 +56,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.setupUi(self)
         self.setupUIInputsOutputs ()
         self.setupHidro_Balance()
+        self.setupTableEdicionAlmacenamientoParametrosWMFNC ()
         #self.setupUIButtonEvents ()
 
         if not (iface is None):
@@ -373,6 +374,76 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #self.botonEjecutarTrazadorCorrientes.clicked.connect(self.handleClickEventEjecutarTrazadorCorrientes)
         #self.botonEjecutarTrazadorCorrientes.clicked.connect (self.handleClickEventEjecutarTrazadorCorrientes)
         #self.botonEjecutarTrazadorCuencas.clicked.connect (self.handleClickEventEjecutarTrazadorCuencas)
+
+    def setupTableEdicionAlmacenamientoParametrosWMFNC (self):
+
+        def handleClickEventButton_Eliminar_Desde_WMF ():
+
+            selectedItems = self.Tabla_Prop_WMF.currentRow ()
+            self.Tabla_Prop_WMF.removeRow (selectedItems)
+
+        def handleClickEventButton_Eliminar_Desde_NC ():
+
+            selectedItems = self.Tabla_Prop_NC.currentRow ()
+            self.Tabla_Prop_NC.removeRow (selectedItems)
+
+        def handleClickEventButton_Actualizar_WMF_Desde_NC ():
+
+#            selectedItems = self.Tabla_Prop_NC.currentRow ()
+
+            rows = sorted (set (index.row () for index in self.Tabla_Prop_NC.selectedIndexes ()))
+            for row in rows:
+                print('Row %d is selected' % row)
+
+
+        listaHeaderTabla1    = ["Parametro", "Valor 1", "Valor 2"]
+        listaContenidoTabla1 = [["Ejemplo DEM"      , "/home/jctrujillo/Downloads/demfin.tif"   , "100"], 
+                                ["Ejemplo DIR"      , "/home/jctrujillo/Downloads/dir.tif"      , "200"], 
+                                ["Ejemplo Corriente", "/home/jctrujillo/Downloads/Corriente.shp", "300"], 
+                                ["Ejemplo Cuenca"   , "/home/jctrujillo/Downloads/Cuenca.shp"   , "400"], 
+                                ["Ejemplo Red 1"    , "/home/jctrujillo/Downloads/red1.shp"     , "500"], 
+                                ["Ejemplo Red 2"    , "/home/jctrujillo/Downloads/Red_2.shp"    , "600"]]
+
+        listaHeaderTabla2    = ["Parametro", "Valor 1", "Valor 2", "Valor 3", "Valor 4", "Valor 5", "Valor 6"]
+        listaContenidoTabla2 = [["Ejemplo DEM Edicion"      , "/home/jctrujillo/Downloads/demfin.tif"   , "100", "1000", "10000", "100000", "1000000"], 
+                                ["Ejemplo DIR Edicion"      , "/home/jctrujillo/Downloads/dir.tif"      , "200", "2000", "20000", "200000", "2000000"], 
+                                ["Ejemplo Corriente Edicion", "/home/jctrujillo/Downloads/Corriente.tif", "300", "3000", "30000", "300000", "3000000"], 
+                                ["Ejemplo Cuenca Edicion"   , "/home/jctrujillo/Downloads/Cuenca.tif"   , "400", "4000", "40000", "400000", "4000000"]]
+
+        self.Tabla_Prop_WMF.setRowCount (len (listaContenidoTabla1))
+        self.Tabla_Prop_WMF.setColumnCount (len (listaHeaderTabla1))
+
+        self.Tabla_Prop_NC.setRowCount (len (listaContenidoTabla2))
+        self.Tabla_Prop_NC.setColumnCount (len (listaHeaderTabla2))
+
+        for idxFila in xrange (len (listaContenidoTabla1)):
+
+            for idxColumna in xrange (len (listaHeaderTabla1)):
+
+                self.Tabla_Prop_WMF.setItem (idxFila, idxColumna, QTableWidgetItem (listaContenidoTabla1[idxFila][idxColumna]))
+
+        for idxFila in xrange (len (listaContenidoTabla2)):
+
+            for idxColumna in xrange (len (listaHeaderTabla2)):
+
+                self.Tabla_Prop_NC.setItem (idxFila, idxColumna, QTableWidgetItem (listaContenidoTabla2[idxFila][idxColumna]))
+
+        self.Tabla_Prop_WMF.setHorizontalHeaderLabels (listaHeaderTabla1)
+
+        self.Tabla_Prop_NC.setHorizontalHeaderLabels (listaHeaderTabla2)
+
+        self.Tabla_Prop_WMF.setSelectionMode (QtGui.QAbstractItemView.SingleSelection)
+        self.Tabla_Prop_WMF.setSelectionBehavior (QtGui.QAbstractItemView.SelectRows)
+
+        self.Tabla_Prop_NC.setSelectionMode (QtGui.QAbstractItemView.SingleSelection)
+        self.Tabla_Prop_NC.setSelectionBehavior (QtGui.QAbstractItemView.SelectRows)
+
+        self.Button_Eliminar_Desde_WMF.clicked.connect (handleClickEventButton_Eliminar_Desde_WMF)
+        self.Button_Eliminar_Desde_NC.clicked.connect (handleClickEventButton_Eliminar_Desde_NC)
+
+        self.Button_Actualizar_WMF_Desde_NC.clicked.connect (handleClickEventButton_Actualizar_WMF_Desde_NC)
+
+        print "a"
 
 
 
