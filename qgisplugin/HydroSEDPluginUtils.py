@@ -154,10 +154,18 @@ class controlHS:
 		#Cargar las variables de la cuenca a un diccionario.
 		g = netCDF4.Dataset(PathNC)
 		for k in g.variables.keys():
+			#Evalua si tiene la misma cantidad de celdas y puede ser un mapa
+			shape = g.variables[k].shape
+			MapaRaster = False
+			for s in shape:
+				if s == self.cuenca.ncells:
+					MapaRaster = True
+			#Actualiza el diccionario
 			self.DicBasinNc.update({k:
 				{'nombre':k,
 				'tipo':g.variables[k].dtype.name,
-				'shape':g.variables[k].shape}})
+				'shape':g.variables[k].shape,
+				'raster':MapaRaster}})
 		g.close()
 		print self.DicBasinNc.keys()
 	
