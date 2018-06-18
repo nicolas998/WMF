@@ -84,28 +84,29 @@ class controlHS:
         retornoCargaLayerMapaRaster = False
     
         pathMapaDEM = pathMapaDEM.strip ()
-    
+        EPSG_code = -999
         try:
     
-            self.DEM = wmf.read_map_raster (pathMapaDEM, isDEMorDIR = True, dxp = dxp, noDataP = -9999)
+            self.DEM, EPSG_code = wmf.read_map_raster (pathMapaDEM, isDEMorDIR = True, dxp = dxp, noDataP = -9999)
             retornoCargaLayerMapaRaster = True
     
         except:
     
             retornoCargaLayerMapaRaster = False
     
-        return retornoCargaLayerMapaRaster
+        return retornoCargaLayerMapaRaster, EPSG_code
     
     
     def cargar_mapa_dir_wmf (self,pathMapaDIR, dxp):
         retornoCargaLayerMapaRaster = False
         pathMapaDIR = pathMapaDIR.strip ()
+        EPSG_code = -999
         try:
-            self.DIR = wmf.read_map_raster (pathMapaDIR, isDEMorDIR = True, isDIR = True, dxp = dxp, noDataP = -9999)
+            self.DIR, EPSG_code = wmf.read_map_raster (pathMapaDIR, isDEMorDIR = True, isDIR = True, dxp = dxp, noDataP = -9999)
             retornoCargaLayerMapaRaster = True    
         except:
             self.DIR = 1
-        return retornoCargaLayerMapaRaster
+        return retornoCargaLayerMapaRaster, EPSG_code
     
     def trazador_corriente(self,x,y, path = None):
         #Traza la corriente en las coordenadas especificadas
@@ -149,24 +150,33 @@ class controlHS:
         return self.cuenca.CellQmed[-1]
 
     def Basin_LoadBasin(self, PathNC):
-		#Cargar la cuenca y sus variables base a WMF 
-		self.cuenca = wmf.SimuBasin(rute = PathNC)
-		#Cargar las variables de la cuenca a un diccionario.
-		g = netCDF4.Dataset(PathNC)
-		for k in g.variables.keys():
-			#Evalua si tiene la misma cantidad de celdas y puede ser un mapa
-			shape = g.variables[k].shape
-			MapaRaster = False
-			for s in shape:
-				if s == self.cuenca.ncells:
-					MapaRaster = True
-			#Actualiza el diccionario
-			self.DicBasinNc.update({k:
-				{'nombre':k,
-				'tipo':g.variables[k].dtype.name,
-				'shape':g.variables[k].shape,
-				'raster':MapaRaster,
-				'basica': True}})
-		g.close()
-
-	
+        #Cargar la cuenca y sus variables base a WMF 
+        self.cuenca = wmf.SimuBasin(rute = PathNC)
+        #Cargar las variables de la cuenca a un diccionario.
+        g = netCDF4.Dataset(PathNC)
+        for k in g.variables.keys():
+            #Evalua si tiene la misma cantidad de celdas y puede ser un mapa
+            shape = g.variables[k].shape
+            MapaRaster = False
+            for s in shape:
+                if s == self.cuenca.ncells:
+                    MapaRaster = True
+            #Actualiza el diccionario
+            self.DicBasinNc.update({k:
+                {'nombre':k,
+                'tipo':g.variables[k].dtype.name,
+                'shape':g.variables[k].shape,
+                'raster':MapaRaster,
+                'basica': True}})
+        g.close()
+        #Area de la cuenca y codigo EPSG  
+        return self.cuenca.ncells*wmf.cu.dxp**2/1e6, self.cuenca.epsg, wmf.models.dxp
+    
+    def Basin_LoadBasinDivisory(self, PathDivisory):
+        # Guarda los shapes de divisoria y de red hidrica.
+        self.cuenca.Save_Basin2Map(PathDivisory, wmf.cu.dxp)
+    
+    def Basin_LoadBasinNetwork(self, PathNetwork):
+        # Guarda los shapes de divisoria y de red hidrica.
+        self.cuenca.Save_Net2Map(PathNetwork, wmf.cu.dxp, self.cuenca.umbral)
+    
