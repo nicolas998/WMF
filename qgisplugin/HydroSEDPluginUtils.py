@@ -19,6 +19,7 @@ class controlHS:
         self.BasinsCount = 0
         self.StreamsCount = 0
         self.DicBasinNc = {}
+        self.DicBasinWMF = {}
 
 
     def cargar_mapa_raster (self,pathMapaRaster):
@@ -130,6 +131,15 @@ class controlHS:
             Rain = self.cuenca.Transform_Map2Basin(Rain, prop)
         #Realiza el balance 
         self.cuenca.GetQ_Balance(Rain, Tipo_ETR = PathETR)
+        #Actualiza el diccionario de WMF 
+        self.DicBasinWMF.update({'Caudal':
+            {'nombre':'Caudal',
+            'tipo':'float32',
+            'shape':self.cuenca.CellQmed.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Hidro',
+            'var': self.cuenca.CellQmed}})
         # Guarda el resultado 
         if len(PathQmed)>2:
             self.cuenca.Save_Net2Map(PathQmed, dxp, umbral, qmed = self.cuenca.CellQmed)
@@ -172,7 +182,7 @@ class controlHS:
         #Cargar la cuenca y sus variables base a WMF 
         self.cuenca = wmf.SimuBasin(rute = PathNC)
         #Area de la cuenca y codigo EPSG  
-        return self.cuenca.ncells*wmf.cu.dxp**2/1e6, self.cuenca.epsg, wmf.models.dxp
+        return self.cuenca.ncells*wmf.cu.dxp**2./1e6, self.cuenca.epsg, wmf.models.dxp
     
     def Basin_LoadBasinDivisory(self, PathDivisory):
         # Guarda los shapes de divisoria y de red hidrica.
@@ -195,3 +205,29 @@ class controlHS:
             EPSG = self.cuenca.epsg)
         return rutaSalida
         
+    def Basin_GeoGetHAND(self, umbral):
+        self.cuenca.GetGeo_HAND(umbral)
+        self.DicBasinWMF.update({'HAND':
+            {'nombre':'HAND',
+            'tipo':'float32',
+            'shape':self.cuenca.CellHAND.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geo',
+            'var': self.cuenca.CellHAND}})
+        self.DicBasinWMF.update({'HDND':
+            {'nombre':'HDND',
+            'tipo':'float32',
+            'shape':self.cuenca.CellHDND.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geo',
+            'var': self.cuenca.CellHDND}})
+        self.DicBasinWMF.update({'HAND_class':
+            {'nombre':'HAND_class',
+            'tipo':'float32',
+            'shape':self.cuenca.CellHAND_class.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geo',
+            'var': self.cuenca.CellHAND_class}})
