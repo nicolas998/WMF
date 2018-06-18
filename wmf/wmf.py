@@ -59,6 +59,8 @@ except:
     FlagBasinPolygon = False
 
 import random
+#Variable codigo EPSG
+Global_EPSG = -9999
 
 #-----------------------------------------------------------------------
 #Ploteo de variables
@@ -247,6 +249,9 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = F
 	'		de cuencas y tramos.\n' \
     #Abre el mapa
 	direction=gdal.Open(ruta_map)
+	#Proyecction
+	proj = osgeo.osr.SpatialReference(wkt=direction.GetProjection())
+	EPSG_code = proj.GetAttrValue('AUTHORITY',1)
 	#lee la informacion del mapa
 	ncols=direction.RasterXSize
 	nrows=direction.RasterYSize
@@ -275,21 +280,24 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = F
 		if dxp==None:
 			cu.dxp=30.0
 		else:
-			cu.dxp=dxp		
+			cu.dxp=dxp
+		#Guarda la variable para el proyecto
+		global Global_EPSG
+		Global_EPSG = EPSG_code
 		# si es un dir se fija si es de r.watershed 
 		if isDIR:
 			if DIRformat == 'r.watershed':
 				Mapa[Mapa<=0] = cu.nodata.astype(int)
 				Mapa = cu.dir_reclass_rwatershed(Mapa.T,cu.ncols,cu.nrows)
-				return Mapa
+				return Mapa, EPSG_code
 			if DIRformat == 'opentopo':
 				Mapa[Mapa<=0] = cu.nodata.astype(int)
 				Mapa = cu.dir_reclass_opentopo(Mapa.T,cu.ncols,cu.nrows)
-				return Mapa
+				return Mapa, EPSG_code
 		#retorna el mapa 
-		return Mapa.T
+		return Mapa.T,EPSG_code
 	else:
-		return Mapa.T,[ncols,nrows,xll,yll,dx,dy,noData]
+		return Mapa.T,[ncols,nrows,xll,yll,dx,dy,noData],EPSG_code
 
 def read_map_points(ruta_map, ListAtr = None):
 	'Funcion: read_map_points\n'\
@@ -2752,8 +2760,8 @@ class SimuBasin(Basin):
 		self.radarPos = []
 		self.radarMeanRain = []
 		self.radarCont = 1
-		#Si no hay ruta traza la cuenca
-		if rute is None:
+		#Si no hay ruta y el global del codigo EPSG existe, traza la cuenca
+		if rute is None and int(Global_EPSG) > 0:
 			#Si se entrega cauce corrige coordenadas
 			if stream is not None:
 				error=[]
@@ -2772,6 +2780,7 @@ class SimuBasin(Basin):
 			self.modelType=modelType
 			self.nodata=noData
 			self.umbral = umbral
+			self.epsg = Global_EPSG
 			#Traza la cuenca 
 			self.ncells = cu.basin_find(lat,lon,DIR,
 				cu.ncols,cu.nrows)
@@ -2890,6 +2899,7 @@ class SimuBasin(Basin):
 		self.umbral = gr.umbral
 		self.ncells = gr.ncells
 		self.nhills = gr.nhills
+		self.epsg = gr.epsg
 		models.dt = gr.dt
 		models.dxp = gr.dxp
 		models.retorno = gr.retorno
@@ -3931,7 +3941,8 @@ class SimuBasin(Basin):
                     'xll':cu.xll,
                     'yll':cu.yll,
                     'dx':cu.dx,
-                    'dy':cu.dy}
+                    'dy':cu.dy,
+                    'epsg': self.epsg}
 		if SimSlides:
 			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
 		#abre el archivo 
