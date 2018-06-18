@@ -84,28 +84,29 @@ class controlHS:
         retornoCargaLayerMapaRaster = False
     
         pathMapaDEM = pathMapaDEM.strip ()
-    
+        EPSG_code = -999
         try:
     
-            self.DEM = wmf.read_map_raster (pathMapaDEM, isDEMorDIR = True, dxp = dxp, noDataP = -9999)
+            self.DEM, EPSG_code = wmf.read_map_raster (pathMapaDEM, isDEMorDIR = True, dxp = dxp, noDataP = -9999)
             retornoCargaLayerMapaRaster = True
     
         except:
     
             retornoCargaLayerMapaRaster = False
     
-        return retornoCargaLayerMapaRaster
+        return retornoCargaLayerMapaRaster, EPSG_code
     
     
     def cargar_mapa_dir_wmf (self,pathMapaDIR, dxp):
         retornoCargaLayerMapaRaster = False
         pathMapaDIR = pathMapaDIR.strip ()
+        EPSG_code = -999
         try:
-            self.DIR = wmf.read_map_raster (pathMapaDIR, isDEMorDIR = True, isDIR = True, dxp = dxp, noDataP = -9999)
+            self.DIR, EPSG_code = wmf.read_map_raster (pathMapaDIR, isDEMorDIR = True, isDIR = True, dxp = dxp, noDataP = -9999)
             retornoCargaLayerMapaRaster = True    
         except:
             self.DIR = 1
-        return retornoCargaLayerMapaRaster
+        return retornoCargaLayerMapaRaster, EPSG_code
     
     def trazador_corriente(self,x,y, path = None):
         #Traza la corriente en las coordenadas especificadas
@@ -168,8 +169,8 @@ class controlHS:
                 'raster':MapaRaster,
                 'basica': True}})
         g.close()
-        #Area de la cuenca 
-        return self.cuenca.ncells*wmf.cu.dxp**2/1e6
+        #Area de la cuenca y codigo EPSG  
+        return self.cuenca.ncells*wmf.cu.dxp**2/1e6, self.cuenca.epsg, wmf.models.dxp
     
     def Basin_LoadBasinDivisory(self, PathDivisory):
         # Guarda los shapes de divisoria y de red hidrica.

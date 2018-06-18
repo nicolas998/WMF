@@ -152,13 +152,16 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.ButtonLoadBasinProyect.setEnabled(True)
         def clickEventBasin2WMF():
             '''Agrega el proyecto de cuenca a WMF'''
-            Area = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
+            Area, EPSG_code, dxp = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
             #Habilita los botones de visualizacion de red hidrica y divisoria 
             self.Boton_verDivisoria.setEnabled(True)
             self.Boton_verRedHidrica.setEnabled(True)
             #Pone el area de la cuenca 
             texto = '%.1f'%Area
             self.LabelBasinArea.setText(texto)
+            self.LineEditEPSG.setText(EPSG_code)
+            self.spinBox_dxPlano.setValue(dxp)
+            print dxp
             
         def clickEventBasinLoadDivisory():
             '''Carga la divisoria de la cuenca cargada a WMF'''
@@ -336,24 +339,22 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
 
         def clickEventCargarWMFMapaDEM ():
-
+            '''Carga el mapa dDM base para WMF'''
             pathMapaDEM = self.lineEditMapaDEM.text ().strip ()
             dxpMapaDEM  = self.spinBox_dxPlano.value()
-
-            flagCargaMapaDEM_WMF = self.HSutils.cargar_mapa_dem_wmf (pathMapaDEM, dxpMapaDEM)
-
+            flagCargaMapaDEM_WMF, self.EPSG = self.HSutils.cargar_mapa_dem_wmf (pathMapaDEM, dxpMapaDEM)
             if flagCargaMapaDEM_WMF:
-
                 self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa MDE al WMF de forma exitosa')
-
             else:
-
                 self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa MDE al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
-
+            #Pone el nombre del codigo EPSG en el dialogo.
+            self.LineEditEPSG.setText(self.EPSG)
+            
         def clickEventCargarWMFMapaDIR():
+            '''Carga el mapa DIR base para WMF'''
             pathMapaDIR = self.lineEditMapaDIR.text ().strip ()
             dxpMapaDIR  = self.spinBox_dxPlano.value ()
-            flagCargaMapaDIR_WMF = self.HSutils.cargar_mapa_dir_wmf (pathMapaDIR, dxpMapaDIR)
+            flagCargaMapaDIR_WMF, self.EPSG = self.HSutils.cargar_mapa_dir_wmf (pathMapaDIR, dxpMapaDIR)
             if flagCargaMapaDIR_WMF:
                 self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa DIR al WMF de forma exitosa')
             else:
@@ -421,7 +422,13 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.botonEjecutarTrazadorCuencas.clicked.connect(self.handleClickEventEjecutarTrazadorCuencas)
         #self.botonOutputCuencaShapefileTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaShapefileTrazadorCuencas)
         #self.botonOutputCuencaNCTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaNCTrazadorCuencas)
-
+        #self.spinBox_dxPlano.setValue(self.spinBox_dxPlano.valueFromText())
+        def set_dxplano():
+            self.spinBox_dxPlano.value()
+            print self.spinBox_dxPlano.value()
+        self.spinBox_dxPlano.valueChanged.connect(set_dxplano)
+        
+        
     #def setupUIButtonEvents (self):
 
         #self.botonEjecutarTrazadorCorrientes.clicked.connect(self.handleClickEventEjecutarTrazadorCorrientes)

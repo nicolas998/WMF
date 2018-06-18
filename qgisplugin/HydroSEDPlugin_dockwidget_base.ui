@@ -262,7 +262,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tabConfiguracion">
          <attribute name="icon">
@@ -611,7 +611,7 @@
                   <item>
                    <widget class="QLabel" name="label_set_dxp_2">
                     <property name="toolTip">
-                     <string>Valor en metros del tamano de una celda en el mapa.</string>
+                     <string>Código EPSG de los mapas DEM y DIR cargados para el proyecto.</string>
                     </property>
                     <property name="whatsThis">
                      <string>Valor en metros del tamano de una celda en el mapa.</string>
@@ -625,27 +625,28 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QDoubleSpinBox" name="spinBox_dxPlano_2">
-                    <property name="minimumSize">
+                   <spacer name="horizontalSpacer_22">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
                      <size>
-                      <width>100</width>
-                      <height>0</height>
+                      <width>40</width>
+                      <height>20</height>
                      </size>
                     </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="LineEditEPSG">
                     <property name="maximumSize">
                      <size>
-                      <width>150</width>
+                      <width>290</width>
                       <height>16777215</height>
                      </size>
                     </property>
-                    <property name="decimals">
-                     <number>0</number>
-                    </property>
-                    <property name="maximum">
-                     <double>10002.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>4326.000000000000000</double>
+                    <property name="readOnly">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
