@@ -308,7 +308,7 @@
              <x>0</x>
              <y>0</y>
              <width>443</width>
-             <height>768</height>
+             <height>918</height>
             </rect>
            </property>
            <property name="minimumSize">
@@ -329,7 +329,7 @@
               <property name="minimumSize">
                <size>
                 <width>300</width>
-                <height>750</height>
+                <height>900</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -344,13 +344,56 @@
                  <x>0</x>
                  <y>0</y>
                  <width>425</width>
-                 <height>711</height>
+                 <height>820</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayoutConfiguracionGeneral">
                 <property name="sizeConstraint">
                  <enum>QLayout::SetMinimumSize</enum>
                 </property>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_3">
+                  <item>
+                   <widget class="QLabel" name="label_set_dxp">
+                    <property name="toolTip">
+                     <string>Valor en metros del tamano de una celda en el mapa
+ (establecer antes de cargar MDE).</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>Valor en metros del tamano de una celda en el mapa.</string>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::LeftToRight</enum>
+                    </property>
+                    <property name="text">
+                     <string>Valor Dxp [m]</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="spinBox_dxPlano">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>150</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="maximum">
+                     <double>10000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>12.699999999999999</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
                 <item>
                  <widget class="QLabel" name="labelDEM">
                   <property name="toolTip">
@@ -565,48 +608,6 @@
                  <layout class="QHBoxLayout" name="horizontalLayout_5"/>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_3">
-                  <item>
-                   <widget class="QLabel" name="label_set_dxp">
-                    <property name="toolTip">
-                     <string>Valor en metros del tamano de una celda en el mapa.</string>
-                    </property>
-                    <property name="whatsThis">
-                     <string>Valor en metros del tamano de una celda en el mapa.</string>
-                    </property>
-                    <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
-                    </property>
-                    <property name="text">
-                     <string>Valor Dxp [m]</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QDoubleSpinBox" name="spinBox_dxPlano">
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>150</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="maximum">
-                     <double>10000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>12.699999999999999</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_35">
                   <item>
                    <widget class="QLabel" name="label_set_dxp_2">
@@ -656,6 +657,33 @@
                  <widget class="Line" name="line_13">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>80</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_30">
+                  <property name="font">
+                   <font>
+                    <pointsize>14</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Variables de la cuenca. </string>
                   </property>
                  </widget>
                 </item>
@@ -736,7 +764,17 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QTableWidget" name="Tabla_Prop_WMF"/>
+                 <widget class="QTableWidget" name="Tabla_Prop_WMF">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>200</height>
+                   </size>
+                  </property>
+                  <property name="sortingEnabled">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -815,7 +853,14 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QTableWidget" name="Tabla_Prop_NC"/>
+                 <widget class="QTableWidget" name="Tabla_Prop_NC">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>200</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_21">
