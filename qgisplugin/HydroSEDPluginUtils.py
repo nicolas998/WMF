@@ -150,6 +150,35 @@ class controlHS:
         return self.cuenca.CellQmed[-1]
 
     def Basin_LoadBasin(self, PathNC):
+        # Numero Total de Variables
+        self.NumDicBasinNcVariables = 0
+        # Numero Total de Variables Basicas
+        self.NumDicBasinNcVariablesBasicas = 0
+
+        #Cargar la cuenca y sus variables base a WMF 
+        self.cuenca = wmf.SimuBasin(rute = PathNC)
+        #Cargar las variables de la cuenca a un diccionario.
+        g = netCDF4.Dataset(PathNC)
+        for k in g.variables.keys():
+          #Evalua si tiene la misma cantidad de celdas y puede ser un mapa
+          shape = g.variables[k].shape
+          MapaRaster = False
+          for s in shape:
+            if s == self.cuenca.ncells:
+              MapaRaster = True
+          #Actualiza el diccionario
+          self.DicBasinNc.update({k:
+            {'nombre':k,
+            'tipo':g.variables[k].dtype.name,
+            'shape':g.variables[k].shape,
+            'raster':MapaRaster,
+            'basica': True}})
+
+             self.NumDicBasinNcVariables = self.NumDicBasinNcVariables + 1
+             self.NumDicBasinNcVariablesBasicas = self.NumDicBasinNcVariablesBasicas + 1
+
+        g.close()
+
         #Cargar la cuenca y sus variables base a WMF 
         self.cuenca = wmf.SimuBasin(rute = PathNC)
         #Cargar las variables de la cuenca a un diccionario.
@@ -180,3 +209,4 @@ class controlHS:
         # Guarda los shapes de divisoria y de red hidrica.
         self.cuenca.Save_Net2Map(PathNetwork, wmf.cu.dxp, self.cuenca.umbral)
     
+
