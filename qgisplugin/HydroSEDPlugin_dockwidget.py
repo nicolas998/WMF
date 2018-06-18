@@ -56,7 +56,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.setupUi(self)
         self.setupUIInputsOutputs ()
         self.setupHidro_Balance()
-        self.setupTableEdicionAlmacenamientoParametrosWMFNC ()
         self.setupBasinManager()
         #self.setupUIButtonEvents ()
 
@@ -153,6 +152,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventBasin2WMF():
             '''Agrega el proyecto de cuenca a WMF'''
             self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
+            self.setupTableEdicionAlmacenamientoParametrosWMFNC ()
         
         #Botones para variables de entrada 
         self.botonSelectorProyectBasin.clicked.connect(clickEventSelectorBasin)
@@ -421,57 +421,38 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             for row in rows:
                 print('Row %d is selected' % row)
 
+        print self.HSutils.DicBasinNc
+        print self.HSutils.NumDicBasinNcVariables
 
-        listaHeaderTabla1    = ["Parametro", "Valor 1", "Valor 2"]
-        listaContenidoTabla1 = [["Ejemplo DEM"      , "/home/jctrujillo/Downloads/demfin.tif"   , "100"], 
-                                ["Ejemplo DIR"      , "/home/jctrujillo/Downloads/dir.tif"      , "200"], 
-                                ["Ejemplo Corriente", "/home/jctrujillo/Downloads/Corriente.shp", "300"], 
-                                ["Ejemplo Cuenca"   , "/home/jctrujillo/Downloads/Cuenca.shp"   , "400"], 
-                                ["Ejemplo Red 1"    , "/home/jctrujillo/Downloads/red1.shp"     , "500"], 
-                                ["Ejemplo Red 2"    , "/home/jctrujillo/Downloads/Red_2.shp"    , "600"]]
+        listaHeaderTabla_NC     = ["Nombre", "Tipo", "Shape"]
+        listaHeaderTabla_WMF     = ["Nombre", "Tipo", "Shape"]
 
-        listaHeaderTabla2    = ["Parametro", "Valor 1", "Valor 2", "Valor 3", "Valor 4", "Valor 5", "Valor 6"]
-        listaContenidoTabla2 = [["Ejemplo DEM Edicion"      , "/home/jctrujillo/Downloads/demfin.tif"   , "100", "1000", "10000", "100000", "1000000"], 
-                                ["Ejemplo DIR Edicion"      , "/home/jctrujillo/Downloads/dir.tif"      , "200", "2000", "20000", "200000", "2000000"], 
-                                ["Ejemplo Corriente Edicion", "/home/jctrujillo/Downloads/Corriente.tif", "300", "3000", "30000", "300000", "3000000"], 
-                                ["Ejemplo Cuenca Edicion"   , "/home/jctrujillo/Downloads/Cuenca.tif"   , "400", "4000", "40000", "400000", "4000000"]]
+        self.Tabla_Prop_NC.setRowCount (self.HSutils.NumDicBasinNcVariables)
+        self.Tabla_Prop_NC.setColumnCount (len (listaHeaderTabla_NC))
+        self.Tabla_Prop_NC.setHorizontalHeaderLabels (listaHeaderTabla_NC)
 
-        self.Tabla_Prop_WMF.setRowCount (len (listaContenidoTabla1))
-        self.Tabla_Prop_WMF.setColumnCount (len (listaHeaderTabla1))
+        self.Tabla_Prop_WMF.setRowCount (self.HSutils.NumDicBasinNcVariablesBasicas)
+        self.Tabla_Prop_WMF.setColumnCount (len (listaHeaderTabla_WMF))
+        self.Tabla_Prop_WMF.setHorizontalHeaderLabels (listaHeaderTabla_WMF)
 
-        self.Tabla_Prop_NC.setRowCount (len (listaContenidoTabla2))
-        self.Tabla_Prop_NC.setColumnCount (len (listaHeaderTabla2))
+        idxFila_NC = 0
+        idxFila_WMF = 0
 
-        for idxFila in xrange (len (listaContenidoTabla1)):
+        for keyParam in self.HSutils.DicBasinNc:
 
-            for idxColumna in xrange (len (listaHeaderTabla1)):
+            self.Tabla_Prop_NC.setItem (idxFila_NC, 0, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["nombre"]))
+            self.Tabla_Prop_NC.setItem (idxFila_NC, 1, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["tipo"]))
+            self.Tabla_Prop_NC.setItem (idxFila_NC, 2, QTableWidgetItem (str (self.HSutils.DicBasinNc[keyParam]["shape"])))
 
-                self.Tabla_Prop_WMF.setItem (idxFila, idxColumna, QTableWidgetItem (listaContenidoTabla1[idxFila][idxColumna]))
+            idxFila_NC = idxFila_NC + 1
 
-        for idxFila in xrange (len (listaContenidoTabla2)):
+            if self.HSutils.DicBasinNc[keyParam]["basica"]:
 
-            for idxColumna in xrange (len (listaHeaderTabla2)):
+                self.Tabla_Prop_WMF.setItem (idxFila_WMF, 0, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["nombre"]))
+                self.Tabla_Prop_WMF.setItem (idxFila_WMF, 1, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["tipo"]))
+                self.Tabla_Prop_WMF.setItem (idxFila_WMF, 2, QTableWidgetItem (str (self.HSutils.DicBasinNc[keyParam]["shape"])))
 
-                self.Tabla_Prop_NC.setItem (idxFila, idxColumna, QTableWidgetItem (listaContenidoTabla2[idxFila][idxColumna]))
-
-        self.Tabla_Prop_WMF.setHorizontalHeaderLabels (listaHeaderTabla1)
-
-        self.Tabla_Prop_NC.setHorizontalHeaderLabels (listaHeaderTabla2)
-
-        self.Tabla_Prop_WMF.setSelectionMode (QtGui.QAbstractItemView.SingleSelection)
-        self.Tabla_Prop_WMF.setSelectionBehavior (QtGui.QAbstractItemView.SelectRows)
-
-        self.Tabla_Prop_NC.setSelectionMode (QtGui.QAbstractItemView.SingleSelection)
-        self.Tabla_Prop_NC.setSelectionBehavior (QtGui.QAbstractItemView.SelectRows)
-
-        self.Button_Eliminar_Desde_WMF.clicked.connect (handleClickEventButton_Eliminar_Desde_WMF)
-        self.Button_Eliminar_Desde_NC.clicked.connect (handleClickEventButton_Eliminar_Desde_NC)
-
-        self.Button_Actualizar_WMF_Desde_NC.clicked.connect (handleClickEventButton_Actualizar_WMF_Desde_NC)
-
-        print "a"
-
-
+                idxFila_WMF = idxFila_WMF + 1
 
 
 

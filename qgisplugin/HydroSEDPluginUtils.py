@@ -149,6 +149,11 @@ class controlHS:
         return self.cuenca.CellQmed[-1]
 
     def Basin_LoadBasin(self, PathNC):
+                # Numero Total de Variables
+                self.NumDicBasinNcVariables = 0
+                # Numero Total de Variables Basicas
+                self.NumDicBasinNcVariablesBasicas = 0
+
 		#Cargar la cuenca y sus variables base a WMF 
 		self.cuenca = wmf.SimuBasin(rute = PathNC)
 		#Cargar las variables de la cuenca a un diccionario.
@@ -167,6 +172,10 @@ class controlHS:
 				'shape':g.variables[k].shape,
 				'raster':MapaRaster,
 				'basica': True}})
+
+                        self.NumDicBasinNcVariables = self.NumDicBasinNcVariables + 1
+                        self.NumDicBasinNcVariablesBasicas = self.NumDicBasinNcVariablesBasicas + 1
+
 		g.close()
 
 	
