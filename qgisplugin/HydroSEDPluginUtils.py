@@ -122,7 +122,7 @@ class controlHS:
         if len(PathNC)>2:
             self.cuenca.Save_SimuBasin(PathNC)
         
-    def hidologia_balance(self, dxp, umbral, PathRain, PathETR, PathQmed, PathETROUT, PathRunoff):
+    def hidologia_balance(self, dxp, umbral, PathRain, PathETR, PathQmed):
         #Se fija si la lluvia es un path o un valor 
         try:
             Rain = float(PathRain)
@@ -140,15 +140,26 @@ class controlHS:
             'basica': False,
             'categoria': 'Hidro',
             'var': self.cuenca.CellQmed}})
+        self.DicBasinWMF.update({'ETR':
+            {'nombre':'ETR',
+            'tipo':'float32',
+            'shape':self.cuenca.CellETR.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Hidro',
+            'var': self.cuenca.CellETR}})
+        Runoff = Rain - self.cuenca.CellETR
+        self.DicBasinWMF.update({'Runoff':
+            {'nombre':'Runoff',
+            'tipo':'float32',
+            'shape':self.cuenca.CellETR.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Hidro',
+            'var': Runoff}})
         # Guarda el resultado 
         if len(PathQmed)>2:
             self.cuenca.Save_Net2Map(PathQmed, dxp, umbral, qmed = self.cuenca.CellQmed)
-        if len(PathETROUT)>2:
-            self.cuenca.Transform_Basin2Map(self.cuenca.CellETR, PathETROUT)
-        if len(PathRunoff)>2:
-            Runoff = Rain - self.cuenca.CellETR
-            self.cuenca.Transform_Basin2Map(Runoff, PathRunoff)
-                
         #Retorna el resultado a la salida 
         return self.cuenca.CellQmed[-1]
 

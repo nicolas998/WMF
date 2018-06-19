@@ -262,7 +262,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="tabConfiguracion">
          <attribute name="icon">
@@ -1815,13 +1815,13 @@
                  <x>0</x>
                  <y>0</y>
                  <width>431</width>
-                 <height>290</height>
+                 <height>231</height>
                 </rect>
                </property>
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>290</height>
+                 <height>200</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -2113,167 +2113,6 @@
                    </layout>
                   </item>
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_19">
-                    <item>
-                     <widget class="QLabel" name="label_18">
-                      <property name="font">
-                       <font>
-                        <pointsize>11</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="toolTip">
-                       <string>El valor de la escorrentía como un mapa Raster [mm/año]</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>El valor de la escorrentía como un mapa Raster</string>
-                      </property>
-                      <property name="text">
-                       <string>Escorrentía</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_8">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>10</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="PathOutHydro_Runoff">
-                      <property name="whatsThis">
-                       <string>Ruta de guardado</string>
-                      </property>
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroSaveRunoff">
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroViewRunoff">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>40</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Visualizar raster con la escorrentia calculada.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Visualizar raster con la escorrentia calculada.</string>
-                      </property>
-                      <property name="text">
-                       <string>Ver</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_20">
-                    <item>
-                     <widget class="QLabel" name="label_19">
-                      <property name="toolTip">
-                       <string>El valor de la evaporacion estimada como un Raster [mm/año]</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>El valor de la evaporacion estimada como un Raster</string>
-                      </property>
-                      <property name="text">
-                       <string>ETR</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_9">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>10</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="PathOutHydro_ETR">
-                      <property name="whatsThis">
-                       <string>Ruta de guardado</string>
-                      </property>
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroSaveETR">
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroViewETR">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>40</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Visualizar raster con la ETR calculada.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Visualizar raster con la ETR calculada.</string>
-                      </property>
-                      <property name="text">
-                       <string>Ver</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <widget class="Line" name="line_4">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_22">
                     <item>
                      <widget class="QLabel" name="label_20">
@@ -2337,7 +2176,7 @@
                <property name="geometry">
                 <rect>
                  <x>0</x>
-                 <y>290</y>
+                 <y>230</y>
                  <width>431</width>
                  <height>351</height>
                 </rect>

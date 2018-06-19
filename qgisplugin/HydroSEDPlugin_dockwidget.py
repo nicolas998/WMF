@@ -240,12 +240,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventViewRainfall():
             pathMapaRain = self.PathInHydro_Rain.text().strip()
             flagCargaMapaRain = self.HSutils.cargar_mapa_raster(pathMapaRain)
-        def clickEventViewETR():
-            pathMapaETR = self.PathOutHydro_ETR.text().strip()
-            flagCargaMapaRain = self.HSutils.cargar_mapa_raster(pathMapaETR)
-        def clickEventViewRunoff():
-            pathMapaRain = self.PathOutHydro_Runoff.text().strip()
-            flagCargaMapaRain = self.HSutils.cargar_mapa_raster(pathMapaRain)
         def clickEventViewQmedNetwork():
             OutPathRed = self.PathOutHydro_Qmed.text().strip()
             ret, layer = self.HSutils.cargar_mapa_vector(OutPathRed, self.HSutils.TIPO_STYLE_POLILINEA, width = 0.4)
@@ -256,12 +250,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventOutQmed():
             '''Habilita la ruta para decir donde se va a guardar la variable de caudal medio'''
             setupLineEditButtonSaveFileDialog(self.PathOutHydro_Qmed, QFileDialog)
-        def clickEventOutRunoff():
-            '''Habilita la ruta para decir donde se va a guardar la variable de caudal medio'''
-            setupLineEditButtonSaveFileDialog(self.PathOutHydro_Runoff, QFileDialog)
-        def clickEventOutETR():
-            '''Habilita la ruta para decir donde se va a guardar la variable de caudal medio'''
-            setupLineEditButtonSaveFileDialog(self.PathOutHydro_ETR, QFileDialog)
             
         #Funciones para el calculo de balance    
         def hadleClickEventEjecutarBalance():
@@ -278,21 +266,15 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.spinBoxUmbralRed.value(), 
                 self.PathInHydro_Rain.text(), 
                 TipoETR, 
-                self.PathOutHydro_Qmed.text(),
-                self.PathOutHydro_ETR.text(),
-                self.PathOutHydro_Runoff.text())
+                self.PathOutHydro_Qmed.text())
             #Pone el valor de cadual medio en el cuadro
             textoCaudal = '%.3f' % QSalida
             self.ShowResultQmed.setText(textoCaudal)
             #Mensaje de exito 
-            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Se ha realizado el balance de caudal con exito.')
+            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Balance realizado: variables Caudal, ETR y Runoff cargadas a Tabla de propiedades WMF.')
             #Habilita botones de visualizacion de variables 
             if len(self.PathOutHydro_Qmed.text()) > 2:
                 self.Button_HidroViewQmed.setEnabled(True)
-            if len(self.PathOutHydro_Runoff.text()) > 2:
-                self.Button_HidroViewRunoff.setEnabled(True)
-            if len(self.PathOutHydro_ETR.text()) > 2:
-                self.Button_HidroViewETR.setEnabled(True)
             #Actualiza la tabla de variables temporales 
             self.UpdateTablePropWMF()
             
@@ -300,13 +282,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Boton_HidroLoadRain.clicked.connect(clickEventSelectorRaster)
         #Botones para variables de salida
         self.Button_HidroSaveQmed.clicked.connect(clickEventOutQmed)
-        self.Button_HidroSaveRunoff.clicked.connect(clickEventOutRunoff)
-        self.Button_HidroSaveETR.clicked.connect(clickEventOutETR)
         #Botones para visualizar variables 
         self.Button_HidroViewRain.clicked.connect(clickEventViewRainfall)
         self.Button_HidroViewQmed.clicked.connect(clickEventViewQmedNetwork)
-        self.Button_HidroViewETR.clicked.connect(clickEventViewETR)
-        self.Button_HidroViewRunoff.clicked.connect(clickEventViewRunoff)
         #Botones para ejecutar
         self.Butto_Ejec_HidroBalance.clicked.connect(hadleClickEventEjecutarBalance)
         
