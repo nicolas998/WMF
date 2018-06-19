@@ -89,7 +89,7 @@ class controlHS:
             retornoCargaLayerMapaRaster = True
         except:
             retornoCargaLayerMapaRaster = False
-        return retornoCargaLayerMapaRaster, EPSG_code
+        return retornoCargaLayerMapaRaster, EPSG_code, wmf.cu.nodata
     
     def cargar_mapa_dir_wmf (self,pathMapaDIR, dxp):
         retornoCargaLayerMapaRaster = False
@@ -182,7 +182,7 @@ class controlHS:
         #Cargar la cuenca y sus variables base a WMF 
         self.cuenca = wmf.SimuBasin(rute = PathNC)
         #Area de la cuenca y codigo EPSG  
-        return self.cuenca.ncells*wmf.cu.dxp**2./1e6, self.cuenca.epsg, wmf.models.dxp
+        return self.cuenca.ncells*wmf.cu.dxp**2./1e6, self.cuenca.epsg, wmf.models.dxp, wmf.cu.nodata
     
     def Basin_LoadBasinDivisory(self, PathDivisory):
         # Guarda los shapes de divisoria y de red hidrica.

@@ -344,7 +344,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>425</width>
-                 <height>820</height>
+                 <height>855</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayoutConfiguracionGeneral">
@@ -640,6 +640,52 @@
                   </item>
                   <item>
                    <widget class="QLineEdit" name="LineEditEPSG">
+                    <property name="maximumSize">
+                     <size>
+                      <width>290</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="readOnly">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_39">
+                  <item>
+                   <widget class="QLabel" name="label_set_dxp_3">
+                    <property name="toolTip">
+                     <string>Código EPSG de los mapas DEM y DIR cargados para el proyecto.</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>Valor en metros del tamano de una celda en el mapa.</string>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::LeftToRight</enum>
+                    </property>
+                    <property name="text">
+                     <string>Valor datos nulos</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_23">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="LineEditNoData">
                     <property name="maximumSize">
                      <size>
                       <width>290</width>
