@@ -58,7 +58,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.setupHidro_Balance()
         self.setupBasinManager()
         #self.setupUIButtonEvents ()
-
+        
+        self.TablaFila_WMF = 0
+        
         if not (iface is None):
             self.iface = iface
         self.HSutils = HSutils.controlHS()
@@ -67,6 +69,15 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.GetCoordsCuenca = HSCoord.PointTool(self.iface.mapCanvas(), self.spinBoxLatitudTrazadorCuencas,
             self.spinBoxLongitudTrazadorCuencas)
         #self.iface.mapCanvas().setMapTool(GetCoords)
+
+    def UpdateTablePropWMF(self):
+        '''Actualiza la lista de las variables en la tabla de WMF'''
+        for keyParam in self.HSutils.DicBasinWMF:
+            self.Tabla_Prop_WMF.setItem (self.TablaFila_WMF, 0, QTableWidgetItem (self.HSutils.DicBasinWMF[keyParam]["nombre"]))
+            self.Tabla_Prop_WMF.setItem (self.TablaFila_WMF, 1, QTableWidgetItem (self.HSutils.DicBasinWMF[keyParam]["tipo"]))
+            self.Tabla_Prop_WMF.setItem (self.TablaFila_WMF, 2, QTableWidgetItem (str (self.HSutils.DicBasinWMF[keyParam]["shape"])))
+            self.Tabla_Prop_WMF.setItem (self.TablaFila_WMF, 3, QTableWidgetItem (self.HSutils.DicBasinWMF[keyParam]["categoria"]))
+            self.TablaFila_WMF = self.TablaFila_WMF + 1
 
     def closeEvent(self, event):
 
@@ -116,7 +127,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.HSutils.trazador_cuenca(x,y, self.spinBox_dxPlano.value(),
             self.spinBoxUmbralRed.value(),OutPathDivisoria, OutPathRed, OutPathNC, self.lineEditMapaDEM,
             self.lineEditMapaDIR)
-
+        #Establece a la cuenca trazada como el proyecto actual.
+        if len(OutPathNC)>2:
+            self.lineEditRutaCuenca.setText(OutPathNC)
+            self.ButtonLoadBasinProyect.setEnabled(True)
+                
         #Carga la divisoria
         ret, layer = self.HSutils.cargar_mapa_vector(OutPathDivisoria, self.HSutils.TIPO_STYLE_POLIGONO, color = (255,0,0), width = 0.6)            
         self.iface.mapCanvas().refresh() 
@@ -154,14 +169,16 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
             self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
             self.setupTableEdicionAlmacenamientoParametrosWMFNC ()
-            Area, EPSG_code, dxp = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
+            Area, self.EPSG, dxp, self.noData = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
             #Habilita los botones de visualizacion de red hidrica y divisoria 
             self.Boton_verDivisoria.setEnabled(True)
             self.Boton_verRedHidrica.setEnabled(True)
             #Pone el area de la cuenca 
             texto = '%.1f'%Area
             self.LabelBasinArea.setText(texto)
-            self.LineEditEPSG.setText(EPSG_code)
+            self.LineEditEPSG.setText(self.EPSG)
+            texto = '%.1f' % self.noData
+            self.LineEditNoData.setText(texto)
             self.spinBox_dxPlano.setValue(dxp)
             print dxp
             
@@ -189,7 +206,17 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Boton_verDivisoria.clicked.connect(clickEventBasinLoadDivisory)
         self.Boton_verRedHidrica.clicked.connect(clickEventBasinLoadNetwork)
 
+    def setupGeomorfologia(self):
         
+        def clickEventGeoHAND():
+            self.HSutils.Basin_GeoGetHAND(1000)
+            #Actualiza la tabla de variables temporales 
+            self.UpdateTablePropWMF()
+        
+        #Botones de ejecucion
+        self.BotonGeoHAND.clicked.connect(clickEventGeoHAND)
+    
+    
     def setupHidro_Balance(self):
         
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
@@ -213,12 +240,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventViewRainfall():
             pathMapaRain = self.PathInHydro_Rain.text().strip()
             flagCargaMapaRain = self.HSutils.cargar_mapa_raster(pathMapaRain)
-        def clickEventViewETR():
-            pathMapaETR = self.PathOutHydro_ETR.text().strip()
-            flagCargaMapaRain = self.HSutils.cargar_mapa_raster(pathMapaETR)
-        def clickEventViewRunoff():
-            pathMapaRain = self.PathOutHydro_Runoff.text().strip()
-            flagCargaMapaRain = self.HSutils.cargar_mapa_raster(pathMapaRain)
         def clickEventViewQmedNetwork():
             OutPathRed = self.PathOutHydro_Qmed.text().strip()
             ret, layer = self.HSutils.cargar_mapa_vector(OutPathRed, self.HSutils.TIPO_STYLE_POLILINEA, width = 0.4)
@@ -229,12 +250,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventOutQmed():
             '''Habilita la ruta para decir donde se va a guardar la variable de caudal medio'''
             setupLineEditButtonSaveFileDialog(self.PathOutHydro_Qmed, QFileDialog)
-        def clickEventOutRunoff():
-            '''Habilita la ruta para decir donde se va a guardar la variable de caudal medio'''
-            setupLineEditButtonSaveFileDialog(self.PathOutHydro_Runoff, QFileDialog)
-        def clickEventOutETR():
-            '''Habilita la ruta para decir donde se va a guardar la variable de caudal medio'''
-            setupLineEditButtonSaveFileDialog(self.PathOutHydro_ETR, QFileDialog)
             
         #Funciones para el calculo de balance    
         def hadleClickEventEjecutarBalance():
@@ -251,38 +266,87 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.spinBoxUmbralRed.value(), 
                 self.PathInHydro_Rain.text(), 
                 TipoETR, 
-                self.PathOutHydro_Qmed.text(),
-                self.PathOutHydro_ETR.text(),
-                self.PathOutHydro_Runoff.text())
+                self.PathOutHydro_Qmed.text())
             #Pone el valor de cadual medio en el cuadro
             textoCaudal = '%.3f' % QSalida
             self.ShowResultQmed.setText(textoCaudal)
             #Mensaje de exito 
-            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Se ha realizado el balance de caudal con exito.')
+            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Balance realizado: variables Caudal, ETR y Runoff cargadas a Tabla de propiedades WMF.')
             #Habilita botones de visualizacion de variables 
             if len(self.PathOutHydro_Qmed.text()) > 2:
                 self.Button_HidroViewQmed.setEnabled(True)
-            if len(self.PathOutHydro_Runoff.text()) > 2:
-                self.Button_HidroViewRunoff.setEnabled(True)
-            if len(self.PathOutHydro_ETR.text()) > 2:
-                self.Button_HidroViewETR.setEnabled(True)
-        
+            #Actualiza la tabla de variables temporales 
+            self.UpdateTablePropWMF()
+            
         #Botones para variables de entrada 
         self.Boton_HidroLoadRain.clicked.connect(clickEventSelectorRaster)
         #Botones para variables de salida
         self.Button_HidroSaveQmed.clicked.connect(clickEventOutQmed)
-        self.Button_HidroSaveRunoff.clicked.connect(clickEventOutRunoff)
-        self.Button_HidroSaveETR.clicked.connect(clickEventOutETR)
         #Botones para visualizar variables 
         self.Button_HidroViewRain.clicked.connect(clickEventViewRainfall)
         self.Button_HidroViewQmed.clicked.connect(clickEventViewQmedNetwork)
-        self.Button_HidroViewETR.clicked.connect(clickEventViewETR)
-        self.Button_HidroViewRunoff.clicked.connect(clickEventViewRunoff)
         #Botones para ejecutar
         self.Butto_Ejec_HidroBalance.clicked.connect(hadleClickEventEjecutarBalance)
         
-    def setupUIInputsOutputs (self):
+    def setupTableEdicionAlmacenamientoParametrosWMFNC (self):
 
+        print self.HSutils.DicBasinNc
+        print self.HSutils.NumDicBasinNcVariables
+        
+        listaHeaderTabla_NC     = ["Nombre", "Tipo", "Forma", "Categoria"]
+        listaHeaderTabla_WMF     = ["Nombre", "Tipo", "Forma", "Categoria"]
+
+        self.Tabla_Prop_NC.setRowCount (self.HSutils.NumDicBasinNcVariables)
+        self.Tabla_Prop_NC.setColumnCount (len (listaHeaderTabla_NC))
+        self.Tabla_Prop_NC.setHorizontalHeaderLabels (listaHeaderTabla_NC)
+
+        self.Tabla_Prop_WMF.setRowCount (self.HSutils.NumDicBasinNcVariablesBasicas)
+        self.Tabla_Prop_WMF.setColumnCount (len (listaHeaderTabla_WMF))
+        self.Tabla_Prop_WMF.setHorizontalHeaderLabels (listaHeaderTabla_WMF)
+
+        idxFila_NC = 0
+        idxFila_WMF = 0
+        
+        #Carga las variables a la tabla 
+        for keyParam in self.HSutils.DicBasinNc:
+            self.Tabla_Prop_NC.setItem (idxFila_NC, 0, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["nombre"]))
+            self.Tabla_Prop_NC.setItem (idxFila_NC, 1, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["tipo"]))
+            self.Tabla_Prop_NC.setItem (idxFila_NC, 2, QTableWidgetItem (str (self.HSutils.DicBasinNc[keyParam]["shape"])))
+            self.Tabla_Prop_NC.setItem (idxFila_NC, 3, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["categoria"]))
+            idxFila_NC = idxFila_NC + 1
+        
+    def setupUIInputsOutputs (self):
+        
+        def handleClickEventButton_Eliminar_Desde_WMF ():
+            selectedItems = self.Tabla_Prop_WMF.currentRow ()
+            self.Tabla_Prop_WMF.removeRow (selectedItems)
+            
+
+        def handleClickEventButton_Eliminar_Desde_NC ():
+            selectedItems = self.Tabla_Prop_NC.currentRow ()
+            self.Tabla_Prop_NC.removeRow (selectedItems)
+
+        def handleClickEventButton_Actualizar_WMF_Desde_NC ():
+            rows = sorted (set (index.row () for index in self.Tabla_Prop_NC.selectedIndexes ()))
+            for row in rows:
+                print('Row %d is selected' % row)
+    
+        def handleClickEventButton_Ver_Desde_NC():
+            '''Visualiza una de las variables de la cuenca en Qgis'''
+            #Variables de entrada
+            selectedItems = self.Tabla_Prop_NC.currentRow ()
+            VarName = self.Tabla_Prop_NC.item(selectedItems,0).text()
+            PathNC = self.lineEditRutaCuenca.text()
+            #Ejecucion de la transformacion de la variable cuenca a raster
+            pathMapa = self.HSutils.Basin_LoadBasicVariable(PathNC, VarName)
+            print pathMapa
+            #Visualiza 
+            flagCargaMapa = self.HSutils.cargar_mapa_raster(pathMapa)
+            if flagCargaMapa:
+                self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'Se cargó la variable de forma exitosa')
+            else:
+                self.iface.messageBar().pushError (u'Hydro-SIG:', u'No fue posible cargar la variable')
+                
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
@@ -312,45 +376,34 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             setupLineEditButtonOpenRasterFileDialog (self.lineEditMapaDIR, QFileDialog)
 
         def clickEventVisualizarMapaDEM ():
-
             pathMapaDEM = self.lineEditMapaDEM.text ().strip ()
-
             flagCargaMapaDEM = self.HSutils.cargar_mapa_raster (pathMapaDEM)
-
             if flagCargaMapaDEM:
-
                 self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa MDE de forma exitosa')
-
             else:
-
                 self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa MDE. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
-
+            
         def clickEventVisualizarMapaDIR ():
-
             pathMapaDIR = self.lineEditMapaDIR.text ().strip ()
-
             flagCargaMapaDIR = self.HSutils.cargar_mapa_raster (pathMapaDIR)
-
             if flagCargaMapaDIR:
-
                 self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa DIR de forma exitosa')
-
             else:
-
                 self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa DIR. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
-
 
         def clickEventCargarWMFMapaDEM ():
             '''Carga el mapa dDM base para WMF'''
             pathMapaDEM = self.lineEditMapaDEM.text ().strip ()
             dxpMapaDEM  = self.spinBox_dxPlano.value()
-            flagCargaMapaDEM_WMF, self.EPSG = self.HSutils.cargar_mapa_dem_wmf (pathMapaDEM, dxpMapaDEM)
+            flagCargaMapaDEM_WMF, self.EPSG, self.noData = self.HSutils.cargar_mapa_dem_wmf (pathMapaDEM, dxpMapaDEM)
             if flagCargaMapaDEM_WMF:
                 self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa MDE al WMF de forma exitosa')
             else:
                 self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa MDE al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
             #Pone el nombre del codigo EPSG en el dialogo.
             self.LineEditEPSG.setText(self.EPSG)
+            t = '%.1f' % self.noData
+            self.LineEditNoData.setText(t)
             
         def clickEventCargarWMFMapaDIR():
             '''Carga el mapa DIR base para WMF'''
@@ -426,69 +479,30 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #self.botonOutputCuencaNCTrazadorCuencas.clicked.connect (clickEventSelectorOutputCuencaNCTrazadorCuencas)
         #self.spinBox_dxPlano.setValue(self.spinBox_dxPlano.valueFromText())
         def set_dxplano():
+            #self.spinBox_dxPlano.valueFromText()
             self.spinBox_dxPlano.value()
             print self.spinBox_dxPlano.value()
         self.spinBox_dxPlano.valueChanged.connect(set_dxplano)
         
+        #Botones de borrado de variables 
+        self.Tabla_Prop_WMF.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.Tabla_Prop_WMF.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.Button_Eliminar_Desde_WMF.clicked.connect(handleClickEventButton_Eliminar_Desde_WMF)
+        self.Tabla_Prop_NC.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.Tabla_Prop_NC.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
+        self.Button_Eliminar_Desde_NC.clicked.connect(handleClickEventButton_Eliminar_Desde_NC)
+        #Botones de visualizacion de variables 
+        self.Tabla_Prop_NC.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.Tabla_Prop_NC.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
+        self.Button_Visualizar_Desde_NC.clicked.connect(handleClickEventButton_Ver_Desde_NC)
+       
+ 
+
+        #for keyParam in self.HSutils.DicBasinWMF:
+            #self.Tabla_Prop_WMF.setItem (idxFila_WMF, 0, QTableWidgetItem (self.HSutils.DicBasinWMF[keyParam]["nombre"]))
+            #self.Tabla_Prop_WMF.setItem (idxFila_WMF, 1, QTableWidgetItem (self.HSutils.DicBasinWMF[keyParam]["tipo"]))
+            #self.Tabla_Prop_WMF.setItem (idxFila_WMF, 2, QTableWidgetItem (str (self.HSutils.DicBasinWMF[keyParam]["shape"])))
+            #self.Tabla_Prop_WMF.setItem (idxFila_WMF, 3, QTableWidgetItem (self.HSutils.DicBasinWMF[keyParam]["categoria"]))
+            #idxFila_WMF = idxFila_WMF + 1
+
         
-    #def setupUIButtonEvents (self):
-
-        #self.botonEjecutarTrazadorCorrientes.clicked.connect(self.handleClickEventEjecutarTrazadorCorrientes)
-        #self.botonEjecutarTrazadorCorrientes.clicked.connect (self.handleClickEventEjecutarTrazadorCorrientes)
-        #self.botonEjecutarTrazadorCuencas.clicked.connect (self.handleClickEventEjecutarTrazadorCuencas)
-
-    def setupTableEdicionAlmacenamientoParametrosWMFNC (self):
-
-        def handleClickEventButton_Eliminar_Desde_WMF ():
-
-            selectedItems = self.Tabla_Prop_WMF.currentRow ()
-            self.Tabla_Prop_WMF.removeRow (selectedItems)
-
-        def handleClickEventButton_Eliminar_Desde_NC ():
-
-            selectedItems = self.Tabla_Prop_NC.currentRow ()
-            self.Tabla_Prop_NC.removeRow (selectedItems)
-
-        def handleClickEventButton_Actualizar_WMF_Desde_NC ():
-
-#            selectedItems = self.Tabla_Prop_NC.currentRow ()
-
-            rows = sorted (set (index.row () for index in self.Tabla_Prop_NC.selectedIndexes ()))
-            for row in rows:
-                print('Row %d is selected' % row)
-
-        print self.HSutils.DicBasinNc
-        print self.HSutils.NumDicBasinNcVariables
-
-        listaHeaderTabla_NC     = ["Nombre", "Tipo", "Shape"]
-        listaHeaderTabla_WMF     = ["Nombre", "Tipo", "Shape"]
-
-        self.Tabla_Prop_NC.setRowCount (self.HSutils.NumDicBasinNcVariables)
-        self.Tabla_Prop_NC.setColumnCount (len (listaHeaderTabla_NC))
-        self.Tabla_Prop_NC.setHorizontalHeaderLabels (listaHeaderTabla_NC)
-
-        self.Tabla_Prop_WMF.setRowCount (self.HSutils.NumDicBasinNcVariablesBasicas)
-        self.Tabla_Prop_WMF.setColumnCount (len (listaHeaderTabla_WMF))
-        self.Tabla_Prop_WMF.setHorizontalHeaderLabels (listaHeaderTabla_WMF)
-
-        idxFila_NC = 0
-        idxFila_WMF = 0
-
-        for keyParam in self.HSutils.DicBasinNc:
-
-            self.Tabla_Prop_NC.setItem (idxFila_NC, 0, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["nombre"]))
-            self.Tabla_Prop_NC.setItem (idxFila_NC, 1, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["tipo"]))
-            self.Tabla_Prop_NC.setItem (idxFila_NC, 2, QTableWidgetItem (str (self.HSutils.DicBasinNc[keyParam]["shape"])))
-
-            idxFila_NC = idxFila_NC + 1
-
-            if self.HSutils.DicBasinNc[keyParam]["basica"]:
-
-                self.Tabla_Prop_WMF.setItem (idxFila_WMF, 0, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["nombre"]))
-                self.Tabla_Prop_WMF.setItem (idxFila_WMF, 1, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["tipo"]))
-                self.Tabla_Prop_WMF.setItem (idxFila_WMF, 2, QTableWidgetItem (str (self.HSutils.DicBasinNc[keyParam]["shape"])))
-
-                idxFila_WMF = idxFila_WMF + 1
-
-
-

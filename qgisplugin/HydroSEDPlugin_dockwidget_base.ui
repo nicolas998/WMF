@@ -262,7 +262,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="tabConfiguracion">
          <attribute name="icon">
@@ -308,7 +308,7 @@
              <x>0</x>
              <y>0</y>
              <width>443</width>
-             <height>768</height>
+             <height>918</height>
             </rect>
            </property>
            <property name="minimumSize">
@@ -329,7 +329,7 @@
               <property name="minimumSize">
                <size>
                 <width>300</width>
-                <height>750</height>
+                <height>900</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -344,13 +344,56 @@
                  <x>0</x>
                  <y>0</y>
                  <width>425</width>
-                 <height>711</height>
+                 <height>855</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayoutConfiguracionGeneral">
                 <property name="sizeConstraint">
                  <enum>QLayout::SetMinimumSize</enum>
                 </property>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_3">
+                  <item>
+                   <widget class="QLabel" name="label_set_dxp">
+                    <property name="toolTip">
+                     <string>Valor en metros del tamano de una celda en el mapa
+ (establecer antes de cargar MDE).</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>Valor en metros del tamano de una celda en el mapa.</string>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::LeftToRight</enum>
+                    </property>
+                    <property name="text">
+                     <string>Valor Dxp [m]</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="spinBox_dxPlano">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>150</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="maximum">
+                     <double>10000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>12.699999999999999</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
                 <item>
                  <widget class="QLabel" name="labelDEM">
                   <property name="toolTip">
@@ -565,48 +608,6 @@
                  <layout class="QHBoxLayout" name="horizontalLayout_5"/>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_3">
-                  <item>
-                   <widget class="QLabel" name="label_set_dxp">
-                    <property name="toolTip">
-                     <string>Valor en metros del tamano de una celda en el mapa.</string>
-                    </property>
-                    <property name="whatsThis">
-                     <string>Valor en metros del tamano de una celda en el mapa.</string>
-                    </property>
-                    <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
-                    </property>
-                    <property name="text">
-                     <string>Valor Dxp [m]</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QDoubleSpinBox" name="spinBox_dxPlano">
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>150</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="maximum">
-                     <double>10000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>12.699999999999999</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_35">
                   <item>
                    <widget class="QLabel" name="label_set_dxp_2">
@@ -653,9 +654,82 @@
                  </layout>
                 </item>
                 <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_39">
+                  <item>
+                   <widget class="QLabel" name="label_set_dxp_3">
+                    <property name="toolTip">
+                     <string>Código EPSG de los mapas DEM y DIR cargados para el proyecto.</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>Valor en metros del tamano de una celda en el mapa.</string>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::LeftToRight</enum>
+                    </property>
+                    <property name="text">
+                     <string>Valor datos nulos</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_23">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="LineEditNoData">
+                    <property name="maximumSize">
+                     <size>
+                      <width>290</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="readOnly">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
                  <widget class="Line" name="line_13">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>80</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_30">
+                  <property name="font">
+                   <font>
+                    <pointsize>14</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Variables de la cuenca. </string>
                   </property>
                  </widget>
                 </item>
@@ -736,7 +810,17 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QTableWidget" name="Tabla_Prop_WMF"/>
+                 <widget class="QTableWidget" name="Tabla_Prop_WMF">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>200</height>
+                   </size>
+                  </property>
+                  <property name="sortingEnabled">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -815,7 +899,17 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QTableWidget" name="Tabla_Prop_NC"/>
+                 <widget class="QTableWidget" name="Tabla_Prop_NC">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>200</height>
+                   </size>
+                  </property>
+                  <property name="sortingEnabled">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_21">
@@ -1721,13 +1815,13 @@
                  <x>0</x>
                  <y>0</y>
                  <width>431</width>
-                 <height>290</height>
+                 <height>231</height>
                 </rect>
                </property>
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>290</height>
+                 <height>200</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -2019,167 +2113,6 @@
                    </layout>
                   </item>
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_19">
-                    <item>
-                     <widget class="QLabel" name="label_18">
-                      <property name="font">
-                       <font>
-                        <pointsize>11</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="toolTip">
-                       <string>El valor de la escorrentía como un mapa Raster [mm/año]</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>El valor de la escorrentía como un mapa Raster</string>
-                      </property>
-                      <property name="text">
-                       <string>Escorrentía</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_8">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>10</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="PathOutHydro_Runoff">
-                      <property name="whatsThis">
-                       <string>Ruta de guardado</string>
-                      </property>
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroSaveRunoff">
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroViewRunoff">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>40</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Visualizar raster con la escorrentia calculada.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Visualizar raster con la escorrentia calculada.</string>
-                      </property>
-                      <property name="text">
-                       <string>Ver</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_20">
-                    <item>
-                     <widget class="QLabel" name="label_19">
-                      <property name="toolTip">
-                       <string>El valor de la evaporacion estimada como un Raster [mm/año]</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>El valor de la evaporacion estimada como un Raster</string>
-                      </property>
-                      <property name="text">
-                       <string>ETR</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_9">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>10</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="PathOutHydro_ETR">
-                      <property name="whatsThis">
-                       <string>Ruta de guardado</string>
-                      </property>
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroSaveETR">
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroViewETR">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>40</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Visualizar raster con la ETR calculada.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Visualizar raster con la ETR calculada.</string>
-                      </property>
-                      <property name="text">
-                       <string>Ver</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <widget class="Line" name="line_4">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_22">
                     <item>
                      <widget class="QLabel" name="label_20">
@@ -2243,7 +2176,7 @@
                <property name="geometry">
                 <rect>
                  <x>0</x>
-                 <y>290</y>
+                 <y>230</y>
                  <width>431</width>
                  <height>351</height>
                 </rect>
@@ -2878,7 +2811,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>430</width>
+            <width>461</width>
             <height>730</height>
            </rect>
           </property>
@@ -2908,7 +2841,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>412</width>
+             <width>443</width>
              <height>1918</height>
             </rect>
            </property>
@@ -2944,14 +2877,14 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>395</width>
-                 <height>200</height>
+                 <width>431</width>
+                 <height>100</height>
                 </rect>
                </property>
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>200</height>
+                 <height>100</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -2959,6 +2892,9 @@
                  <width>16777215</width>
                  <height>16777215</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Obtiene celda a celda: pendiente, acumulado, long de celdas y elevacion.</string>
                </property>
                <property name="title">
                 <string>Parametros basicos geomorfologicos</string>
@@ -2970,90 +2906,496 @@
                 <item>
                  <layout class="QVBoxLayout" name="verticalLayout">
                   <item>
+                   <widget class="QLabel" name="label_31">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>10</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Datos de entrada:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_6">
                     <item>
                      <widget class="QLabel" name="label_11">
                       <property name="text">
-                       <string>Lluvia</string>
+                       <string>Umbral</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="PathInRain">
+                     <widget class="QLineEdit" name="UmbralGeoBasics">
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton">
-                      <property name="text">
-                       <string/>
+                     <widget class="QPushButton" name="BotonGeoBasics">
+                      <property name="toolTip">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
                       </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      <property name="whatsThis">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string>Ejecutar</string>
                       </property>
                      </widget>
                     </item>
                    </layout>
                   </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QgsCollapsibleGroupBox" name="Collapsed_GeoBasics_2">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>100</y>
+                 <width>431</width>
+                 <height>100</height>
+                </rect>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Obtiene la elevación relativa al canal mas cercano HAND y la distancia horizontal HDND</string>
+               </property>
+               <property name="title">
+                <string>Elevación relativa al canal más cercano (HAND)</string>
+               </property>
+               <property name="collapsed">
+                <bool>false</bool>
+               </property>
+               <layout class="QVBoxLayout" name="Balance_4">
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_14">
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_8">
-                    <item>
-                     <widget class="QLabel" name="label_12">
-                      <property name="text">
-                       <string>ETR   </string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="PathInETR">
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="pushButton_4">
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
+                   <widget class="QLabel" name="label_32">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>10</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Datos de entrada:</string>
+                    </property>
+                   </widget>
                   </item>
                   <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_7">
                     <item>
-                     <widget class="QRadioButton" name="radioButton_3">
+                     <widget class="QLabel" name="label_12">
                       <property name="text">
-                       <string>Choudry</string>
+                       <string>Umbral</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QRadioButton" name="radioButton_2">
-                      <property name="text">
-                       <string>Cenicafe</string>
+                     <widget class="QLineEdit" name="UmbralGeoHAND">
+                      <property name="readOnly">
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QRadioButton" name="radioButton">
+                     <widget class="QPushButton" name="BotonGeoHAND">
+                      <property name="toolTip">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
                       <property name="text">
-                       <string>Turc</string>
+                       <string>Ejecutar</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QgsCollapsibleGroupBox" name="Collapsed_GeoBasics_3">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>200</y>
+                 <width>431</width>
+                 <height>100</height>
+                </rect>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Obtiene el orden de orton de cada una de las laderas de la cuenca.</string>
+               </property>
+               <property name="title">
+                <string>Orden de laderas y canales.</string>
+               </property>
+               <property name="collapsed">
+                <bool>false</bool>
+               </property>
+               <layout class="QVBoxLayout" name="Balance_5">
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_15">
+                  <item>
+                   <widget class="QLabel" name="label_33">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>10</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Datos de entrada:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_8">
+                    <item>
+                     <widget class="QLabel" name="label_34">
+                      <property name="text">
+                       <string>Umbral</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QRadioButton" name="radioButton_4">
+                     <widget class="QLineEdit" name="UmbralGeoHorton">
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="BotonGeoHorton">
+                      <property name="toolTip">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
                       <property name="text">
-                       <string>Map</string>
+                       <string>Ejecutar</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QgsCollapsibleGroupBox" name="Collapsed_GeoBasics_4">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>500</y>
+                 <width>431</width>
+                 <height>100</height>
+                </rect>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Acumula una variable ingresada como un mapa raster.</string>
+               </property>
+               <property name="title">
+                <string>Acumular variable en la cuenca.</string>
+               </property>
+               <property name="collapsed">
+                <bool>false</bool>
+               </property>
+               <layout class="QVBoxLayout" name="Balance_6">
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_16">
+                  <item>
+                   <widget class="QLabel" name="label_35">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>10</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Datos de entrada:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_36">
+                    <item>
+                     <widget class="QLabel" name="label_36">
+                      <property name="text">
+                       <string>Variable</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="LineEditGeoVar2Acum">
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="BotonGeoVar2Acum">
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="BotonGeoAcumVar">
+                      <property name="toolTip">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string>Ejecutar</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QgsCollapsibleGroupBox" name="Collapsed_GeoBasics_5">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>300</y>
+                 <width>431</width>
+                 <height>100</height>
+                </rect>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Obtiene la distancia a la salida de cada una de las celdas de la cuenca.</string>
+               </property>
+               <property name="title">
+                <string>Distancia a la salida [km]</string>
+               </property>
+               <property name="collapsed">
+                <bool>false</bool>
+               </property>
+               <layout class="QVBoxLayout" name="Balance_7">
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_17">
+                  <item>
+                   <widget class="QLabel" name="label_37">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>10</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Datos de entrada:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_37">
+                    <item>
+                     <widget class="QLabel" name="label_38">
+                      <property name="text">
+                       <string>Umbral</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="UmbralGeoDist2Out">
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="BotonGeoDist2Out">
+                      <property name="toolTip">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string>Ejecutar</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QgsCollapsibleGroupBox" name="Collapsed_GeoBasics_6">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>400</y>
+                 <width>431</width>
+                 <height>100</height>
+                </rect>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Obtiene el índice topográfico de cada celda (Beven, 1979).</string>
+               </property>
+               <property name="title">
+                <string>Índice topográfico (IT).</string>
+               </property>
+               <property name="collapsed">
+                <bool>false</bool>
+               </property>
+               <layout class="QVBoxLayout" name="Balance_8">
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_18">
+                  <item>
+                   <widget class="QLabel" name="label_39">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>10</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Datos de entrada:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_38">
+                    <item>
+                     <widget class="QLabel" name="label_40">
+                      <property name="text">
+                       <string>Umbral</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="UmbralGeoIT">
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="BotonGeoIT">
+                      <property name="toolTip">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string>Ejecutar</string>
                       </property>
                      </widget>
                     </item>
