@@ -2861,11 +2861,11 @@ class SimuBasin(Basin):
 			self.isSetGeo = False
 		# si hay tura lee todo lo de la cuenca
 		elif rute is not None:
-			self.__Load_SimuBasin2(rute, SimSlides)
+			self.__Load_SimuBasin(rute, SimSlides)
 		# Obtiene la envolvente de la cuenca 
 		self.__GetBasinPolygon__()
 
-	def __Load_SimuBasin2(self,ruta, sim_slides = False):
+	def __Load_SimuBasin(self,ruta, sim_slides = False):
 		'Descripcion: Lee una cuenca posteriormente guardada\n'\
 		'   La cuenca debio ser guardada con SimuBasin.save_SimuBasin\n'\
 		'\n'\
@@ -2962,106 +2962,6 @@ class SimuBasin(Basin):
 			models.sl_frictionangle = np.ones((1,N)) * GrupoSlides.variables['friction_angle'][:]
 			models.sl_radslope = np.ones((1,N)) * GrupoSlides.variables['rad_slope'][:]
 			models.sl_zs = np.ones((1,N)) * GrupoSlides.variables['z_soil'][:]
-		#Cierra el archivo 
-		gr.close()
-		#Determina que por defecto debe estar set la geomorfologia
-		self.isSetGeo = True
-
-
-	def __Load_SimuBasin(self,ruta, sim_slides = False):
-		'Descripcion: Lee una cuenca posteriormente guardada\n'\
-		'   La cuenca debio ser guardada con SimuBasin.save_SimuBasin\n'\
-		'\n'\
-		'Parametros\n'\
-		'----------\n'\
-		'self : Inicia las variables vacias.\n'\
-		'ruta : ruta donde se encuentra ubicada la cuenca guardada\n'\
-		'Opcionales\n'\
-		'----------\n'\
-		'sim_slides : (False, True) Carga variables de modelos de deslizamientos previmaente guardadas.\n'\
-		'sim_sed : (False, True) Carga variables de modelo de sedimentos previamente guardadas\n'\
-		'Retornos\n'\
-		'----------\n'\
-		'self : La cuenca con sus parametros ya cargada.\n'\
-		#Abre el archivo binario de la cuenca 
-		self.rutaNC = ruta
-		gr = netcdf.Dataset(ruta,'a')
-		#obtiene las prop de la cuenca
-		self.name = gr.nombre
-		self.modelType = gr.modelType.encode()
-		self.nodata = gr.noData
-		self.umbral = gr.umbral
-		self.ncells = gr.ncells
-		self.nhills = gr.nhills
-		self.epsg = gr.epsg
-		models.dt = gr.dt
-		models.dxp = gr.dxp
-		models.retorno = gr.retorno
-		try:
-			models.storage_constant = gr.storageConst
-		except:
-			models.storage_constant = 0.0
-		#Si carga deslizamientos 
-		if sim_slides:
-			models.sim_slides = 1
-			models.sl_fs = gr.sl_fs
-			models.gullienogullie = gr.sl_gullie
-			models.sl_gammaw = gr.sl_gammaw
-		#Nueva metodologia de geoespacial de la cuenca 
-		cu.ncols = gr.ncols
-		cu.nrows = gr.nrows
-		cu.xll = gr.xll
-		cu.yll = gr.yll
-		cu.dx = gr.dx
-		cu.dy = gr.dy
-		cu.dxp = gr.dxp
-		cu.nodata = gr.noData
-		#de acuerdo al tipo de modeloe stablece numero de elem
-		if self.modelType[0] is 'c':
-			N = self.ncells
-		elif self.modelType[0] is 'h':
-			N = self.nhills
-		#Obtiene las variables vectoriales 
-		self.structure = gr.variables['structure'][:]
-		self.hills = gr.variables['hills'][:]
-		self.hills_own = gr.variables['hills_own'][:]
-		self.DEMvec = gr.variables['DEM'][:]
-		self.DIRvec = gr.variables['DIR'][:]
-		self.DEM = self.Transform_Basin2Map(self.DEMvec)
-		self.DIR = self.Transform_Basin2Map(self.DIRvec)
-		#obtiene las propieades del modelo 
-		models.h_coef = np.ones((4,N)) * gr.variables['h_coef'][:]
-		models.v_coef = np.ones((4,N)) * gr.variables['v_coef'][:]
-		models.h_exp = np.ones((4,N)) * gr.variables['h_exp'][:]
-		models.v_exp = np.ones((4,N)) * gr.variables['v_exp'][:]
-		models.max_capilar = np.ones((1,N)) * gr.variables['h1_max'][:]
-		models.max_gravita = np.ones((1,N)) * gr.variables['h3_max'][:]
-		#Variable de drena de acuerdo al tipo de modelo 
-		if self.modelType[0] is 'c':
-			models.drena = np.ones((3,N)) *gr.variables['drena'][:]
-		elif self.modelType[0] is 'h':
-			models.drena = np.ones((1,N)) * gr.variables['drena'][:]
-		models.unit_type = np.ones((1,N)) * gr.variables['unit_type'][:]
-		models.hill_long = np.ones((1,N)) * gr.variables['hill_long'][:]
-		models.hill_slope = np.ones((1,N)) * gr.variables['hill_slope'][:]
-		models.stream_long = np.ones((1,N)) * gr.variables['stream_long'][:]
-		models.stream_slope = np.ones((1,N)) * gr.variables['stream_slope'][:]
-		models.stream_width = np.ones((1,N)) * gr.variables['stream_width'][:]
-		models.elem_area = np.ones((1,N)) * gr.variables['elem_area'][:]
-		models.speed_type = np.ones((3)) * gr.variables['speed_type'][:]
-		models.storage = np.ones((5,N)) * gr.variables['storage'][:]
-		
-		#propiedades de puntos de control
-		models.control = np.ones((1,N)) * gr.variables['control'][:]
-		models.control_h = np.ones((1,N)) * gr.variables['control_h'][:]
-		
-		#Propiedades de deslizamientos 
-		if sim_slides:
-			models.sl_gammas = np.ones((1,N)) * gr.variables['gamma_soil'][:]
-			models.sl_cohesion = np.ones((1,N)) * gr.variables['cohesion'][:]
-			models.sl_frictionangle = np.ones((1,N)) * gr.variables['friction_angle'][:]
-			models.sl_radslope = np.ones((1,N)) * gr.variables['rad_slope'][:]
-			models.sl_zs = np.ones((1,N)) * gr.variables['z_soil'][:]
 		#Cierra el archivo 
 		gr.close()
 		#Determina que por defecto debe estar set la geomorfologia
@@ -3986,7 +3886,7 @@ class SimuBasin(Basin):
 	#------------------------------------------------------
 	# Guardado y Cargado de modelos de cuencas preparados 
 	#------------------------------------------------------ 
-	def Save_SimuBasin2(self,ruta,SimSlides = False,
+	def Save_SimuBasin(self,ruta,SimSlides = False,
 		ExtraVar = None):
 		'Descripcion: guarda una cuenca previamente ejecutada\n'\
 		'\n'\
@@ -4111,138 +4011,6 @@ class SimuBasin(Basin):
 			GammaSoil[:] = models.sl_gammas
 			ZSoil[:] = models.sl_zs
 			RadSlope[:] = models.sl_radslope
-		#Introduce variables extras en caso de que el usuario las incluyera
-		if type(ExtraVar) is dict:
-			for k in ExtraVar.keys():
-				Var = gr.createVariable(k,ExtraVar[k]['type'],('ncell',),zlib=True)
-				Var[:] = ExtraVar[k]['Data']
-		#asigna las prop a la cuenca 
-		gr.setncatts(Dict)
-		#Cierra el archivo 
-		gr.close()
-		#Sale del programa
-		return 
-		
-	def Save_SimuBasin(self,ruta,SimSlides = False,
-		ExtraVar = None):
-		'Descripcion: guarda una cuenca previamente ejecutada\n'\
-		'\n'\
-		'Parametros\n'\
-		'----------\n'\
-		'ruta : Ruta donde la cuenca sera guardada.\n'\
-		'ruta_dem : direccion donde se aloja el DEM (se recomienda absoluta).\n'\
-		'ruta_dir : direccion donde se aloja el DIR (se recomienda absoluta).\n'\
-		'SimSlides: indica a la funcion si va a guardar o no informacion para la simulacion.\n'\
-		'   de deslizamientos.\n'\
-		'ExtraVar: Variables extras de simulacion deben ir en un diccionario.\n'\
-		'   Forma del diccionario Dict = {"varName": {"Data": vector[ncells], "type": "tipo"}}.\n'\
-		'   Los tipos de variables son: flotante: "f4", entero "i4".\n'\
-		'\n'\
-		'Retornos\n'\
-		'----------\n'\
-		'self : Con las variables iniciadas.\n'\
-		#Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto
-		if self.isSetGeo is False:
-			self.set_Geomorphology()
-			print 'Aviso: SE ha estimado la geomorfologia con los umbrales por defecto umbral = [30, 500]'
-		#Guarda la cuenca
-		if self.modelType[0] is 'c':
-			N = self.ncells
-		elif self.modelType[0] is 'h':
-			N = self.nhills
-		Dict = {'nombre':self.name,
-					'modelType':self.modelType,'noData':cu.nodata,'umbral':self.umbral,
-					'ncells':self.ncells,'nhills':self.nhills,
-					'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno,
-					'storageConst' :models.storage_constant,
-					'ncols':cu.ncols,
-					'nrows':cu.nrows,
-					'xll':cu.xll,
-					'yll':cu.yll,
-					'dx':cu.dx,
-					'dy':cu.dy,
-					'epsg': self.epsg}
-		if SimSlides:
-			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
-		#abre el archivo 
-		gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
-		#Variables del DEM y del DIR
-				#DEMdim = gr.createDimension('ncols',DEM
-				#Establece tamano de las variables 
-		DimNcell = gr.createDimension('ncell',self.ncells)
-		DimNhill = gr.createDimension('nhills',self.nhills)
-		DimNelem = gr.createDimension('Nelem',N)
-		DimCol3 = gr.createDimension('col3',3)
-		DimCol2 = gr.createDimension('col2',2)
-		DimCol4 = gr.createDimension('col4',4)
-		DimCol5 = gr.createDimension('col5',5)
-		#Crea variables
-		VarDEM = gr.createVariable('DEM','f4',('ncell',),zlib = True)
-		VarDIR = gr.createVariable('DIR','i4',('ncell',),zlib = True)
-		VarStruc = gr.createVariable('structure','i4',('col3','ncell'),zlib=True)
-		VarHills = gr.createVariable('hills','i4',('col2','nhills'),zlib=True)
-		VarHills_own = gr.createVariable('hills_own','i4',('ncell',),zlib=True)
-		VarH_coef = gr.createVariable('h_coef','f4',('col4','Nelem'),zlib=True)
-		VarV_coef = gr.createVariable('v_coef','f4',('col4','Nelem'),zlib=True)
-		VarH_exp = gr.createVariable('h_exp','f4',('col4','Nelem'),zlib=True)
-		VarV_exp = gr.createVariable('v_exp','f4',('col4','Nelem'),zlib=True)
-		Var_H1max = gr.createVariable('h1_max','f4',('Nelem',),zlib = True)
-		Var_H3max = gr.createVariable('h3_max','f4',('Nelem',),zlib = True)
-		Control = gr.createVariable('control','i4',('Nelem',),zlib = True)
-		ControlH = gr.createVariable('control_h','i4',('Nelem',),zlib = True)
-		if self.modelType[0] is 'c':
-			drena = gr.createVariable('drena','i4',('col3','Nelem'),zlib = True)
-		elif self.modelType[0] is 'h':
-			drena = gr.createVariable('drena','i4',('Nelem'),zlib = True)
-		unitType = gr.createVariable('unit_type','i4',('Nelem',),zlib = True)
-		hill_long = gr.createVariable('hill_long','f4',('Nelem',),zlib = True)
-		hill_slope = gr.createVariable('hill_slope','f4',('Nelem',),zlib = True)
-		stream_long = gr.createVariable('stream_long','f4',('Nelem',),zlib = True)
-		stream_slope = gr.createVariable('stream_slope','f4',('Nelem',),zlib = True)
-		stream_width = gr.createVariable('stream_width','f4',('Nelem',),zlib = True)
-		elem_area = gr.createVariable('elem_area','f4',('Nelem',),zlib = True)
-		speed_type = gr.createVariable('speed_type','i4',('col3',),zlib = True)
-		storage = gr.createVariable('storage','i4',('col5','Nelem'),zlib = True)
-		#Variables de deslizamientos 
-		if SimSlides:
-			frictionAngle = gr.createVariable('friction_angle','f4',('Nelem',),zlib = True)
-			Cohesion = gr.createVariable('cohesion','f4',('Nelem',),zlib = True)
-			GammaSoil = gr.createVariable('gamma_soil','f4',('Nelem',),zlib = True)
-			ZSoil = gr.createVariable('z_soil','f4',('Nelem',),zlib = True)
-			RadSlope = gr.createVariable('rad_slope','f4',('Nelem',),zlib = True)
-		#Asigna valores a las variables
-		VarDEM[:] = self.DEMvec
-		VarDIR[:] = self.DIRvec
-		VarStruc[:] = self.structure
-		VarHills[:] = self.hills
-		VarHills_own[:] = self.hills_own
-		VarH_coef[:] = models.h_coef
-		VarV_coef[:] = models.v_coef
-		VarH_exp[:] = models.h_exp
-		VarV_exp[:] = models.v_exp
-		Var_H1max[:] = models.max_capilar
-		Var_H3max[:] = models.max_gravita
-		Control[:] = models.control
-		ControlH[:] = models.control_h
-		drena[:] = models.drena
-		unitType[:] = models.unit_type
-		hill_long[:] = models.hill_long
-		hill_slope[:] = models.hill_slope
-		stream_long[:] = models.stream_long
-		stream_slope[:] = models.stream_slope
-		stream_width[:] = models.stream_width
-		elem_area[:] = models.elem_area
-		speed_type[:] = models.speed_type
-		storage[:] = models.storage
-		
-		#Asigna valores de deslizamientos 
-		if SimSlides:
-			frictionAngle[:] = models.sl_frictionangle
-			Cohesion[:] = models.sl_cohesion
-			GammaSoil[:] = models.sl_gammas
-			ZSoil[:] = models.sl_zs
-			RadSlope[:] = models.sl_radslope
-		
 		#Introduce variables extras en caso de que el usuario las incluyera
 		if type(ExtraVar) is dict:
 			for k in ExtraVar.keys():
