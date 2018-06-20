@@ -728,14 +728,15 @@ def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
 
 #Funciones de ejecucion en paralelo del modelo
 def __multiprocess_Warper__(Lista):
-	Res = Lista[4].run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
+	Res = Lista[4].run_shia(Lista[0],Lista[1],Lista[2],Lista[3],ruta_conv=Lista[5],
+                                ruta_stra=Lista[6])
 	return Res
 def __ejec_parallel__(ListEjecs, nproc, nodo):
 	P = Pool(processes=nproc)
 	Res = P.map(__multiprocess_Warper__, ListEjecs)
-        Lista = [i[0]['Qsim'][nodo] for i in Res]
+        #Lista = [i[0]['Qsim'][nodo] for i in Res]
 	P.close()
-	return Lista
+	return  Res
 
 #-----------------------------------------------------------------------
 #Transformacion de datos
@@ -4352,7 +4353,7 @@ class nsgaii_element:
 		velStream = [0.1, 1], Hu = [0.1, 1], Hg = [0.1, 1], 
 		probCruce = np.ones(10)*0.5, probMutacion = np.ones(10)*0.5,
 		rangosMutacion = [[0,1], [1,200], [1,40], [0,1], [0.1,1], [0.1, 1], [0.1,1], [0.1,1], [0.1, 1], [0.1,1]],
-		MaxMinOptima = (1.0, -1.0), CrowDist = 0.5):
+		MaxMinOptima = (1.0, -1.0), CrowDist = 0.5, **kwargs):
 		'Descripcion: Inicia el objeto de calibracion genetica tipo NSGAII\n'\
 		'	este objeto contiene las reglas principales para la implementacion\n'\
 		'	de todo el algoritmo de calibracion genetico.\n'\
@@ -4390,6 +4391,10 @@ class nsgaii_element:
 		self.rangos_mutacion = rangosMutacion
 		self.optimiza = MaxMinOptima
 		self.crowdist = CrowDist
+                #Rutas para ejecuciones diferentes del modelo
+                self.ruta_conv = kwargs.get('ruta_conv',None)
+                self.ruta_stra = kwargs.get('ruta_stra',None)
+                self.v_humedad = kwargs.get('v_humedad',None)
 		
 	def __crea_calibracion__(self):
 	    #Evp
@@ -4446,7 +4451,13 @@ class nsgaii_element:
 		return [evp, infil, perco, losses, velRun, velSub, velSup, velStream, hu, hg]
 	
 	def __crea_ejec__(self, calibracion):
-		return [calibracion, self.ruta_lluvia, self.npasos, self.inicio, self.simelem]
+                # Si se asigna, setea C.I. a partir del v - porque las demas funciones para setear estan teniendo problemas.
+                if self.v_humedad is not None:
+                   for pos, y in enumerate(self.v_humedad):
+                       self.simelem.set_Storage(y,pos)
+
+                return [calibracion, self.ruta_lluvia, self.npasos, self.inicio, self.simelem,
+                        self.ruta_conv, self.ruta_stra]
 
 	def __evalfunc__(self, Qsim, f1 = __eval_nash__, f2 = __eval_q_pico__):
 		E1 = f1(self.Qobs, Qsim)
