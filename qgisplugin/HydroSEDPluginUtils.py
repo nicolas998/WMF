@@ -192,6 +192,7 @@ class controlHS:
         g.close()
         #Cargar la cuenca y sus variables base a WMF 
         self.cuenca = wmf.SimuBasin(rute = PathNC)
+        self.NumDicBasinWMFVariables = 50
         #Area de la cuenca y codigo EPSG  
         return self.cuenca.ncells*wmf.cu.dxp**2./1e6, self.cuenca.epsg, wmf.models.dxp, wmf.cu.nodata
     

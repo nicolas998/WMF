@@ -60,6 +60,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #self.setupUIButtonEvents ()
         
         self.TablaFila_WMF = 0
+        self.TablaFila_NC = 0
         
         if not (iface is None):
             self.iface = iface
@@ -166,9 +167,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.ButtonLoadBasinProyect.setEnabled(True)
         def clickEventBasin2WMF():
             '''Agrega el proyecto de cuenca a WMF'''
-
             self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
-            self.setupTableEdicionAlmacenamientoParametrosWMFNC ()
+            self.TableStart()
+            for k in self.HSutils.DicBasinNc.keys():
+                self.TabNC.NewEntry(self.HSutils.DicBasinNc[k],k, self.Tabla_Prop_NC)
             Area, self.EPSG, dxp, self.noData = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
             #Habilita los botones de visualizacion de red hidrica y divisoria 
             self.Boton_verDivisoria.setEnabled(True)
@@ -276,7 +278,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if len(self.PathOutHydro_Qmed.text()) > 2:
                 self.Button_HidroViewQmed.setEnabled(True)
             #Actualiza la tabla de variables temporales 
-            self.UpdateTablePropWMF()
+            for k in ['Caudal','ETR','Runoff']:
+                self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
             
         #Botones para variables de entrada 
         self.Boton_HidroLoadRain.clicked.connect(clickEventSelectorRaster)
@@ -288,43 +291,54 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #Botones para ejecutar
         self.Butto_Ejec_HidroBalance.clicked.connect(hadleClickEventEjecutarBalance)
         
-    def setupTableEdicionAlmacenamientoParametrosWMFNC (self):
-
-        print self.HSutils.DicBasinNc
-        print self.HSutils.NumDicBasinNcVariables
+    def TableStart (self):
+        '''Arranca las tablas de NC y WMF'''
+        self.TabNC = Tabla(self.HSutils.NumDicBasinNcVariables,self.Tabla_Prop_NC)
+        self.TabWMF = Tabla(self.HSutils.NumDicBasinWMFVariables, self.Tabla_Prop_WMF)
         
-        listaHeaderTabla_NC     = ["Nombre", "Tipo", "Forma", "Categoria"]
-        listaHeaderTabla_WMF     = ["Nombre", "Tipo", "Forma", "Categoria"]
-
-        self.Tabla_Prop_NC.setRowCount (self.HSutils.NumDicBasinNcVariables)
-        self.Tabla_Prop_NC.setColumnCount (len (listaHeaderTabla_NC))
-        self.Tabla_Prop_NC.setHorizontalHeaderLabels (listaHeaderTabla_NC)
-
-        self.Tabla_Prop_WMF.setRowCount (self.HSutils.NumDicBasinNcVariablesBasicas)
-        self.Tabla_Prop_WMF.setColumnCount (len (listaHeaderTabla_WMF))
-        self.Tabla_Prop_WMF.setHorizontalHeaderLabels (listaHeaderTabla_WMF)
-
-        idxFila_NC = 0
-        idxFila_WMF = 0
+    #def TableUpdate(self):
+    #   '''Actualiza entrada en la tabla'''
         
-        #Carga las variables a la tabla 
-        for keyParam in self.HSutils.DicBasinNc:
-            self.Tabla_Prop_NC.setItem (idxFila_NC, 0, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["nombre"]))
-            self.Tabla_Prop_NC.setItem (idxFila_NC, 1, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["tipo"]))
-            self.Tabla_Prop_NC.setItem (idxFila_NC, 2, QTableWidgetItem (str (self.HSutils.DicBasinNc[keyParam]["shape"])))
-            self.Tabla_Prop_NC.setItem (idxFila_NC, 3, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["categoria"]))
-            idxFila_NC = idxFila_NC + 1
+        
+                #print self.HSutils.DicBasinNc
+        #print self.HSutils.NumDicBasinNcVariables
+        
+        #listaHeaderTabla_NC     = ["Nombre", "Tipo", "Forma", "Categoria"]
+        #listaHeaderTabla_WMF     = ["Nombre", "Tipo", "Forma", "Categoria"]
+
+        #self.Tabla_Prop_NC.setRowCount (self.HSutils.NumDicBasinNcVariables)
+        #self.Tabla_Prop_NC.setColumnCount (len (listaHeaderTabla_NC))
+        #self.Tabla_Prop_NC.setHorizontalHeaderLabels (listaHeaderTabla_NC)
+
+        #self.Tabla_Prop_WMF.setRowCount (self.HSutils.NumDicBasinNcVariablesBasicas)
+        #self.Tabla_Prop_WMF.setColumnCount (len (listaHeaderTabla_WMF))
+        #self.Tabla_Prop_WMF.setHorizontalHeaderLabels (listaHeaderTabla_WMF)
+
+        #idxFila_NC = 0
+        #idxFila_WMF = 0
+        
+        #Crea los objetos de tabla para WMF y NC
+        
+        ##Carga las variables a la tabla 
+        #for keyParam in self.HSutils.DicBasinNc:
+            #self.Tabla_Prop_NC.setItem (self.TablaFila_NC, 0, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["nombre"]))
+            #self.Tabla_Prop_NC.setItem (self.TablaFila_NC, 1, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["tipo"]))
+            #self.Tabla_Prop_NC.setItem (self.TablaFila_NC, 2, QTableWidgetItem (str (self.HSutils.DicBasinNc[keyParam]["shape"])))
+            #self.Tabla_Prop_NC.setItem (self.TablaFila_NC, 3, QTableWidgetItem (self.HSutils.DicBasinNc[keyParam]["categoria"]))
+            #self.TablaFila_NC += 1
         
     def setupUIInputsOutputs (self):
         
         def handleClickEventButton_Eliminar_Desde_WMF ():
             selectedItems = self.Tabla_Prop_WMF.currentRow ()
             self.Tabla_Prop_WMF.removeRow (selectedItems)
+            self.TablaFila_WMF -= 1
             
 
         def handleClickEventButton_Eliminar_Desde_NC ():
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             self.Tabla_Prop_NC.removeRow (selectedItems)
+            self.TablaFila_NC -= 1
 
         def handleClickEventButton_Actualizar_WMF_Desde_NC ():
             rows = sorted (set (index.row () for index in self.Tabla_Prop_NC.selectedIndexes ()))
@@ -497,12 +511,47 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Button_Visualizar_Desde_NC.clicked.connect(handleClickEventButton_Ver_Desde_NC)
        
  
-
-        #for keyParam in self.HSutils.DicBasinWMF:
-            #self.Tabla_Prop_WMF.setItem (idxFila_WMF, 0, QTableWidgetItem (self.HSutils.DicBasinWMF[keyParam]["nombre"]))
-            #self.Tabla_Prop_WMF.setItem (idxFila_WMF, 1, QTableWidgetItem (self.HSutils.DicBasinWMF[keyParam]["tipo"]))
-            #self.Tabla_Prop_WMF.setItem (idxFila_WMF, 2, QTableWidgetItem (str (self.HSutils.DicBasinWMF[keyParam]["shape"])))
-            #self.Tabla_Prop_WMF.setItem (idxFila_WMF, 3, QTableWidgetItem (self.HSutils.DicBasinWMF[keyParam]["categoria"]))
-            #idxFila_WMF = idxFila_WMF + 1
+class Tabla():
+    
+    def __init__(self, NumRows, TabElement):
+        self.NumRows = 0
+        self.TabPositions = []
+        self.TabNames = []
+        Header = ["Nombre", "Tipo", "Forma", "Categoria"]
+        TabElement.setRowCount(NumRows)
+        TabElement.setColumnCount(len(Header))
+        TabElement.setHorizontalHeaderLabels(Header)
+    
+    def New_Row_in_Dic(self,DicElement):
+        '''Coloca una nueva entrada en el diccionario de datos'''
+        self.Dic.update(DicElement)
+        self.NumRows += 1
+    
+    def Del_Row_in_Dic(self, KeyToDel):
+        '''Borra una entrada en el diccionario de datos'''
+        self.Dic.pop[KeyToDel]
+        self.NumRows -= 1
+    
+    def NewEntry(self, Dic, DicKey,TabElement):
+        '''Actualiza la lista de las variables en una tabla'''
+        #Busca si ese nombre ya se encuentra en la tabla
+        try:
+            #Si esta, remplaza esa posicion
+            pos = self.TabNames.index(DicKey)
+            suma = 0
+        except:
+            #Si no esta, lo pone al final.
+            pos = self.NumRows
+            self.TabNames.append(DicKey)
+            suma = 1
+        #for keyParam in Dic:
+        TabElement.setItem (pos, 0, QTableWidgetItem (Dic["nombre"]))
+        TabElement.setItem (pos, 1, QTableWidgetItem (Dic["tipo"]))
+        TabElement.setItem (pos, 2, QTableWidgetItem (str (Dic["shape"])))
+        TabElement.setItem (pos, 3, QTableWidgetItem (Dic["categoria"]))
+        self.NumRows += suma
+            
+    
+    
 
         
