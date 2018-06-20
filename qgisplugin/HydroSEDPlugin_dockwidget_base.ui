@@ -262,7 +262,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tabConfiguracion">
          <attribute name="icon">
@@ -306,7 +306,7 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
+             <y>-190</y>
              <width>443</width>
              <height>918</height>
             </rect>
@@ -851,7 +851,7 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Button_Actualizar_WMF_Desde_NC">
+                   <widget class="QPushButton" name="Button_NC2WMF">
                     <property name="minimumSize">
                      <size>
                       <width>50</width>
@@ -874,7 +874,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Button_Actualizar_NC_Desde_WMF">
+                   <widget class="QPushButton" name="Button_WMF2NC">
                     <property name="minimumSize">
                      <size>
                       <width>50</width>

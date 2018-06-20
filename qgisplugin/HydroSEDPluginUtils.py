@@ -216,7 +216,16 @@ class controlHS:
             ruta = rutaSalida,
             EPSG = self.cuenca.epsg)
         return rutaSalida
-        
+    
+    def Basin_LoadVariableFromDicWMF(self,VarName):
+        '''Toma una variable del diccionario de variables basicas y la carga a Qgis'''
+        #Transforma a un raster 
+        rutaSalida = '/tmp/HydroSED/Raster_'+VarName+'.tiff'
+        self.cuenca.Transform_Basin2Map(self.DicBasinWMF[VarName]['var'],
+            ruta = rutaSalida,
+            EPSG = self.cuenca.epsg)
+        return rutaSalida
+    
     def Basin_GeoGetHAND(self, umbral):
         self.cuenca.GetGeo_HAND(umbral)
         self.DicBasinWMF.update({'HAND':
