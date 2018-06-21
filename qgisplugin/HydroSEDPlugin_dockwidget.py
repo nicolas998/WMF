@@ -62,6 +62,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.TablaFila_WMF = 0
         self.TablaFila_NC = 0
         
+        #Inicia el comboBox de la seleccion de categoria para transformar raster a WMF
+        for k in ['base','Geomorfo','SimHidro','Hidro']:
+            self.ComboBoxRaster2WMF.addItem(k)        
+        self.setupRaster2WMF()
+        
         if not (iface is None):
             self.iface = iface
         self.HSutils = HSutils.controlHS()
@@ -143,8 +148,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         def setupLineEditButtonOpenBasinFileDialog (lineEditHolder, fileDialogHolder):
             '''Busca un proyecto de cuenca ya guardado anteriormente'''
-            #lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"",
-            #   QtGui.QFileDialog.DontUseNativeDialog))
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "Cargador de cuencas", "*","Cuenca en NetCDF4(*.nc);;", 
                 QtGui.QFileDialog.DontUseNativeDialog))
         
@@ -286,7 +289,47 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         '''Arranca las tablas de NC y WMF'''
         self.TabNC = Tabla(self.HSutils.NumDicBasinNcVariables,self.Tabla_Prop_NC)
         self.TabWMF = Tabla(self.HSutils.NumDicBasinWMFVariables, self.Tabla_Prop_WMF)
+    
+    def setupRaster2WMF(self):
+               
+        def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
+            '''Hace que solo0 se busquen formatos aceptados por GDAL'''
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
+                QtGui.QFileDialog.DontUseNativeDialog))
+        def clickEventSelectorMapaRaster():
+            '''Evento de click: selecciona mapa Raster'''
+            setupLineEditButtonOpenRasterFileDialog (self.PathRaster2WMF, QFileDialog)
+            
+        #Funciones para Cargar variables
+        def clickEventSelectorRaster():
+            '''click para seleccionar un proyecto de cuenca'''
+            #Pone el texto de la ruta 
+            setupLineEditButtonOpenRasterFileDialog(self.PathRaster2WMF, QFileDialog)
         
+        #Funcion para pasar variable raster a WMF           
+        def handleClickConnectRaster2WMF():
+            #Chequeos de variables
+            #if len(self.NameRaster2WMF.text())<2:
+             #   self.iface.messageBar().pushError (u'Hydro-SIG:', u'Debe ingresar un nombre para el mapa raster a convertir.')
+              #  return 1
+            #if len(self.PathRaster2WMF.text())<2:
+             #   self.iface.messageBar().pushError (u'Hydro-SIG:', u'Debe seleccionar un mapa raster para ser convertido a la cuenca.')
+             #   return 1
+            #Parametros para la conversion
+            Nombre = self.NameRaster2WMF.text()
+            PathRaster = self.PathRaster2WMF.text()
+            Grupo = self.ComboBoxRaster2WMF.currentText()
+            #Conversion, convierte la variable y actualiza el diccionario.
+            Retorno = self.HSutils.Basin_Raster2WMF(Nombre, PathRaster, Grupo)
+            self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[Nombre],Nombre, self.Tabla_Prop_WMF)
+            if Retorno == 0:
+                self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'El mapa raster ha ingresado a WMF.')
+        
+        #Habilita botones.
+        self.ButtonPathRaster2WMF.clicked.connect(clickEventSelectorMapaRaster)
+        self.Button_Raster2WMF.clicked.connect(handleClickConnectRaster2WMF)
+        
+    
     def setupUIInputsOutputs (self):
         
         def handleClickEventButton_Eliminar_Desde_WMF ():
@@ -314,12 +357,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
     
         def handleClickEventButton_Ver_Desde_NC():
             '''Visualiza una de las variables de la cuenca en Qgis'''
-            #Variables de entrada
+            #Ejecucion de la transformacion de la variable cuenca a raster
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             VarName = self.Tabla_Prop_NC.item(selectedItems,0).text()
-            PathNC = self.lineEditRutaCuenca.text()
-            #Ejecucion de la transformacion de la variable cuenca a raster
-            pathMapa = self.HSutils.Basin_LoadBasicVariable(PathNC, VarName)
+            pathMapa = self.HSutils.Basin_LoadVariableFromDicNC(VarName)
             print pathMapa
             #Visualiza 
             flagCargaMapa = self.HSutils.cargar_mapa_raster(pathMapa)

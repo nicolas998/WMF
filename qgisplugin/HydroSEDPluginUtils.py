@@ -172,25 +172,25 @@ class controlHS:
         self.cuenca = wmf.SimuBasin(rute = PathNC)
         #Cargar las variables de la cuenca a un diccionario.
         g = netCDF4.Dataset(PathNC)
-        for grupoKey in ['base','Geomorfo']:	    
-	        for k in g.groups[grupoKey].variables.keys():
-	            #Evalua si tiene la misma cantidad de celdas y puede ser un mapa
-	            shape = g.groups[grupoKey].variables[k].shape
-	            MapaRaster = False
-	            for s in shape:
-	                if s == self.cuenca.ncells:
-	                    MapaRaster = True
-	                #Actualiza el diccionario
-	                self.DicBasinNc.update({k:
-	                    {'nombre':k,
-	                    'tipo':g.groups[grupoKey].variables[k].dtype.name,
-	                    'shape':g.groups[grupoKey].variables[k].shape,
-	                    'raster':MapaRaster,
-	                    'basica': True,
-	                    'categoria': grupoKey,
-	                    'var': g.groups[grupoKey].variables[k][:]}})
-	                self.NumDicBasinNcVariables = self.NumDicBasinNcVariables + 1
-	                self.NumDicBasinNcVariablesBasicas = self.NumDicBasinNcVariablesBasicas + 1
+        for grupoKey in ['base','Geomorfo']:        
+            for k in g.groups[grupoKey].variables.keys():
+                #Evalua si tiene la misma cantidad de celdas y puede ser un mapa
+                shape = g.groups[grupoKey].variables[k].shape
+                MapaRaster = False
+                for s in shape:
+                    if s == self.cuenca.ncells:
+                        MapaRaster = True
+                    #Actualiza el diccionario
+                    self.DicBasinNc.update({k:
+                        {'nombre':k,
+                        'tipo':g.groups[grupoKey].variables[k].dtype.name,
+                        'shape':g.groups[grupoKey].variables[k].shape,
+                        'raster':MapaRaster,
+                        'basica': True,
+                        'categoria': grupoKey,
+                        'var': g.groups[grupoKey].variables[k][:]}})
+                    self.NumDicBasinNcVariables = self.NumDicBasinNcVariables + 1
+                    self.NumDicBasinNcVariablesBasicas = self.NumDicBasinNcVariablesBasicas + 1
         g.close()
         #Cargar la cuenca y sus variables base a WMF 
         self.cuenca = wmf.SimuBasin(rute = PathNC)
@@ -206,15 +206,11 @@ class controlHS:
         # Guarda los shapes de divisoria y de red hidrica.
         self.cuenca.Save_Net2Map(PathNetwork, wmf.cu.dxp, self.cuenca.umbral)
     
-    def Basin_LoadBasicVariable(self,PathNC, VarName):
+    def Basin_LoadVariableFromDicNC(self, VarName):
         '''Toma una variable del diccionario de variables basicas y la carga a Qgis'''
-        #Lee los datos del nc de la cuenca de la variable indicada 
-        g = netCDF4.Dataset(PathNC)
-        Data = g.variables[VarName][:]
-        g.close()
         #Transforma a un raster 
-        rutaSalida = '/tmp/HydroSED/Raster_'+VarName+'.tiff'
-        self.cuenca.Transform_Basin2Map(Data,
+        rutaSalida = '/tmp/HydroSED/'+VarName+'.tiff'
+        self.cuenca.Transform_Basin2Map(self.DicBasinNc[VarName]['var'],
             ruta = rutaSalida,
             EPSG = self.cuenca.epsg)
         return rutaSalida
@@ -222,11 +218,32 @@ class controlHS:
     def Basin_LoadVariableFromDicWMF(self,VarName):
         '''Toma una variable del diccionario de variables basicas y la carga a Qgis'''
         #Transforma a un raster 
-        rutaSalida = '/tmp/HydroSED/Raster_'+VarName+'.tiff'
+        rutaSalida = '/tmp/HydroSED/'+VarName+'.tiff'
         self.cuenca.Transform_Basin2Map(self.DicBasinWMF[VarName]['var'],
             ruta = rutaSalida,
             EPSG = self.cuenca.epsg)
         return rutaSalida
+    
+    def Basin_Raster2WMF(self, VarName, VarPath, VarGroup):
+        '''toma una ruta y convierte un mapa raster a cuenca para luego ponerlo 
+        en el diccionario de WMF'''
+        #Lee la variable 
+        Var, prop, epsg = wmf.read_map_raster(VarPath)
+        if epsg == self.cuenca.epsg:
+            #Convierte a cuenca
+            Var = self.cuenca.Transform_Map2Basin(Var, prop)
+            #Actualiza el diccionario de WMF
+            self.DicBasinWMF.update({VarName:
+                {'nombre':VarName,
+                'tipo':Var.dtype.name,
+                'shape':Var.shape,
+                'raster':True,
+                'basica': False,
+                'categoria': VarGroup,
+                'var': Var}})
+            return 0
+        else:
+            return 1
     
     def Basin_GeoGetHAND(self, umbral):
         self.cuenca.GetGeo_HAND(umbral)
