@@ -734,9 +734,10 @@ def __multiprocess_Warper__(Lista):
 def __ejec_parallel__(ListEjecs, nproc, nodo):
 	P = Pool(processes=nproc)
 	Res = P.map(__multiprocess_Warper__, ListEjecs)
-        #Lista = [i[0]['Qsim'][nodo] for i in Res]
+        Lista = [i[0]['Qsim'][nodo] for i in Res]
 	P.close()
-	return  Res
+        P.join()
+        return Lista,Res
 
 #-----------------------------------------------------------------------
 #Transformacion de datos
@@ -4307,7 +4308,7 @@ class SimuBasin(Basin):
 		pop = nsga_el.toolbox.population(pop_size)
 		Ejecs = map(nsga_el.__crea_ejec__, pop)
 		#Ejecuta a la poblacion
-		QsimPar = __ejec_parallel__(Ejecs, process, nodo_eval)
+		QsimPar, Results = __ejec_parallel__(Ejecs, process, nodo_eval)
 		fitnesses = map(nsga_el.toolbox.evaluate, QsimPar)
 		for ind, fit in zip(pop, fitnesses):
 			ind.fitness.values = fit
@@ -4329,7 +4330,7 @@ class SimuBasin(Basin):
 					del mutant.fitness.values
 			#Ejecuta a la nueva generacion
 			Ejecs = map(nsga_el.__crea_ejec__, offspring)
-			QsimPar = __ejec_parallel__(Ejecs, process, nodo_eval)
+			QsimPar, Results = __ejec_parallel__(Ejecs, process, nodo_eval)
 			#Identifica a la gente que no cumple de la generacion
 			Qsim_invalid = []
 			invalid_ind = []
@@ -4344,7 +4345,7 @@ class SimuBasin(Basin):
 			#Toma la siguiente generacion
 			pop = nsga_el.toolbox.select(pop + offspring, pop_size)
 		#Retorno 
-		return pop, QsimPar, np.array(fitnesses).T
+                return pop, QsimPar, Results, np.array(fitnesses).T
 	
 	
 class nsgaii_element:
