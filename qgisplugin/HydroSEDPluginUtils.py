@@ -112,9 +112,9 @@ class controlHS:
     def trazador_cuenca(self,x,y, dxp,umbral,PathDiv, PathRed, PathNC,PathDEM, PathDIR,TopoNodes = False, LastStream = True):
         # Traza la cuenca con y sin la ultima corriente.
         if LastStream:
-            self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR, stream=self.stream)
+            self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR, stream=self.stream,  umbral = umbral)
         else:
-            self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR)
+            self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR,  umbral = umbral)
         # Guarda los shapes de divisoria y de red hidrica.
         self.cuenca.Save_Basin2Map(PathDiv, dxp)
         self.cuenca.Save_Net2Map(PathRed, dxp, umbral)
@@ -196,7 +196,7 @@ class controlHS:
         self.cuenca = wmf.SimuBasin(rute = PathNC)
         self.NumDicBasinWMFVariables = 50
         #Area de la cuenca y codigo EPSG  
-        return self.cuenca.ncells*wmf.cu.dxp**2./1e6, self.cuenca.epsg, wmf.models.dxp, wmf.cu.nodata
+        return self.cuenca.ncells*wmf.cu.dxp**2./1e6, self.cuenca.epsg, wmf.models.dxp, wmf.cu.nodata, self.cuenca.umbral
     
     def Basin_LoadBasinDivisory(self, PathDivisory):
         # Guarda los shapes de divisoria y de red hidrica.
@@ -244,6 +244,44 @@ class controlHS:
             return 0
         else:
             return 1
+    
+    def Basin_GeoGetAcumSlope(self):
+        self.cuenca.GetGeo_Cell_Basics()
+        self.DicBasinWMF.update({'Area':
+            {'nombre':'Area',
+            'tipo':'float32',
+            'shape':self.cuenca.CellAcum.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geo',
+            'var': self.cuenca.CellAcum}})
+        self.DicBasinWMF.update({'Pendiente':
+            {'nombre':'Pendiente',
+            'tipo':'float32',
+            'shape':self.cuenca.CellSlope.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geo',
+            'var': self.cuenca.CellSlope}})
+            
+    def Basin_GeoGetOrder(self):
+        self.cuenca.GetGeo_StreamOrder(umbral = self.cuenca.umbral)
+        self.DicBasinWMF.update({'Order_hills':
+            {'nombre':'Order_hills',
+            'tipo':self.cuenca.CellHorton_Hill.dtype.name,
+            'shape':self.cuenca.CellHorton_Hill.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geo',
+            'var': self.cuenca.CellHorton_Hill}})
+        self.DicBasinWMF.update({'Order_channels':
+            {'nombre':'Order_channels',
+            'tipo':self.cuenca.CellHorton_Stream.dtype.name,
+            'shape':self.cuenca.CellHorton_Stream.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geo',
+            'var': self.cuenca.CellHorton_Stream}})
     
     def Basin_GeoGetHAND(self, umbral):
         self.cuenca.GetGeo_HAND(umbral)

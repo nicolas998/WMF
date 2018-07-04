@@ -57,6 +57,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.setupUIInputsOutputs ()
         self.setupHidro_Balance()
         self.setupBasinManager()
+        self.setupGeomorfologia()
         #self.setupUIButtonEvents ()
         
         self.TablaFila_WMF = 0
@@ -165,7 +166,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.TableStart()
             for k in self.HSutils.DicBasinNc.keys():
                 self.TabNC.NewEntry(self.HSutils.DicBasinNc[k],k, self.Tabla_Prop_NC)
-            Area, self.EPSG, dxp, self.noData = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
+            Area, self.EPSG, dxp, self.noData, self.umbral = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
+            #print self.umbral
             #Habilita los botones de visualizacion de red hidrica y divisoria 
             self.Boton_verDivisoria.setEnabled(True)
             self.Boton_verRedHidrica.setEnabled(True)
@@ -176,7 +178,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             texto = '%.1f' % self.noData
             self.LineEditNoData.setText(texto)
             self.spinBox_dxPlano.setValue(dxp)
-            print dxp
+            self.SpinGeoUmbralCanal.setValue(self.umbral)
             
         def clickEventBasinLoadDivisory():
             '''Carga la divisoria de la cuenca cargada a WMF'''
@@ -203,14 +205,29 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Boton_verRedHidrica.clicked.connect(clickEventBasinLoadNetwork)
 
     def setupGeomorfologia(self):
-        
-        def clickEventGeoHAND():
-            self.HSutils.Basin_GeoGetHAND(1000)
+        '''Conjunto de herramientas para manejar parametros geomorfologicos de la cuenca analizada'''
+
+        def clickEventGeoRasterProp():
+            '''calcula los parametros geomorfologicos de la cuenca por raster'''
+            #Lista de variables a calcular
+            ListaVar = []
+            #Revisa cada checkbox
+            if self.checkBoxArea.isChecked():
+                self.HSutils.Basin_GeoGetAcumSlope()
+                ListaVar.extend(['Area','Pendiente'])
+            if self.checkBoxOrder.isChecked():
+                self.HSutils.Basin_GeoGetOrder()
+                ListaVar.extend(['Order_hills','Order_channels'])
+                
+            
+            #mensaje de caso de exito
+            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')
             #Actualiza la tabla de variables temporales 
-            self.UpdateTablePropWMF()
+            for k in ListaVar:
+                self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
         
         #Botones de ejecucion
-        self.BotonGeoHAND.clicked.connect(clickEventGeoHAND)
+        self.ButtonGeomorfoRasterVars.clicked.connect(clickEventGeoRasterProp)
     
     
     def setupHidro_Balance(self):
@@ -361,7 +378,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             VarName = self.Tabla_Prop_NC.item(selectedItems,0).text()
             pathMapa = self.HSutils.Basin_LoadVariableFromDicNC(VarName)
-            print pathMapa
             #Visualiza 
             flagCargaMapa = self.HSutils.cargar_mapa_raster(pathMapa)
             if flagCargaMapa:
@@ -375,7 +391,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             selectedItems = self.Tabla_Prop_WMF.currentRow ()
             VarName = self.Tabla_Prop_WMF.item(selectedItems,0).text()
             pathMapa = self.HSutils.Basin_LoadVariableFromDicWMF(VarName)
-            print pathMapa
             #Visualiza 
             flagCargaMapa = self.HSutils.cargar_mapa_raster(pathMapa)
             if flagCargaMapa:
@@ -543,7 +558,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def set_dxplano():
             #self.spinBox_dxPlano.valueFromText()
             self.spinBox_dxPlano.value()
-            print self.spinBox_dxPlano.value()
         self.spinBox_dxPlano.valueChanged.connect(set_dxplano)
         
         #Botones de borrado de variables de NC y WMF 
