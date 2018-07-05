@@ -3068,7 +3068,7 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
+             <y>-308</y>
              <width>443</width>
              <height>1918</height>
             </rect>
@@ -3124,7 +3124,7 @@
                   <x>10</x>
                   <y>30</y>
                   <width>401</width>
-                  <height>236</height>
+                  <height>181</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -3143,6 +3143,19 @@
                      </property>
                      <property name="text">
                       <string>Área, Pendiente.</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QCheckBox" name="checkBoxTodos">
+                     <property name="toolTip">
+                      <string>calcula todos los parámetros geomorfológicos distribuidos.</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>calcula todos los parámetros geomorfológicos distribuidos.</string>
+                     </property>
+                     <property name="text">
+                      <string>Seleccionar todos</string>
                      </property>
                     </widget>
                    </item>
@@ -3211,39 +3224,39 @@
                      </property>
                     </widget>
                    </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_20">
-                   <item>
-                    <spacer name="horizontalSpacer_8">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="ButtonGeomorfoRasterVars">
-                     <property name="toolTip">
-                      <string>Calcular parámetros seleccionados (enviados a Variables WMF)</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Calcular parámetros seleccionados (enviados a Variables WMF)</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="resources.qrc">
-                       <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
-                     </property>
-                    </widget>
+                   <item row="5" column="1">
+                    <layout class="QHBoxLayout" name="horizontalLayout_8">
+                     <item>
+                      <spacer name="horizontalSpacer_8">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="ButtonGeomorfoRasterVars">
+                       <property name="toolTip">
+                        <string>Calcular parámetros seleccionados (enviados a Variables WMF)</string>
+                       </property>
+                       <property name="whatsThis">
+                        <string>Calcular parámetros seleccionados (enviados a Variables WMF)</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="resources.qrc">
+                         <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                   </layout>
                  </item>
@@ -3256,7 +3269,7 @@
                <property name="geometry">
                 <rect>
                  <x>0</x>
-                 <y>630</y>
+                 <y>580</y>
                  <width>421</width>
                  <height>181</height>
                 </rect>
@@ -3541,7 +3554,7 @@
                <property name="geometry">
                 <rect>
                  <x>10</x>
-                 <y>600</y>
+                 <y>550</y>
                  <width>411</width>
                  <height>21</height>
                 </rect>
@@ -3836,6 +3849,7 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>

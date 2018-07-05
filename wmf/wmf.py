@@ -1344,8 +1344,8 @@ class Basin:
         #Obtiene el area
         acum = cu.basin_acum(self.structure, self.ncells)
         #Obtiene la pendiente en radianes
-        slope = cu.basin_arc_slope(self.structure,self.DEM,
-            self.ncells,cu.ncols,cu.nrows)
+        acum,longCeld,slope,Elev=cu.basin_basics(self.structure,
+			self.DEMvec,self.DIRvec,self.ncells)   
         slope = np.arctan(slope)
         slope[slope == 0] = 0.0001
         return np.log((acum*cu.dxp) / np.tan(slope))
@@ -1365,7 +1365,7 @@ class Basin:
         'HDND : Distancia horizontal a la red de drenaje cercana [mts].\n'\
         #obtiene los parametros basicos por celdas
         acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
-            self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)        
+			self.DEMvec,self.DIRvec,self.ncells)     
         cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(
             self.structure,acum,umbral,self.ncells)
         hand,hdnd,hand_destiny = cu.geo_hand(self.structure,Elev,longCeld,cauce,self.ncells)
