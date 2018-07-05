@@ -3068,7 +3068,7 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-308</y>
+             <y>0</y>
              <width>443</width>
              <height>1918</height>
             </rect>
@@ -3468,7 +3468,17 @@
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout">
                  <item>
-                  <widget class="QTableWidget" name="TableGeoParameters"/>
+                  <widget class="QTableWidget" name="TableGeoParameters">
+                   <property name="dragEnabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="alternatingRowColors">
+                    <bool>true</bool>
+                   </property>
+                   <property name="sortingEnabled">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
                  </item>
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_7">

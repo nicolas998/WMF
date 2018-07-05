@@ -254,7 +254,7 @@ class controlHS:
             'shape':self.cuenca.CellAcum.shape,
             'raster':True,
             'basica': False,
-            'categoria': 'Geo',
+            'categoria': 'Geomorfo',
             'var': self.cuenca.CellAcum}})
         self.DicBasinWMF.update({'Pendiente':
             {'nombre':'Pendiente',
@@ -262,7 +262,7 @@ class controlHS:
             'shape':self.cuenca.CellSlope.shape,
             'raster':True,
             'basica': False,
-            'categoria': 'Geo',
+            'categoria': 'Geomorfo',
             'var': self.cuenca.CellSlope}})
             
     def Basin_GeoGetOrder(self):
@@ -273,7 +273,7 @@ class controlHS:
             'shape':self.cuenca.CellHorton_Hill.shape,
             'raster':True,
             'basica': False,
-            'categoria': 'Geo',
+            'categoria': 'Geomorfo',
             'var': self.cuenca.CellHorton_Hill}})
         self.DicBasinWMF.update({'Order_channels':
             {'nombre':'Order_channels',
@@ -281,7 +281,7 @@ class controlHS:
             'shape':self.cuenca.CellHorton_Stream.shape,
             'raster':True,
             'basica': False,
-            'categoria': 'Geo',
+            'categoria': 'Geomorfo',
             'var': self.cuenca.CellHorton_Stream}})
     
     def Basin_GeoGetIT(self):
@@ -292,7 +292,7 @@ class controlHS:
             'shape':IT.shape,
             'raster':True,
             'basica': False,
-            'categoria': 'Geo',
+            'categoria': 'Geomorfo',
             'var': IT}})
     
     def Basin_GeoGetChannels(self):
@@ -303,7 +303,7 @@ class controlHS:
             'shape':self.cuenca.CellCauce.shape,
             'raster':True,
             'basica': False,
-            'categoria': 'Geo',
+            'categoria': 'Geomorfo',
             'var': self.cuenca.CellCauce}})
 
     def Basin_GeoGetDist2Out(self):
@@ -314,7 +314,7 @@ class controlHS:
             'shape':self.cuenca.CellDist2Out.shape,
             'raster':True,
             'basica': False,
-            'categoria': 'Geo',
+            'categoria': 'Geomorfo',
             'var': self.cuenca.CellDist2Out}})
     
     def Basin_GeoGetHAND(self):
@@ -325,7 +325,7 @@ class controlHS:
             'shape':self.cuenca.CellHAND.shape,
             'raster':True,
             'basica': False,
-            'categoria': 'Geo',
+            'categoria': 'Geomorfo',
             'var': self.cuenca.CellHAND}})
         self.DicBasinWMF.update({'HDND':
             {'nombre':'HDND',
@@ -333,7 +333,7 @@ class controlHS:
             'shape':self.cuenca.CellHDND.shape,
             'raster':True,
             'basica': False,
-            'categoria': 'Geo',
+            'categoria': 'Geomorfo',
             'var': self.cuenca.CellHDND}})
         self.DicBasinWMF.update({'HAND_class':
             {'nombre':'HAND_class',
@@ -341,5 +341,9 @@ class controlHS:
             'shape':self.cuenca.CellHAND_class.shape,
             'raster':True,
             'basica': False,
-            'categoria': 'Geo',
+            'categoria': 'Geomorfo',
             'var': self.cuenca.CellHAND_class}})
+            
+    def Basin_GeoGetParameters(self):
+        self.cuenca.GetGeo_Parameters()
+        return self.cuenca.GeoParameters, self.cuenca.Tc

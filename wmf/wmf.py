@@ -963,10 +963,8 @@ class Basin:
         'GeoParameters : Parametros de la cuenca calculados.\n'\
         'Tc :  Tiempo de concentracion calculado para la cuenca.\n'\
         #Calcula lo que se necesita para sacar los parametros
-        acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
-            self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
-        slope=cu.basin_arc_slope(self.structure,self.DEM,self.ncells,
-            cu.ncols,cu.nrows)
+        acum,longCeld,slope,Elev=cu.basin_basics(self.structure,
+			self.DEMvec,self.DIRvec,self.ncells)     
         Lpma,puntto=cu.basin_findlong(self.structure,self.ncells)
         cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(self.structure,
             acum,self.umbral,self.ncells)
@@ -990,21 +988,21 @@ class Basin:
         x,y = cu.basin_coordxy(self.structure,self.ncells)
         CentXY = [np.median(x),np.median(y)]
         #Genera un diccionario con las propiedades de la cuenca 
-        self.GeoParameters={'Area[km2]': Area,
-            'Pend_Cauce [%]':Scau,
-            'Long_Cau [km]': Lcau,
-            'Pend_Cuenca [%]': Scue,
-            'Long_Cuenca [km]': Lpma,
-            'Hmax_[m]':Hmax,
-            'Hmin_[m]':Hmin,
-            'Hmean_[m]':Hmean,
-            'H Cauce_Max [m]':HCmax,
-            'Centro_[X]': CentXY[0],
-            'Centro_[Y]': CentXY[1],
-                        'Long_tot_cauces[km]': TotalCauces,
-                        'Densidad_drenaje[km/km2]': Densidad}
+        self.GeoParameters={'Area_[km2]': Area,
+			'Pend_Cauce_[%]':Scau,
+			'Long_Cauce_[km]': Lcau,
+			'Pend_Cuenca_[%]': Scue,
+			'Long_Cuenca_[km]': Lpma,
+			'Hmax_[m]':Hmax,
+			'Hmin_[m]':Hmin,
+			'Hmean_[m]':Hmean,
+			'H_Cauce_Max_[m]':HCmax,
+			'Centro_[X]': CentXY[0],
+			'Centro_[Y]': CentXY[1],
+			'Long_tot_cauces_[km]': TotalCauces,
+			'Densidad_drenaje_[km/km2]': Densidad}
         if GetPerim:
-            self.GeoParameters.update({'Perimetro[km]':Perim})
+            self.GeoParameters.update({'Perimetro_[km]':Perim})
         #Calcula los tiempos de concentracion
         Tiempos={}
         Tc=0.3*(Lcau/(Scue**0.25))**0.75

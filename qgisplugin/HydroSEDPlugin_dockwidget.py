@@ -226,6 +226,48 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.checkBoxHAND.setChecked(False)
                 self.checkBoxIT.setChecked(False)
             
+        def GeoTableStart():
+            '''Inicia la tabla donde monta los parametros geomorfologicos de la cuenca'''
+            self.GeoTableNumRows = 23
+            self.GeoTableNumItems = 0
+            self.GeoTableHeader = ["Parametro", "Valor", "Unidades"]
+            self.TableGeoParameters.setRowCount(self.GeoTableNumRows)
+            self.TableGeoParameters.setColumnCount(len(self.GeoTableHeader))
+            self.TableGeoParameters.setHorizontalHeaderLabels(self.GeoTableHeader)
+        
+        def clickEventGeoProperties():
+            '''Calcula los parametros geomorfologicos de la cuenca.'''
+            #Reinicia la talba para que no se llene de cosas
+            self.GeoTableNumItems = 0
+            self.TableGeoParameters.clear()
+            self.TableGeoParameters.clearContents()
+            #Calcula los parametros.
+            Param,Tc = self.HSutils.Basin_GeoGetParameters()
+            print Param
+            #Inicia la tabla 
+            GeoTableStart()
+            #le pone los parametros
+            for d in Param.keys():
+                #Obtiene nombre y unidad
+                cadena = d.split('_')
+                unidad = cadena[-1].split('[')[-1].split(']')[0]
+                nombre = ' '.join(cadena[:-1])
+                valor = '%.3f' % Param[d]
+                #Actualiza la tabla
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 0, QTableWidgetItem(nombre))
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 1, QTableWidgetItem(valor))
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 2, QTableWidgetItem(unidad))
+                self.GeoTableNumItems += 1
+            for d in Tc.keys():
+                nombre = d
+                valor = '%.3f' % Tc[d]
+                unidad = 'Hrs'
+                #Actualiza la tabla
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 0, QTableWidgetItem(nombre))
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 1, QTableWidgetItem(valor))
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 2, QTableWidgetItem(unidad))
+                self.GeoTableNumItems += 1
+        
         def clickEventGeoRasterProp():
             '''calcula los parametros geomorfologicos de la cuenca por raster'''
             #Lista de variables a calcular
@@ -254,9 +296,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Actualiza la tabla de variables temporales 
             for k in ListaVar:
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
+        
         #Botones de ejecucion
         self.ButtonGeomorfoRasterVars.clicked.connect(clickEventGeoRasterProp)
         self.checkBoxTodos.clicked.connect(clickEventActivateGeoCheckBoxes)
+        self.ButtonGeoParameters.clicked.connect(clickEventGeoProperties)
     
     def setupHidro_Balance(self):
         
