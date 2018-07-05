@@ -195,6 +195,7 @@ class controlHS:
         #Cargar la cuenca y sus variables base a WMF 
         self.cuenca = wmf.SimuBasin(rute = PathNC)
         self.NumDicBasinWMFVariables = 50
+        self.cuenca.GetGeo_Cell_Basics()
         #Area de la cuenca y codigo EPSG  
         return self.cuenca.ncells*wmf.cu.dxp**2./1e6, self.cuenca.epsg, wmf.models.dxp, wmf.cu.nodata, self.cuenca.umbral
     
@@ -246,7 +247,7 @@ class controlHS:
             return 1
     
     def Basin_GeoGetAcumSlope(self):
-        self.cuenca.GetGeo_Cell_Basics()
+        #self.cuenca.GetGeo_Cell_Basics()
         self.DicBasinWMF.update({'Area':
             {'nombre':'Area',
             'tipo':'float32',
@@ -283,11 +284,44 @@ class controlHS:
             'categoria': 'Geo',
             'var': self.cuenca.CellHorton_Stream}})
     
-    def Basin_GeoGetHAND(self, umbral):
-        self.cuenca.GetGeo_HAND(umbral)
+    def Basin_GeoGetIT(self):
+        IT = self.cuenca.GetGeo_IT()
+        self.DicBasinWMF.update({'Topo_index':
+            {'nombre':'Topo_index',
+            'tipo':IT.dtype.name,
+            'shape':IT.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geo',
+            'var': IT}})
+    
+    def Basin_GeoGetChannels(self):
+        #self.cuenca.GetGeo_Cell_Basics()
+        self.DicBasinWMF.update({'Channels':
+            {'nombre':'Channels',
+            'tipo':self.cuenca.CellCauce.dtype.name,
+            'shape':self.cuenca.CellCauce.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geo',
+            'var': self.cuenca.CellCauce}})
+
+    def Basin_GeoGetDist2Out(self):
+        self.cuenca.GetGeo_WidthFunction(show = False)
+        self.DicBasinWMF.update({'Dist2Out':
+            {'nombre':'Dist2Out',
+            'tipo':self.cuenca.CellDist2Out.dtype.name,
+            'shape':self.cuenca.CellDist2Out.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geo',
+            'var': self.cuenca.CellDist2Out}})
+    
+    def Basin_GeoGetHAND(self):
+        self.cuenca.GetGeo_HAND(umbral = self.cuenca.umbral)
         self.DicBasinWMF.update({'HAND':
             {'nombre':'HAND',
-            'tipo':'float32',
+            'tipo':self.cuenca.CellHAND.dtype.name,
             'shape':self.cuenca.CellHAND.shape,
             'raster':True,
             'basica': False,
@@ -295,7 +329,7 @@ class controlHS:
             'var': self.cuenca.CellHAND}})
         self.DicBasinWMF.update({'HDND':
             {'nombre':'HDND',
-            'tipo':'float32',
+            'tipo':self.cuenca.CellHDND.dtype.name,
             'shape':self.cuenca.CellHDND.shape,
             'raster':True,
             'basica': False,
@@ -303,7 +337,7 @@ class controlHS:
             'var': self.cuenca.CellHDND}})
         self.DicBasinWMF.update({'HAND_class':
             {'nombre':'HAND_class',
-            'tipo':'float32',
+            'tipo':self.cuenca.CellHAND_class.dtype.name,
             'shape':self.cuenca.CellHAND_class.shape,
             'raster':True,
             'basica': False,

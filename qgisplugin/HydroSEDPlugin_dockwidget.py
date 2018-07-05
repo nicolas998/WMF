@@ -218,14 +218,23 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if self.checkBoxOrder.isChecked():
                 self.HSutils.Basin_GeoGetOrder()
                 ListaVar.extend(['Order_hills','Order_channels'])
-                
-            
+            if self.checkBoxHAND.isChecked():
+                self.HSutils.Basin_GeoGetHAND()
+                ListaVar.extend(['HAND','HDND','HAND_class'])
+            if self.checkBoxIT.isChecked():
+                self.HSutils.Basin_GeoGetIT()
+                ListaVar.extend(['Topo_index'])
+            if self.checkBoxDist2Out.isChecked():
+                self.HSutils.Basin_GeoGetDist2Out()
+                ListaVar.extend(['Dist2Out'])
+            if self.checkBoxChannels.isChecked():
+                self.HSutils.Basin_GeoGetChannels()
+                ListaVar.extend(['Channels'])
             #mensaje de caso de exito
             self.iface.messageBar().pushInfo(u'HidroSIG:',u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')
             #Actualiza la tabla de variables temporales 
             for k in ListaVar:
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
-        
         #Botones de ejecucion
         self.ButtonGeomorfoRasterVars.clicked.connect(clickEventGeoRasterProp)
     
