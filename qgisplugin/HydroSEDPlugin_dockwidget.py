@@ -179,6 +179,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.LineEditNoData.setText(texto)
             self.spinBox_dxPlano.setValue(dxp)
             self.SpinGeoUmbralCanal.setValue(self.umbral)
+            #Actualiza comboBox de goemorfo
+            for k in self.HSutils.DicBasinWMF.keys():
+                self.ComboGeoMaskVar.addItem(k)
+
             
         def clickEventBasinLoadDivisory():
             '''Carga la divisoria de la cuenca cargada a WMF'''
@@ -206,6 +210,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def setupGeomorfologia(self):
         '''Conjunto de herramientas para manejar parametros geomorfologicos de la cuenca analizada'''
+		
+		
 
         def clickEventActivateGeoCheckBoxes():
             '''Selecciona y des-selecciona todas las opciones de calculo de una ves'''
@@ -267,7 +273,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.TableGeoParameters.setItem (self.GeoTableNumItems, 1, QTableWidgetItem(valor))
                 self.TableGeoParameters.setItem (self.GeoTableNumItems, 2, QTableWidgetItem(unidad))
                 self.GeoTableNumItems += 1
-        
+            
         def clickEventGeoRasterProp():
             '''calcula los parametros geomorfologicos de la cuenca por raster'''
             #Lista de variables a calcular
@@ -296,11 +302,14 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Actualiza la tabla de variables temporales 
             for k in ListaVar:
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
+                self.ComboGeoMaskVar.addItem(k)
+                self.ComboGeoVar2Acum.addItem(k)
         
         #Botones de ejecucion
         self.ButtonGeomorfoRasterVars.clicked.connect(clickEventGeoRasterProp)
         self.checkBoxTodos.clicked.connect(clickEventActivateGeoCheckBoxes)
         self.ButtonGeoParameters.clicked.connect(clickEventGeoProperties)
+        #self.ComboGeoMaskVar.activated.connect(clickEventUpdateComboBoxMask)
     
     def setupHidro_Balance(self):
         
@@ -360,10 +369,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Habilita botones de visualizacion de variables 
             if len(self.PathOutHydro_Qmed.text()) > 2:
                 self.Button_HidroViewQmed.setEnabled(True)
-            #Actualiza la tabla de variables temporales 
+            #Actualiza la tabla de variables temporales y actualiza comboBox de gomorfo
             for k in ['Caudal','ETR','Runoff']:
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
-            
+                
         #Botones para variables de entrada 
         self.Boton_HidroLoadRain.clicked.connect(clickEventSelectorRaster)
         #Botones para variables de salida

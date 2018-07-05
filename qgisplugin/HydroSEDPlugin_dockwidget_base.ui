@@ -245,7 +245,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>3</number>
+         <number>4</number>
         </property>
         <widget class="QWidget" name="tabConfiguracion">
          <attribute name="icon">
@@ -3478,6 +3478,12 @@
                    <property name="sortingEnabled">
                     <bool>true</bool>
                    </property>
+                   <attribute name="verticalHeaderDefaultSectionSize">
+                    <number>50</number>
+                   </attribute>
+                   <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+                    <bool>true</bool>
+                   </attribute>
                   </widget>
                  </item>
                  <item>
@@ -3497,6 +3503,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="ButtonGeoParameters2Excel">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="toolTip">
                       <string>Exportar parámetros geomorfológicos a excel.</string>
                      </property>
@@ -3642,20 +3651,20 @@
            <rect>
             <x>10</x>
             <y>10</y>
-            <width>341</width>
-            <height>400</height>
+            <width>451</width>
+            <height>721</height>
            </rect>
           </property>
           <property name="minimumSize">
            <size>
-            <width>0</width>
-            <height>200</height>
+            <width>430</width>
+            <height>400</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>400</height>
+            <height>750</height>
            </size>
           </property>
           <property name="verticalScrollBarPolicy">
@@ -3669,8 +3678,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>323</width>
-             <height>930</height>
+             <width>433</width>
+             <height>1918</height>
             </rect>
            </property>
            <property name="minimumSize">
@@ -3687,156 +3696,333 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
-             <widget class="QgsCollapsibleGroupBox" name="mGroupBox">
+             <widget class="QWidget" name="widget_3" native="true">
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>100</height>
+                <height>1900</height>
                </size>
               </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="title">
-               <string>Grupo 1</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_3">
-               <item>
-                <widget class="QLabel" name="label123456789">
-                 <property name="text">
-                  <string>TextLabel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lineEdit"/>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QgsCollapsibleGroupBox" name="mGroupBox_2">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>300</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="title">
-               <string>Grupo 2</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_4">
-               <item>
-                <widget class="QLabel" name="label">
-                 <property name="text">
-                  <string>TextLabel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lineEdit_3"/>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_2">
-                 <property name="text">
-                  <string>TextLabel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lineEdit_4"/>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_3">
-                 <property name="text">
-                  <string>TextLabel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lineEdit_2"/>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_4">
-                 <property name="text">
-                  <string>TextLabel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lineEdit_5"/>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QgsCollapsibleGroupBox" name="mGroupBox_3">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>500</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="title">
-               <string>Grupo 3</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_5">
-               <item>
-                <widget class="QLabel" name="label_8">
-                 <property name="text">
-                  <string>TextLabel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lineEdit_9"/>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_7">
-                 <property name="text">
-                  <string>TextLabel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lineEdit_8"/>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_6">
-                 <property name="text">
-                  <string>TextLabel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lineEdit_7"/>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_5">
-                 <property name="text">
-                  <string>TextLabel</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lineEdit_6"/>
-               </item>
-              </layout>
+              <widget class="QGroupBox" name="groupBox_4">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>0</y>
+                 <width>411</width>
+                 <height>71</height>
+                </rect>
+               </property>
+               <property name="title">
+                <string>Serie de Caudal Observado</string>
+               </property>
+               <widget class="QWidget" name="horizontalLayoutWidget_5">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>20</y>
+                  <width>401</width>
+                  <height>51</height>
+                 </rect>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_42">
+                 <item>
+                  <widget class="QLineEdit" name="PathCorriente_out_2">
+                   <property name="readOnly">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="botonSelectorOutputCorrienteShapefileTrazadorCorrientes_2">
+                   <property name="minimumSize">
+                    <size>
+                     <width>30</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>30</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="resources.qrc">
+                     <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
+              <widget class="QGroupBox" name="groupBox_3">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>80</y>
+                 <width>411</width>
+                 <height>481</height>
+                </rect>
+               </property>
+               <property name="title">
+                <string>Variables Físicas</string>
+               </property>
+               <widget class="QWidget" name="verticalLayoutWidget_5">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>60</y>
+                  <width>401</width>
+                  <height>351</height>
+                 </rect>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_3">
+                 <item>
+                  <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0">
+                   <property name="horizontalSpacing">
+                    <number>4</number>
+                   </property>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="label_19">
+                     <property name="text">
+                      <string>Variable</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QComboBox" name="comboBox_2"/>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QLabel" name="label_31">
+                     <property name="text">
+                      <string>Coef</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QComboBox" name="comboBox_3"/>
+                   </item>
+                   <item row="7" column="2">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_6"/>
+                   </item>
+                   <item row="7" column="3">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_10"/>
+                   </item>
+                   <item row="8" column="1">
+                    <widget class="QComboBox" name="comboBox_7"/>
+                   </item>
+                   <item row="8" column="2">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_7"/>
+                   </item>
+                   <item row="9" column="1">
+                    <widget class="QComboBox" name="comboBox_8"/>
+                   </item>
+                   <item row="8" column="3">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_11"/>
+                   </item>
+                   <item row="9" column="2">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_8"/>
+                   </item>
+                   <item row="8" column="0">
+                    <widget class="QLabel" name="label_7">
+                     <property name="text">
+                      <string>Vh2 [m/s]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QComboBox" name="comboBox"/>
+                   </item>
+                   <item row="0" column="3">
+                    <widget class="QLabel" name="label_32">
+                     <property name="text">
+                      <string>Expo</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="2">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_5"/>
+                   </item>
+                   <item row="9" column="0">
+                    <widget class="QLabel" name="label_8">
+                     <property name="text">
+                      <string>Vh3 [m/s]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="0">
+                    <widget class="QLabel" name="label_6">
+                     <property name="text">
+                      <string>Vh1 [m/s]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <widget class="QComboBox" name="comboBox_5"/>
+                   </item>
+                   <item row="2" column="2">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QComboBox" name="comboBox_4"/>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="label_3">
+                     <property name="text">
+                      <string>Vv1 [mm/s]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="2">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="label_4">
+                     <property name="text">
+                      <string>Vv2 [mm/s]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="2">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
+                   </item>
+                   <item row="10" column="0">
+                    <widget class="QLabel" name="label_11">
+                     <property name="text">
+                      <string>Vh4 [m/s]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="9" column="3">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_12"/>
+                   </item>
+                   <item row="5" column="2">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_4"/>
+                   </item>
+                   <item row="10" column="3">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_13"/>
+                   </item>
+                   <item row="10" column="2">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_9"/>
+                   </item>
+                   <item row="6" column="0">
+                    <widget class="QLabel" name="label_5">
+                     <property name="text">
+                      <string>Vv3 [mm/s]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="1">
+                    <widget class="QComboBox" name="comboBox_6"/>
+                   </item>
+                   <item row="10" column="1">
+                    <widget class="QComboBox" name="comboBox_9"/>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_2">
+                     <property name="text">
+                      <string>Hg [mm]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label">
+                     <property name="text">
+                      <string>Hu [mm]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_18">
+                     <property name="text">
+                      <string>Nombre variable</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="verticalLayoutWidget_6">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>410</y>
+                  <width>401</width>
+                  <height>51</height>
+                 </rect>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_4">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_20">
+                   <item>
+                    <widget class="QLabel" name="label_33">
+                     <property name="text">
+                      <string>Nombre calibración</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="PathCorriente_out_3">
+                     <property name="readOnly">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="ButtonSimCalib2Nc">
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="resources.qrc">
+                       <normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="ButtonSimUseCalib">
+                     <property name="text">
+                      <string>Establecer</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="horizontalLayoutWidget_6">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>20</y>
+                  <width>401</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_43">
+                 <item>
+                  <widget class="QLabel" name="label_34">
+                   <property name="text">
+                    <string>Seleccionar calibración anterior</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="comboBox_10"/>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
              </widget>
             </item>
            </layout>
