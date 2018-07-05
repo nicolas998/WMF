@@ -207,6 +207,25 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def setupGeomorfologia(self):
         '''Conjunto de herramientas para manejar parametros geomorfologicos de la cuenca analizada'''
 
+        def clickEventActivateGeoCheckBoxes():
+            '''Selecciona y des-selecciona todas las opciones de calculo de una ves'''
+            #Si esta checked todas se seleccionan
+            if self.checkBoxTodos.isChecked():
+                self.checkBoxArea.setChecked(True)
+                self.checkBoxOrder.setChecked(True)
+                self.checkBoxChannels.setChecked(True)
+                self.checkBoxDist2Out.setChecked(True)
+                self.checkBoxHAND.setChecked(True)
+                self.checkBoxIT.setChecked(True)
+            #Si no, des-selecciona a todas
+            else:
+                self.checkBoxArea.setChecked(False)
+                self.checkBoxOrder.setChecked(False)
+                self.checkBoxChannels.setChecked(False)
+                self.checkBoxDist2Out.setChecked(False)
+                self.checkBoxHAND.setChecked(False)
+                self.checkBoxIT.setChecked(False)
+            
         def clickEventGeoRasterProp():
             '''calcula los parametros geomorfologicos de la cuenca por raster'''
             #Lista de variables a calcular
@@ -237,7 +256,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
         #Botones de ejecucion
         self.ButtonGeomorfoRasterVars.clicked.connect(clickEventGeoRasterProp)
-    
+        self.checkBoxTodos.clicked.connect(clickEventActivateGeoCheckBoxes)
     
     def setupHidro_Balance(self):
         

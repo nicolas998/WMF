@@ -3849,7 +3849,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
