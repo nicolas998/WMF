@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/plugins/HydroSEDPlugin">
+    <file>icons/toexcel.png</file>
+    <file>icons/RedHidrica.ico</file>
     <file>icons/play.png</file>
     <file>icons/coordCapture.png</file>
     <file>icons/config.png</file>

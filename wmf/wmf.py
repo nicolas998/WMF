@@ -2918,47 +2918,50 @@ class SimuBasin(Basin):
 			N = self.ncells
 		elif self.modelType[0] is 'h':
 			N = self.nhills
-		#Obtiene las variables vectoriales 
-		self.structure = gr.variables['structure'][:]
-		self.hills = gr.variables['hills'][:]
-		self.hills_own = gr.variables['hills_own'][:]
-		self.DEMvec = gr.variables['DEM'][:]
-		self.DIRvec = gr.variables['DIR'][:]
+		#Obtiene las variables base 
+		GrupoBase = gr.groups['base']
+		self.structure = GrupoBase.variables['structure'][:]
+		self.hills = GrupoBase.variables['hills'][:]
+		self.hills_own = GrupoBase.variables['hills_own'][:]
+		#Obtiene las geomorfologicas
+		GrupoGeo = gr.groups['Geomorfo']
+		self.DEMvec = GrupoGeo.variables['DEM'][:]
+		self.DIRvec = GrupoGeo.variables['DIR'][:]
 		self.DEM = self.Transform_Basin2Map(self.DEMvec)
 		self.DIR = self.Transform_Basin2Map(self.DIRvec)
 		#obtiene las propieades del modelo 
-		models.h_coef = np.ones((4,N)) * gr.variables['h_coef'][:]
-		models.v_coef = np.ones((4,N)) * gr.variables['v_coef'][:]
-		models.h_exp = np.ones((4,N)) * gr.variables['h_exp'][:]
-		models.v_exp = np.ones((4,N)) * gr.variables['v_exp'][:]
-		models.max_capilar = np.ones((1,N)) * gr.variables['h1_max'][:]
-		models.max_gravita = np.ones((1,N)) * gr.variables['h3_max'][:]
+		GrupoSimHid = gr.groups['SimHidro']
+		models.h_coef = np.ones((4,N)) * GrupoSimHid.variables['h_coef'][:]
+		models.v_coef = np.ones((4,N)) * GrupoSimHid.variables['v_coef'][:]
+		models.h_exp = np.ones((4,N)) * GrupoSimHid.variables['h_exp'][:]
+		models.v_exp = np.ones((4,N)) * GrupoSimHid.variables['v_exp'][:]
+		models.max_capilar = np.ones((1,N)) * GrupoSimHid.variables['h1_max'][:]
+		models.max_gravita = np.ones((1,N)) * GrupoSimHid.variables['h3_max'][:]
 		#Variable de drena de acuerdo al tipo de modelo 
 		if self.modelType[0] is 'c':
-			models.drena = np.ones((3,N)) *gr.variables['drena'][:]
+			models.drena = np.ones((3,N)) *GrupoSimHid.variables['drena'][:]
 		elif self.modelType[0] is 'h':
-			models.drena = np.ones((1,N)) * gr.variables['drena'][:]
-		models.unit_type = np.ones((1,N)) * gr.variables['unit_type'][:]
-		models.hill_long = np.ones((1,N)) * gr.variables['hill_long'][:]
-		models.hill_slope = np.ones((1,N)) * gr.variables['hill_slope'][:]
-		models.stream_long = np.ones((1,N)) * gr.variables['stream_long'][:]
-		models.stream_slope = np.ones((1,N)) * gr.variables['stream_slope'][:]
-		models.stream_width = np.ones((1,N)) * gr.variables['stream_width'][:]
-		models.elem_area = np.ones((1,N)) * gr.variables['elem_area'][:]
-		models.speed_type = np.ones((3)) * gr.variables['speed_type'][:]
-		models.storage = np.ones((5,N)) * gr.variables['storage'][:]
-		
-		#propiedades de puntos de control
-		models.control = np.ones((1,N)) * gr.variables['control'][:]
-		models.control_h = np.ones((1,N)) * gr.variables['control_h'][:]
+			models.drena = np.ones((1,N)) * GrupoSimHid.variables['drena'][:]
+		models.unit_type = np.ones((1,N)) * GrupoSimHid.variables['unit_type'][:]
+		models.hill_long = np.ones((1,N)) * GrupoSimHid.variables['hill_long'][:]
+		models.hill_slope = np.ones((1,N)) * GrupoSimHid.variables['hill_slope'][:]
+		models.stream_long = np.ones((1,N)) * GrupoSimHid.variables['stream_long'][:]
+		models.stream_slope = np.ones((1,N)) * GrupoSimHid.variables['stream_slope'][:]
+		models.stream_width = np.ones((1,N)) * GrupoSimHid.variables['stream_width'][:]
+		models.elem_area = np.ones((1,N)) * GrupoSimHid.variables['elem_area'][:]
+		models.speed_type = np.ones((3)) * GrupoSimHid.variables['speed_type'][:]
+		models.storage = np.ones((5,N)) * GrupoSimHid.variables['storage'][:]
+		models.control = np.ones((1,N)) * GrupoSimHid.variables['control'][:]
+		models.control_h = np.ones((1,N)) * GrupoSimHid.variables['control_h'][:]
 		
 		#Propiedades de deslizamientos 
 		if sim_slides:
-			models.sl_gammas = np.ones((1,N)) * gr.variables['gamma_soil'][:]
-			models.sl_cohesion = np.ones((1,N)) * gr.variables['cohesion'][:]
-			models.sl_frictionangle = np.ones((1,N)) * gr.variables['friction_angle'][:]
-			models.sl_radslope = np.ones((1,N)) * gr.variables['rad_slope'][:]
-			models.sl_zs = np.ones((1,N)) * gr.variables['z_soil'][:]
+			GrupoSlides = gr.groups['SimSlides']
+			models.sl_gammas = np.ones((1,N)) * GrupoSlides.variables['gamma_soil'][:]
+			models.sl_cohesion = np.ones((1,N)) * GrupoSlides.variables['cohesion'][:]
+			models.sl_frictionangle = np.ones((1,N)) * GrupoSlides.variables['friction_angle'][:]
+			models.sl_radslope = np.ones((1,N)) * GrupoSlides.variables['rad_slope'][:]
+			models.sl_zs = np.ones((1,N)) * GrupoSlides.variables['z_soil'][:]
 		#Cierra el archivo 
 		gr.close()
 		#Determina que por defecto debe estar set la geomorfologia
@@ -3926,56 +3929,51 @@ class SimuBasin(Basin):
 			Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
 		#abre el archivo 
 		gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
-		#Variables del DEM y del DIR
-				#DEMdim = gr.createDimension('ncols',DEM
-				#Establece tamano de las variables 
-		DimNcell = gr.createDimension('ncell',self.ncells)
-		DimNhill = gr.createDimension('nhills',self.nhills)
-		DimNelem = gr.createDimension('Nelem',N)
-		DimCol3 = gr.createDimension('col3',3)
-		DimCol2 = gr.createDimension('col2',2)
-		DimCol4 = gr.createDimension('col4',4)
-		DimCol5 = gr.createDimension('col5',5)
-		#Crea variables
-		VarDEM = gr.createVariable('DEM','f4',('ncell',),zlib = True)
-		VarDIR = gr.createVariable('DIR','i4',('ncell',),zlib = True)
-		VarStruc = gr.createVariable('structure','i4',('col3','ncell'),zlib=True)
-		VarHills = gr.createVariable('hills','i4',('col2','nhills'),zlib=True)
-		VarHills_own = gr.createVariable('hills_own','i4',('ncell',),zlib=True)
-		VarH_coef = gr.createVariable('h_coef','f4',('col4','Nelem'),zlib=True)
-		VarV_coef = gr.createVariable('v_coef','f4',('col4','Nelem'),zlib=True)
-		VarH_exp = gr.createVariable('h_exp','f4',('col4','Nelem'),zlib=True)
-		VarV_exp = gr.createVariable('v_exp','f4',('col4','Nelem'),zlib=True)
-		Var_H1max = gr.createVariable('h1_max','f4',('Nelem',),zlib = True)
-		Var_H3max = gr.createVariable('h3_max','f4',('Nelem',),zlib = True)
-		Control = gr.createVariable('control','i4',('Nelem',),zlib = True)
-		ControlH = gr.createVariable('control_h','i4',('Nelem',),zlib = True)
-		if self.modelType[0] is 'c':
-			drena = gr.createVariable('drena','i4',('col3','Nelem'),zlib = True)
-		elif self.modelType[0] is 'h':
-			drena = gr.createVariable('drena','i4',('Nelem'),zlib = True)
-		unitType = gr.createVariable('unit_type','i4',('Nelem',),zlib = True)
-		hill_long = gr.createVariable('hill_long','f4',('Nelem',),zlib = True)
-		hill_slope = gr.createVariable('hill_slope','f4',('Nelem',),zlib = True)
-		stream_long = gr.createVariable('stream_long','f4',('Nelem',),zlib = True)
-		stream_slope = gr.createVariable('stream_slope','f4',('Nelem',),zlib = True)
-		stream_width = gr.createVariable('stream_width','f4',('Nelem',),zlib = True)
-		elem_area = gr.createVariable('elem_area','f4',('Nelem',),zlib = True)
-		speed_type = gr.createVariable('speed_type','i4',('col3',),zlib = True)
-		storage = gr.createVariable('storage','i4',('col5','Nelem'),zlib = True)
-		#Variables de deslizamientos 
-		if SimSlides:
-			frictionAngle = gr.createVariable('friction_angle','f4',('Nelem',),zlib = True)
-			Cohesion = gr.createVariable('cohesion','f4',('Nelem',),zlib = True)
-			GammaSoil = gr.createVariable('gamma_soil','f4',('Nelem',),zlib = True)
-			ZSoil = gr.createVariable('z_soil','f4',('Nelem',),zlib = True)
-			RadSlope = gr.createVariable('rad_slope','f4',('Nelem',),zlib = True)
-		#Asigna valores a las variables
-		VarDEM[:] = self.DEMvec
-		VarDIR[:] = self.DIRvec
+		#Grupo base 
+		GrupoBase = gr.createGroup('base')
+		GrupoSimHid = gr.createGroup('SimHidro')
+		GrupoSimSed = gr.createGroup('SimSediments')
+		GrupoSimSli = gr.createGroup('SimSlides')
+		GrupoHidro = gr.createGroup('Hidro')
+		GrupoGeo = gr.createGroup('Geomorfo')
+		#Variables grupo base
+		DimNcell = GrupoBase.createDimension('ncell',self.ncells)
+		DimNhill = GrupoBase.createDimension('nhills',self.nhills)
+		DimCol3 = GrupoBase.createDimension('col3',3)
+		DimCol2 = GrupoBase.createDimension('col2',2)
+		VarStruc = GrupoBase.createVariable('structure','i4',('col3','ncell'),zlib=True)
+		VarHills = GrupoBase.createVariable('hills','i4',('col2','nhills'),zlib=True)
+		VarHills_own = GrupoBase.createVariable('hills_own','i4',('ncell',),zlib=True)
 		VarStruc[:] = self.structure
 		VarHills[:] = self.hills
 		VarHills_own[:] = self.hills_own
+		#Variables de Simulacion hidrologica
+		DimNelem = GrupoSimHid.createDimension('Nelem',N)
+		DimCol3 = GrupoSimHid.createDimension('col3',3)
+		DimCol2 = GrupoSimHid.createDimension('col2',2)
+		DimCol4 = GrupoSimHid.createDimension('col4',4)
+		DimCol5 = GrupoSimHid.createDimension('col5',5)
+		VarH_coef = GrupoSimHid.createVariable('h_coef','f4',('col4','Nelem'),zlib=True)
+		VarV_coef = GrupoSimHid.createVariable('v_coef','f4',('col4','Nelem'),zlib=True)
+		VarH_exp = GrupoSimHid.createVariable('h_exp','f4',('col4','Nelem'),zlib=True)
+		VarV_exp = GrupoSimHid.createVariable('v_exp','f4',('col4','Nelem'),zlib=True)
+		Var_H1max = GrupoSimHid.createVariable('h1_max','f4',('Nelem',),zlib = True)
+		Var_H3max = GrupoSimHid.createVariable('h3_max','f4',('Nelem',),zlib = True)
+		Control = GrupoSimHid.createVariable('control','i4',('Nelem',),zlib = True)
+		ControlH = GrupoSimHid.createVariable('control_h','i4',('Nelem',),zlib = True)
+		if self.modelType[0] is 'c':
+			drena = GrupoSimHid.createVariable('drena','i4',('col3','Nelem'),zlib = True)
+		elif self.modelType[0] is 'h':
+			drena = GrupoSimHid.createVariable('drena','i4',('Nelem'),zlib = True)
+		unitType = GrupoSimHid.createVariable('unit_type','i4',('Nelem',),zlib = True)
+		hill_long = GrupoSimHid.createVariable('hill_long','f4',('Nelem',),zlib = True)
+		hill_slope = GrupoSimHid.createVariable('hill_slope','f4',('Nelem',),zlib = True)
+		stream_long = GrupoSimHid.createVariable('stream_long','f4',('Nelem',),zlib = True)
+		stream_slope = GrupoSimHid.createVariable('stream_slope','f4',('Nelem',),zlib = True)
+		stream_width = GrupoSimHid.createVariable('stream_width','f4',('Nelem',),zlib = True)
+		elem_area = GrupoSimHid.createVariable('elem_area','f4',('Nelem',),zlib = True)
+		speed_type = GrupoSimHid.createVariable('speed_type','i4',('col3',),zlib = True)
+		storage = GrupoSimHid.createVariable('storage','i4',('col5','Nelem'),zlib = True)
 		VarH_coef[:] = models.h_coef
 		VarV_coef[:] = models.v_coef
 		VarH_exp[:] = models.h_exp
@@ -3994,15 +3992,25 @@ class SimuBasin(Basin):
 		elem_area[:] = models.elem_area
 		speed_type[:] = models.speed_type
 		storage[:] = models.storage
-		
-		#Asigna valores de deslizamientos 
+		#Variables grupo GEomorfologia
+		DimNcell = GrupoGeo.createDimension('ncell',self.ncells)		
+		VarDEM = GrupoGeo.createVariable('DEM','f4',('ncell',),zlib = True)
+		VarDIR = GrupoGeo.createVariable('DIR','i4',('ncell',),zlib = True)
+		VarDEM[:] = self.DEMvec
+		VarDIR[:] = self.DIRvec
+		#Variables de deslizamientos 
 		if SimSlides:
+			DimNelem = GrupoSimSli.createDimension('Nelem',N)
+			frictionAngle = GrupoSimSli.createVariable('friction_angle','f4',('Nelem',),zlib = True)
+			Cohesion = GrupoSimSli.createVariable('cohesion','f4',('Nelem',),zlib = True)
+			GammaSoil = GrupoSimSli.createVariable('gamma_soil','f4',('Nelem',),zlib = True)
+			ZSoil = GrupoSimSli.createVariable('z_soil','f4',('Nelem',),zlib = True)
+			RadSlope = GrupoSimSli.createVariable('rad_slope','f4',('Nelem',),zlib = True)
 			frictionAngle[:] = models.sl_frictionangle
 			Cohesion[:] = models.sl_cohesion
 			GammaSoil[:] = models.sl_gammas
 			ZSoil[:] = models.sl_zs
 			RadSlope[:] = models.sl_radslope
-		
 		#Introduce variables extras en caso de que el usuario las incluyera
 		if type(ExtraVar) is dict:
 			for k in ExtraVar.keys():
