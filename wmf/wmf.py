@@ -2227,7 +2227,7 @@ class Basin:
 			show = kwargs.get('show',True)
 			if fig is None:
 				fig = pl.figure(figsize = figsize)
-			if axis == None:
+			if axis is None:
 				ax = fig.add_subplot(axloc)
 			else:
 				show = False
@@ -2242,11 +2242,13 @@ class Basin:
 				lats.max(),lines_spaces))
 			parallels_labels = kwargs.get('parallels_labels',[1,0,0,0])
 			parallel_offset = kwargs.get('parallels_offset', 0.001)
-			m.drawparallels(parallels,
+			ticksize = kwargs.get('ticksize',16)
+                        m.drawparallels(parallels,
 				labels = parallels_labels,
 				fmt="%.2f",
 				rotation='vertical',
-				xoffset=parallel_offset)
+				xoffset=parallel_offset,
+                                fontsize = ticksize)
 			meridians = kwargs.get('meridians', np.arange(longs.min(),
 				longs.max(),lines_spaces))
 			meridians_labels = kwargs.get('meridians_labels', [0,0,1,0])
@@ -2254,7 +2256,8 @@ class Basin:
 			m.drawmeridians(meridians,
 				labels=meridians_labels, 
 				fmt="%.2f",
-				yoffset=meridians_offset)
+				yoffset=meridians_offset,
+                                fontsize = ticksize)
 			Xm,Ym=m(X,Y)
 			#plotea el mapa de fondo de arcGIS
 			if backMap is not None:
@@ -2325,9 +2328,9 @@ class Basin:
 			if show is True:
 				pl.show()
 			if xy is None:
-				return m,ax
+				return m
 			else:
-				return m, ax, sx
+				return m, sx
 	#Grafica de plot para montar en paginas web o presentaciones
 	def Plot_basinClean(self, vec, ruta = None, umbral = 0.0, 
 		vmin = 0.0, vmax = None, show_cbar = False, **kwargs):	
