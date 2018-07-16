@@ -2328,9 +2328,9 @@ class Basin:
 			if show is True:
 				pl.show()
 			if xy is None:
-				return m
+				return m,ax
 			else:
-				return m, sx
+				return m,ax,sx
 	#Grafica de plot para montar en paginas web o presentaciones
 	def Plot_basinClean(self, vec, ruta = None, umbral = 0.0, 
 		vmin = 0.0, vmax = None, show_cbar = False, **kwargs):	
