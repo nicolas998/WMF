@@ -182,7 +182,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Actualiza comboBox de goemorfo
             for k in self.HSutils.DicBasinWMF.keys():
                 self.ComboGeoMaskVar.addItem(k)
-
             
         def clickEventBasinLoadDivisory():
             '''Carga la divisoria de la cuenca cargada a WMF'''
@@ -210,8 +209,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def setupGeomorfologia(self):
         '''Conjunto de herramientas para manejar parametros geomorfologicos de la cuenca analizada'''
-		
-		
+        
+        
 
         def clickEventActivateGeoCheckBoxes():
             '''Selecciona y des-selecciona todas las opciones de calculo de una ves'''
@@ -447,6 +446,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.Tabla_Prop_NC.removeRow (selectedItems)
             self.TabNC.DelEntry(ItemName)
             self.HSutils.DicBasinNc.pop(ItemName)
+            self.HSutils.Nc2Erase.append(ItemName)
 
         def handleClickEventButton_Actualizar_WMF_Desde_NC ():
             rows = sorted (set (index.row () for index in self.Tabla_Prop_NC.selectedIndexes ()))
@@ -503,8 +503,14 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.TabNC.NewEntry(self.HSutils.DicBasinWMF[VarName], VarName, self.Tabla_Prop_NC)
             self.Tabla_Prop_WMF.removeRow (selectedItems)
             self.TabWMF.DelEntry(VarName)
-            self.HSutils.DicBasinWMF.pop(VarName)            
-                
+            self.HSutils.DicBasinWMF.pop(VarName)
+            self.HSutils.Nc2Save.append(VarName) 
+        
+        def clickEventBasinUpdateNC():
+            '''Actualiza el archivo .nc de la cuenca con las variables cargadas en la TablaNC'''
+            RutaNC = self.lineEditRutaCuenca.text().strip()
+            self.HSutils.Basin_Update(RutaNC)
+        
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
@@ -647,7 +653,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Button_Eliminar_Desde_WMF.clicked.connect(handleClickEventButton_Eliminar_Desde_WMF)
         self.Tabla_Prop_NC.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.Tabla_Prop_NC.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
-        self.Button_Eliminar_Desde_NC.clicked.connect(handleClickEventButton_Eliminar_Desde_NC)
         #Botones de visualizacion de variables de NC
         self.Tabla_Prop_NC.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.Tabla_Prop_NC.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
@@ -659,7 +664,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #Botones movimiento variables NC a WMF y de WMF a NC
         self.Button_NC2WMF.clicked.connect(handleClickEventButton_NC2WMF)
         self.Button_WMF2NC.clicked.connect(handleClickEventButton_WMF2NC)
-       
+        #Boton para actualizar los archivos que se encuentran guardados en un netCDF
+        self.Button_Update_NC.clicked.connect(clickEventBasinUpdateNC)
  
 class Tabla():
     

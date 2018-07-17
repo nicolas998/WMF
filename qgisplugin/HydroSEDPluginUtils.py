@@ -4,6 +4,7 @@ from qgis.core import QgsRasterLayer, QgsMapLayerRegistry, QgsVectorLayer, QgsFi
 from PyQt4 import QtGui, uic
 import netCDF4
 from wmf import wmf
+import numpy as np 
 
 class controlHS:
     
@@ -20,6 +21,7 @@ class controlHS:
         self.StreamsCount = 0
         self.DicBasinNc = {}
         self.DicBasinWMF = {}
+        self.Nc2Save = []
 
 
     def cargar_mapa_raster (self,pathMapaRaster):
@@ -162,6 +164,37 @@ class controlHS:
             self.cuenca.Save_Net2Map(PathQmed, dxp, umbral, qmed = self.cuenca.CellQmed)
         #Retorna el resultado a la salida 
         return self.cuenca.CellQmed[-1]
+
+    def Basin_Update(self, PathNC):
+        '''Actualiza el archivo nc de la cuenca con las variables agregadas o borradas de la misma'''
+        #Lectura del archivo 
+        g = netCDF4.Dataset(PathNC,'a')
+        #Inclusion de nuevas variables
+        for l in self.Nc2Save:
+            #Selecciona el grupo del nc en donde va a meter la variable
+            Grupo = self.DicBasinNc[l]['categoria']
+            Group = g.groups[Grupo]
+            #Obtiene el nombre, tipo y variable a actualizar
+            nombre = l
+            tipo = self.DicBasinNc[l]['tipo']
+            if tipo == 'float32':
+                tipo = 'f4'
+            elif tipo == 'int64':
+                tipo = 'i4'
+            Var = np.copy(self.DicBasinNc[l]['var'])
+            #Trata de meter la variable como algo no existente 
+            try:
+                print 'variable nueva'
+                VarName = Group.createVariable(nombre,tipo,('ncell',),zlib=True)
+            #si ya existe la variable la sobre escribe 
+            except:
+                print 'variable vieja'
+                VarName = Grupo['variables'][nombre]
+            #guarda la variable
+            VarName[:] = Var
+        self.Nc2Save = []
+        #Cerrado del archivo nc
+        g.close()
 
     def Basin_LoadBasin(self, PathNC):
         # Numero Total de Variables
