@@ -174,6 +174,11 @@ class controlHS:
             #Selecciona el grupo del nc en donde va a meter la variable
             Grupo = self.DicBasinNc[l]['categoria']
             Group = g.groups[Grupo]
+            #mira si el grupo tiene la dimension ncells en caso de que no, la crea
+            try:
+                pos = Group.dimensions.keys().index('ncell')
+            except:
+                DimNcell = Group.createDimension('ncell',self.cuenca.ncells)
             #Obtiene el nombre, tipo y variable a actualizar
             nombre = l
             tipo = self.DicBasinNc[l]['tipo']
@@ -189,7 +194,7 @@ class controlHS:
             #si ya existe la variable la sobre escribe 
             except:
                 print 'variable vieja'
-                VarName = Grupo['variables'][nombre]
+                VarName = Group.variables[nombre]
             #guarda la variable
             VarName[:] = Var
         self.Nc2Save = []
@@ -205,25 +210,28 @@ class controlHS:
         self.cuenca = wmf.SimuBasin(rute = PathNC)
         #Cargar las variables de la cuenca a un diccionario.
         g = netCDF4.Dataset(PathNC)
-        for grupoKey in ['base','Geomorfo']:        
-            for k in g.groups[grupoKey].variables.keys():
-                #Evalua si tiene la misma cantidad de celdas y puede ser un mapa
-                shape = g.groups[grupoKey].variables[k].shape
-                MapaRaster = False
-                for s in shape:
-                    if s == self.cuenca.ncells:
-                        MapaRaster = True
-                    #Actualiza el diccionario
-                    self.DicBasinNc.update({k:
-                        {'nombre':k,
-                        'tipo':g.groups[grupoKey].variables[k].dtype.name,
-                        'shape':g.groups[grupoKey].variables[k].shape,
-                        'raster':MapaRaster,
-                        'basica': True,
-                        'categoria': grupoKey,
-                        'var': g.groups[grupoKey].variables[k][:]}})
-                    self.NumDicBasinNcVariables = self.NumDicBasinNcVariables + 1
-                    self.NumDicBasinNcVariablesBasicas = self.NumDicBasinNcVariablesBasicas + 1
+        for grupoKey in ['base','Geomorfo','Hidro']:        
+            #Carga los grupos de variables en donde si se tengan variables
+            if len(g.groups[grupoKey].variables.keys())>0:
+                #itera
+                for k in g.groups[grupoKey].variables.keys():
+                    #Evalua si tiene la misma cantidad de celdas y puede ser un mapa
+                    shape = g.groups[grupoKey].variables[k].shape
+                    MapaRaster = False
+                    for s in shape:
+                        if s == self.cuenca.ncells:
+                            MapaRaster = True
+                        #Actualiza el diccionario
+                        self.DicBasinNc.update({k:
+                            {'nombre':k,
+                            'tipo':g.groups[grupoKey].variables[k].dtype.name,
+                            'shape':g.groups[grupoKey].variables[k].shape,
+                            'raster':MapaRaster,
+                            'basica': True,
+                            'categoria': grupoKey,
+                            'var': g.groups[grupoKey].variables[k][:]}})
+                        self.NumDicBasinNcVariables = self.NumDicBasinNcVariables + 1
+                        self.NumDicBasinNcVariablesBasicas = self.NumDicBasinNcVariablesBasicas + 1
         g.close()
         #Cargar la cuenca y sus variables base a WMF 
         self.cuenca = wmf.SimuBasin(rute = PathNC)
