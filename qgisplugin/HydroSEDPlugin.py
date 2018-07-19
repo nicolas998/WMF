@@ -24,6 +24,7 @@ from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
 from PyQt4.QtGui import QAction, QIcon
 # Initialize Qt resources from file resources.py
 import resources
+import resources_rc
 import os
 # Import the code for the DockWidget
 from HydroSEDPlugin_dockwidget import HydroSEDPluginDockWidget

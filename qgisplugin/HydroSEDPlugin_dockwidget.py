@@ -27,7 +27,7 @@ from PyQt4 import QtGui, uic
 from PyQt4.QtCore import pyqtSignal
 
 from qgis.gui import QgsMessageBar
-from PyQt4.QtGui import QFileDialog, QTableWidgetItem
+from PyQt4.QtGui import QFileDialog, QTableWidgetItem, QAbstractItemView
 
 import os.path
 
@@ -62,6 +62,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         self.TablaFila_WMF = 0
         self.TablaFila_NC = 0
+        self.botonClicked = False
         
         #Inicia el comboBox de la seleccion de categoria para transformar raster a WMF
         for k in ['base','Geomorfo','SimHidro','Hidro']:
@@ -152,6 +153,18 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "Cargador de cuencas", "*","Cuenca en NetCDF4(*.nc);;", 
                 QtGui.QFileDialog.DontUseNativeDialog))
         
+        def clickEventSelectShape2SaveNc():
+            self.ruta2network = SelectNetworkshapeDialog (QFileDialog)
+            self.Tabla_Prop_NC.setSelectionMode(QAbstractItemView.SingleSelection)
+            self.ruta2network
+        
+        def SelectNetworkshapeDialog (fileDialogHolder):
+            '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''            
+            lineEditHolder = fileDialogHolder.getOpenFileName (QtGui.QDialog (), "Guardar en capa vectorial...", "*", "Shapefiles (*.shp);;")
+            return lineEditHolder
+            #if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
+             #   self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
+        
         #Funciones para Cargar variables
         def clickEventSelectorBasin():
             '''click para seleccionar un proyecto de cuenca'''
@@ -200,12 +213,37 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.mapCanvas().refresh() 
             self.iface.legendInterface().refreshLayerSymbology(layer)   
         
+        def clickEventBasinVarNC2Network():
+            '''Convierte un conjunto de variables a una red hidrica de la cuenca'''
+            if self.botonClicked is False:
+                #Hace que la seleccion sea multiple en la columna de NC
+                self.Tabla_Prop_NC.setSelectionMode(QAbstractItemView.MultiSelection)
+                self.ruta2Network = ''
+                #imprime las variables seleccionadas
+                self.Vars2Network = []
+                self.botonClicked = True
+                self.ButtonVar2Net_NC.setText('Variables')
+                return
+            elif self.botonClicked is True:
+                for i in self.Tabla_Prop_NC.selectedItems()[::4]:
+                    self.Vars2Network.append(i.text())
+                #En el segundo click selecciona el archivo y ejecuta 
+                self.ruta2Network = SelectNetworkshapeDialog(QFileDialog)
+                self.Tabla_Prop_NC.setSelectionMode(QAbstractItemView.SingleSelection)
+                self.botonClicked = False
+                #Guardado de las variables en formato red hidrica
+                self.HSutils.BasinNc2Network(self.ruta2Network,self.Vars2Network)
+                self.ButtonVar2Net_NC.setText('Var2Net')
+        
         #Botones para variables de entrada 
         self.botonSelectorProyectBasin.clicked.connect(clickEventSelectorBasin)
         self.ButtonLoadBasinProyect.clicked.connect(clickEventBasin2WMF)
         #Botones para visualizar polilineas y poligonos 
         self.Boton_verDivisoria.clicked.connect(clickEventBasinLoadDivisory)
         self.Boton_verRedHidrica.clicked.connect(clickEventBasinLoadNetwork)
+        #boton para convertir variables a red hidrica
+        self.ButtonVar2Net_NC.clicked.connect(clickEventBasinVarNC2Network)
+        
 
     def setupGeomorfologia(self):
         '''Conjunto de herramientas para manejar parametros geomorfologicos de la cuenca analizada'''
@@ -662,7 +700,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Tabla_Prop_WMF.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
         self.Button_Visualizar_Desde_WMF.clicked.connect(handleClickEventButton_Ver_Desde_WMF)
         #Botones movimiento variables NC a WMF y de WMF a NC
-        self.Button_NC2WMF.clicked.connect(handleClickEventButton_NC2WMF)
+        #self.Button_NC2WMF.clicked.connect(handleClickEventButton_NC2WMF)
         self.Button_WMF2NC.clicked.connect(handleClickEventButton_WMF2NC)
         #Boton para actualizar los archivos que se encuentran guardados en un netCDF
         self.Button_Update_NC.clicked.connect(clickEventBasinUpdateNC)

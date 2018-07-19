@@ -123,6 +123,19 @@ class controlHS:
         # Guarda el nc de la cuenca 
         if len(PathNC)>2:
             self.cuenca.Save_SimuBasin(PathNC)
+    
+    def BasinNc2Network(self,pathNetwork, names):
+        '''Guarda una red hidrica con las variables seleccionadas del diccionario NC'''
+        # genera el diccionario de las variables a guardar
+        DicVar = {}
+        for n in names:
+            DicVar.update({n.encode():self.DicBasinNc[n]['var'].data})
+        print DicVar
+        #Guarda la red hidrica 
+        self.cuenca.Save_Net2Map(pathNetwork, wmf.cu.dxp, 
+            umbral = self.cuenca.umbral,
+            EPSG = int(self.cuenca.epsg),
+            Dict = DicVar)
         
     def hidologia_balance(self, dxp, umbral, PathRain, PathETR, PathQmed):
         #Se fija si la lluvia es un path o un valor 
