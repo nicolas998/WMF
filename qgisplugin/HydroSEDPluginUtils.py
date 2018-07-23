@@ -422,9 +422,37 @@ class controlHS:
         '''Encuentra las fechas y el paso de tiempo del archivo de excel que contiene los registros de lluvia'''
         #Abre el archivo y encuentra fechas
         Data = pd.read_excel(Path2Excel)
+        self.InterpolData = Data.copy()
         self.Interpol_fi = Data.index[0].to_pydatetime()
         self.Interpol_ff = Data.index[-1].to_pydatetime()
         self.Interpol_fd = Data.index[1] - Data.index[0]
+    
+    def Interpol_GetInterpolation(self, Path2Shp,Campo2Read,fi,ff,fd,expo, PathOutput):
+        '''Interpola los campos de precipitacion para el periodo seleccionado con las estaciones disponibles'''
+        #Fechas en letras
+        fi = fi.strftime('%Y-%m-%d-%H:%M')
+        ff = ff.strftime('%Y-%m-%d-%H:%M')
+        tr = '%dS'%fd
+        #Obtiene los ids de excel 
+        idExcel = self.InterpolData.columns.values.tolist()
+        idExcel = [i.encode() for i in idExcel]
+        #Lee el shp con los puntos y los ids 
+        xy,idShape = wmf.read_map_points(Path2Shp,[Campo2Read.encode()])
+        idShape = idShape[Campo2Read].astype(int).astype(str).tolist()
+        #Organiza los datos para interpolar
+        xyNew = []
+        ColGood = []
+        for i in idShape:
+            try:
+                pos = idExcel.index(i)
+                xyNew.append(xy.T[pos].tolist())
+                ColGood.append(i)
+            except:
+                pass
+        xyNew = np.array(xyNew)
+        Data = self.InterpolData[ColGood][fi:ff].resample(tr).sum()
+        #Interpola
+        self.cuenca.rain_interpolate_idw(xyNew.T, Data, PathOutput,p = expo)
         
         
         

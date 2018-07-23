@@ -475,6 +475,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
                 self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
         
+        def setupLineEditButtonSaveFileDialog (lineEditHolder, fileDialogHolder):
+            '''Pone la ruta elegida en el dialogo de texto para guardado'''
+            lineEditHolder.setText (fileDialogHolder.getSaveFileName (QtGui.QDialog (), "Guardar (cargar) binario de lluvia", "*", "RainBin (*.bin);;"))
+        
         def setupLineEditButtonOpenExcelFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Excel (*.xlsx);;"))
@@ -505,9 +509,29 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.Interpol_DateTimeEnd.setDateTime(Date)
             #Pone el intervalo de tiempo de interpolacion
             self.Interpol_SpinBox_delta.setValue(self.HSutils.Interpol_fd.total_seconds())
-            
+        
+        def clickEventSelectorArchivoBinarioLluvia():
+            '''Selecciona la ruta en donde se guardara el binario de salida.'''
+            setupLineEditButtonSaveFileDialog(self.PathOutHydro_Interpol,QFileDialog)
+        
+        def clickEventEjecutarInterpolacion():
+            '''Interpola los campos de precipitacion con los parametros ingresados.'''
+            #Toma los parametros para la interpolacion
+            Path2Shp = self.PathInHydro_Interpol_Pluvios.text().strip()
+            Campo2Read = self.comboBox_Interpol.currentText()
+            fi = self.Interpol_DateTimeStart.dateTime().toPyDateTime()
+            ff = self.Interpol_DateTimeEnd.dateTime().toPyDateTime()
+            fd = self.Interpol_SpinBox_delta.value()
+            expo = self.Interpol_SpinBox_expIDW.value()
+            PathOut = self.PathOutHydro_Interpol.text().strip()
+            #Interpola para la cuenca seleccionada
+            self.HSutils.Interpol_GetInterpolation(Path2Shp,Campo2Read,fi,ff,fd,expo, PathOut)
+            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Interpolacion de campos de precipitacion realizada con exito')
+        
         self.Boton_HidroLoad_Pluvios.clicked.connect(clickEventSelectorMapaPuntosPluvio)
         self.Boton_HidroLoad_Serie.clicked.connect(clickEventSelectorArchivoExcel)
+        self.Button_HidroSaveInterpol.clicked.connect(clickEventSelectorArchivoBinarioLluvia)
+        self.Butto_Ejec_HidroInterpol.clicked.connect(clickEventEjecutarInterpolacion)
         
     def setupUIInputsOutputs (self):
         

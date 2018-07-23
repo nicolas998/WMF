@@ -1248,7 +1248,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-190</y>
+              <y>0</y>
               <width>443</width>
               <height>918</height>
              </rect>
@@ -3170,7 +3170,7 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QDoubleSpinBox" name="spinBox_Interpol_P_IDW">
+                     <widget class="QDoubleSpinBox" name="Interpol_SpinBox_expIDW">
                       <property name="minimumSize">
                        <size>
                         <width>50</width>
@@ -3322,7 +3322,7 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="PathOutHydro_Interpol_RainField_2">
+                     <widget class="QLineEdit" name="PathOutHydro_Interpol">
                       <property name="whatsThis">
                        <string>Ruta de guardado</string>
                       </property>
@@ -3332,7 +3332,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="Button_HidroSaveQmed_3">
+                     <widget class="QPushButton" name="Button_HidroSaveInterpol">
                       <property name="whatsThis">
                        <string>Establecer ruta de guardado del binario de lluvia.</string>
                       </property>
