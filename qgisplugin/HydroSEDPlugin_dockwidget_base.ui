@@ -250,7 +250,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-455</y>
+              <y>-20</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -2617,7 +2617,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>350</y>
+                  <y>440</y>
                   <width>421</width>
                   <height>241</height>
                  </rect>
@@ -2985,7 +2985,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>411</width>
-                  <height>331</height>
+                  <height>421</height>
                  </rect>
                 </property>
                 <property name="title">
@@ -2995,9 +2995,9 @@
                  <property name="geometry">
                   <rect>
                    <x>0</x>
-                   <y>20</y>
+                   <y>30</y>
                    <width>411</width>
-                   <height>307</height>
+                   <height>365</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -3074,7 +3074,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QComboBox" name="comboBox_18"/>
+                     <widget class="QComboBox" name="comboBox_Interpol"/>
                     </item>
                    </layout>
                   </item>
@@ -3107,14 +3107,14 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="PathInHydro_Interpol_Pluvios_3">
+                     <widget class="QLineEdit" name="PathInHydro_Interpol_Serie">
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="Button_HidroViewPluvioPoints_3">
+                     <widget class="QPushButton" name="Boton_HidroLoad_Serie">
                       <property name="enabled">
                        <bool>true</bool>
                       </property>
@@ -3203,13 +3203,19 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDateTimeEdit" name="DateTimeStart_2">
+                     <widget class="QDateTimeEdit" name="Interpol_DateTimeStart">
                       <property name="date">
                        <date>
                         <year>2015</year>
                         <month>1</month>
                         <day>1</day>
                        </date>
+                      </property>
+                      <property name="displayFormat">
+                       <string>dd/MMM/yyyy HH:mm</string>
+                      </property>
+                      <property name="calendarPopup">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -3225,13 +3231,40 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDateTimeEdit" name="DateTimeStart_3">
+                     <widget class="QDateTimeEdit" name="Interpol_DateTimeEnd">
                       <property name="date">
                        <date>
                         <year>2015</year>
                         <month>1</month>
                         <day>1</day>
                        </date>
+                      </property>
+                      <property name="displayFormat">
+                       <string>dd/MMM/yyyy HH:mm</string>
+                      </property>
+                      <property name="calendarPopup">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_61">
+                    <item>
+                     <widget class="QLabel" name="label_65">
+                      <property name="text">
+                       <string>Intervalo de tiempo [seg]</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="Interpol_SpinBox_delta">
+                      <property name="minimum">
+                       <double>5.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>999999999.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -3410,7 +3443,7 @@
                 <property name="geometry">
                  <rect>
                   <x>-3</x>
-                  <y>330</y>
+                  <y>420</y>
                   <width>411</width>
                   <height>20</height>
                  </rect>
@@ -3423,7 +3456,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>620</y>
+                  <y>710</y>
                   <width>421</width>
                   <height>271</height>
                  </rect>
@@ -3772,7 +3805,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>590</y>
+                  <y>680</y>
                   <width>411</width>
                   <height>20</height>
                  </rect>
@@ -4413,7 +4446,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDateTimeEdit" name="DateTimeStart">
+                     <widget class="QDateTimeEdit" name="Sim_DateTimeStart">
                       <property name="date">
                        <date>
                         <year>2015</year>
@@ -4435,7 +4468,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDateTimeEdit" name="DateTimeEnd">
+                     <widget class="QDateTimeEdit" name="Sim_DateTimeEnd">
                       <property name="date">
                        <date>
                         <year>2015</year>

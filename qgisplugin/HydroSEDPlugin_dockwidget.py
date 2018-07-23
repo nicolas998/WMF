@@ -23,7 +23,7 @@
 
 import os
 
-from PyQt4 import QtGui, uic
+from PyQt4 import QtGui, uic, QtCore
 from PyQt4.QtCore import pyqtSignal
 
 from qgis.gui import QgsMessageBar
@@ -59,6 +59,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.setupBasinManager()
         self.setupGeomorfologia()
         #self.setupUIButtonEvents ()
+        self.setupRainfallInterpolation()
         
         self.TablaFila_WMF = 0
         self.TablaFila_NC = 0
@@ -465,6 +466,49 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Button_Raster2WMF.clicked.connect(handleClickConnectRaster2WMF)
         
     
+    def setupRainfallInterpolation(self):
+        '''Conjunto de herramientas dispuestas para interpolar campos de precipitacion'''
+        
+        def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
+            '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
+            if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
+                self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
+        
+        def setupLineEditButtonOpenExcelFileDialog (lineEditHolder, fileDialogHolder):
+            '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Excel (*.xlsx);;"))
+            
+        def clickEventSelectorMapaPuntosPluvio():
+            '''Evento de click: selecciona el shp con las estaciones'''
+            #Reinicia el vector con los nombres de las variables y abre el archivo de puntos
+            self.HSutils.Interpol_Columnas = []
+            setupLineEditButtonOpenShapeFileDialog (self.PathInHydro_Interpol_Pluvios, QFileDialog)
+            #Esculca los nombres de las columnas del mismo.
+            Path2Vect = self.PathInHydro_Interpol_Pluvios.text().strip()
+            self.HSutils.Interpol_GetFields(Path2Vect)
+            #Llena las opciones del ComboBox de Ids para elegir
+            for l in self.HSutils.Interpol_Columnas:
+                self.comboBox_Interpol.addItem(l)
+            
+        def clickEventSelectorArchivoExcel():
+            '''Evento de click: selecciona el archivo de excel con los datos de pracipitacion a interpolar'''
+            #Busca el archivo
+            setupLineEditButtonOpenExcelFileDialog (self.PathInHydro_Interpol_Serie, QFileDialog)
+            #Encuentra la fecha inicio, fin y paso de tiempo, sugiere esos datos al usuario
+            Path2Excel = self.PathInHydro_Interpol_Serie.text().strip()
+            self.HSutils.Interpol_GetDateTimeParams(Path2Excel)
+            #Pone las fechas
+            Date = QtCore.QDateTime(self.HSutils.Interpol_fi)
+            self.Interpol_DateTimeStart.setDateTime(Date)
+            Date = QtCore.QDateTime(self.HSutils.Interpol_ff)
+            self.Interpol_DateTimeEnd.setDateTime(Date)
+            #Pone el intervalo de tiempo de interpolacion
+            self.Interpol_SpinBox_delta.setValue(self.HSutils.Interpol_fd.total_seconds())
+            
+        self.Boton_HidroLoad_Pluvios.clicked.connect(clickEventSelectorMapaPuntosPluvio)
+        self.Boton_HidroLoad_Serie.clicked.connect(clickEventSelectorArchivoExcel)
+        
     def setupUIInputsOutputs (self):
         
         def handleClickEventButton_Eliminar_Desde_WMF ():
@@ -537,6 +581,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             VarName = self.Tabla_Prop_WMF.item(selectedItems,0).text()
             # Copia la entrada a WMF y la saca de NC
             self.HSutils.DicBasinNc.update({VarName:self.HSutils.DicBasinWMF[VarName]})
+            self.HSutils.DicBasinNc[VarName]['var'] = np.copy(self.HSutils.DicBasinWMF[VarName]['var'])
             # Mete la entrada en la tabla de WMF y la saca de la tabla de NC
             self.TabNC.NewEntry(self.HSutils.DicBasinWMF[VarName], VarName, self.Tabla_Prop_NC)
             self.Tabla_Prop_WMF.removeRow (selectedItems)

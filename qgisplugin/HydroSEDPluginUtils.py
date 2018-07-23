@@ -5,6 +5,8 @@ from PyQt4 import QtGui, uic
 import netCDF4
 from wmf import wmf
 import numpy as np 
+import pandas as pd
+import osgeo.ogr as ogr
 
 class controlHS:
     
@@ -22,7 +24,7 @@ class controlHS:
         self.DicBasinNc = {}
         self.DicBasinWMF = {}
         self.Nc2Save = []
-
+        self.Interpol_Columnas = []
 
     def cargar_mapa_raster (self,pathMapaRaster):
     
@@ -401,3 +403,29 @@ class controlHS:
     def Basin_GeoGetParameters(self):
         self.cuenca.GetGeo_Parameters()
         return self.cuenca.GeoParameters, self.cuenca.Tc
+
+    def Interpol_GetFields(self, Path2Points):
+        '''Entrega una lista con los nombres de los atributos de un shp de puntos'''
+        #Lectura del archivo 
+        Driver = ogr.Open(Path2Points)
+        layer = Driver.GetLayer(0)
+        #Obtiene los nombres de las columnas
+        self.Interpol_Columnas = []
+        ldefn = layer.GetLayerDefn()
+        for n in range(ldefn.GetFieldCount()):
+            fdefn = ldefn.GetFieldDefn(n)
+            self.Interpol_Columnas.append(fdefn.name)
+        #Cierra el archivos
+        Driver.Destroy()
+        
+    def Interpol_GetDateTimeParams(self, Path2Excel):
+        '''Encuentra las fechas y el paso de tiempo del archivo de excel que contiene los registros de lluvia'''
+        #Abre el archivo y encuentra fechas
+        Data = pd.read_excel(Path2Excel)
+        self.Interpol_fi = Data.index[0].to_pydatetime()
+        self.Interpol_ff = Data.index[-1].to_pydatetime()
+        self.Interpol_fd = Data.index[1] - Data.index[0]
+        
+        
+        
+        
