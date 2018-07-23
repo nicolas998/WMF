@@ -23,11 +23,12 @@
 
 import os
 
-from PyQt4 import QtGui, uic
+
+from PyQt4 import QtGui, uic, QtCore
 from PyQt4.QtCore import pyqtSignal, Qt, QSize
 
 from qgis.gui import QgsMessageBar
-from PyQt4.QtGui import QFileDialog, QTableWidgetItem
+from PyQt4.QtGui import QFileDialog, QTableWidgetItem, QAbstractItemView
 
 import os.path
 
@@ -59,9 +60,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.setupBasinManager()
         self.setupGeomorfologia()
         #self.setupUIButtonEvents ()
+        self.setupRainfallInterpolation()
         
         self.TablaFila_WMF = 0
         self.TablaFila_NC = 0
+        self.botonClicked = False
         
         #Inicia el comboBox de la seleccion de categoria para transformar raster a WMF
         for k in ['base','Geomorfo','SimHidro','Hidro']:
@@ -154,6 +157,18 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "Cargador de cuencas", "*","Cuenca en NetCDF4(*.nc);;", 
                 QtGui.QFileDialog.DontUseNativeDialog))
         
+        def clickEventSelectShape2SaveNc():
+            self.ruta2network = SelectNetworkshapeDialog (QFileDialog)
+            self.Tabla_Prop_NC.setSelectionMode(QAbstractItemView.SingleSelection)
+            self.ruta2network
+        
+        def SelectNetworkshapeDialog (fileDialogHolder):
+            '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''            
+            lineEditHolder = fileDialogHolder.getOpenFileName (QtGui.QDialog (), "Guardar en capa vectorial...", "*", "Shapefiles (*.shp);;")
+            return lineEditHolder
+            #if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
+             #   self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
+        
         #Funciones para Cargar variables
         def clickEventSelectorBasin():
             '''click para seleccionar un proyecto de cuenca'''
@@ -181,6 +196,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.LineEditNoData.setText(texto)
             self.spinBox_dxPlano.setValue(dxp)
             self.SpinGeoUmbralCanal.setValue(self.umbral)
+            #Actualiza comboBox de goemorfo
+            for k in self.HSutils.DicBasinWMF.keys():
+                self.ComboGeoMaskVar.addItem(k)
             
         def clickEventBasinLoadDivisory():
             '''Carga la divisoria de la cuenca cargada a WMF'''
@@ -199,16 +217,104 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.mapCanvas().refresh() 
             self.iface.legendInterface().refreshLayerSymbology(layer)   
         
+        def clickEventBasinVarNC2Network():
+            '''Convierte un conjunto de variables a una red hidrica de la cuenca'''
+            if self.botonClicked is False:
+                #Hace que la seleccion sea multiple en la columna de NC
+                self.Tabla_Prop_NC.setSelectionMode(QAbstractItemView.MultiSelection)
+                self.ruta2Network = ''
+                #imprime las variables seleccionadas
+                self.Vars2Network = []
+                self.botonClicked = True
+                self.ButtonVar2Net_NC.setText('Variables')
+                return
+            elif self.botonClicked is True:
+                for i in self.Tabla_Prop_NC.selectedItems()[::4]:
+                    self.Vars2Network.append(i.text())
+                #En el segundo click selecciona el archivo y ejecuta 
+                self.ruta2Network = SelectNetworkshapeDialog(QFileDialog)
+                self.Tabla_Prop_NC.setSelectionMode(QAbstractItemView.SingleSelection)
+                self.botonClicked = False
+                #Guardado de las variables en formato red hidrica
+                self.HSutils.BasinNc2Network(self.ruta2Network,self.Vars2Network)
+                self.ButtonVar2Net_NC.setText('Var2Net')
+        
         #Botones para variables de entrada 
         self.botonSelectorProyectBasin.clicked.connect(clickEventSelectorBasin)
         self.ButtonLoadBasinProyect.clicked.connect(clickEventBasin2WMF)
         #Botones para visualizar polilineas y poligonos 
         self.Boton_verDivisoria.clicked.connect(clickEventBasinLoadDivisory)
         self.Boton_verRedHidrica.clicked.connect(clickEventBasinLoadNetwork)
+        #boton para convertir variables a red hidrica
+        self.ButtonVar2Net_NC.clicked.connect(clickEventBasinVarNC2Network)
+        
 
     def setupGeomorfologia(self):
         '''Conjunto de herramientas para manejar parametros geomorfologicos de la cuenca analizada'''
+        
+        
 
+        def clickEventActivateGeoCheckBoxes():
+            '''Selecciona y des-selecciona todas las opciones de calculo de una ves'''
+            #Si esta checked todas se seleccionan
+            if self.checkBoxTodos.isChecked():
+                self.checkBoxArea.setChecked(True)
+                self.checkBoxOrder.setChecked(True)
+                self.checkBoxChannels.setChecked(True)
+                self.checkBoxDist2Out.setChecked(True)
+                self.checkBoxHAND.setChecked(True)
+                self.checkBoxIT.setChecked(True)
+            #Si no, des-selecciona a todas
+            else:
+                self.checkBoxArea.setChecked(False)
+                self.checkBoxOrder.setChecked(False)
+                self.checkBoxChannels.setChecked(False)
+                self.checkBoxDist2Out.setChecked(False)
+                self.checkBoxHAND.setChecked(False)
+                self.checkBoxIT.setChecked(False)
+            
+        def GeoTableStart():
+            '''Inicia la tabla donde monta los parametros geomorfologicos de la cuenca'''
+            self.GeoTableNumRows = 23
+            self.GeoTableNumItems = 0
+            self.GeoTableHeader = ["Parametro", "Valor", "Unidades"]
+            self.TableGeoParameters.setRowCount(self.GeoTableNumRows)
+            self.TableGeoParameters.setColumnCount(len(self.GeoTableHeader))
+            self.TableGeoParameters.setHorizontalHeaderLabels(self.GeoTableHeader)
+        
+        def clickEventGeoProperties():
+            '''Calcula los parametros geomorfologicos de la cuenca.'''
+            #Reinicia la talba para que no se llene de cosas
+            self.GeoTableNumItems = 0
+            self.TableGeoParameters.clear()
+            self.TableGeoParameters.clearContents()
+            #Calcula los parametros.
+            Param,Tc = self.HSutils.Basin_GeoGetParameters()
+            print Param
+            #Inicia la tabla 
+            GeoTableStart()
+            #le pone los parametros
+            for d in Param.keys():
+                #Obtiene nombre y unidad
+                cadena = d.split('_')
+                unidad = cadena[-1].split('[')[-1].split(']')[0]
+                nombre = ' '.join(cadena[:-1])
+                valor = '%.3f' % Param[d]
+                #Actualiza la tabla
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 0, QTableWidgetItem(nombre))
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 1, QTableWidgetItem(valor))
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 2, QTableWidgetItem(unidad))
+                self.GeoTableNumItems += 1
+            for d in Tc.keys():
+                nombre = d
+                valor = '%.3f' % Tc[d]
+                unidad = 'Hrs'
+                #Actualiza la tabla
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 0, QTableWidgetItem(nombre))
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 1, QTableWidgetItem(valor))
+                self.TableGeoParameters.setItem (self.GeoTableNumItems, 2, QTableWidgetItem(unidad))
+                self.GeoTableNumItems += 1
+            
         def clickEventGeoRasterProp():
             '''calcula los parametros geomorfologicos de la cuenca por raster'''
             #Lista de variables a calcular
@@ -220,17 +326,31 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if self.checkBoxOrder.isChecked():
                 self.HSutils.Basin_GeoGetOrder()
                 ListaVar.extend(['Order_hills','Order_channels'])
-                
-            
+            if self.checkBoxHAND.isChecked():
+                self.HSutils.Basin_GeoGetHAND()
+                ListaVar.extend(['HAND','HDND','HAND_class'])
+            if self.checkBoxIT.isChecked():
+                self.HSutils.Basin_GeoGetIT()
+                ListaVar.extend(['Topo_index'])
+            if self.checkBoxDist2Out.isChecked():
+                self.HSutils.Basin_GeoGetDist2Out()
+                ListaVar.extend(['Dist2Out'])
+            if self.checkBoxChannels.isChecked():
+                self.HSutils.Basin_GeoGetChannels()
+                ListaVar.extend(['Channels'])
             #mensaje de caso de exito
             self.iface.messageBar().pushInfo(u'HidroSIG:',u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')
             #Actualiza la tabla de variables temporales 
             for k in ListaVar:
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
+                self.ComboGeoMaskVar.addItem(k)
+                self.ComboGeoVar2Acum.addItem(k)
         
         #Botones de ejecucion
         self.ButtonGeomorfoRasterVars.clicked.connect(clickEventGeoRasterProp)
-    
+        self.checkBoxTodos.clicked.connect(clickEventActivateGeoCheckBoxes)
+        self.ButtonGeoParameters.clicked.connect(clickEventGeoProperties)
+        #self.ComboGeoMaskVar.activated.connect(clickEventUpdateComboBoxMask)
     
     def setupHidro_Balance(self):
         
@@ -290,10 +410,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Habilita botones de visualizacion de variables 
             if len(self.PathOutHydro_Qmed.text()) > 2:
                 self.Button_HidroViewQmed.setEnabled(True)
-            #Actualiza la tabla de variables temporales 
+            #Actualiza la tabla de variables temporales y actualiza comboBox de gomorfo
             for k in ['Caudal','ETR','Runoff']:
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
-            
+                
         #Botones para variables de entrada 
         self.Boton_HidroLoadRain.clicked.connect(clickEventSelectorRaster)
         #Botones para variables de salida
@@ -349,6 +469,73 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Button_Raster2WMF.clicked.connect(handleClickConnectRaster2WMF)
         
     
+    def setupRainfallInterpolation(self):
+        '''Conjunto de herramientas dispuestas para interpolar campos de precipitacion'''
+        
+        def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
+            '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
+            if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
+                self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
+        
+        def setupLineEditButtonSaveFileDialog (lineEditHolder, fileDialogHolder):
+            '''Pone la ruta elegida en el dialogo de texto para guardado'''
+            lineEditHolder.setText (fileDialogHolder.getSaveFileName (QtGui.QDialog (), "Guardar (cargar) binario de lluvia", "*", "RainBin (*.bin);;"))
+        
+        def setupLineEditButtonOpenExcelFileDialog (lineEditHolder, fileDialogHolder):
+            '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Excel (*.xlsx);;"))
+            
+        def clickEventSelectorMapaPuntosPluvio():
+            '''Evento de click: selecciona el shp con las estaciones'''
+            #Reinicia el vector con los nombres de las variables y abre el archivo de puntos
+            self.HSutils.Interpol_Columnas = []
+            setupLineEditButtonOpenShapeFileDialog (self.PathInHydro_Interpol_Pluvios, QFileDialog)
+            #Esculca los nombres de las columnas del mismo.
+            Path2Vect = self.PathInHydro_Interpol_Pluvios.text().strip()
+            self.HSutils.Interpol_GetFields(Path2Vect)
+            #Llena las opciones del ComboBox de Ids para elegir
+            for l in self.HSutils.Interpol_Columnas:
+                self.comboBox_Interpol.addItem(l)
+            
+        def clickEventSelectorArchivoExcel():
+            '''Evento de click: selecciona el archivo de excel con los datos de pracipitacion a interpolar'''
+            #Busca el archivo
+            setupLineEditButtonOpenExcelFileDialog (self.PathInHydro_Interpol_Serie, QFileDialog)
+            #Encuentra la fecha inicio, fin y paso de tiempo, sugiere esos datos al usuario
+            Path2Excel = self.PathInHydro_Interpol_Serie.text().strip()
+            self.HSutils.Interpol_GetDateTimeParams(Path2Excel)
+            #Pone las fechas
+            Date = QtCore.QDateTime(self.HSutils.Interpol_fi)
+            self.Interpol_DateTimeStart.setDateTime(Date)
+            Date = QtCore.QDateTime(self.HSutils.Interpol_ff)
+            self.Interpol_DateTimeEnd.setDateTime(Date)
+            #Pone el intervalo de tiempo de interpolacion
+            self.Interpol_SpinBox_delta.setValue(self.HSutils.Interpol_fd.total_seconds())
+        
+        def clickEventSelectorArchivoBinarioLluvia():
+            '''Selecciona la ruta en donde se guardara el binario de salida.'''
+            setupLineEditButtonSaveFileDialog(self.PathOutHydro_Interpol,QFileDialog)
+        
+        def clickEventEjecutarInterpolacion():
+            '''Interpola los campos de precipitacion con los parametros ingresados.'''
+            #Toma los parametros para la interpolacion
+            Path2Shp = self.PathInHydro_Interpol_Pluvios.text().strip()
+            Campo2Read = self.comboBox_Interpol.currentText()
+            fi = self.Interpol_DateTimeStart.dateTime().toPyDateTime()
+            ff = self.Interpol_DateTimeEnd.dateTime().toPyDateTime()
+            fd = self.Interpol_SpinBox_delta.value()
+            expo = self.Interpol_SpinBox_expIDW.value()
+            PathOut = self.PathOutHydro_Interpol.text().strip()
+            #Interpola para la cuenca seleccionada
+            self.HSutils.Interpol_GetInterpolation(Path2Shp,Campo2Read,fi,ff,fd,expo, PathOut)
+            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Interpolacion de campos de precipitacion realizada con exito')
+        
+        self.Boton_HidroLoad_Pluvios.clicked.connect(clickEventSelectorMapaPuntosPluvio)
+        self.Boton_HidroLoad_Serie.clicked.connect(clickEventSelectorArchivoExcel)
+        self.Button_HidroSaveInterpol.clicked.connect(clickEventSelectorArchivoBinarioLluvia)
+        self.Butto_Ejec_HidroInterpol.clicked.connect(clickEventEjecutarInterpolacion)
+        
     def setupUIInputsOutputs (self):
         
         def handleClickEventButton_Eliminar_Desde_WMF ():
@@ -368,6 +555,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.Tabla_Prop_NC.removeRow (selectedItems)
             self.TabNC.DelEntry(ItemName)
             self.HSutils.DicBasinNc.pop(ItemName)
+            self.HSutils.Nc2Erase.append(ItemName)
 
         def handleClickEventButton_Actualizar_WMF_Desde_NC ():
             rows = sorted (set (index.row () for index in self.Tabla_Prop_NC.selectedIndexes ()))
@@ -420,12 +608,19 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             VarName = self.Tabla_Prop_WMF.item(selectedItems,0).text()
             # Copia la entrada a WMF y la saca de NC
             self.HSutils.DicBasinNc.update({VarName:self.HSutils.DicBasinWMF[VarName]})
+            self.HSutils.DicBasinNc[VarName]['var'] = np.copy(self.HSutils.DicBasinWMF[VarName]['var'])
             # Mete la entrada en la tabla de WMF y la saca de la tabla de NC
             self.TabNC.NewEntry(self.HSutils.DicBasinWMF[VarName], VarName, self.Tabla_Prop_NC)
             self.Tabla_Prop_WMF.removeRow (selectedItems)
             self.TabWMF.DelEntry(VarName)
-            self.HSutils.DicBasinWMF.pop(VarName)            
-                
+            self.HSutils.DicBasinWMF.pop(VarName)
+            self.HSutils.Nc2Save.append(VarName) 
+        
+        def clickEventBasinUpdateNC():
+            '''Actualiza el archivo .nc de la cuenca con las variables cargadas en la TablaNC'''
+            RutaNC = self.lineEditRutaCuenca.text().strip()
+            self.HSutils.Basin_Update(RutaNC)
+        
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
@@ -591,7 +786,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Button_Eliminar_Desde_WMF.clicked.connect(handleClickEventButton_Eliminar_Desde_WMF)
         self.Tabla_Prop_NC.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.Tabla_Prop_NC.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
-        self.Button_Eliminar_Desde_NC.clicked.connect(handleClickEventButton_Eliminar_Desde_NC)
         #Botones de visualizacion de variables de NC
         self.Tabla_Prop_NC.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.Tabla_Prop_NC.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
@@ -601,11 +795,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Tabla_Prop_WMF.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
         self.Button_Visualizar_Desde_WMF.clicked.connect(handleClickEventButton_Ver_Desde_WMF)
         #Botones movimiento variables NC a WMF y de WMF a NC
-        self.Button_NC2WMF.clicked.connect(handleClickEventButton_NC2WMF)
+        #self.Button_NC2WMF.clicked.connect(handleClickEventButton_NC2WMF)
         self.Button_WMF2NC.clicked.connect(handleClickEventButton_WMF2NC)
-
+        #Boton para actualizar los archivos que se encuentran guardados en un netCDF
+        self.Button_Update_NC.clicked.connect(clickEventBasinUpdateNC)
         self.botonPruebaPanel.clicked.connect (clickEventBotonPruebaAbrirNuevoDockWidget)
-       
  
 class Tabla():
     
