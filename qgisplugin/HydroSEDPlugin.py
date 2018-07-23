@@ -230,7 +230,9 @@ class HydroSEDPlugin:
             # show the dockwidget
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
+#            self.iface.addDockWidget(Qt.BottomDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
+
             
             #Crea un directorio temporal 
             try:

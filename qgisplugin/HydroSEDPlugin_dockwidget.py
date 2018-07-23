@@ -23,8 +23,9 @@
 
 import os
 
+
 from PyQt4 import QtGui, uic, QtCore
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtCore import pyqtSignal, Qt, QSize
 
 from qgis.gui import QgsMessageBar
 from PyQt4.QtGui import QFileDialog, QTableWidgetItem, QAbstractItemView
@@ -33,12 +34,12 @@ import os.path
 
 import HydroSEDPluginUtils as HSutils
 import HydroGetCoordinates as HSCoord
+from HydroSEDPlugin_dockwidget_Panel_Imagenes import HydroSEDPluginDockWidgetPanelImagenes
 
 import GdalTools_utils as GdalTools_utils
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'HydroSEDPlugin_dockwidget_base.ui'))
-
 
 class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
@@ -77,6 +78,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.spinBoxLongitudTrazadorCorrientes)
         self.GetCoordsCuenca = HSCoord.PointTool(self.iface.mapCanvas(), self.spinBoxLatitudTrazadorCuencas,
             self.spinBoxLongitudTrazadorCuencas)
+
+        self.dockwidgetImagenes = None
         #self.iface.mapCanvas().setMapTool(GetCoords)
 
     def closeEvent(self, event):
@@ -721,6 +724,29 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventSelectorOutputCuencaNCTrazadorCuencas ():
             setupLineEditButtonSaveFileDialog (self.lineEditOutputCuencaNCTrazadorCuencas, QFileDialog)
 
+        def clickEventBotonPruebaAbrirNuevoDockWidget ():
+
+            # dockwidget may not exist if:
+            #    first run of plugin
+            #    removed on close (see self.onClosePlugin method)
+#            if self.dockwidgetImagenes == None:
+#                # Create the dockwidget (after translation) and keep reference
+#                print "Not None ..."
+#                self.dockwidgetImagenes = HydroSEDPluginDockWidgetPanelImagenes(iface = self.iface)
+
+            self.dockwidgetImagenes = HydroSEDPluginDockWidgetPanelImagenes(iface = self.iface)
+#            self.dockwidgetImagenes = HydroSEDPluginDockWidget(iface = self.iface)
+
+            # connect to provide cleanup on closing of dockwidget
+#            self.dockwidgetImagenes.closingPlugin.connect(self.iface.onClosePlugin)
+
+            # show the dockwidget
+            # TODO: fix to allow choice of dock location
+#            self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
+#            self.iface.addDockWidget(Qt.NoDockWidgetArea, self.dockwidgetImagenes)
+            self.iface.addDockWidget(Qt.BottomDockWidgetArea, self.dockwidgetImagenes)
+            self.dockwidgetImagenes.show()
+
         self.botonSelectorMapaDEM.clicked.connect (clickEventSelectorMapaDEM)
         self.botonSelectorMapaDIR.clicked.connect (clickEventSelectorMapaDIR)
         
@@ -773,6 +799,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Button_WMF2NC.clicked.connect(handleClickEventButton_WMF2NC)
         #Boton para actualizar los archivos que se encuentran guardados en un netCDF
         self.Button_Update_NC.clicked.connect(clickEventBasinUpdateNC)
+        self.botonPruebaPanel.clicked.connect (clickEventBotonPruebaAbrirNuevoDockWidget)
  
 class Tabla():
     
