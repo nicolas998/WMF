@@ -7,6 +7,7 @@ from wmf import wmf
 import numpy as np 
 import pandas as pd
 import osgeo.ogr as ogr
+import HydroSEDPlots as HSplots
 
 class controlHS:
     
@@ -454,6 +455,26 @@ class controlHS:
         #Interpola
         self.cuenca.rain_interpolate_idw(xyNew.T, Data, PathOutput,p = expo)
         
+    def Interpol_GetRainfallAcum(self, path2bin, inicio, fin):
+        '''Obtiene un campo acumulado de precipitacion para el periodo especifico'''
+        #Lee el binario y los datos en el intervalo
+        Vsum = np.zeros(self.cuenca.ncells)
+        for i in range(inicio, fin+1):
+            vect,res = wmf.models.read_int_basin(path2bin,i,self.cuenca.ncells)
+            if res == 0:
+                vect = vect.astype(float)/1000.
+                Vsum+=vect
+        #Pasa el acumulado al diccionario de WMF 
+        self.DicBasinWMF.update({'Lluvia':
+            {'nombre':'Lluvia',
+            'tipo':Vsum.dtype.name,
+            'shape':Vsum.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Hidro',
+            'var': Vsum}})
+           
+
         
         
         

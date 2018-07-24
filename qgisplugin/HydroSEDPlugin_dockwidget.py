@@ -24,7 +24,8 @@
 import os
 
 from PyQt4 import QtGui, uic, QtCore
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtCore import pyqtSignal, QUrl
+from PyQt4.QtWebKit import QWebView
 
 from qgis.gui import QgsMessageBar
 from PyQt4.QtGui import QFileDialog, QTableWidgetItem, QAbstractItemView
@@ -33,6 +34,7 @@ import os.path
 
 import HydroSEDPluginUtils as HSutils
 import HydroGetCoordinates as HSCoord
+import HydroSEDPlots as HSplots
 
 import GdalTools_utils as GdalTools_utils
 
@@ -72,7 +74,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         if not (iface is None):
             self.iface = iface
-        self.HSutils = HSutils.controlHS()
+        self.HSutils = HSutils.controlHS()        
         self.GetCoordsCorriente = HSCoord.PointTool(self.iface.mapCanvas(), self.spinBoxLatitudTrazadorCorrientes,
             self.spinBoxLongitudTrazadorCorrientes)
         self.GetCoordsCuenca = HSCoord.PointTool(self.iface.mapCanvas(), self.spinBoxLatitudTrazadorCuencas,
@@ -512,7 +514,14 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         def clickEventSelectorArchivoBinarioLluvia():
             '''Selecciona la ruta en donde se guardara el binario de salida.'''
+            #pone el camino del archivo con la lluvia de la cuenca
             setupLineEditButtonSaveFileDialog(self.PathOutHydro_Interpol,QFileDialog)
+            #Trata de leer datos de lluvia en caso de que ya existan
+            try:
+                PathData = self.PathOutHydro_Interpol.text().strip()
+                self.HSplots = HSplots.PlotRainfall(PathData)
+            except:
+                pass
         
         def clickEventEjecutarInterpolacion():
             '''Interpola los campos de precipitacion con los parametros ingresados.'''
@@ -526,12 +535,86 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             PathOut = self.PathOutHydro_Interpol.text().strip()
             #Interpola para la cuenca seleccionada
             self.HSutils.Interpol_GetInterpolation(Path2Shp,Campo2Read,fi,ff,fd,expo, PathOut)
+            #Trata de leer datos de lluvia en caso de que ya existan
+            try:
+                PathData = self.PathOutHydro_Interpol.text().strip()
+                self.HSplots = HSplots.PlotRainfall(PathData)
+            except:
+                pass
+            #Aviso de existo
             self.iface.messageBar().pushInfo(u'HidroSIG:',u'Interpolacion de campos de precipitacion realizada con exito')
         
+        def clickEventViewSerieRainfall():
+            '''Genera y visualiza la grafica de lluvia interpolada para la cuenca'''
+            #Hace la figura
+            PathFigure = '/tmp/HydroSED/RainfallPlot.html'
+            self.HSplots.Plot_Rainfall(PathFigure)
+            #Set de la ventana que contiene la figura.
+            self.VistaRainWeb = QWebView(None)
+            self.VistaRainWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaRainWeb.setWindowTitle('Precipitacion media en la cuenca')
+            self.VistaRainWeb.setMinimumWidth(1100)
+            self.VistaRainWeb.setMaximumWidth(3000)
+            self.VistaRainWeb.setMinimumHeight(100)
+            self.VistaRainWeb.setMaximumHeight(400)
+            self.VistaRainWeb.show()
+        
+        def clickEventViewHistogramRainfall():
+            '''Genera y visualiza la grafica de lluvia interpolada para la cuenca'''
+            #Hace la figura
+            PathFigure = '/tmp/HydroSED/RainfallHistogram.html'
+            self.HSplots.Plot_Histogram(PathFigure)
+            #Set de la ventana que contiene la figura.
+            self.VistaRainWeb = QWebView(None)
+            self.VistaRainWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaRainWeb.setWindowTitle('Histograma precipitacion')
+            self.VistaRainWeb.setMinimumWidth(200)
+            self.VistaRainWeb.setMaximumWidth(400)
+            self.VistaRainWeb.setMinimumHeight(400)
+            self.VistaRainWeb.setMaximumHeight(400)
+            self.VistaRainWeb.show()
+        
+        def clickEventViewMediaMensualRainfall():
+            '''Genera y visualiza la grafica de la lluvia media mensual en la cuenca'''
+            #Hace la figura
+            PathFigure = '/tmp/HydroSED/RainfallMediaMensual.html'
+            self.HSplots.Plot_MediaMensual(PathFigure)
+            #Set de la ventana que contiene la figura.
+            self.VistaRainWeb = QWebView(None)
+            self.VistaRainWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaRainWeb.setWindowTitle('Media mensual multi-anual de precipitacion')
+            self.VistaRainWeb.setMinimumWidth(200)
+            self.VistaRainWeb.setMaximumWidth(800)
+            self.VistaRainWeb.setMinimumHeight(100)
+            self.VistaRainWeb.setMaximumHeight(400)
+            self.VistaRainWeb.show()
+        
+        def clickEventGetAcumRainfall():
+            '''Obtiene el acumulado de lluvia en el periodo especifico'''
+            #Punto inicial y final 
+            Path = self.PathOutHydro_Interpol.text().strip()
+            inicio = int(self.spinBoxCampoInicio.value())
+            fin = int(self.spinBoxCampoFin.value())
+            #Obtiene el campo acumulado para el periodo seleccionado
+            self.HSutils.Interpol_GetRainfallAcum(Path, inicio, fin)
+            #Actualiza la tabla WMF
+            k = 'Lluvia'
+            self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
+            #Aviso de existo
+            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Los campos de han acumulado en la variable Lluvia de la tabla WMF')
+        
+        #Botones de set de interpolacion
         self.Boton_HidroLoad_Pluvios.clicked.connect(clickEventSelectorMapaPuntosPluvio)
         self.Boton_HidroLoad_Serie.clicked.connect(clickEventSelectorArchivoExcel)
         self.Button_HidroSaveInterpol.clicked.connect(clickEventSelectorArchivoBinarioLluvia)
-        self.Butto_Ejec_HidroInterpol.clicked.connect(clickEventEjecutarInterpolacion)
+        #Botones de ejecucion
+        self.Button_Ejec_HidroInterpol.clicked.connect(clickEventEjecutarInterpolacion)
+        self.Button_InterpolViewField.clicked.connect(clickEventGetAcumRainfall)
+        #Botones de visualizacion
+        self.Button_InterpolSerieView.clicked.connect(clickEventViewSerieRainfall)
+        self.Button_InterpolHistogram.clicked.connect(clickEventViewHistogramRainfall)
+        self.Button_InterpolCiclo.clicked.connect(clickEventViewMediaMensualRainfall)
+        
         
     def setupUIInputsOutputs (self):
         

@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-20</y>
+              <y>0</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -2581,7 +2581,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-38</y>
               <width>443</width>
               <height>1918</height>
              </rect>
@@ -2985,7 +2985,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>411</width>
-                  <height>421</height>
+                  <height>411</height>
                  </rect>
                 </property>
                 <property name="title">
@@ -2997,7 +2997,7 @@
                    <x>0</x>
                    <y>30</y>
                    <width>411</width>
-                   <height>365</height>
+                   <height>381</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -3309,19 +3309,6 @@
                      </widget>
                     </item>
                     <item>
-                     <spacer name="horizontalSpacer_19">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>10</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
                      <widget class="QLineEdit" name="PathOutHydro_Interpol">
                       <property name="whatsThis">
                        <string>Ruta de guardado</string>
@@ -3346,7 +3333,153 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDoubleSpinBox" name="spinBoxVerCampoInterpol">
+                     <widget class="QPushButton" name="Button_Ejec_HidroInterpol">
+                      <property name="toolTip">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="Line" name="line_12">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_33">
+                    <item>
+                     <widget class="QLabel" name="label_66">
+                      <property name="toolTip">
+                       <string>Ruta de guardado del binario de fortran con la serie de precipitación interpolada.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta de guardado del binario de fortran con la serie de precipitación interpolada.</string>
+                      </property>
+                      <property name="text">
+                       <string>Gráficas tiempo</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_InterpolCiclo">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string>Ciclo Anual</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_InterpolHistogram">
+                      <property name="minimumSize">
+                       <size>
+                        <width>10</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string>Histograma</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_InterpolSerieView">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string>Serie</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_62">
+                    <item>
+                     <widget class="QLabel" name="label_67">
+                      <property name="toolTip">
+                       <string>Ruta de guardado del binario de fortran con la serie de precipitación interpolada.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta de guardado del binario de fortran con la serie de precipitación interpolada.</string>
+                      </property>
+                      <property name="text">
+                       <string>Gráficas espacio</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="spinBoxCampoInicio">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Entrada del binario de lluvia a visualizar.</string>
+                      </property>
+                      <property name="decimals">
+                       <number>0</number>
+                      </property>
+                      <property name="minimum">
+                       <double>0.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="spinBoxCampoFin">
                       <property name="minimumSize">
                        <size>
                         <width>50</width>
@@ -3371,9 +3504,9 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="Button_HidroViewRainFieldBinary">
+                     <widget class="QPushButton" name="Button_InterpolViewField">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="maximumSize">
                        <size>
@@ -3390,47 +3523,6 @@
                       <property name="icon">
                        <iconset resource="resources.qrc">
                         <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <widget class="Line" name="line_12">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_33">
-                    <item>
-                     <spacer name="horizontalSpacer_18">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>10</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Butto_Ejec_HidroInterpol">
-                      <property name="toolTip">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                       </property>
                      </widget>
                     </item>
