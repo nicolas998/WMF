@@ -62,6 +62,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.setupGeomorfologia()
         #self.setupUIButtonEvents ()
         self.setupRainfallInterpolation()
+        self.setupSimulation()
         
         self.TablaFila_WMF = 0
         self.TablaFila_NC = 0
@@ -178,7 +179,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.ButtonLoadBasinProyect.setEnabled(True)
         def clickEventBasin2WMF():
             '''Agrega el proyecto de cuenca a WMF'''
-            self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
+            #Checks para simulacion de sedimentos e hidrologica
+            Simhidro = self.checkBox_simBasin.isChecked()
+            SimSed = self.checkBox_simSed.isChecked()
+            #Cargado de la cuenca
+            self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(), Simhidro, SimSed)
             self.TableStart()
             for k in self.HSutils.DicBasinNc.keys():
                 self.TabNC.NewEntry(self.HSutils.DicBasinNc[k],k, self.Tabla_Prop_NC)
@@ -615,6 +620,47 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Button_InterpolHistogram.clicked.connect(clickEventViewHistogramRainfall)
         self.Button_InterpolCiclo.clicked.connect(clickEventViewMediaMensualRainfall)
         
+    
+    def setupSimulation(self):
+        '''Herramientas para gestionar la simulacion hidrologica con la cuenca cargada'''
+        
+        def clickEventUpdateParamMapValues():
+            '''Muestra en los campos de simulacion el valor medio de los mapas de simulacion'''
+            VarNames = ['h1_max','h3_max', 'v_coef','v_coef','v_coef','v_coef','h_coef',
+                'h_coef','h_coef','h_coef', 'Krusle','Crusle','Prusle',
+                'Arenas','Limos','Arcillas']
+            Ejes = [0,0,0,1,2,3,0,1,2,3,0,0,0,0,0,0]
+            for name, i, eje in zip(VarNames, range(1,17), Ejes):
+                Campo = getattr(self, 'ParamVal'+str(i))
+                Campo.setMinimum(-99999)
+                Campo.setValue(0)
+                try:
+                    Value = self.HSutils.DicBasinNc[name]['var'].mean(axis = 1)[eje]
+                except:
+                    try:
+                        Value = self.HSutils.DicBasinNc[name]['var'].mean()
+                    except:
+                        Value = -9999
+                Campo.setValue(Value)
+        
+        def clickEventAddNewParamSet():
+            '''Agrega un nuevo conjunto de parametros en el proyecto de cuenca'''
+            #Obtiene los parametros
+            PathNC = self.lineEditRutaCuenca.text().strip()
+            ParamName = self.ParamName.text().strip()
+            #Itera para los parametros escalares y de sedimentos
+            ListaParam = []
+            for i in range(1,12):
+                ListaParam.append(getattr(self, 'Param'+str(i)).value())
+            #Itera en los exponentes
+            for i in range(1,5):
+                ListaParam.append(getattr(self, 'ParamExp'+str(i)).value())    
+            #Mete el set nuevo de calibracion
+            self.HSutils.Sim_SaveParameters(PathNC, ParamName, ListaParam)
+            
+            
+        self.ButtonSimCalib2Nc.clicked.connect(clickEventAddNewParamSet)    
+        self.tabPanelDockOpciones.currentChanged.connect(clickEventUpdateParamMapValues)
         
     def setupUIInputsOutputs (self):
         

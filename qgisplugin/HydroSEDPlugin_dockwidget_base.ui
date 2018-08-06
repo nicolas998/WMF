@@ -113,7 +113,7 @@
             <item>
              <widget class="QCheckBox" name="checkBox_simSed">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string>Sedimentos</string>
@@ -250,7 +250,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>4</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -2581,7 +2581,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-38</y>
+              <y>0</y>
               <width>443</width>
               <height>1918</height>
              </rect>
@@ -3947,7 +3947,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-328</y>
               <width>433</width>
               <height>1918</height>
              </rect>
@@ -4103,7 +4103,7 @@
                   <x>0</x>
                   <y>330</y>
                   <width>411</width>
-                  <height>641</height>
+                  <height>711</height>
                  </rect>
                 </property>
                 <property name="title">
@@ -4115,7 +4115,7 @@
                    <x>0</x>
                    <y>70</y>
                    <width>401</width>
-                   <height>531</height>
+                   <height>551</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -4124,27 +4124,21 @@
                     <property name="horizontalSpacing">
                      <number>4</number>
                     </property>
-                    <item row="11" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_14"/>
-                    </item>
-                    <item row="12" column="1">
-                     <widget class="QComboBox" name="comboBox_13"/>
-                    </item>
-                    <item row="12" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_15"/>
-                    </item>
                     <item row="0" column="1">
                      <widget class="QLabel" name="label_19">
+                      <property name="whatsThis">
+                       <string>Valor medio de la variable</string>
+                      </property>
                       <property name="text">
                        <string>Variable</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="1">
-                     <widget class="QComboBox" name="comboBox_2"/>
-                    </item>
                     <item row="0" column="2">
                      <widget class="QLabel" name="label_31">
+                      <property name="whatsThis">
+                       <string>Parametro calibrador</string>
+                      </property>
                       <property name="text">
                        <string>Coef</string>
                       </property>
@@ -4152,71 +4146,68 @@
                     </item>
                     <item row="11" column="0">
                      <widget class="QLabel" name="label_44">
+                      <property name="whatsThis">
+                       <string>Parámetro K de RUSLE</string>
+                      </property>
                       <property name="text">
                        <string>Krusle</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="1">
-                     <widget class="QComboBox" name="comboBox_3"/>
-                    </item>
-                    <item row="7" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_6"/>
-                    </item>
                     <item row="7" column="3">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_10">
+                     <widget class="QDoubleSpinBox" name="ParamExp1">
                       <property name="whatsThis">
                        <string>Exponente regional en caso de usar aproximación no lineal v = C A^e</string>
                       </property>
                       <property name="accessibleName">
                        <string>Exponente aproximación no lineal al flujo superficial</string>
                       </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
                      </widget>
                     </item>
-                    <item row="8" column="1">
-                     <widget class="QComboBox" name="comboBox_7"/>
-                    </item>
-                    <item row="8" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_7"/>
-                    </item>
-                    <item row="9" column="1">
-                     <widget class="QComboBox" name="comboBox_8"/>
-                    </item>
                     <item row="8" column="3">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_11">
+                     <widget class="QDoubleSpinBox" name="ParamExp2">
                       <property name="whatsThis">
                        <string>Exponente regional en caso de usar aproximación no lineal v = C A^e</string>
                       </property>
                       <property name="accessibleName">
                        <string>Exponente aproximación no lineal al flujo sub-superficial</string>
                       </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
                      </widget>
-                    </item>
-                    <item row="9" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_8"/>
                     </item>
                     <item row="8" column="0">
                      <widget class="QLabel" name="label_7">
+                      <property name="whatsThis">
+                       <string>Velocidad horizontal sub-superficial (h_coef[1])</string>
+                      </property>
                       <property name="text">
                        <string>Vh2 [m/s]</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="1">
-                     <widget class="QComboBox" name="comboBox"/>
-                    </item>
                     <item row="0" column="3">
                      <widget class="QLabel" name="label_32">
+                      <property name="whatsThis">
+                       <string>Exponente aproximacion potencial (dejar en 1 para ecuaciones lineales)</string>
+                      </property>
                       <property name="text">
                        <string>Expo</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="6" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_5"/>
-                    </item>
                     <item row="9" column="0">
                      <widget class="QLabel" name="label_8">
+                      <property name="whatsThis">
+                       <string>Velocidad horizontal subterranea (h_coef[2])</string>
+                      </property>
                       <property name="text">
                        <string>Vh3 [m/s]</string>
                       </property>
@@ -4224,97 +4215,84 @@
                     </item>
                     <item row="7" column="0">
                      <widget class="QLabel" name="label_6">
+                      <property name="whatsThis">
+                       <string>Velocidad horizontal escorrentia (h_coef[0])</string>
+                      </property>
                       <property name="text">
                        <string>Vh1 [m/s]</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="6" column="1">
-                     <widget class="QComboBox" name="comboBox_5"/>
-                    </item>
-                    <item row="2" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
-                    </item>
-                    <item row="5" column="1">
-                     <widget class="QComboBox" name="comboBox_4"/>
-                    </item>
                     <item row="4" column="0">
                      <widget class="QLabel" name="label_3">
+                      <property name="whatsThis">
+                       <string>Velocidad vertical infiltracion (v_coef[1])</string>
+                      </property>
                       <property name="text">
                        <string>Vv1 [mm/s]</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
-                    </item>
                     <item row="5" column="0">
                      <widget class="QLabel" name="label_4">
+                      <property name="whatsThis">
+                       <string>Velocidad vertical percolacion (v_coef[2])</string>
+                      </property>
                       <property name="text">
                        <string>Vv2 [mm/s]</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
-                    </item>
                     <item row="10" column="0">
                      <widget class="QLabel" name="label_11">
+                      <property name="whatsThis">
+                       <string>Velocidad horizontal canales (h_coef[3])</string>
+                      </property>
                       <property name="text">
                        <string>Vh4 [m/s]</string>
                       </property>
                      </widget>
                     </item>
                     <item row="9" column="3">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_12">
+                     <widget class="QDoubleSpinBox" name="ParamExp3">
                       <property name="whatsThis">
                        <string>Exponente regional en caso de usar aproximación no lineal v = C A^e</string>
                       </property>
                       <property name="accessibleName">
                        <string>Exponente aproximación no lineal al flujo subterráneo</string>
                       </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_4"/>
-                    </item>
-                    <item row="10" column="3">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_13">
-                      <property name="whatsThis">
-                       <string>Exponente regional en caso de usar aproximación no lineal v = C A^e</string>
-                      </property>
-                      <property name="accessibleName">
-                       <string>Exponente aproximación no lineal al flujo en canales</string>
+                      <property name="value">
+                       <double>1.000000000000000</double>
                       </property>
                      </widget>
-                    </item>
-                    <item row="10" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_9"/>
                     </item>
                     <item row="6" column="0">
                      <widget class="QLabel" name="label_5">
+                      <property name="whatsThis">
+                       <string>Velocidad vertical pérdidas (v_coef[3])</string>
+                      </property>
                       <property name="text">
                        <string>Vv3 [mm/s]</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="7" column="1">
-                     <widget class="QComboBox" name="comboBox_6"/>
-                    </item>
-                    <item row="10" column="1">
-                     <widget class="QComboBox" name="comboBox_9"/>
-                    </item>
                     <item row="3" column="0">
                      <widget class="QLabel" name="label_2">
+                      <property name="whatsThis">
+                       <string>Velocidad vertical evaporacion (v_coef[0])</string>
+                      </property>
                       <property name="text">
-                       <string>Hg [mm]</string>
+                       <string>Vv0 [mm]</string>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="0">
                      <widget class="QLabel" name="label">
+                      <property name="whatsThis">
+                       <string>Almacenamiento máximo capilar [h3_max]</string>
+                      </property>
                       <property name="text">
-                       <string>Hu [mm]</string>
+                       <string>Hg [mm]</string>
                       </property>
                      </widget>
                     </item>
@@ -4327,42 +4305,39 @@
                     </item>
                     <item row="12" column="0">
                      <widget class="QLabel" name="label_45">
+                      <property name="whatsThis">
+                       <string>Parámetro C de RUSLE</string>
+                      </property>
                       <property name="text">
                        <string>Crusle</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="11" column="1">
-                     <widget class="QComboBox" name="comboBox_12"/>
-                    </item>
-                    <item row="13" column="1">
-                     <widget class="QComboBox" name="comboBox_14"/>
-                    </item>
                     <item row="13" column="0">
                      <widget class="QLabel" name="label_46">
+                      <property name="whatsThis">
+                       <string>Parámetro P de RUSLE</string>
+                      </property>
                       <property name="text">
                        <string>Prusle</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="13" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_16"/>
-                    </item>
                     <item row="15" column="0">
                      <widget class="QLabel" name="label_47">
+                      <property name="whatsThis">
+                       <string>Porcentaje de limos (0-100)</string>
+                      </property>
                       <property name="text">
                        <string>Limos</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="15" column="1">
-                     <widget class="QComboBox" name="comboBox_15"/>
-                    </item>
-                    <item row="15" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_17"/>
-                    </item>
                     <item row="16" column="0">
                      <widget class="QLabel" name="label_48">
+                      <property name="whatsThis">
+                       <string>Porcentaje de arcillas (0-100)</string>
+                      </property>
                       <property name="text">
                        <string>Arcillas</string>
                       </property>
@@ -4370,22 +4345,391 @@
                     </item>
                     <item row="14" column="0">
                      <widget class="QLabel" name="label_49">
+                      <property name="whatsThis">
+                       <string>Porcentaje de arenas (0-100)</string>
+                      </property>
                       <property name="text">
                        <string>Arenas</string>
                       </property>
                      </widget>
                     </item>
+                    <item row="11" column="2">
+                     <widget class="QLabel" name="label_68">
+                      <property name="text">
+                       <string>Sed Param</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="12" column="2">
+                     <widget class="QDoubleSpinBox" name="Param11">
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="label_9">
+                      <property name="whatsThis">
+                       <string>Almacenamiento máximo capilar [h1_max]</string>
+                      </property>
+                      <property name="text">
+                       <string>Hu [mm]</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="2">
+                     <widget class="QDoubleSpinBox" name="Param1">
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="2">
+                     <widget class="QDoubleSpinBox" name="Param2">
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="QDoubleSpinBox" name="Param3">
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="QDoubleSpinBox" name="Param4">
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="2">
+                     <widget class="QDoubleSpinBox" name="Param5">
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="6" column="2">
+                     <widget class="QDoubleSpinBox" name="Param6">
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="2">
+                     <widget class="QDoubleSpinBox" name="Param7">
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="2">
+                     <widget class="QDoubleSpinBox" name="Param8">
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="2">
+                     <widget class="QDoubleSpinBox" name="Param9">
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="2">
+                     <widget class="QDoubleSpinBox" name="Param10">
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="3">
+                     <widget class="QDoubleSpinBox" name="ParamExp4">
+                      <property name="whatsThis">
+                       <string>Exponente regional en caso de usar aproximación no lineal v = C A^e</string>
+                      </property>
+                      <property name="accessibleName">
+                       <string>Exponente aproximación no lineal al flujo en canales</string>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal1">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal2">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal3">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="minimum">
+                       <double>-1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal4">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal5">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="6" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal6">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="minimum">
+                       <double>-99999.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal7">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal8">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal9">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal10">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="11" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal11">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="12" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal12">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="13" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal13">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="14" column="1">
-                     <widget class="QComboBox" name="comboBox_16"/>
+                     <widget class="QDoubleSpinBox" name="ParamVal14">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="15" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal15">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
                     </item>
                     <item row="16" column="1">
-                     <widget class="QComboBox" name="comboBox_17"/>
-                    </item>
-                    <item row="16" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_18"/>
-                    </item>
-                    <item row="14" column="2">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_19"/>
+                     <widget class="QDoubleSpinBox" name="ParamVal16">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
                     </item>
                    </layout>
                   </item>
@@ -4395,7 +4739,7 @@
                  <property name="geometry">
                   <rect>
                    <x>0</x>
-                   <y>600</y>
+                   <y>620</y>
                    <width>401</width>
                    <height>41</height>
                   </rect>
@@ -4411,7 +4755,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="PathCorriente_out_3">
+                     <widget class="QLineEdit" name="ParamName">
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
@@ -4710,7 +5054,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>970</y>
+                  <y>1050</y>
                   <width>411</width>
                   <height>20</height>
                  </rect>
@@ -4723,7 +5067,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>990</y>
+                  <y>1070</y>
                   <width>401</width>
                   <height>271</height>
                  </rect>
@@ -4787,6 +5131,7 @@
   </widget>
  </widget>
  <resources>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>

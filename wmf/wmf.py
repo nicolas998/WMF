@@ -3934,6 +3934,7 @@ class SimuBasin(Basin):
 		GrupoSimSli = gr.createGroup('SimSlides')
 		GrupoHidro = gr.createGroup('Hidro')
 		GrupoGeo = gr.createGroup('Geomorfo')
+		GrupoCalib = gr.createGroup('Parametros')
 		#Variables grupo base
 		DimNcell = GrupoBase.createDimension('ncell',self.ncells)
 		DimNhill = GrupoBase.createDimension('nhills',self.nhills)

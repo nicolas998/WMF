@@ -217,7 +217,10 @@ class controlHS:
         #Cerrado del archivo nc
         g.close()
 
-    def Basin_LoadBasin(self, PathNC):
+    def Basin_LoadBasin(self, PathNC, LoadSim = False, LoadSed = False):
+        '''Carga un proyecto cuenca de nc en la memoria de Qgis:
+        LoadSim: Carga las variables de simulacion
+        LoadSed: Carga variables de simulacion de sedimentos'''
         # Numero Total de Variables
         self.NumDicBasinNcVariables = 0
         # Numero Total de Variables Basicas
@@ -226,7 +229,12 @@ class controlHS:
         self.cuenca = wmf.SimuBasin(rute = PathNC)
         #Cargar las variables de la cuenca a un diccionario.
         g = netCDF4.Dataset(PathNC)
-        for grupoKey in ['base','Geomorfo','Hidro']:        
+        ListGrupos = ['base','Geomorfo','Hidro']
+        if LoadSim:
+            ListGrupos.append('SimHidro')
+        if LoadSed:
+            ListGrupos.append('SimSediments')
+        for grupoKey in ListGrupos:  
             #Carga los grupos de variables en donde si se tengan variables
             if len(g.groups[grupoKey].variables.keys())>0:
                 #itera
@@ -474,7 +482,33 @@ class controlHS:
             'categoria': 'Hidro',
             'var': Vsum}})
            
-
-        
+    def Sim_SaveParameters(self, PathNC, ParamName, scalarParam):
+        '''Actualiza el nc con un conjunto de parametros escalares nuevo'''
+        #Abre el archivo nc y apunta al grupo de parametros
+        g = netCDF4.Dataset(PathNC,'a')
+        GrupoParam = g.groups['Parametros']
+        Ejecuto = 1
+        if len(ParamName)>0:
+            #mira si el grupo ya tiene parametros adentro, si no crea la dimension
+            try:
+                pos = GrupoParam.dimensions.keys().index('nparam')
+            except:
+                DimNparam = GrupoParam.createDimension('nparam',15)
+                #Crea el sub-grupo con el nombre de los parametros dentro del nc 
+                SubGroup = g.groups['Parametros'].createGroup('NombreParam')
+                nnames = SubGroup.createDimension('nnames',15)
+                nombres = SubGroup.createVariable('nombres', str, ('nnames',))
+                nombres[:] = np.array(['Hu','Hg','Evp','Inf','Per','Loss','vRun','vSub','vSup','vChannel',
+                    'SedParam','Exp1','Exp2','Exp3','Exp4'], dtype = object)
+            #Crea la variable en el grupo o la sobre-escribe
+            try:
+                Var = GrupoParam.createVariable(ParamName,'f4',('nparam',),zlib=True)
+            except:
+                Var = GrupoParam.variables[ParamName]
+            Var[:] = scalarParam
+            Ejecuto = 0
+        #cierra el archivo 
+        g.close()
+        return Ejecuto
         
         
