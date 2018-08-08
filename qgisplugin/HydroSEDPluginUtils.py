@@ -408,7 +408,82 @@ class controlHS:
             'basica': False,
             'categoria': 'Geomorfo',
             'var': self.cuenca.CellHAND_class}})
-            
+
+    def Basin_GeoGetOCG(self):
+        '''Obtiene el coeficiente y el exponente de OCG (velez, 2001) para la cuenca'''
+        #Obtiene param basicos de la cuenca 
+        self.cuenca.GetGeo_Cell_Basics()
+        Area = self.cuenca.CellAcum*wmf.cu.dxp**2/1e6
+        #Obtiene el coeficiente 
+        Coef, Expo = wmf.OCG_param(pend=self.cuenca.CellSlope, area=Area)
+        #Agrea los resultados al diccionario
+        self.DicBasinWMF.update({'OCG_coef':
+            {'nombre':'OCG_coef',
+            'tipo':Coef.dtype.name,
+            'shape':Coef.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geomorfo',
+            'var': np.copy(Coef)}})
+        self.DicBasinWMF.update({'OCG_exp':
+            {'nombre':'OCG_exp',
+            'tipo':Coef.dtype.name,
+            'shape':Coef.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geomorfo',
+            'var': np.copy(Expo)}})
+    
+    def Basin_GeoGetKubota(self):
+        '''Obtiene el coeficiente de kubota y sivapalan para el flujo de agua en el suelo
+        para el correcto calculo el susuario debe tener definidas las variables:
+            - Hu: almacenamiento capilar maximo [mm] DicBasinNc['h1_max']
+            - ks: conductividad saturada del suelo [mm/s] DicBasinNc['v_coef'][1]'''
+        #Copia parametros de la cuenca que deben estar definidos 
+        Hu = np.copy(self.DicBasinNc['h1_max']['var'])
+        ks = np.copy(self.DicBasinNc['v_coef']['var'][0])
+        self.cuenca.GetGeo_Cell_Basics()
+        So = np.copy(self.cuenca.CellSlope)
+        Factor = (wmf.cu.dxp**2.)/1000. #[m3/mm]
+        #Calculo del coeficiente de kubota
+        Coef = (ks*So*(wmf.cu.dxp**2.))/(3*(Hu*Factor)**2.)
+        #Actualiza el diccionario 
+        self.DicBasinWMF.update({'Kubota_coef':
+            {'nombre':'Kubota_coef',
+            'tipo':Coef.dtype.name,
+            'shape':Coef.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geomorfo',
+            'var': np.copy(Coef)}})
+        
+    def Basin_GeoGetRunoff(self, e1, Epsilon):
+        '''Obtiene el coeficiente de escorrentia para carcavas'''
+        #Obtiene pendiente y param requeridos
+        self.cuenca.GetGeo_Cell_Basics()
+        So = np.copy(self.cuenca.CellSlope)
+        Man = np.copy(self.DicBasinWMF['Manning']['var'])
+        #Calcula 
+        Coef = (Epsilon/Man)*(So**2.)
+        Expo = (2./3.)*e1
+        #Pone en los diccionarios 
+        self.DicBasinWMF.update({'Runoff_coef':
+            {'nombre':'Runoff_coef',
+            'tipo':Coef.dtype.name,
+            'shape':Coef.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geomorfo',
+            'var': np.copy(Coef)}})
+        self.DicBasinWMF.update({'Runoff_exp':
+            {'nombre':'Runoff_exp',
+            'tipo':Expo.dtype.name,
+            'shape':Expo.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geomorfo',
+            'var': np.copy(Expo)}})
+          
     def Basin_GeoGetParameters(self):
         self.cuenca.GetGeo_Parameters()
         return self.cuenca.GeoParameters, self.cuenca.Tc

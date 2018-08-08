@@ -268,6 +268,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.checkBoxDist2Out.setChecked(True)
                 self.checkBoxHAND.setChecked(True)
                 self.checkBoxIT.setChecked(True)
+                self.checkBoxOCG.setChecked(True)
+                self.checkBoxKubota.setChecked(True)
+                self.checkBoxRunoff.setChecked(True)
             #Si no, des-selecciona a todas
             else:
                 self.checkBoxArea.setChecked(False)
@@ -276,6 +279,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.checkBoxDist2Out.setChecked(False)
                 self.checkBoxHAND.setChecked(False)
                 self.checkBoxIT.setChecked(False)
+                self.checkBoxOCG.setChecked(False)
+                self.checkBoxKubota.setChecked(False)
+                self.checkBoxRunoff.setChecked(False)
             
         def GeoTableStart():
             '''Inicia la tabla donde monta los parametros geomorfologicos de la cuenca'''
@@ -342,6 +348,16 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if self.checkBoxChannels.isChecked():
                 self.HSutils.Basin_GeoGetChannels()
                 ListaVar.extend(['Channels'])
+            if self.checkBoxOCG.isChecked():
+				self.HSutils.Basin_GeoGetOCG()
+				ListaVar.extend(['OCG_coef'])
+			if self.checkBoxKubota.isChecked():
+				self.HSutils.Basin_GeoGetKubota()
+				ListaVar.extend(['kubota_coef'])
+			if self.checkBoxRunoff.isChecked():
+				self.HSutils.Basin_GeoGetRunoff()
+				ListaVar.extend(['Runoff_coef'])
+				
             #mensaje de caso de exito
             self.iface.messageBar().pushInfo(u'HidroSIG:',u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')
             #Actualiza la tabla de variables temporales 

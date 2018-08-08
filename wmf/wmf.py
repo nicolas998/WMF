@@ -744,6 +744,7 @@ def __ejec_parallel__(ListEjecs, nproc, nodo):
     Res = P.map(__multiprocess_Warper__, ListEjecs)
     Lista = [i['Qsim'][nodo][0] for i in Res]
     P.close()
+    P.join()
     return Lista
 
 #-----------------------------------------------------------------------

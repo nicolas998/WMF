@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>489</width>
+    <width>487</width>
     <height>936</height>
    </rect>
   </property>
@@ -238,7 +238,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>150</y>
+           <y>120</y>
            <width>469</width>
            <height>776</height>
           </rect>
@@ -250,7 +250,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>4</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-981</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -332,7 +332,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>425</width>
-                  <height>1147</height>
+                  <height>1151</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayoutConfiguracionGeneral">
@@ -686,43 +686,6 @@
                     </widget>
                    </item>
                   </layout>
-                 </item>
-                 <item>
-                  <widget class="Line" name="line_13">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="verticalSpacer">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeType">
-                    <enum>QSizePolicy::Minimum</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_30">
-                   <property name="font">
-                    <font>
-                     <pointsize>14</pointsize>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Variables de la cuenca. </string>
-                   </property>
-                  </widget>
                  </item>
                  <item>
                   <widget class="Line" name="line_15">
@@ -1099,110 +1062,256 @@
                    </property>
                   </widget>
                  </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_21">
-                   <item>
-                    <spacer name="horizontalSpacer_14">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="ButtonVar2Net_NC">
-                     <property name="enabled">
-                      <bool>true</bool>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>75</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="contextMenuPolicy">
-                      <enum>Qt::DefaultContextMenu</enum>
-                     </property>
-                     <property name="toolTip">
-                      <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
-                     </property>
-                     <property name="text">
-                      <string>Var2Net</string>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>16</width>
-                       <height>16</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="Button_Update_NC">
-                     <property name="minimumSize">
-                      <size>
-                       <width>50</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Actualiza el archivo .nc del proyecto cuenca.</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="resources.qrc">
-                       <normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="Button_Visualizar_Desde_NC">
-                     <property name="minimumSize">
-                      <size>
-                       <width>50</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="resources.qrc">
-                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
                 </layout>
+               </widget>
+               <widget class="QGroupBox" name="groupBox_11">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>1160</y>
+                  <width>421</width>
+                  <height>151</height>
+                 </rect>
+                </property>
+                <property name="title">
+                 <string>Gestión de variables Nc</string>
+                </property>
+                <widget class="QWidget" name="gridLayoutWidget_2">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>20</y>
+                   <width>421</width>
+                   <height>121</height>
+                  </rect>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,0,0,0,0,0">
+                  <item row="1" column="1">
+                   <widget class="QComboBox" name="comboBox"/>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QComboBox" name="comboBox_3"/>
+                  </item>
+                  <item row="1" column="3">
+                   <widget class="QSpinBox" name="spinBox"/>
+                  </item>
+                  <item row="1" column="4">
+                   <widget class="QPushButton" name="Button_Raster2WMF_2">
+                    <property name="maximumSize">
+                     <size>
+                      <width>50</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Ejecutar la función de trazado de corriente.</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>Ejecutar la función de trazado de corriente.</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="resources.qrc">
+                      <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="4">
+                   <widget class="QPushButton" name="Button_Visualizar_Desde_NC">
+                    <property name="maximumSize">
+                     <size>
+                      <width>50</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="resources.qrc">
+                      <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QPushButton" name="ButtonVar2ModelVar">
+                    <property name="text">
+                     <string>Actualizar</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="3">
+                   <widget class="QSpinBox" name="spinBox_ViewLayer">
+                    <property name="whatsThis">
+                     <string>Capa a ver de la variable, aplica solo para variables 2D</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLabel" name="label_10">
+                    <property name="text">
+                     <string>Tipo conversión</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QLabel" name="label_13">
+                    <property name="text">
+                     <string>Método</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
+               <widget class="QPushButton" name="pushButton">
+                <property name="geometry">
+                 <rect>
+                  <x>230</x>
+                  <y>1350</y>
+                  <width>99</width>
+                  <height>27</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>PushButton</string>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="comboBox_2">
+                <property name="geometry">
+                 <rect>
+                  <x>120</x>
+                  <y>1420</y>
+                  <width>61</width>
+                  <height>27</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QRadioButton" name="radioButton">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>1420</y>
+                  <width>117</width>
+                  <height>22</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Canales</string>
+                </property>
+               </widget>
+               <widget class="QRadioButton" name="radioButton_2">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>1440</y>
+                  <width>117</width>
+                  <height>22</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Laderas</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_14">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>1400</y>
+                  <width>117</width>
+                  <height>21</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Tipo conversión</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_15">
+                <property name="geometry">
+                 <rect>
+                  <x>120</x>
+                  <y>1400</y>
+                  <width>61</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Método</string>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="comboBox_4">
+                <property name="geometry">
+                 <rect>
+                  <x>220</x>
+                  <y>1420</y>
+                  <width>101</width>
+                  <height>27</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_16">
+                <property name="geometry">
+                 <rect>
+                  <x>220</x>
+                  <y>1400</y>
+                  <width>61</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Objetivo</string>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="lineEdit">
+                <property name="geometry">
+                 <rect>
+                  <x>220</x>
+                  <y>1450</y>
+                  <width>101</width>
+                  <height>27</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QSpinBox" name="spinBox_ViewLayer_2">
+                <property name="geometry">
+                 <rect>
+                  <x>330</x>
+                  <y>1420</y>
+                  <width>41</width>
+                  <height>27</height>
+                 </rect>
+                </property>
+                <property name="whatsThis">
+                 <string>Capa a ver de la variable, aplica solo para variables 2D</string>
+                </property>
+               </widget>
+               <widget class="QRadioButton" name="radioButton_3">
+                <property name="geometry">
+                 <rect>
+                  <x>200</x>
+                  <y>1420</y>
+                  <width>21</width>
+                  <height>22</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+               <widget class="QRadioButton" name="radioButton_4">
+                <property name="geometry">
+                 <rect>
+                  <x>200</x>
+                  <y>1450</y>
+                  <width>21</width>
+                  <height>22</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
                </widget>
               </widget>
              </item>
@@ -2049,19 +2158,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="1">
-                     <widget class="QCheckBox" name="checkBoxTodos">
-                      <property name="toolTip">
-                       <string>calcula todos los parámetros geomorfológicos distribuidos.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>calcula todos los parámetros geomorfológicos distribuidos.</string>
-                      </property>
-                      <property name="text">
-                       <string>Seleccionar todos</string>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="1" column="0">
                      <widget class="QCheckBox" name="checkBoxOrder">
                       <property name="toolTip">
@@ -2156,6 +2252,91 @@
                         <property name="icon">
                          <iconset resource="resources.qrc">
                           <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="checkBoxTodos">
+                      <property name="toolTip">
+                       <string>calcula todos los parámetros geomorfológicos distribuidos.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>calcula todos los parámetros geomorfológicos distribuidos.</string>
+                      </property>
+                      <property name="text">
+                       <string>Seleccionar todos</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QCheckBox" name="checkBoxOCG">
+                      <property name="toolTip">
+                       <string>Calcula el mapa con el coeficiente de la OCG (Velez, 2001)</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Calcula el mapa con el coeficiente de la OCG (Velez, 2001)</string>
+                      </property>
+                      <property name="text">
+                       <string>Coeficiente OCG</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QCheckBox" name="checkBoxKubota">
+                      <property name="toolTip">
+                       <string/>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Calcular mapa de coeficiente de flujo sub-superficial (kubota, 1995), requiere: h1_max y v_coef[1] definidos en la tabla de Nc</string>
+                      </property>
+                      <property name="text">
+                       <string>Coeficiente kubota</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QCheckBox" name="checkBoxRunoff">
+                      <property name="toolTip">
+                       <string/>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Calcular coeficiente y exp de escorrentía, requiere mapa Manning en WMF</string>
+                      </property>
+                      <property name="text">
+                       <string>Coeficiente runoff</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <layout class="QHBoxLayout" name="horizontalLayout">
+                      <item>
+                       <widget class="QDoubleSpinBox" name="RunoffE1">
+                        <property name="whatsThis">
+                         <string>Exponente e1 para calculo de coef de escorrentia (0.64, 0.53, 0.315)</string>
+                        </property>
+                        <property name="decimals">
+                         <number>3</number>
+                        </property>
+                        <property name="maximum">
+                         <double>1.000000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>0.530000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QDoubleSpinBox" name="RunoffEpsi">
+                        <property name="whatsThis">
+                         <string>Coeficiente Epsilon cálculo runoff (0.5, 0.44, 0.38)</string>
+                        </property>
+                        <property name="decimals">
+                         <number>3</number>
+                        </property>
+                        <property name="value">
+                         <double>0.440000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -3947,7 +4128,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-328</y>
+              <y>-361</y>
               <width>433</width>
               <height>1918</height>
              </rect>
