@@ -22,6 +22,7 @@
 """
 
 import os
+import numpy as np
 
 from PyQt4 import QtGui, uic, QtCore
 from PyQt4.QtCore import pyqtSignal, QUrl
@@ -349,15 +350,15 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.HSutils.Basin_GeoGetChannels()
                 ListaVar.extend(['Channels'])
             if self.checkBoxOCG.isChecked():
-				self.HSutils.Basin_GeoGetOCG()
-				ListaVar.extend(['OCG_coef'])
-			if self.checkBoxKubota.isChecked():
-				self.HSutils.Basin_GeoGetKubota()
-				ListaVar.extend(['kubota_coef'])
-			if self.checkBoxRunoff.isChecked():
-				self.HSutils.Basin_GeoGetRunoff()
-				ListaVar.extend(['Runoff_coef'])
-				
+                self.HSutils.Basin_GeoGetOCG()
+                ListaVar.extend(['OCG_coef'])
+            if self.checkBoxKubota.isChecked():
+                self.HSutils.Basin_GeoGetKubota()
+                ListaVar.extend(['kubota_coef'])
+            if self.checkBoxRunoff.isChecked():
+                self.HSutils.Basin_GeoGetRunoff()
+                ListaVar.extend(['Runoff_coef'])
+                
             #mensaje de caso de exito
             self.iface.messageBar().pushInfo(u'HidroSIG:',u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')
             #Actualiza la tabla de variables temporales 
@@ -709,7 +710,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Ejecucion de la transformacion de la variable cuenca a raster
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             VarName = self.Tabla_Prop_NC.item(selectedItems,0).text()
-            pathMapa = self.HSutils.Basin_LoadVariableFromDicNC(VarName)
+            try:
+                pathMapa = self.HSutils.Basin_LoadVariableFromDicNC(VarName)
+            except:
+                pathMapa = self.HSutils.Basin_LoadVariableFromDicNC(VarName[:-1])
             #Visualiza 
             flagCargaMapa = self.HSutils.cargar_mapa_raster(pathMapa)
             if flagCargaMapa:
@@ -752,7 +756,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.HSutils.DicBasinNc.update({VarName:self.HSutils.DicBasinWMF[VarName]})
             self.HSutils.DicBasinNc[VarName]['var'] = np.copy(self.HSutils.DicBasinWMF[VarName]['var'])
             # Mete la entrada en la tabla de WMF y la saca de la tabla de NC
-            self.TabNC.NewEntry(self.HSutils.DicBasinWMF[VarName], VarName, self.Tabla_Prop_NC)
+            self.TabNC.NewEntry(self.HSutils.DicBasinWMF[VarName], VarName, self.Tabla_Prop_NC, New = True)
             self.Tabla_Prop_WMF.removeRow (selectedItems)
             self.TabWMF.DelEntry(VarName)
             self.HSutils.DicBasinWMF.pop(VarName)
@@ -935,7 +939,16 @@ class Tabla():
         self.TabNames.pop(pos)
         self.NumRows -= 1
     
-    def NewEntry(self, Dic, DicKey,TabElement):
+    def SavedEntry(self, TabElement):
+		'''Busca los elementos de la tabla que terminen con * y se los quita, solo para
+		que el usuario sepa que han sido guardados'''
+		#Busca en cada entrada
+		for i in range(self.NumRows):
+			Nombre = TabElement.ItemAt(i,0).text()
+			if Nombre[-1] == '*':
+				TabElement.setItem(i,0, QTableWidgetItem(Nombre[:-1]))
+    
+    def NewEntry(self, Dic, DicKey,TabElement, New = False):
         '''Actualiza la lista de las variables en una tabla'''
         #Busca si ese nombre ya se encuentra en la tabla
         try:
@@ -948,7 +961,10 @@ class Tabla():
             self.TabNames.append(DicKey)
             suma = 1
         #for keyParam in Dic:
-        TabElement.setItem (pos, 0, QTableWidgetItem (Dic["nombre"]))
+        if New:
+            TabElement.setItem (pos, 0, QTableWidgetItem (Dic["nombre"]+'*'))
+        else:
+            TabElement.setItem (pos, 0, QTableWidgetItem (Dic["nombre"]))
         TabElement.setItem (pos, 1, QTableWidgetItem (Dic["tipo"]))
         TabElement.setItem (pos, 2, QTableWidgetItem (str (Dic["shape"])))
         TabElement.setItem (pos, 3, QTableWidgetItem (Dic["categoria"]))

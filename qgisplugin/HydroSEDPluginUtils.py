@@ -157,7 +157,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Hidro',
-            'var': self.cuenca.CellQmed}})
+            'var': self.cuenca.CellQmed,
+            'saved':False}})
         self.DicBasinWMF.update({'ETR':
             {'nombre':'ETR',
             'tipo':'float32',
@@ -165,7 +166,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Hidro',
-            'var': self.cuenca.CellETR}})
+            'var': self.cuenca.CellETR,
+            'saved':False}})
         Runoff = Rain - self.cuenca.CellETR
         self.DicBasinWMF.update({'Runoff':
             {'nombre':'Runoff',
@@ -174,7 +176,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Hidro',
-            'var': Runoff}})
+            'var': Runoff,
+            'saved':False}})
         # Guarda el resultado 
         if len(PathQmed)>2:
             self.cuenca.Save_Net2Map(PathQmed, dxp, umbral, qmed = self.cuenca.CellQmed)
@@ -211,8 +214,9 @@ class controlHS:
             except:
                 print 'variable vieja'
                 VarName = Group.variables[nombre]
-            #guarda la variable
+            #guarda la variable y la actualiza en estado a guardada
             VarName[:] = Var
+            self.DicBasinNc[l]['saved'] = True
         self.Nc2Save = []
         #Cerrado del archivo nc
         g.close()
@@ -253,7 +257,8 @@ class controlHS:
                             'raster':MapaRaster,
                             'basica': True,
                             'categoria': grupoKey,
-                            'var': g.groups[grupoKey].variables[k][:]}})
+                            'var': g.groups[grupoKey].variables[k][:],
+                            'saved':True}})
                         self.NumDicBasinNcVariables = self.NumDicBasinNcVariables + 1
                         self.NumDicBasinNcVariablesBasicas = self.NumDicBasinNcVariablesBasicas + 1
         g.close()
@@ -306,7 +311,8 @@ class controlHS:
                 'raster':True,
                 'basica': False,
                 'categoria': VarGroup,
-                'var': Var}})
+                'var': Var,
+                'saved':False}})
             return 0
         else:
             return 1
@@ -320,7 +326,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': self.cuenca.CellAcum}})
+            'var': self.cuenca.CellAcum,
+            'saved':False}})
         self.DicBasinWMF.update({'Pendiente':
             {'nombre':'Pendiente',
             'tipo':'float32',
@@ -328,7 +335,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': self.cuenca.CellSlope}})
+            'var': self.cuenca.CellSlope,
+            'saved':False}})
             
     def Basin_GeoGetOrder(self):
         self.cuenca.GetGeo_StreamOrder(umbral = self.cuenca.umbral)
@@ -339,7 +347,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': self.cuenca.CellHorton_Hill}})
+            'var': self.cuenca.CellHorton_Hill,
+            'saved':False}})
         self.DicBasinWMF.update({'Order_channels':
             {'nombre':'Order_channels',
             'tipo':self.cuenca.CellHorton_Stream.dtype.name,
@@ -347,7 +356,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': self.cuenca.CellHorton_Stream}})
+            'var': self.cuenca.CellHorton_Stream,
+            'saved':False}})
     
     def Basin_GeoGetIT(self):
         IT = self.cuenca.GetGeo_IT()
@@ -358,7 +368,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': IT}})
+            'var': IT,
+            'saved':False}})
     
     def Basin_GeoGetChannels(self):
         #self.cuenca.GetGeo_Cell_Basics()
@@ -369,7 +380,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': self.cuenca.CellCauce}})
+            'var': self.cuenca.CellCauce,
+            'saved':False}})
 
     def Basin_GeoGetDist2Out(self):
         self.cuenca.GetGeo_WidthFunction(show = False)
@@ -380,7 +392,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': self.cuenca.CellDist2Out}})
+            'var': self.cuenca.CellDist2Out,
+            'saved':False}})
     
     def Basin_GeoGetHAND(self):
         self.cuenca.GetGeo_HAND(umbral = self.cuenca.umbral)
@@ -391,7 +404,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': self.cuenca.CellHAND}})
+            'var': self.cuenca.CellHAND,
+            'saved':False}})
         self.DicBasinWMF.update({'HDND':
             {'nombre':'HDND',
             'tipo':self.cuenca.CellHDND.dtype.name,
@@ -399,7 +413,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': self.cuenca.CellHDND}})
+            'var': self.cuenca.CellHDND,
+            'saved':False}})
         self.DicBasinWMF.update({'HAND_class':
             {'nombre':'HAND_class',
             'tipo':self.cuenca.CellHAND_class.dtype.name,
@@ -407,7 +422,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': self.cuenca.CellHAND_class}})
+            'var': self.cuenca.CellHAND_class,
+            'saved':False}})
 
     def Basin_GeoGetOCG(self):
         '''Obtiene el coeficiente y el exponente de OCG (velez, 2001) para la cuenca'''
@@ -424,7 +440,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': np.copy(Coef)}})
+            'var': np.copy(Coef),
+            'saved':False}})
         self.DicBasinWMF.update({'OCG_exp':
             {'nombre':'OCG_exp',
             'tipo':Coef.dtype.name,
@@ -432,7 +449,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': np.copy(Expo)}})
+            'var': np.copy(Expo),
+            'saved':False}})
     
     def Basin_GeoGetKubota(self):
         '''Obtiene el coeficiente de kubota y sivapalan para el flujo de agua en el suelo
@@ -455,7 +473,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': np.copy(Coef)}})
+            'var': np.copy(Coef),
+            'saved': False}})
         
     def Basin_GeoGetRunoff(self, e1, Epsilon):
         '''Obtiene el coeficiente de escorrentia para carcavas'''
@@ -474,7 +493,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': np.copy(Coef)}})
+            'var': np.copy(Coef),
+            'saved':False}})
         self.DicBasinWMF.update({'Runoff_exp':
             {'nombre':'Runoff_exp',
             'tipo':Expo.dtype.name,
@@ -482,7 +502,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
-            'var': np.copy(Expo)}})
+            'var': np.copy(Expo),
+            'saved':False}})
           
     def Basin_GeoGetParameters(self):
         self.cuenca.GetGeo_Parameters()
@@ -555,7 +576,8 @@ class controlHS:
             'raster':True,
             'basica': False,
             'categoria': 'Hidro',
-            'var': Vsum}})
+            'var': Vsum,
+            'saved':False}})
            
     def Sim_SaveParameters(self, PathNC, ParamName, scalarParam):
         '''Actualiza el nc con un conjunto de parametros escalares nuevo'''
