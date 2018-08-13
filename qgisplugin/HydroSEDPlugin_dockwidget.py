@@ -24,7 +24,7 @@
 import os
 import numpy as np
 
-from PyQt4 import QtGui, uic, QtCore
+from PyQt4 import QtGui, uic, QtCore, Qt
 from PyQt4.QtCore import pyqtSignal, QUrl
 from PyQt4.QtWebKit import QWebView
 
@@ -945,11 +945,11 @@ class Tabla():
 		que el usuario sepa que han sido guardados'''
 		#Busca en cada entrada
 		for i in range(self.NumRows):
-			Nombre = TabElement.itemAt(i,0).text()
-			print Nombre
-			print i 
+			Nombre = TabElement.takeItem(i,0).text()
 			if Nombre[-1] == '*':
 				TabElement.setItem(i,0, QTableWidgetItem(Nombre[:-1]))
+			else:
+				TabElement.setItem(i,0, QTableWidgetItem(Nombre))
     
     def NewEntry(self, Dic, DicKey,TabElement, New = False):
         '''Actualiza la lista de las variables en una tabla'''
