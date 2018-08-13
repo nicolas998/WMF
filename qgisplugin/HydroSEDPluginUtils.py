@@ -208,11 +208,11 @@ class controlHS:
             Var = np.copy(self.DicBasinNc[l]['var'])
             #Trata de meter la variable como algo no existente 
             try:
-                print 'variable nueva'
+                #print 'variable nueva'
                 VarName = Group.createVariable(nombre,tipo,('ncell',),zlib=True)
             #si ya existe la variable la sobre escribe 
             except:
-                print 'variable vieja'
+                #print 'variable vieja'
                 VarName = Group.variables[nombre]
             #guarda la variable y la actualiza en estado a guardada
             VarName[:] = Var

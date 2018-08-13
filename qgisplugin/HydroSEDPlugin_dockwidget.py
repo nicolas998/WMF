@@ -766,6 +766,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             '''Actualiza el archivo .nc de la cuenca con las variables cargadas en la TablaNC'''
             RutaNC = self.lineEditRutaCuenca.text().strip()
             self.HSutils.Basin_Update(RutaNC)
+            self.TabNC.SavedEntry(self.Tabla_Prop_NC)
         
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
@@ -944,7 +945,9 @@ class Tabla():
 		que el usuario sepa que han sido guardados'''
 		#Busca en cada entrada
 		for i in range(self.NumRows):
-			Nombre = TabElement.ItemAt(i,0).text()
+			Nombre = TabElement.itemAt(i,0).text()
+			print Nombre
+			print i 
 			if Nombre[-1] == '*':
 				TabElement.setItem(i,0, QTableWidgetItem(Nombre[:-1]))
     
