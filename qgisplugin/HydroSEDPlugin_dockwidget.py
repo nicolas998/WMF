@@ -469,12 +469,14 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #Funcion para pasar variable raster a WMF           
         def handleClickConnectRaster2WMF():
             #Chequeos de variables
-            #if len(self.NameRaster2WMF.text())<2:
-             #   self.iface.messageBar().pushError (u'Hydro-SIG:', u'Debe ingresar un nombre para el mapa raster a convertir.')
-              #  return 1
-            #if len(self.PathRaster2WMF.text())<2:
-             #   self.iface.messageBar().pushError (u'Hydro-SIG:', u'Debe seleccionar un mapa raster para ser convertido a la cuenca.')
-             #   return 1
+            if len(self.NameRaster2WMF.text())<2:
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Debe ingresar un nombre para el mapa raster a convertir.',
+                    level=QgsMessageBar.WARNING, duration=5)
+                return 1
+            if len(self.PathRaster2WMF.text())<2:
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Debe seleccionar un mapa raster para ser convertido a la cuenca.',
+                    level=QgsMessageBar.WARNING, duration=5)
+                return 1
             #Parametros para la conversion
             Nombre = self.NameRaster2WMF.text()
             PathRaster = self.PathRaster2WMF.text()
@@ -694,11 +696,20 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Selecciona el item y su nombre
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             ItemName = str(self.Tabla_Prop_NC.item(selectedItems,0).text())
-            #Remueve de la tabla visible y de los demas elementos.
-            self.Tabla_Prop_NC.removeRow (selectedItems)
-            self.TabNC.DelEntry(ItemName)
-            self.HSutils.DicBasinNc.pop(ItemName)
-            self.HSutils.Nc2Erase.append(ItemName)
+            #Revisa que todavia no este guardado 
+            if ItemName[-1] == '*' and self.HSutils.DicBasinNc[ItemName[:-1]]['saved'] is False:
+                ItemName = ItemName[:-1]
+                #Remueve de la tabla visible y de los demas elementos.
+                self.Tabla_Prop_NC.removeRow (selectedItems)
+                self.TabNC.DelEntry(ItemName)
+                self.HSutils.DicBasinNc.pop(ItemName)
+                #self.HSutils.Nc2Erase.append(ItemName)
+                #Mensaje de exito 
+                self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'La variable '+ItemName + ' ha sido borrada')
+            else:
+                #Mensaje de no exito 
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'La variable '+ItemName[:-1]+' no puede ser borrada del Nc (ya esta guardada)',
+                    level=QgsMessageBar.WARNING, duration=5)
 
         def handleClickEventButton_Actualizar_WMF_Desde_NC ():
             rows = sorted (set (index.row () for index in self.Tabla_Prop_NC.selectedIndexes ()))
@@ -719,7 +730,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if flagCargaMapa:
                 self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'Se cargó la variable de forma exitosa')
             else:
-                self.iface.messageBar().pushError (u'Hydro-SIG:', u'No fue posible cargar la variable')
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No fue posible cargar la variable',
+                    level=QgsMessageBar.WARNING, duration=5)
         
         def handleClickEventButton_Ver_Desde_WMF():
             '''Visualiza una de las variables de la cuenca en Qgis'''
@@ -732,20 +744,32 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if flagCargaMapa:
                 self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'Se cargó la variable de forma exitosa')
             else:
-                self.iface.messageBar().pushError (u'Hydro-SIG:', u'No fue posible cargar la variable')
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No fue posible cargar la variable',
+                    level=QgsMessageBar.WARNING, duration=5)
         
         def handleClickEventButton_NC2WMF():
             '''Mueve variables de NC a WMF en la tabla.'''
             # Elemento seleccionado
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             VarName = self.Tabla_Prop_NC.item(selectedItems,0).text()
-            # Copia la entrada a WMF y la saca de NC
-            self.HSutils.DicBasinWMF.update({VarName:self.HSutils.DicBasinNc[VarName]})
-            # Mete la entrada en la tabla de WMF y la saca de la tabla de NC
-            self.TabWMF.NewEntry(self.HSutils.DicBasinNc[VarName], VarName, self.Tabla_Prop_WMF)
-            self.Tabla_Prop_NC.removeRow (selectedItems)
-            self.TabNC.DelEntry(VarName)
-            self.HSutils.DicBasinNc.pop(VarName)            
+            #Verifica que la variable ahun no este guardada en el Nc             
+            print VarName.strip()
+            if VarName[-1] == '*':
+                # Copia la entrada a WMF y la saca de NC
+                VarName = VarName[:-1]
+                self.HSutils.DicBasinWMF.update({VarName:self.HSutils.DicBasinNc[VarName]})
+                # Mete la entrada en la tabla de WMF y la saca de la tabla de NC
+                self.TabWMF.NewEntry(self.HSutils.DicBasinNc[VarName], VarName, self.Tabla_Prop_WMF)
+                self.Tabla_Prop_NC.removeRow (selectedItems)
+                self.TabNC.DelEntry(VarName)
+                self.HSutils.DicBasinNc.pop(VarName)
+                #Mensaje de exito 
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'La variable '+VarName+' ha sido movida de NC a WMF')
+            else:
+                #Mensaje de no exito
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                    u'La variable '+VarName+' no ha podido ser movida a WMF, ya se encuentra guardada en NC', 
+                    level=QgsMessageBar.WARNING, duration=5)
         
         def handleClickEventButton_WMF2NC():
             '''Mueve variables de NC a WMF en la tabla.'''
@@ -760,7 +784,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.Tabla_Prop_WMF.removeRow (selectedItems)
             self.TabWMF.DelEntry(VarName)
             self.HSutils.DicBasinWMF.pop(VarName)
-            self.HSutils.Nc2Save.append(VarName) 
+            self.HSutils.Nc2Save.append(VarName)
+            # Mensaje de exito
+            self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'La variable '+VarName+' ha sido movida de WMF a NC') 
         
         def clickEventBasinUpdateNC():
             '''Actualiza el archivo .nc de la cuenca con las variables cargadas en la TablaNC'''
@@ -802,7 +828,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if flagCargaMapaDEM:
                 self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa MDE de forma exitosa')
             else:
-                self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa MDE. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
+                self.iface.messageBar().pushMessage (u'Hydro-SED', 
+                    u'No fue posible cargar el mapa MDE. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.',
+                    level=QgsMessageBar.WARNING, duration=5)
             
         def clickEventVisualizarMapaDIR ():
             pathMapaDIR = self.lineEditMapaDIR.text ().strip ()
@@ -810,7 +838,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if flagCargaMapaDIR:
                 self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa DIR de forma exitosa')
             else:
-                self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa DIR. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
+                self.iface.messageBar().pushMessage (u'Hydro-SED', 
+                    u'No fue posible cargar el mapa DIR. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.',
+                    level=QgsMessageBar.WARNING, duration=5)
 
         def clickEventCargarWMFMapaDEM ():
             '''Carga el mapa dDM base para WMF'''
@@ -820,7 +850,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if flagCargaMapaDEM_WMF:
                 self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa MDE al WMF de forma exitosa')
             else:
-                self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa MDE al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
+                self.iface.messageBar().pushMessage (u'Hydro-SED', 
+                    u'No fue posible cargar el mapa MDE al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.',
+                    level=QgsMessageBar.WARNING, duration=5)
             #Pone el nombre del codigo EPSG en el dialogo.
             self.LineEditEPSG.setText(self.EPSG)
             t = '%.1f' % self.noData
@@ -834,7 +866,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if flagCargaMapaDIR_WMF:
                 self.iface.messageBar().pushInfo (u'Hydro-SED', u'Se cargó el mapa DIR al WMF de forma exitosa')
             else:
-                self.iface.messageBar().pushError (u'Hydro-SED', u'No fue posible cargar el mapa DIR al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.')
+                self.iface.messageBar().pushMessage (u'Hydro-SED', 
+                    u'No fue posible cargar el mapa DIR al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.',
+                    level=QgsMessageBar.WARNING, duration=5)
 
         def clickEventSelectorBinarioNC ():
             setupLineEditButtonOpenFileDialog (self.lineEditSelectorBinarioNC, QFileDialog)
@@ -910,6 +944,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Button_Eliminar_Desde_WMF.clicked.connect(handleClickEventButton_Eliminar_Desde_WMF)
         self.Tabla_Prop_NC.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.Tabla_Prop_NC.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
+        self.Button_Eliminar_Desde_NC.clicked.connect(handleClickEventButton_Eliminar_Desde_NC)
         #Botones de visualizacion de variables de NC
         self.Tabla_Prop_NC.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.Tabla_Prop_NC.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
@@ -919,7 +954,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Tabla_Prop_WMF.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
         self.Button_Visualizar_Desde_WMF.clicked.connect(handleClickEventButton_Ver_Desde_WMF)
         #Botones movimiento variables NC a WMF y de WMF a NC
-        #self.Button_NC2WMF.clicked.connect(handleClickEventButton_NC2WMF)
+        self.Button_NC2WMF.clicked.connect(handleClickEventButton_NC2WMF)
         self.Button_WMF2NC.clicked.connect(handleClickEventButton_WMF2NC)
         #Boton para actualizar los archivos que se encuentran guardados en un netCDF
         self.Button_Update_NC.clicked.connect(clickEventBasinUpdateNC)
@@ -941,15 +976,15 @@ class Tabla():
         self.NumRows -= 1
     
     def SavedEntry(self, TabElement):
-		'''Busca los elementos de la tabla que terminen con * y se los quita, solo para
-		que el usuario sepa que han sido guardados'''
-		#Busca en cada entrada
-		for i in range(self.NumRows):
-			Nombre = TabElement.takeItem(i,0).text()
-			if Nombre[-1] == '*':
-				TabElement.setItem(i,0, QTableWidgetItem(Nombre[:-1]))
-			else:
-				TabElement.setItem(i,0, QTableWidgetItem(Nombre))
+        '''Busca los elementos de la tabla que terminen con * y se los quita, solo para
+        que el usuario sepa que han sido guardados'''
+        #Busca en cada entrada
+        for i in range(self.NumRows):
+            Nombre = TabElement.takeItem(i,0).text()
+            if Nombre[-1] == '*':
+                TabElement.setItem(i,0, QTableWidgetItem(Nombre[:-1]))
+            else:
+                TabElement.setItem(i,0, QTableWidgetItem(Nombre))
     
     def NewEntry(self, Dic, DicKey,TabElement, New = False):
         '''Actualiza la lista de las variables en una tabla'''

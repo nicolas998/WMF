@@ -250,7 +250,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-829</y>
+              <y>-747</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -1013,6 +1013,29 @@
                     </spacer>
                    </item>
                    <item>
+                    <widget class="QPushButton" name="Button_NC2WMF">
+                     <property name="minimumSize">
+                      <size>
+                       <width>50</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>30</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="resources.qrc">
+                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-arriba.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-arriba.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
                     <widget class="QPushButton" name="Button_WMF2NC">
                      <property name="minimumSize">
                       <size>
@@ -1332,7 +1355,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QPushButton" name="Button_Eliminar_Desde_Nc">
+                       <widget class="QPushButton" name="Button_Eliminar_Desde_NC">
                         <property name="minimumSize">
                          <size>
                           <width>50</width>
@@ -1418,7 +1441,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-255</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -1927,6 +1950,9 @@
                    <layout class="QHBoxLayout" name="horizontalLayout_27">
                     <item>
                      <widget class="QCheckBox" name="CheckTopoNodes">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="toolTip">
                        <string>Obtiene automaticamente los nodos topograficos.</string>
                       </property>
@@ -1940,6 +1966,9 @@
                     </item>
                     <item>
                      <widget class="QCheckBox" name="CheckGeomorfo">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="toolTip">
                        <string>Obtiene parametros geomorfologicos de la cuenca.</string>
                       </property>
@@ -1950,6 +1979,9 @@
                     </item>
                     <item>
                      <widget class="QCheckBox" name="CheckAnchoCanal">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="toolTip">
                        <string>Obtiene el ancho del canal en cada tramo.</string>
                       </property>
@@ -4189,7 +4221,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-361</y>
+              <y>-226</y>
               <width>433</width>
               <height>1918</height>
              </rect>
