@@ -562,10 +562,9 @@ class controlHS:
         tr = '%dS'%fd
         #Obtiene los ids de excel 
         idExcel = self.InterpolData.columns.values.tolist()
-        idExcel = [i.encode() for i in idExcel]
         #Lee el shp con los puntos y los ids 
         xy,idShape = wmf.read_map_points(Path2Shp,[Campo2Read.encode()])
-        idShape = idShape[Campo2Read].astype(int).astype(str).tolist()
+        idShape = idShape[Campo2Read].astype(int).tolist()
         #Organiza los datos para interpolar
         xyNew = []
         ColGood = []

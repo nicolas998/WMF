@@ -501,7 +501,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             Grupo = self.ComboBoxRaster2WMF.currentText()
             #Conversion, convierte la variable y actualiza el diccionario.
             Retorno = self.HSutils.Basin_Raster2WMF(Nombre, PathRaster, Grupo, PathOrValue, Valor)
-            print QmedValue
             self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[Nombre],Nombre, self.Tabla_Prop_WMF)
             if Retorno == 0:
                 self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'El mapa raster ha ingresado a WMF.')
