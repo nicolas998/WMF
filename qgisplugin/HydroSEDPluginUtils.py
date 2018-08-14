@@ -283,13 +283,12 @@ class controlHS:
     def Basin_LoadVariableFromDicNC(self, VarName, capa = None):
         '''Toma una variable del diccionario de variables basicas y la carga a Qgis'''
         #Variable de acuerdo a si hay capa o no
-        print capa
         if capa is None:
             Variable = np.copy(self.DicBasinNc[VarName]['var'])
-            rutaSalida = '/tmp/HydroSED/'+VarName+'.tiff'
+            rutaSalida = '/tmp/HydroSED/raster/'+VarName+'.tiff'
         else:
             Variable = np.copy(self.DicBasinNc[VarName]['var'][capa])
-            rutaSalida = '/tmp/HydroSED/'+VarName+'_'+str(capa+1)+'.tiff'
+            rutaSalida = '/tmp/HydroSED/raster/'+VarName+'_'+str(capa+1)+'.tiff'
         print Variable
         #Conversion
         self.cuenca.Transform_Basin2Map(Variable,
@@ -301,7 +300,7 @@ class controlHS:
     def Basin_LoadVariableFromDicWMF(self,VarName):
         '''Toma una variable del diccionario de variables basicas y la carga a Qgis'''
         #Transforma a un raster 
-        rutaSalida = '/tmp/HydroSED/'+VarName+'.tiff'
+        rutaSalida = '/tmp/HydroSED/raster/'+VarName+'.tiff'
         self.cuenca.Transform_Basin2Map(self.DicBasinWMF[VarName]['var'],
             ruta = rutaSalida,
             EPSG = self.cuenca.epsg)

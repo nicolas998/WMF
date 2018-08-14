@@ -238,7 +238,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>120</y>
+           <y>130</y>
            <width>469</width>
            <height>776</height>
           </rect>
@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-887</y>
+              <y>-629</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -871,6 +871,47 @@
                     </spacer>
                    </item>
                    <item>
+                    <widget class="QPushButton" name="ButtonDraw_histogram_WMF">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>50</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>30</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="contextMenuPolicy">
+                      <enum>Qt::DefaultContextMenu</enum>
+                     </property>
+                     <property name="toolTip">
+                      <string>Grafica el histograma de la variable seleccionada</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Grafica el histograma de la variable seleccionada</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="resources.qrc">
+                       <normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</iconset>
+                     </property>
+                     <property name="iconSize">
+                      <size>
+                       <width>16</width>
+                       <height>16</height>
+                      </size>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
                     <widget class="QPushButton" name="ButtonVar2Net_WMF">
                      <property name="enabled">
                       <bool>false</bool>
@@ -1091,7 +1132,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>1160</y>
+                  <y>1230</y>
                   <width>421</width>
                   <height>161</height>
                  </rect>
@@ -1218,83 +1259,6 @@
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_18">
                       <item>
-                       <widget class="QSpinBox" name="SpinBoxLayer2View">
-                        <property name="maximumSize">
-                         <size>
-                          <width>50</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="whatsThis">
-                         <string>Capa a ver (o editar) de la variable Nc.</string>
-                        </property>
-                        <property name="maximum">
-                         <number>5</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="Button_Visualizar_Desde_NC">
-                        <property name="maximumSize">
-                         <size>
-                          <width>50</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="whatsThis">
-                         <string>Visualizar una variable del Nc</string>
-                        </property>
-                        <property name="text">
-                         <string/>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="resources.qrc">
-                          <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="ButtonVar2Net_NC">
-                        <property name="enabled">
-                         <bool>false</bool>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>50</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>30</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="contextMenuPolicy">
-                         <enum>Qt::DefaultContextMenu</enum>
-                        </property>
-                        <property name="toolTip">
-                         <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
-                        </property>
-                        <property name="whatsThis">
-                         <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
-                        </property>
-                        <property name="text">
-                         <string/>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="resources.qrc">
-                          <normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</iconset>
-                        </property>
-                        <property name="iconSize">
-                         <size>
-                          <width>16</width>
-                          <height>16</height>
-                         </size>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
                        <widget class="QPushButton" name="Button_EditNcVariable">
                         <property name="maximumSize">
                          <size>
@@ -1317,49 +1281,6 @@
                         </property>
                        </widget>
                       </item>
-                      <item>
-                       <widget class="QPushButton" name="Button_Update_NC">
-                        <property name="maximumSize">
-                         <size>
-                          <width>50</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="whatsThis">
-                         <string>Actualizar variables del Nc.</string>
-                        </property>
-                        <property name="text">
-                         <string/>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="resources.qrc">
-                          <normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="Button_Eliminar_Desde_NC">
-                        <property name="minimumSize">
-                         <size>
-                          <width>50</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>30</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string/>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="resources.qrc">
-                          <normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</iconset>
-                        </property>
-                       </widget>
-                      </item>
                      </layout>
                     </item>
                    </layout>
@@ -1379,6 +1300,192 @@
                   </item>
                  </layout>
                 </widget>
+               </widget>
+               <widget class="QWidget" name="layoutWidget_5">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>1150</y>
+                  <width>423</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_63">
+                 <item>
+                  <spacer name="horizontalSpacer_18">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="Button_Update_NC">
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Actualizar variables del Nc.</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="resources.qrc">
+                     <normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="ButtonDraw_histogram_NC">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>50</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>30</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::DefaultContextMenu</enum>
+                   </property>
+                   <property name="toolTip">
+                    <string>Grafica el histograma de la variable seleccionada</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Grafica el histograma de la variable seleccionada</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="resources.qrc">
+                     <normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>16</width>
+                     <height>16</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="ButtonVar2Net_NC">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>50</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>30</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::DefaultContextMenu</enum>
+                   </property>
+                   <property name="toolTip">
+                    <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="resources.qrc">
+                     <normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>16</width>
+                     <height>16</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="SpinBoxLayer2View">
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Capa a ver (o editar) de la variable Nc.</string>
+                   </property>
+                   <property name="maximum">
+                    <number>5</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="Button_Visualizar_Desde_NC">
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Visualizar una variable del Nc</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="resources.qrc">
+                     <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="Button_Eliminar_Desde_NC">
+                   <property name="minimumSize">
+                    <size>
+                     <width>50</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>30</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="resources.qrc">
+                     <normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
               </widget>
              </item>
@@ -2194,7 +2301,7 @@
                   <x>0</x>
                   <y>320</y>
                   <width>421</width>
-                  <height>271</height>
+                  <height>211</height>
                  </rect>
                 </property>
                 <property name="toolTip">
@@ -2427,7 +2534,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>580</y>
+                  <y>550</y>
                   <width>421</width>
                   <height>181</height>
                  </rect>
@@ -2621,7 +2728,7 @@
                    <x>10</x>
                    <y>30</y>
                    <width>401</width>
-                   <height>211</height>
+                   <height>221</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout">
@@ -2698,6 +2805,86 @@
                     </item>
                    </layout>
                   </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_64">
+                    <item>
+                     <widget class="QLabel" name="label_69">
+                      <property name="toolTip">
+                       <string>Ruta de guardado del binario de fortran con la serie de precipitación interpolada.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta de guardado del binario de fortran con la serie de precipitación interpolada.</string>
+                      </property>
+                      <property name="text">
+                       <string>Gráficas:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_GeomorfoPerfil">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string>Perfiles</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_GeomorfoHietograma">
+                      <property name="minimumSize">
+                       <size>
+                        <width>10</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string>Hietograma</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_GeomorfoTc">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                      </property>
+                      <property name="text">
+                       <string>Tc</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
                  </layout>
                 </widget>
                 <widget class="Line" name="line_17">
@@ -2726,19 +2913,6 @@
                   <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
-               </widget>
-               <widget class="Line" name="line_16">
-                <property name="geometry">
-                 <rect>
-                  <x>10</x>
-                  <y>550</y>
-                  <width>411</width>
-                  <height>21</height>
-                 </rect>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
                </widget>
                <widget class="QWidget" name="horizontalLayoutWidget_2">
                 <property name="geometry">
@@ -2793,6 +2967,19 @@
                   </widget>
                  </item>
                 </layout>
+               </widget>
+               <widget class="Line" name="line_16">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>530</y>
+                  <width>411</width>
+                  <height>21</height>
+                 </rect>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
                </widget>
               </widget>
              </item>

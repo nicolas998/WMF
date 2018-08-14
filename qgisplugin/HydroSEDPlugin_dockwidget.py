@@ -70,6 +70,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.TablaFila_NC = 0
         self.botonClicked = False
         
+        self.GeoPlots = HSplots.PlotGeomorphology()
+        
         #Inicia el comboBox de la seleccion de categoria para transformar raster a WMF
         for k in ['base','Geomorfo','SimHidro','Hidro']:
             self.ComboBoxRaster2WMF.addItem(k)        
@@ -102,7 +104,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         x = self.spinBoxLongitudTrazadorCorrientes.value ()
         #Camino a los temporales
         if len(self.PathCorriente_out.text()) == 0:
-            self.PathCorriente_out.setText('/tmp/HydroSED/Corriente.shp')
+            self.PathCorriente_out.setText('/tmp/HydroSED/vector/Corriente.shp')
         OutPath = self.PathCorriente_out.text()
         try:
             self.HSutils.trazador_corriente(x,y, OutPath)
@@ -121,9 +123,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         x = self.spinBoxLongitudTrazadorCuencas.value ()
         #Camino a los temporales
         if len(self.PathOutputDivisoria.text()) == 0:
-            self.PathOutputDivisoria.setText('/tmp/HydroSED/Cuenca.shp')
+            self.PathOutputDivisoria.setText('/tmp/HydroSED/vector/Cuenca.shp')
         if len(self.PathOutputRed.text()) == 0:
-            self.PathOutputRed.setText('/tmp/HydroSED/Cuenca_Red.shp')
+            self.PathOutputRed.setText('/tmp/HydroSED/vector/Cuenca_Red.shp')
         #Paths para guardar la cuenca 
         OutPathDivisoria = self.PathOutputDivisoria.text()
         OutPathRed = self.PathOutputRed.text()
@@ -211,7 +213,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             
         def clickEventBasinLoadDivisory():
             '''Carga la divisoria de la cuenca cargada a WMF'''
-            OutPathDivisoria = '/tmp/HydroSED/CuencaCargada.shp'
+            OutPathDivisoria = '/tmp/HydroSED/vector/CuencaCargada.shp'
             self.HSutils.Basin_LoadBasinDivisory(OutPathDivisoria)
             #Carga la divisoria
             ret, layer = self.HSutils.cargar_mapa_vector(OutPathDivisoria, self.HSutils.TIPO_STYLE_POLIGONO, color = (255,0,0), width = 0.6)            
@@ -219,7 +221,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.legendInterface().refreshLayerSymbology(layer)      
         def clickEventBasinLoadNetwork():
             '''Carga la divisoria de la cuenca cargada a WMF'''
-            OutPathNetwork = '/tmp/HydroSED/RedCargada.shp'
+            OutPathNetwork = '/tmp/HydroSED/vector/RedCargada.shp'
             self.HSutils.Basin_LoadBasinNetwork(OutPathNetwork)
             #Carga la red 
             ret, layer = self.HSutils.cargar_mapa_vector(OutPathNetwork, self.HSutils.TIPO_STYLE_POLILINEA, width = 0.4)
@@ -619,7 +621,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventViewSerieRainfall():
             '''Genera y visualiza la grafica de lluvia interpolada para la cuenca'''
             #Hace la figura
-            PathFigure = '/tmp/HydroSED/RainfallPlot.html'
+            PathFigure = '/tmp/HydroSED/Plots_Rainfall/RainfallPlot.html'
             self.HSplots.Plot_Rainfall(PathFigure)
             #Set de la ventana que contiene la figura.
             self.VistaRainWeb = QWebView(None)
@@ -634,7 +636,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventViewHistogramRainfall():
             '''Genera y visualiza la grafica de lluvia interpolada para la cuenca'''
             #Hace la figura
-            PathFigure = '/tmp/HydroSED/RainfallHistogram.html'
+            PathFigure = '/tmp/HydroSED/Plots_Rainfall/RainfallHistogram.html'
             self.HSplots.Plot_Histogram(PathFigure)
             #Set de la ventana que contiene la figura.
             self.VistaRainWeb = QWebView(None)
@@ -649,7 +651,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventViewMediaMensualRainfall():
             '''Genera y visualiza la grafica de la lluvia media mensual en la cuenca'''
             #Hace la figura
-            PathFigure = '/tmp/HydroSED/RainfallMediaMensual.html'
+            PathFigure = '/tmp/HydroSED/Plots_Rainfall/RainfallMediaMensual.html'
             self.HSplots.Plot_MediaMensual(PathFigure)
             #Set de la ventana que contiene la figura.
             self.VistaRainWeb = QWebView(None)
@@ -730,6 +732,18 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.tabPanelDockOpciones.currentChanged.connect(clickEventUpdateParamMapValues)
         
     def setupUIInputsOutputs (self):
+        
+        def DrawClickEvent_histogram_WMF():
+            '''Hace un histograma de la variable seleccionada'''
+            #Selecciona el item y su nombre
+            selectedItems = self.Tabla_Prop_WMF.currentRow ()
+            ItemName =  self.Tabla_Prop_WMF.item(selectedItems,0).text()
+            if ItemName[-1] == '*': ItemName = ItemName[:-1]
+            #Obtiene la variable e invoca la funciond e grafica
+            Var = self.HSutils.DicBasinWMF[ItemName]['var']
+            PathFigure = '/tmp/HydroSED/Plots_Geomorfo/'
+            #self.GeoPlots.VarHistogram(Var, PathFigure)
+            
         
         def handleClickEventButton_Eliminar_Desde_WMF ():
             #Selecciona el item y su nombre

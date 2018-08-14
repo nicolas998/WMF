@@ -235,6 +235,11 @@ class HydroSEDPlugin:
             #Crea un directorio temporal 
             try:
                 os.makedirs('/tmp/HydroSED')
+                os.makedirs('/tmp/HydroSED/raster')
+                os.makedirs('/tmp/HydroSED/vector')
+                os.makedirs('/tmp/HydroSED/Plots_Rainfall')
+                os.makedirs('/tmp/HydroSED/Plots_Geomorfo')
+                os.makedirs('/tmp/HydroSED/Plots_Sim')
             except:
                 pass
 
