@@ -277,13 +277,22 @@ class controlHS:
         # Guarda los shapes de divisoria y de red hidrica.
         self.cuenca.Save_Net2Map(PathNetwork, wmf.cu.dxp, self.cuenca.umbral)
     
-    def Basin_LoadVariableFromDicNC(self, VarName):
+    def Basin_LoadVariableFromDicNC(self, VarName, capa = None):
         '''Toma una variable del diccionario de variables basicas y la carga a Qgis'''
-        #Transforma a un raster 
-        rutaSalida = '/tmp/HydroSED/'+VarName+'.tiff'
-        self.cuenca.Transform_Basin2Map(self.DicBasinNc[VarName]['var'],
+        #Variable de acuerdo a si hay capa o no
+        print capa
+        if capa is None:
+            Variable = np.copy(self.DicBasinNc[VarName]['var'])
+            rutaSalida = '/tmp/HydroSED/'+VarName+'.tiff'
+        else:
+            Variable = np.copy(self.DicBasinNc[VarName]['var'][capa])
+            rutaSalida = '/tmp/HydroSED/'+VarName+'_'+str(capa+1)+'.tiff'
+        print Variable
+        #Conversion
+        self.cuenca.Transform_Basin2Map(Variable,
             ruta = rutaSalida,
             EPSG = self.cuenca.epsg)
+        #Devuelve la ruta temporal donde esta el mapa raster con al variable
         return rutaSalida
     
     def Basin_LoadVariableFromDicWMF(self,VarName):

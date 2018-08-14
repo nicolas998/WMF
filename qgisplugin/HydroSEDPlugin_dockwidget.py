@@ -718,13 +718,18 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
     
         def handleClickEventButton_Ver_Desde_NC():
             '''Visualiza una de las variables de la cuenca en Qgis'''
-            #Ejecucion de la transformacion de la variable cuenca a raster
+            #Nombre de la variable a observar
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             VarName = self.Tabla_Prop_NC.item(selectedItems,0).text()
-            try:
-                pathMapa = self.HSutils.Basin_LoadVariableFromDicNC(VarName)
-            except:
-                pathMapa = self.HSutils.Basin_LoadVariableFromDicNC(VarName[:-1])
+            if VarName[-1] == '*': VarName = varName[:-1]
+            #Capa de la variable 
+            if self.SpinBoxLayer2View.value() == 0:
+                Capa = None
+            else:
+                Capa = self.SpinBoxLayer2View.value() - 1
+            #Ejecuta la conversion a mapa raster
+            print Capa
+            pathMapa = self.HSutils.Basin_LoadVariableFromDicNC(VarName, capa = Capa)
             #Visualiza 
             flagCargaMapa = self.HSutils.cargar_mapa_raster(pathMapa)
             if flagCargaMapa:
@@ -732,6 +737,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No fue posible cargar la variable',
                     level=QgsMessageBar.WARNING, duration=5)
+            #Hace que el spinbox vuelva a lo normal 
+            self.SpinBoxLayer2View.setValue(0)
         
         def handleClickEventButton_Ver_Desde_WMF():
             '''Visualiza una de las variables de la cuenca en Qgis'''
