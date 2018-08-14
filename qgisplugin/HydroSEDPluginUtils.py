@@ -145,8 +145,11 @@ class controlHS:
         try:
             Rain = float(PathRain)
         except:
-            Rain, prop = wmf.read_map_raster(PathRain) 
-            Rain = self.cuenca.Transform_Map2Basin(Rain, prop)
+            Rain, prop, epsg = wmf.read_map_raster(PathRain) 
+            if epsg == self.cuenca.epsg:
+                Rain = self.cuenca.Transform_Map2Basin(Rain, prop)
+            else:
+                return 1, 1
         #Realiza el balance 
         self.cuenca.GetQ_Balance(Rain, Tipo_ETR = PathETR)
         #Actualiza el diccionario de WMF 
@@ -182,7 +185,7 @@ class controlHS:
         if len(PathQmed)>2:
             self.cuenca.Save_Net2Map(PathQmed, dxp, umbral, qmed = self.cuenca.CellQmed)
         #Retorna el resultado a la salida 
-        return self.cuenca.CellQmed[-1]
+        return 0,self.cuenca.CellQmed[-1]
 
     def Basin_Update(self, PathNC):
         '''Actualiza el archivo nc de la cuenca con las variables agregadas o borradas de la misma'''

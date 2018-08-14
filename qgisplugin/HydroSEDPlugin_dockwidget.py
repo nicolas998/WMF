@@ -422,7 +422,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if self.RadioBalance_ETR_Turc.isChecked():
                 TipoETR = 1
             #Invoca la funcion
-            QSalida = self.HSutils.hidologia_balance(self.spinBox_dxPlano.value(),
+            Retorno, QSalida = self.HSutils.hidologia_balance(self.spinBox_dxPlano.value(),
                 self.spinBoxUmbralRed.value(), 
                 self.PathInHydro_Rain.text(), 
                 TipoETR, 
@@ -431,7 +431,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             textoCaudal = '%.3f' % QSalida
             self.ShowResultQmed.setText(textoCaudal)
             #Mensaje de exito 
-            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Balance realizado: variables Caudal, ETR y Runoff cargadas a Tabla de propiedades WMF.')
+            if Retorno == 0:
+                self.iface.messageBar().pushInfo(u'HidroSIG:',u'Balance realizado: variables Caudal, ETR y Runoff cargadas a Tabla de propiedades WMF.')
+            else:
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                    u'No se ha logrado realizar el balance hidrológico en la cuenca',
+                    level=QgsMessageBar.WARNING, duration=5)
             #Habilita botones de visualizacion de variables 
             if len(self.PathOutHydro_Qmed.text()) > 2:
                 self.Button_HidroViewQmed.setEnabled(True)
@@ -496,10 +501,14 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             Grupo = self.ComboBoxRaster2WMF.currentText()
             #Conversion, convierte la variable y actualiza el diccionario.
             Retorno = self.HSutils.Basin_Raster2WMF(Nombre, PathRaster, Grupo, PathOrValue, Valor)
-            print Retorno
+            print QmedValue
             self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[Nombre],Nombre, self.Tabla_Prop_WMF)
             if Retorno == 0:
                 self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'El mapa raster ha ingresado a WMF.')
+            else:
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                    u'El mapa raster no ha ingresado a WMF.',
+                    level=QgsMessageBar.WARNING, duration=5)
         
         #Habilita botones.
         self.ButtonPathRaster2WMF.clicked.connect(clickEventSelectorMapaRaster)
@@ -517,8 +526,20 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #Lista de unidades de conversion 
         ListaUnidades = ['Celdas','Laderas','Canales']
         map(self.ComboConversionUnits.addItem, ListaUnidades)
-        #
         
+        
+        def clickEventConvertVariable2NC():
+            '''Convierte una variable clickeada a la tabla de NC con una transformacion'''
+            selectedItems = self.Tabla_Prop_WMF.currentRow ()
+            VarName1 = self.Tabla_Prop_WMF.item(selectedItems,0).text()
+            print VarName1
+            
+            selectedItems = self.Tabla_Prop_NC.currentRow ()
+            VarName1 = self.Tabla_Prop_NC.item(selectedItems,0).text()
+            print VarName1
+            
+        
+        self.Button_EditNcVariable.clicked.connect(clickEventConvertVariable2NC)
     
     def setupRainfallInterpolation(self):
         '''Conjunto de herramientas dispuestas para interpolar campos de precipitacion'''
