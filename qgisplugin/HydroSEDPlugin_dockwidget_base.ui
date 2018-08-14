@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-137</y>
+              <y>-887</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -1112,34 +1112,46 @@
                   <item row="1" column="1">
                    <layout class="QVBoxLayout" name="verticalLayout_12">
                     <item>
-                     <widget class="QRadioButton" name="SelCeldas">
+                     <widget class="QLabel" name="label_13">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
                       <property name="text">
-                       <string>Celdas</string>
+                       <string>Unidades</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QRadioButton" name="SelChannels">
-                      <property name="whatsThis">
-                       <string>Agrega la variable por canales</string>
+                     <widget class="QComboBox" name="ComboConversionUnits">
+                      <property name="toolTip">
+                       <string>Tipo de conversión usada para agregar (promedio)</string>
                       </property>
-                      <property name="text">
-                       <string>Canales</string>
+                      <property name="whatsThis">
+                       <string>Tipo de conversión usada para agregar (promedio)</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QRadioButton" name="SelHills">
-                      <property name="whatsThis">
-                       <string>Agrega la variable por laderas</string>
+                     <widget class="QLabel" name="label_14">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
                       </property>
                       <property name="text">
-                       <string>Laderas</string>
+                       <string>Método</string>
                       </property>
                      </widget>
                     </item>
                     <item>
                      <widget class="QComboBox" name="ComboMethod4Conversion">
+                      <property name="toolTip">
+                       <string>Tipo de conversión usada para agregar (promedio)</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Tipo de conversión usada para agregar (promedio)</string>
                       </property>
@@ -1165,22 +1177,6 @@
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_12">
                       <item>
-                       <widget class="QRadioButton" name="VarFromNc">
-                        <property name="maximumSize">
-                         <size>
-                          <width>20</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="whatsThis">
-                         <string>Aplicar la conversión sobre una variable del nc</string>
-                        </property>
-                        <property name="text">
-                         <string/>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
                        <widget class="QComboBox" name="VarFromNC">
                         <property name="maximumSize">
                          <size>
@@ -1198,22 +1194,6 @@
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_13">
                       <item>
-                       <widget class="QRadioButton" name="VarNew">
-                        <property name="maximumSize">
-                         <size>
-                          <width>20</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="whatsThis">
-                         <string>Aplicar la conversión y escribir una variable nueva</string>
-                        </property>
-                        <property name="text">
-                         <string/>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
                        <widget class="QLineEdit" name="lineEditNewVarName">
                         <property name="maximumSize">
                          <size>
@@ -1227,7 +1207,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QComboBox" name="ComboBoxRaster2WMF_2">
+                       <widget class="QComboBox" name="ComboBoxNewNcVarGroup">
                         <property name="whatsThis">
                          <string>Categoría de la nueva variable obtenida</string>
                         </property>
@@ -4224,7 +4204,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-226</y>
+              <y>0</y>
               <width>433</width>
               <height>1918</height>
              </rect>

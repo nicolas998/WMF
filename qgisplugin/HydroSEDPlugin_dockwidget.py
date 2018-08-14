@@ -64,6 +64,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #self.setupUIButtonEvents ()
         self.setupRainfallInterpolation()
         self.setupSimulation()
+        self.setupNcVariables()
         
         self.TablaFila_WMF = 0
         self.TablaFila_NC = 0
@@ -186,8 +187,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Cargado de la cuenca
             self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(), Simhidro, SimSed)
             self.TableStart()
+            #Actualiza tabla de Nc y comboBox 
+            self.VarFromNC.clear()
             for k in self.HSutils.DicBasinNc.keys():
                 self.TabNC.NewEntry(self.HSutils.DicBasinNc[k],k, self.Tabla_Prop_NC)
+                self.VarFromNC.addItem(k)
             Area, self.EPSG, dxp, self.noData, self.umbral = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
             #print self.umbral
             #Habilita los botones de visualizacion de red hidrica y divisoria 
@@ -500,6 +504,20 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #Habilita botones.
         self.ButtonPathRaster2WMF.clicked.connect(clickEventSelectorMapaRaster)
         self.Button_Raster2WMF.clicked.connect(handleClickConnectRaster2WMF)
+        
+    def setupNcVariables(self):
+        '''Conjunto de herramientas para gestionar las variables del NC'''
+        
+        #Llena de datos los combobox 
+        ListaMetodos = ['No metodo','media','min','P10','P25','P50','P75','P90','max']
+        map(self.ComboMethod4Conversion.addItem,ListaMetodos)
+        #Lista de grupos posibles para una variable 
+        ListaGrupos = ['base','Geomorfo','SimHidro','Hidro']
+        map(self.ComboBoxNewNcVarGroup.addItem, ListaGrupos)
+        #Lista de unidades de conversion 
+        ListaUnidades = ['Celdas','Laderas','Canales']
+        map(self.ComboConversionUnits.addItem, ListaUnidades)
+        #
         
     
     def setupRainfallInterpolation(self):
