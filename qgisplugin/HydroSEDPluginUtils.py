@@ -304,15 +304,25 @@ class controlHS:
             EPSG = self.cuenca.epsg)
         return rutaSalida
     
-    def Basin_Raster2WMF(self, VarName, VarPath, VarGroup):
+    def Basin_Raster2WMF(self, VarName, VarPath, VarGroup, PathOrValue = 'Path', Value = None):
         '''toma una ruta y convierte un mapa raster a cuenca para luego ponerlo 
         en el diccionario de WMF'''
-        #Lee la variable 
-        Var, prop, epsg = wmf.read_map_raster(VarPath)
-        if epsg == self.cuenca.epsg:
-            #Convierte a cuenca
-            Var = self.cuenca.Transform_Map2Basin(Var, prop)
-            #Actualiza el diccionario de WMF
+        Convierte = False
+        #si es un mapa raster
+        if PathOrValue == 'Path':
+            Var, prop, epsg = wmf.read_map_raster(VarPath)
+            if epsg == self.cuenca.epsg:
+                #Convierte a cuenca
+                Var = self.cuenca.Transform_Map2Basin(Var, prop)
+                Convierte = True
+            else:
+                return 1
+        #Si es una constante
+        else:
+            Var = np.ones(self.cuenca.ncells)*Value
+            Convierte = True
+        #Actualiza el diccionario de WMF
+        if Convierte:
             self.DicBasinWMF.update({VarName:
                 {'nombre':VarName,
                 'tipo':Var.dtype.name,

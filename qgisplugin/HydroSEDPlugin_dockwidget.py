@@ -469,20 +469,30 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #Funcion para pasar variable raster a WMF           
         def handleClickConnectRaster2WMF():
             #Chequeos de variables
+            Valor = -9
             if len(self.NameRaster2WMF.text())<2:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Debe ingresar un nombre para el mapa raster a convertir.',
                     level=QgsMessageBar.WARNING, duration=5)
-                return 1
-            if len(self.PathRaster2WMF.text())<2:
-                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Debe seleccionar un mapa raster para ser convertido a la cuenca.',
-                    level=QgsMessageBar.WARNING, duration=5)
-                return 1
+                return 1            
+            if len(self.PathRaster2WMF.text())<5:
+                try:
+                    Valor = float(self.PathRaster2WMF.text())
+                    PathRaster = 'noMapa'
+                    PathOrValue = 'Value'
+                    print Valor
+                except:
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Debe seleccionar un mapa raster para ser convertido a la cuenca.',
+                        level=QgsMessageBar.WARNING, duration=5)
+                    return 1
+            else:
+                PathRaster = self.PathRaster2WMF.text()
+                PathOrValue = 'Path'
             #Parametros para la conversion
             Nombre = self.NameRaster2WMF.text()
-            PathRaster = self.PathRaster2WMF.text()
             Grupo = self.ComboBoxRaster2WMF.currentText()
             #Conversion, convierte la variable y actualiza el diccionario.
-            Retorno = self.HSutils.Basin_Raster2WMF(Nombre, PathRaster, Grupo)
+            Retorno = self.HSutils.Basin_Raster2WMF(Nombre, PathRaster, Grupo, PathOrValue, Valor)
+            print Retorno
             self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[Nombre],Nombre, self.Tabla_Prop_WMF)
             if Retorno == 0:
                 self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'El mapa raster ha ingresado a WMF.')
@@ -728,7 +738,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 Capa = self.SpinBoxLayer2View.value() - 1
             #Ejecuta la conversion a mapa raster
-            print Capa
             pathMapa = self.HSutils.Basin_LoadVariableFromDicNC(VarName, capa = Capa)
             #Visualiza 
             flagCargaMapa = self.HSutils.cargar_mapa_raster(pathMapa)
