@@ -338,6 +338,35 @@ class controlHS:
         else:
             return 1
     
+    def Basin_Geo2Excel(self,ExcelPath):
+        '''Guarda los parametros geomorfologicos de la cuenca en un archivo de excel'''
+        #Obtiene param de curvas
+        self.cuenca.GetGeo_Ppal_Hipsometric()
+        #PArametros
+        GeoData = pd.DataFrame.from_dict(self.cuenca.GeoParameters, 'index')
+        GeoData = pd.DataFrame(GeoData.values, index=GeoData.index,columns=['Parametros'])
+        TcData = pd.DataFrame.from_dict(self.cuenca.Tc, 'index')
+        TcData = pd.DataFrame(TcData.values, TcData.index, columns=['T viaje [hrs]'])
+        #perfil
+        Perfil = pd.DataFrame(np.vstack([self.cuenca.ppal_stream[1]/1000., self.cuenca.ppal_stream[0][::-1]]).T,
+            index=range(self.cuenca.ppal_stream.shape[1]), 
+            columns=['Dist2Out[km]','Elevacion[m]'])
+        #Curva hipsometrica
+        CurvaHipso = pd.DataFrame(np.vstack([self.cuenca.hipso_basin[0]*wmf.cu.dxp**2/1e6, self.cuenca.hipso_basin[1]]).T,
+            index = range(self.cuenca.hipso_basin.shape[1]),
+            columns = ['Area[km2]','Elevacion[m]'])
+        #Escritor
+        W = pd.ExcelWriter(ExcelPath)
+        #Escribe 
+        GeoData.to_excel(W)
+        TcData.to_excel(W, startcol=3, startrow=0)
+        Perfil.to_excel(W, startcol=6, startrow=0)
+        CurvaHipso.to_excel(W, startcol=10, startrow=0)
+        #Cierra el archivo 
+        W.close()
+        return 0
+        
+    
     def Basin_GeoGetAcumSlope(self):
         #self.cuenca.GetGeo_Cell_Basics()
         self.DicBasinWMF.update({'Area':

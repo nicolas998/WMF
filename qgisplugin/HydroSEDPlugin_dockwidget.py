@@ -331,6 +331,28 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.TableGeoParameters.setItem (self.GeoTableNumItems, 1, QTableWidgetItem(valor))
                 self.TableGeoParameters.setItem (self.GeoTableNumItems, 2, QTableWidgetItem(unidad))
                 self.GeoTableNumItems += 1
+            #Habilita los botones de geomrofologia 
+            self.ButtonGeoParameters2Excel.setEnabled(True)
+            self.Button_GeomorfoPerfil.setEnabled(True)
+            self.Button_GeomorfoTc.setEnabled(True)
+        
+        def setupLineEditButtonSaveFileDialog (fileDialogHolder):
+            '''Pone la ruta elegida en el dialogo de texto para guardado'''
+            return fileDialogHolder.getSaveFileName (QtGui.QDialog (), "Guardar parametros en un archivo de excel", "*", "Excel (*.xlsx);;")
+        
+        def clickEventExportParam2Excel():
+            '''Exporta los parametros geomorfologicos a excel'''
+            #Set de la ruta donde se guarda el archivo 
+            PathExcel = setupLineEditButtonSaveFileDialog(QFileDialog)
+            #Funcion que pone param en excel 
+            Retorno = self.HSutils.Basin_Geo2Excel(PathExcel)
+            #Mensage de exito o error
+            if Retorno == 0:
+                self.iface.messageBar().pushInfo(u'HidroSIG',u'Los parametros geomorfologicos se han exportado correctamente')
+            else:
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los parametros geomorfologicos de la cuenca',
+                    level=QgsMessageBar.WARNING, duration=5)
+                
             
         def clickEventGeoRasterProp():
             '''calcula los parametros geomorfologicos de la cuenca por raster'''
@@ -418,6 +440,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #Botones de figuras
         self.Button_GeomorfoTc.clicked.connect(PlotTiempoConcentracion)
         self.Button_GeomorfoPerfil.clicked.connect(PlotCurvaHipsometricaPerfil)
+        #Boton para exporar datos a excel 
+        self.ButtonGeoParameters2Excel.clicked.connect(clickEventExportParam2Excel)
     
     def setupHidro_Balance(self):
         

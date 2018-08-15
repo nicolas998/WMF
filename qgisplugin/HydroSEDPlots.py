@@ -263,7 +263,6 @@ class PlotGeomorphology():
                 pad=4
             ),
             xaxis = dict(
-                title = 'Variable',
                 titlefont =dict(
                     color='rgb(0, 102, 153)',
                     size = 15
