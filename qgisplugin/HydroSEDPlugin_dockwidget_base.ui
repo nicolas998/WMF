@@ -2743,10 +2743,22 @@
                     <property name="sortingEnabled">
                      <bool>true</bool>
                     </property>
+                    <attribute name="horizontalHeaderDefaultSectionSize">
+                     <number>120</number>
+                    </attribute>
+                    <attribute name="horizontalHeaderMinimumSectionSize">
+                     <number>10</number>
+                    </attribute>
                     <attribute name="verticalHeaderDefaultSectionSize">
-                     <number>50</number>
+                     <number>20</number>
+                    </attribute>
+                    <attribute name="verticalHeaderMinimumSectionSize">
+                     <number>10</number>
                     </attribute>
                     <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+                     <bool>true</bool>
+                    </attribute>
+                    <attribute name="verticalHeaderStretchLastSection">
                      <bool>true</bool>
                     </attribute>
                    </widget>
