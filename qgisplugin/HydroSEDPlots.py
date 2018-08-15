@@ -217,4 +217,90 @@ class PlotGeomorphology():
     
         def __init__(self):
             self.a = 0
+        
+        def VarHistogram(self, var, pathFigure, ncells):
+            '''Hace el plot de un histograma de una variable seleccionada'''
+            #Seleccion de datos
+            if ncells > 10000:
+                pos = np.random.choice(ncells, 10000)
+            else:
+                pos = range(10000)
+            #Obtiene la pdf y cdf de la variable    
+            var = var[pos]
+            p1 = np.percentile(var, 0.1)
+            p99 = np.percentile(var, 99.9)
+            h,b = np.histogram(var, bins=np.linspace(p1,p99,10))
+            pdf = h.astype(float)/h.sum()
+            cdf = pdf.cumsum()
+            b = (b[:-1]+b[1:])/2.
+            #Create a trace
+            trace1 = go.Scatter(
+                x = b,
+                y = pdf,
+                name = 'PDF',
+                line = {'width':3},
+                fill='tozeroy'
+            )
+            trace2 = go.Scatter(
+                x = b,
+                y = cdf,
+                name = 'CDF',
+                line = {'width':3},
+                yaxis = 'y2'
+            )
+            #Datos del plot
+            data = [trace1, trace2]
+            #Configuracion del plot
+            layout = dict(
+                width=400,
+                height=400,
+                showlegend = False,
+                margin=dict(
+                    l=50,
+                    r=50,
+                    b=50,
+                    t=50,
+                    pad=4
+                ),
+                xaxis = dict(
+                    title = 'Variable',
+                    titlefont =dict(
+                        color='rgb(0, 102, 153)',
+                        size = 15
+                        ),
+                    tickfont=dict(
+                        color='rgb(0, 102, 153)',
+                        size = 16,            
+                        )
+                    ),
+                yaxis=dict(
+                    title='PDF',
+                    titlefont=dict(
+                        color='rgb(0, 102, 153)',
+                        size = 15
+                    ),
+                    tickangle=-90,
+                    tickfont=dict(
+                        color='rgb(0, 102, 153)',
+                        size = 16,            
+                    ),
+                ),
+                
+                yaxis2=dict(
+                    title='CDF',
+                    titlefont=dict(
+                        color='rgb(255, 153, 51)',
+                        size = 15
+                    ),
+                    tickangle=90,
+                    tickfont=dict(
+                        color='rgb(255, 153, 51)',
+                        size = 16,            
+                    ),
+                    overlaying='y',
+                    side='right',
+                ))
+            #Figura y guardado
+            fig = dict(data=data, layout=layout)
+            plot(fig,filename=pathFigure, auto_open = False)
     

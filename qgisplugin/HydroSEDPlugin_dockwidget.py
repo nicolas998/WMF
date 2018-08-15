@@ -741,8 +741,17 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if ItemName[-1] == '*': ItemName = ItemName[:-1]
             #Obtiene la variable e invoca la funciond e grafica
             Var = self.HSutils.DicBasinWMF[ItemName]['var']
-            PathFigure = '/tmp/HydroSED/Plots_Geomorfo/'
-            #self.GeoPlots.VarHistogram(Var, PathFigure)
+            PathFigure = '/tmp/HydroSED/Plots_Geomorfo/VarHistogram.html'
+            self.GeoPlots.VarHistogram(Var, PathFigure, self.HSutils.cuenca.ncells)
+            #Set de la ventana que contiene la figura.
+            self.VistaRainWeb = QWebView(None)
+            self.VistaRainWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaRainWeb.setWindowTitle('Histograma variable')
+            self.VistaRainWeb.setMinimumWidth(100)
+            self.VistaRainWeb.setMaximumWidth(500)
+            self.VistaRainWeb.setMinimumHeight(100)
+            self.VistaRainWeb.setMaximumHeight(500)
+            self.VistaRainWeb.show()
             
         
         def handleClickEventButton_Eliminar_Desde_WMF ():
@@ -1026,6 +1035,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Button_WMF2NC.clicked.connect(handleClickEventButton_WMF2NC)
         #Boton para actualizar los archivos que se encuentran guardados en un netCDF
         self.Button_Update_NC.clicked.connect(clickEventBasinUpdateNC)
+        #Botones para graficas de variables de la cuenca
+        self.ButtonDraw_histogram_WMF.clicked.connect(DrawClickEvent_histogram_WMF)
  
 class Tabla():
     
