@@ -559,6 +559,44 @@ class controlHS:
         self.cuenca.GetGeo_Parameters()
         return self.cuenca.GeoParameters, self.cuenca.Tc
 
+    def Basin_GeoAcumVar(self, VarName, VarAcumName, WhatAcumDic,VarMaskName,WhatMaskDic,umbral):
+        '''Acumula una variable teniendo en cuenta una mascara y un umbral sobre la misma'''
+        #Selecciona variable de acumulacion 
+        if WhatAcumDic == 'NC':
+            Var = np.copy(self.DicBasinNc[VarAcumName]['var'])
+        elif WhatAcumDic == 'WMF':
+            Var = np.copy(self.DicBasinWMF[VarAcumName]['var'])
+        #Selecciona la mascara
+        Mask = np.ones(self.cuenca.ncells)
+        if VarMaskName is not None:
+            #Si hay mascara busca en que diccionario esta y la toma 
+            if WhatMaskDic == 'NC':
+                MaskTemp = np.copy(self.DicBasinNc[VarMaskName]['var'])
+            elif WhatMaskDic == 'WMF':
+                MaskTemp = np.copy(self.DicBasinWMF[VarMaskName]['var'])
+            #Con el umbral convierte a la mascara en una variable de ceros y unos 
+            Mask[MaskTemp<=umbral] = 0
+        #Variable a acumular y acumulacion
+        Var = Var*Mask
+        AcumVar = wmf.cu.basin_acum_var(self.cuenca.structure[0], 
+            np.ones((1,self.cuenca.ncells))*Var,
+            self.cuenca.ncells)
+        AcumVar = AcumVar[0]
+        #Mete la variable en el diccionario de WMF 
+        self.DicBasinWMF.update({VarName:
+            {'nombre':VarName,
+            'tipo':AcumVar.dtype.name,
+            'shape':AcumVar.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geomorfo',
+            'var': np.copy(AcumVar),
+            'saved':False}})
+        return 0
+
+        
+            
+
     def Interpol_GetFields(self, Path2Points):
         '''Entrega una lista con los nombres de los atributos de un shp de puntos'''
         #Lectura del archivo 

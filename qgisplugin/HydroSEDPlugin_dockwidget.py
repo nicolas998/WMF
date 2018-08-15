@@ -353,7 +353,6 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los parametros geomorfologicos de la cuenca',
                     level=QgsMessageBar.WARNING, duration=5)
                 
-            
         def clickEventGeoRasterProp():
             '''calcula los parametros geomorfologicos de la cuenca por raster'''
             #Lista de variables a calcular
@@ -392,8 +391,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Actualiza la tabla de variables temporales 
             for k in ListaVar:
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
-                self.ComboGeoMaskVar.addItem(k)
-                self.ComboGeoVar2Acum.addItem(k)
+                #self.ComboGeoMaskVar.addItem(k)
+                #self.ComboGeoVar2Acum.addItem(k)
         
         def PlotTiempoConcentracion():
             '''Plot con el tiempo de concentracion estimado por diferentes metodologias'''
@@ -431,17 +430,76 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.VistaRainWeb.setMaximumHeight(400)
             self.VistaRainWeb.show()
          
+        def clickEventUpdateAcumVarMask():
+            '''Actuaqliza la lista de variables existentes en las tablas para usar como mascara'''
+            self.ComboGeoMaskVar.clear()
+            for i in self.HSutils.DicBasinWMF.keys():
+                self.ComboGeoMaskVar.addItem(i+'-WMF')
+            for i in self.HSutils.DicBasinNc.keys():
+                self.ComboGeoMaskVar.addItem(i+'-NC')
+            self.ComboGeoMaskVar.addItem('sin mascara')
+            self.ComboGeoMaskVar.setCurrentIndex(self.ComboGeoMaskVar.findText('sin mascara'))
+        
+        def clickEventUpdateAcumVar():
+            '''Actuaqliza la lista de variables existentes en las tablas para acumular'''
+            self.ComboGeoVar2Acum.clear()
+            for i in self.HSutils.DicBasinWMF.keys():
+                self.ComboGeoVar2Acum.addItem(i+'-WMF')
+            for i in self.HSutils.DicBasinNc.keys():
+                self.ComboGeoVar2Acum.addItem(i+'-NC')        
+        
+        def clickEventAcumVar():
+            '''Acumula la variable seleccionada.'''
+            #Toma el nombre de la variable 
+            Nombre = self.NameGeoAcumVar.text().strip()
+            umbral = self.UmbralAcum.value()
+            #Variable mascara
+            MascaraText = self.ComboGeoMaskVar.currentText()
+            if MascaraText == 'sin mascara':
+                VarMaskName = None
+                WhatMaskDic = None
+            else:
+                WhatMaskDic = MascaraText.split('-')[-1]
+                VarMaskName = MascaraText.split('-')[0]
+            #Variable a acumular
+            VarAcumText = self.ComboGeoVar2Acum.currentText()
+            WhatAcumDic = VarAcumText.split('-')[-1]
+            VarAcumName = VarAcumText.split('-')[0]
+            #Invoca funcion para acumular variable 
+            Retorno = self.HSutils.Basin_GeoAcumVar(Nombre, 
+                VarAcumName, 
+                WhatAcumDic,
+                VarMaskName,
+                WhatMaskDic,
+                umbral)
+            #Actualiza la tabla de WMF 
+            self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[Nombre],Nombre, self.Tabla_Prop_WMF)
+            #Mensaje de exito o error 
+            if Retorno == 0:
+                self.iface.messageBar().pushMessage(u'HidroSIG:',u'La variable '+VarAcumName+' se ha acumulado como '+Nombre+' en la tabla WMF.',
+                    level=QgsMessageBar.INFO,
+                    duration = 5)
+            else:
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                    u'No se ha logrado acumular la variable '+ VarAcumName,
+                    level=QgsMessageBar.WARNING, duration=5)
+            
         
         #Botones de ejecucion
         self.ButtonGeomorfoRasterVars.clicked.connect(clickEventGeoRasterProp)
         self.checkBoxTodos.clicked.connect(clickEventActivateGeoCheckBoxes)
         self.ButtonGeoParameters.clicked.connect(clickEventGeoProperties)
+        self.ButtonUpdateMask.clicked.connect(clickEventUpdateAcumVarMask)
+        self.ButtonUpdateVarList.clicked.connect(clickEventUpdateAcumVar)
+        self.ButtonGeomorfoAcumVar.clicked.connect(clickEventAcumVar)
         #self.ComboGeoMaskVar.activated.connect(clickEventUpdateComboBoxMask)
         #Botones de figuras
         self.Button_GeomorfoTc.clicked.connect(PlotTiempoConcentracion)
         self.Button_GeomorfoPerfil.clicked.connect(PlotCurvaHipsometricaPerfil)
         #Boton para exporar datos a excel 
         self.ButtonGeoParameters2Excel.clicked.connect(clickEventExportParam2Excel)
+        
+        
     
     def setupHidro_Balance(self):
         

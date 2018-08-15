@@ -250,7 +250,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-887</y>
+              <y>-300</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -2263,7 +2263,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-147</y>
               <width>443</width>
               <height>1918</height>
              </rect>
@@ -2590,6 +2590,29 @@
                      </widget>
                     </item>
                     <item>
+                     <widget class="QPushButton" name="ButtonUpdateMask">
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Refresca lista de variables a usar como máscara</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Refresca lista de variables a usar como máscara</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/update.png</normaloff>:/plugins/HydroSEDPlugin/icons/update.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QComboBox" name="ComboGeoMaskVar">
                       <property name="minimumSize">
                        <size>
@@ -2617,6 +2640,29 @@
                      </widget>
                     </item>
                     <item>
+                     <widget class="QPushButton" name="ButtonUpdateVarList">
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Refresca lista de variables para acumular</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Refresca lista de variables para acumular</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/update.png</normaloff>:/plugins/HydroSEDPlugin/icons/update.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QComboBox" name="ComboGeoVar2Acum">
                       <property name="minimumSize">
                        <size>
@@ -2639,7 +2685,7 @@
                        <string>Nombre de la variable acumulada.</string>
                       </property>
                       <property name="text">
-                       <string>Nombre variable acumulada: </string>
+                       <string>Resultado</string>
                       </property>
                      </widget>
                     </item>
@@ -2657,20 +2703,36 @@
                      </widget>
                     </item>
                     <item>
-                     <spacer name="horizontalSpacer_24">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
+                     <widget class="QLabel" name="label_70">
+                      <property name="toolTip">
+                       <string>Nombre de la variable acumulada.</string>
                       </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
+                      <property name="whatsThis">
+                       <string>Nombre de la variable acumulada.</string>
                       </property>
-                     </spacer>
+                      <property name="text">
+                       <string>Umbral</string>
+                      </property>
+                     </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="ButtonGeomorfoAcumVar_2">
+                     <widget class="QDoubleSpinBox" name="UmbralAcum">
+                      <property name="minimum">
+                       <double>-999999.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>9999999.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="ButtonGeomorfoAcumVar">
                       <property name="toolTip">
                        <string>Acumular variable (cargada a Variables WMF).</string>
                       </property>
