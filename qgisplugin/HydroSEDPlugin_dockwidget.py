@@ -817,6 +817,33 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.VistaRainWeb.setMaximumHeight(500)
             self.VistaRainWeb.show()
             
+        def DrawClickEvent_histogram_NC():
+            '''Hace un histograma de la variable seleccionada y su capa seleccionada'''
+            #Selecciona el item y su nombre
+            selectedItems = self.Tabla_Prop_NC.currentRow ()
+            ItemName =  self.Tabla_Prop_NC.item(selectedItems,0).text()
+            if ItemName[-1] == '*': ItemName = ItemName[:-1]
+            #Selecciona la capa 
+            if self.SpinBoxNCLayer.value() == 0:
+                Var = self.HSutils.DicBasinNc[ItemName]['var']
+            else:
+                Capa = self.SpinBoxNCLayer.value() - 1
+                Var = self.HSutils.DicBasinNc[ItemName]['var'][Capa]
+            #Obtiene la variable e invoca la funciond e grafica
+            PathFigure = '/tmp/HydroSED/Plots_Geomorfo/VarHistogram.html'
+            self.GeoPlots.VarHistogram(Var, PathFigure, self.HSutils.cuenca.ncells)
+            #Set de la ventana que contiene la figura.
+            self.VistaRainWeb = QWebView(None)
+            self.VistaRainWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaRainWeb.setWindowTitle('Histograma variable')
+            self.VistaRainWeb.setMinimumWidth(100)
+            self.VistaRainWeb.setMaximumWidth(500)
+            self.VistaRainWeb.setMinimumHeight(100)
+            self.VistaRainWeb.setMaximumHeight(500)
+            self.VistaRainWeb.show()
+            #Vuelve el spinBox a su set original 
+            self.SpinBoxNCLayer.setValue(0)
+        
         
         def handleClickEventButton_Eliminar_Desde_WMF ():
             #Selecciona el item y su nombre
@@ -858,10 +885,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             VarName = self.Tabla_Prop_NC.item(selectedItems,0).text()
             if VarName[-1] == '*': VarName = varName[:-1]
             #Capa de la variable 
-            if self.SpinBoxLayer2View.value() == 0:
+            if self.SpinBoxNCLayer.value() == 0:
                 Capa = None
             else:
-                Capa = self.SpinBoxLayer2View.value() - 1
+                Capa = self.SpinBoxNCLayer.value() - 1
             #Ejecuta la conversion a mapa raster
             pathMapa = self.HSutils.Basin_LoadVariableFromDicNC(VarName, capa = Capa)
             #Visualiza 
@@ -1101,6 +1128,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Button_Update_NC.clicked.connect(clickEventBasinUpdateNC)
         #Botones para graficas de variables de la cuenca
         self.ButtonDraw_histogram_WMF.clicked.connect(DrawClickEvent_histogram_WMF)
+        self.ButtonDraw_histogram_NC.clicked.connect(DrawClickEvent_histogram_NC)
  
 class Tabla():
     
