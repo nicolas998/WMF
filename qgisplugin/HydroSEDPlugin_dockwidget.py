@@ -387,7 +387,28 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.VistaRainWeb.setMinimumHeight(100)
             self.VistaRainWeb.setMaximumHeight(500)
             self.VistaRainWeb.show()
-            
+         
+        def PlotCurvaHipsometricaPerfil():
+            '''Hace el plot de la curva hipsometrica de la cuenca y del perfil del canal ppal'''
+            #Obtiene la variable e invoca la funciond e grafica
+            PathFigure = '/tmp/HydroSED/Plots_Geomorfo/PerfilYCurvaHipso.html'
+            self.HSutils.cuenca.GetGeo_Ppal_Hipsometric()
+            #Variables
+            Hipso = np.copy(self.HSutils.cuenca.hipso_basin)
+            Stream = np.vstack([self.HSutils.cuenca.ppal_stream[1]/1000.,
+                self.HSutils.cuenca.ppal_stream[0]])
+            #Plot
+            self.GeoPlots.StreamProfileHipsometric(PathFigure, Hipso, Stream)
+            #Set de la ventana que contiene la figura.
+            self.VistaRainWeb = QWebView(None)
+            self.VistaRainWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaRainWeb.setWindowTitle('Perfil longitudinal y curva hipsométrica')
+            self.VistaRainWeb.setMinimumWidth(100)
+            self.VistaRainWeb.setMaximumWidth(700)
+            self.VistaRainWeb.setMinimumHeight(100)
+            self.VistaRainWeb.setMaximumHeight(400)
+            self.VistaRainWeb.show()
+         
         
         #Botones de ejecucion
         self.ButtonGeomorfoRasterVars.clicked.connect(clickEventGeoRasterProp)
@@ -396,6 +417,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #self.ComboGeoMaskVar.activated.connect(clickEventUpdateComboBoxMask)
         #Botones de figuras
         self.Button_GeomorfoTc.clicked.connect(PlotTiempoConcentracion)
+        self.Button_GeomorfoPerfil.clicked.connect(PlotCurvaHipsometricaPerfil)
     
     def setupHidro_Balance(self):
         

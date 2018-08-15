@@ -250,7 +250,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-629</y>
+              <y>0</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -900,7 +900,7 @@
                       <string/>
                      </property>
                      <property name="icon">
-                      <iconset resource="resources.qrc">
+                      <iconset>
                        <normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</iconset>
                      </property>
                      <property name="iconSize">
@@ -1339,7 +1339,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</iconset>
                    </property>
                   </widget>
@@ -1374,7 +1374,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</iconset>
                    </property>
                    <property name="iconSize">
@@ -1531,7 +1531,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-255</y>
+              <y>0</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -2836,25 +2836,6 @@
                       </property>
                       <property name="text">
                        <string>Perfiles</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_GeomorfoHietograma">
-                      <property name="minimumSize">
-                       <size>
-                        <width>10</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
-                      </property>
-                      <property name="text">
-                       <string>Hietograma</string>
                       </property>
                      </widget>
                     </item>
@@ -5211,7 +5192,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</iconset>
                       </property>
                      </widget>
@@ -5458,7 +5439,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/toRaster.ico</normaloff>:/plugins/HydroSEDPlugin/icons/toRaster.ico</iconset>
                       </property>
                      </widget>

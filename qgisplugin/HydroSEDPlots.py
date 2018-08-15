@@ -355,3 +355,77 @@ class PlotGeomorphology():
         fig = dict(data=data, layout=layout)
         plot(fig,filename=pathFigure, auto_open = False)
     
+    def StreamProfileHipsometric(self, pathFigure, HipsoData, StreamData):
+        '''Hace el plot del perfil longitudinal y de la curva hipsometrica'''
+        #plot# Create a trace
+        trace1 = go.Scatter(
+            x = HipsoData[0], 
+            y = HipsoData[1],
+            name = 'Curva hipso',
+            line = {'width':3},
+        )
+        x = StreamData[0]
+        y = StreamData[1]
+        trace2 = go.Scatter(
+            x = x[30:],
+            y = y[30:],
+            name = 'Perfil',
+            line = {'width':3},
+            xaxis = 'x2'
+        )
+        
+        data = [trace1, trace2]
+        
+        layout = dict(
+            width=600,
+            height=400,
+            showlegend = False,
+            margin=dict(
+                l=50,
+                r=50,
+                b=50,
+                t=50,
+                pad=4
+            ),
+            
+            xaxis = dict(
+            title = 'Porcentaje del area [%]',
+            titlefont =dict(
+                color='rgb(0, 102, 153)',
+                size = 15
+                ),
+            tickfont=dict(
+                color='rgb(0, 102, 153)',
+                size = 16,            
+                )
+            ),
+            
+            yaxis=dict(
+                title='Elevacion [m.s.n.m]',
+                titlefont=dict(
+                    color='rgb(0, 102, 153)',
+                    size = 15
+                ),
+                tickangle=-90,
+                tickfont=dict(
+                    color='rgb(0, 102, 153)',
+                    size = 16,            
+                ),
+            ),
+            
+            xaxis2=dict(
+                title='Distancia a la salida [km]',
+                titlefont=dict(
+                    color='rgb(255, 153, 51)',
+                    size = 15
+                ),
+                tickfont=dict(
+                    color='rgb(255, 153, 51)',
+                    size = 16,            
+                ),
+                overlaying='x',
+                side='top',
+            ))
+        fig = dict(data=data, layout=layout)
+        plot(fig,filename=pathFigure, auto_open = False)
+    
