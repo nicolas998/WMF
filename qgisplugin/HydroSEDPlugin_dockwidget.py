@@ -373,11 +373,29 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.ComboGeoMaskVar.addItem(k)
                 self.ComboGeoVar2Acum.addItem(k)
         
+        def PlotTiempoConcentracion():
+            '''Plot con el tiempo de concentracion estimado por diferentes metodologias'''
+            #Obtiene la variable e invoca la funciond e grafica
+            PathFigure = '/tmp/HydroSED/Plots_Geomorfo/TiemposConcentracion.html'
+            self.GeoPlots.TiempoConcentracion(self.HSutils.cuenca.Tc, PathFigure)
+            #Set de la ventana que contiene la figura.
+            self.VistaRainWeb = QWebView(None)
+            self.VistaRainWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaRainWeb.setWindowTitle('Tiempos de concentracion')
+            self.VistaRainWeb.setMinimumWidth(100)
+            self.VistaRainWeb.setMaximumWidth(600)
+            self.VistaRainWeb.setMinimumHeight(100)
+            self.VistaRainWeb.setMaximumHeight(500)
+            self.VistaRainWeb.show()
+            
+        
         #Botones de ejecucion
         self.ButtonGeomorfoRasterVars.clicked.connect(clickEventGeoRasterProp)
         self.checkBoxTodos.clicked.connect(clickEventActivateGeoCheckBoxes)
         self.ButtonGeoParameters.clicked.connect(clickEventGeoProperties)
         #self.ComboGeoMaskVar.activated.connect(clickEventUpdateComboBoxMask)
+        #Botones de figuras
+        self.Button_GeomorfoTc.clicked.connect(PlotTiempoConcentracion)
     
     def setupHidro_Balance(self):
         
