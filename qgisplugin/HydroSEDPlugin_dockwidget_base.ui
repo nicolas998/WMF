@@ -250,7 +250,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-300</y>
+              <y>-815</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -1230,6 +1230,25 @@
                         </property>
                        </widget>
                       </item>
+                      <item>
+                       <widget class="QSpinBox" name="SpinBoxNCLayer_2">
+                        <property name="maximumSize">
+                         <size>
+                          <width>82</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="toolTip">
+                         <string>Capa a ver (o editar) de la variable Nc.</string>
+                        </property>
+                        <property name="whatsThis">
+                         <string>Capa a ver (o editar) de la variable Nc.</string>
+                        </property>
+                        <property name="maximum">
+                         <number>5</number>
+                        </property>
+                       </widget>
+                      </item>
                      </layout>
                     </item>
                     <item>
@@ -1249,6 +1268,9 @@
                       </item>
                       <item>
                        <widget class="QComboBox" name="ComboBoxNewNcVarGroup">
+                        <property name="toolTip">
+                         <string>Categoría de la nueva variable obtenida</string>
+                        </property>
                         <property name="whatsThis">
                          <string>Categoría de la nueva variable obtenida</string>
                         </property>
@@ -1258,6 +1280,19 @@
                     </item>
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_18">
+                      <item>
+                       <spacer name="horizontalSpacer_5">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
                       <item>
                        <widget class="QPushButton" name="Button_EditNcVariable">
                         <property name="maximumSize">

@@ -189,8 +189,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             SimSed = self.checkBox_simSed.isChecked()
             #Si hay una tabla vieja le trata de borrar todas sus entradas
             if self.segundaCarga:
-				self.TabNC.EmptyTable(self.Tabla_Prop_NC)
-				self.TabWMF.EmptyTable(self.Tabla_Prop_WMF)
+                self.TabNC.EmptyTable(self.Tabla_Prop_NC)
+                self.TabWMF.EmptyTable(self.Tabla_Prop_WMF)
             self.segundaCarga = True
             #Cargado de la cuenca
             self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(), Simhidro, SimSed)
@@ -613,7 +613,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Debe ingresar un nombre para el mapa raster a convertir.',
                     level=QgsMessageBar.WARNING, duration=5)
                 return 1            
-            if len(self.PathRaster2WMF.text())<5:
+            try:
+                Valor = float(self.PathRaster2WMF.text())
+                EsNumero = True
+            except:
+                EsNumero = False
+            if EsNumero:
                 try:
                     Valor = float(self.PathRaster2WMF.text())
                     PathRaster = 'noMapa'
