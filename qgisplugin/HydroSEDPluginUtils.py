@@ -697,5 +697,30 @@ class controlHS:
         #cierra el archivo 
         g.close()
         return Ejecuto
-        
+    
+    def ExpressionParser(self, expresion):
+        '''Toma una expresion enviada en string, extrae las variables del diccionario
+        y evalua la expresion'''
+        #Busca en el diccionario de NC las variables de la expresion
+        Lista = self.DicBasinWMF.keys()
+        Lista.extend(self.DicBasinNc.keys())
+        for k in Lista:
+            #Tamano y pos de la letra
+            largo = len(k)
+            pos = -1
+            try:
+                pos = expresion.index(k)
+                #Extrae el valor de la var del diccionario y define variables
+                try:
+                    var = self.DicBasinNc[k]['var']
+                except:
+                    var = self.DicBasinWMF[k]['var']
+                ejec = expresion[pos:pos+largo]+'=var'
+                exec(ejec)
+            except:
+                pass
+        #Formula la expresion 
+        AA = eval(expresion)
+        return AA
+                
         

@@ -661,6 +661,15 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         ListaUnidades = ['Celdas','Laderas','Canales']
         map(self.ComboConversionUnits.addItem, ListaUnidades)
         
+        def clickEventEvalString():
+            '''Funcion que eavlua una expresion escrita'''
+            #toma la expresion y la evalua
+            exp = self.LineaComando.text().strip()
+            Var = self.HSutils.ExpressionParser(exp)
+            #Dependiendo de la opcion la agrega como nueva var a WMF o actualiza una en NC
+            
+            
+            
         
         def clickEventConvertVariable2NC():
             '''Convierte una variable clickeada a la tabla de NC con una transformacion'''
@@ -673,7 +682,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             print VarName1
             
         
-        self.Button_EditNcVariable.clicked.connect(clickEventConvertVariable2NC)
+        self.Button_EditNcVariable.clicked.connect(clickEventEvalString)
     
     def setupRainfallInterpolation(self):
         '''Conjunto de herramientas dispuestas para interpolar campos de precipitacion'''

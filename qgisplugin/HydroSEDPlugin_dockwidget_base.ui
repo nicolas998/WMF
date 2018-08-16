@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-815</y>
+              <y>-875</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -1134,7 +1134,7 @@
                   <x>0</x>
                   <y>1230</y>
                   <width>421</width>
-                  <height>161</height>
+                  <height>311</height>
                  </rect>
                 </property>
                 <property name="title">
@@ -1146,7 +1146,7 @@
                    <x>0</x>
                    <y>20</y>
                    <width>421</width>
-                   <height>138</height>
+                   <height>161</height>
                   </rect>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,0,0">
@@ -1198,6 +1198,19 @@
                       </property>
                      </widget>
                     </item>
+                    <item>
+                     <spacer name="verticalSpacer">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>40</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
                    </layout>
                   </item>
                   <item row="0" column="2">
@@ -1217,6 +1230,19 @@
                    <layout class="QVBoxLayout" name="verticalLayout_22">
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_12">
+                      <item>
+                       <widget class="QRadioButton" name="radioButton">
+                        <property name="maximumSize">
+                         <size>
+                          <width>20</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                       </widget>
+                      </item>
                       <item>
                        <widget class="QComboBox" name="VarFromNC">
                         <property name="maximumSize">
@@ -1254,6 +1280,19 @@
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_13">
                       <item>
+                       <widget class="QRadioButton" name="radioButton_2">
+                        <property name="maximumSize">
+                         <size>
+                          <width>20</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
                        <widget class="QLineEdit" name="lineEditNewVarName">
                         <property name="maximumSize">
                          <size>
@@ -1273,6 +1312,23 @@
                         </property>
                         <property name="whatsThis">
                          <string>Categoría de la nueva variable obtenida</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="horizontalLayout_21">
+                      <item>
+                       <widget class="QLineEdit" name="LineaComando">
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>70</height>
+                         </size>
+                        </property>
+                        <property name="whatsThis">
+                         <string>Nombre de la variable que contiene la conversión</string>
                         </property>
                        </widget>
                       </item>
@@ -5671,6 +5727,7 @@
   </widget>
  </widget>
  <resources>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
