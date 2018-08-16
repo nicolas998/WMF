@@ -69,6 +69,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.TablaFila_WMF = 0
         self.TablaFila_NC = 0
         self.botonClicked = False
+        self.segundaCarga = False
         
         self.GeoPlots = HSplots.PlotGeomorphology()
         
@@ -186,6 +187,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Checks para simulacion de sedimentos e hidrologica
             Simhidro = self.checkBox_simBasin.isChecked()
             SimSed = self.checkBox_simSed.isChecked()
+            #Si hay una tabla vieja le trata de borrar todas sus entradas
+            if self.segundaCarga:
+				self.TabNC.EmptyTable(self.Tabla_Prop_NC)
+				self.TabWMF.EmptyTable(self.Tabla_Prop_WMF)
+            self.segundaCarga = True
             #Cargado de la cuenca
             self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(), Simhidro, SimSed)
             self.TableStart()
@@ -580,8 +586,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
     def TableStart (self):
         '''Arranca las tablas de NC y WMF'''
-        self.TabNC = Tabla(self.HSutils.NumDicBasinNcVariables,self.Tabla_Prop_NC)
-        self.TabWMF = Tabla(self.HSutils.NumDicBasinWMFVariables, self.Tabla_Prop_WMF)
+        self.TabNC = Tabla(50,self.Tabla_Prop_NC)
+        self.TabWMF = Tabla(50, self.Tabla_Prop_WMF)
     
     def setupRaster2WMF(self):
                
@@ -957,7 +963,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No fue posible cargar la variable',
                     level=QgsMessageBar.WARNING, duration=5)
             #Hace que el spinbox vuelva a lo normal 
-            self.SpinBoxLayer2View.setValue(0)
+            self.SpinBoxNCLayer.setValue(0)
         
         def handleClickEventButton_Ver_Desde_WMF():
             '''Visualiza una de las variables de la cuenca en Qgis'''
@@ -1198,6 +1204,12 @@ class Tabla():
         TabElement.setColumnCount(len(Header))
         TabElement.setHorizontalHeaderLabels(Header)
     
+    def EmptyTable(self, TabElement):
+        '''Vacia la tabla, quita todos los elementos'''
+        TabElement.setRowCount(0)
+        self.TabNames = []
+        self.NumRows = 0 
+        
     def DelEntry(self, KeyToDel):
         '''Borra una entrada en el diccionario de datos'''
         pos = self.TabNames.index(KeyToDel)

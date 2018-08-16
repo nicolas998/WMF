@@ -228,6 +228,9 @@ class controlHS:
         '''Carga un proyecto cuenca de nc en la memoria de Qgis:
         LoadSim: Carga las variables de simulacion
         LoadSed: Carga variables de simulacion de sedimentos'''
+        #Inicia de cero el diccionario de la cuenca 
+        self.DicBasinNc = {}
+        self.DicBasinWMF = {}
         # Numero Total de Variables
         self.NumDicBasinNcVariables = 0
         # Numero Total de Variables Basicas
