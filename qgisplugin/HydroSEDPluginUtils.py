@@ -253,20 +253,19 @@ class controlHS:
                     shape = g.groups[grupoKey].variables[k].shape
                     MapaRaster = False
                     for s in shape:
-                        if s == self.cuenca.ncells:
-                            MapaRaster = True
-                        #Actualiza el diccionario
-                        self.DicBasinNc.update({k:
-                            {'nombre':k,
-                            'tipo':g.groups[grupoKey].variables[k].dtype.name,
-                            'shape':g.groups[grupoKey].variables[k].shape,
-                            'raster':MapaRaster,
-                            'basica': True,
-                            'categoria': grupoKey,
-                            'var': g.groups[grupoKey].variables[k][:],
-                            'saved':True}})
-                        self.NumDicBasinNcVariables = self.NumDicBasinNcVariables + 1
-                        self.NumDicBasinNcVariablesBasicas = self.NumDicBasinNcVariablesBasicas + 1
+						if s == self.cuenca.ncells: MapaRaster = True
+                    #Actualiza el diccionario
+                    self.DicBasinNc.update({k:
+                        {'nombre':k,
+                        'tipo':g.groups[grupoKey].variables[k].dtype.name,
+                        'shape':g.groups[grupoKey].variables[k].shape,
+                        'raster':MapaRaster,
+                        'basica': True,
+                        'categoria': grupoKey,
+                        'var': g.groups[grupoKey].variables[k][:],
+                        'saved':True}})
+                    self.NumDicBasinNcVariables = self.NumDicBasinNcVariables + 1
+                    self.NumDicBasinNcVariablesBasicas = self.NumDicBasinNcVariablesBasicas + 1
         g.close()
         #Cargar la cuenca y sus variables base a WMF 
         self.cuenca = wmf.SimuBasin(rute = PathNC)

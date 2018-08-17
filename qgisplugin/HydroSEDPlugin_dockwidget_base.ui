@@ -1132,7 +1132,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>1230</y>
+                  <y>1200</y>
                   <width>421</width>
                   <height>311</height>
                  </rect>
@@ -1146,7 +1146,7 @@
                    <x>0</x>
                    <y>20</y>
                    <width>421</width>
-                   <height>161</height>
+                   <height>184</height>
                   </rect>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,0,0">
@@ -1231,7 +1231,7 @@
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_12">
                       <item>
-                       <widget class="QRadioButton" name="radioButton">
+                       <widget class="QRadioButton" name="Radio2NcVar">
                         <property name="maximumSize">
                          <size>
                           <width>20</width>
@@ -1257,7 +1257,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QSpinBox" name="SpinBoxNCLayer_2">
+                       <widget class="QSpinBox" name="ObjectiveLayer">
                         <property name="maximumSize">
                          <size>
                           <width>82</width>
@@ -1280,7 +1280,7 @@
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_13">
                       <item>
-                       <widget class="QRadioButton" name="radioButton_2">
+                       <widget class="QRadioButton" name="Radio2WMF">
                         <property name="maximumSize">
                          <size>
                           <width>20</width>
@@ -1306,7 +1306,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QComboBox" name="ComboBoxNewNcVarGroup">
+                       <widget class="QComboBox" name="ComboBoxNewWMFVarGroup">
                         <property name="toolTip">
                          <string>Categoría de la nueva variable obtenida</string>
                         </property>
@@ -1316,6 +1316,19 @@
                        </widget>
                       </item>
                      </layout>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="label_17">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Expresión</string>
+                      </property>
+                     </widget>
                     </item>
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_21">
@@ -2354,7 +2367,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-147</y>
+              <y>0</y>
               <width>443</width>
               <height>1918</height>
              </rect>
@@ -5727,7 +5740,6 @@
   </widget>
  </widget>
  <resources>
-  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>

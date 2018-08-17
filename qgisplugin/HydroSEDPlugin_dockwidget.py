@@ -193,14 +193,17 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.TabWMF.EmptyTable(self.Tabla_Prop_WMF)
             self.segundaCarga = True
             #Cargado de la cuenca
-            self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(), Simhidro, SimSed)
+            Area, self.EPSG, dxp, self.noData, self.umbral = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(),
+				Simhidro, SimSed)
+            #self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(), Simhidro, SimSed)
             self.TableStart()
             #Actualiza tabla de Nc y comboBox 
             self.VarFromNC.clear()
             for k in self.HSutils.DicBasinNc.keys():
                 self.TabNC.NewEntry(self.HSutils.DicBasinNc[k],k, self.Tabla_Prop_NC)
                 self.VarFromNC.addItem(k)
-            Area, self.EPSG, dxp, self.noData, self.umbral = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip())
+            #Area, self.EPSG, dxp, self.noData, self.umbral = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(),
+		#		Simhidro, SimSed)
             #print self.umbral
             #Habilita los botones de visualizacion de red hidrica y divisoria 
             self.Boton_verDivisoria.setEnabled(True)
@@ -656,7 +659,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         map(self.ComboMethod4Conversion.addItem,ListaMetodos)
         #Lista de grupos posibles para una variable 
         ListaGrupos = ['base','Geomorfo','SimHidro','Hidro']
-        map(self.ComboBoxNewNcVarGroup.addItem, ListaGrupos)
+        map(self.ComboBoxNewWMFVarGroup.addItem, ListaGrupos)
         #Lista de unidades de conversion 
         ListaUnidades = ['Celdas','Laderas','Canales']
         map(self.ComboConversionUnits.addItem, ListaUnidades)
@@ -666,7 +669,38 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #toma la expresion y la evalua
             exp = self.LineaComando.text().strip()
             Var = self.HSutils.ExpressionParser(exp)
-            #Dependiendo de la opcion la agrega como nueva var a WMF o actualiza una en NC
+            print self.HSutils.DicBasinNc.keys()
+            EsCuenca = False
+            if Var.size == self.HSutils.cuenca.ncells: EsCuenca = True
+            #Si es al nc sobre-escribe una entrada del diccionario
+            if self.Radio2NcVar.isChecked():
+                VarDestinoName = self.VarFromNC.currentText().encode()
+                Capa = self.ObjectiveLayer.value()
+                #Solo pasa al NC si el tamano es el de la cuenca
+                if EsCuenca:
+                    try:
+                        self.HSutils.DicBasinNc[VarDestinoName]['var'][Capa] = np.copy(Var)
+                    except:
+                        self.HSutils.DicBasinNc[VarDestinoName]['var'] = np.copy(Var)
+                    self.HSutils.DicBasinNc[VarDestinoName]['saved'] = False
+            #si es una variable nueva la tira al WMF
+            elif self.Radio2WMF.isChecked():
+                #Variable al diccionario
+                VarDestinoName = self.lineEditNewVarName.text().strip()
+                Grupo = self.ComboBoxNewWMFVarGroup.currentText().strip().encode()
+                self.HSutils.DicBasinWMF.update({VarDestinoName:
+                    {'nombre':VarDestinoName,
+                    'tipo':Var.dtype.name,
+                    'shape':Var.shape,
+                    'raster':EsCuenca,
+                    'basica': False,
+                    'categoria': Grupo,
+                    'var': np.copy(Var),
+                    'saved':False}})
+                #Actualiza la tabla 
+                self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[VarDestinoName],
+                    VarDestinoName, self.Tabla_Prop_WMF)
+                 
             
             
             
