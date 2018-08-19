@@ -771,6 +771,7 @@ def __ModifyElevErode__(X,slope=0.01,d2 = 0.03, window = 25):
                     Pos.append(c2)
         c+=1
     # Obtiene la segunda derivada de la corriente corregida 
+    Y = pd.Series(Y)
     Y = Y.rolling(window).mean()
     l = Y[np.isnan(Y)].shape[0]
     Y[:l]=Y[l+1]
