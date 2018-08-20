@@ -389,17 +389,35 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.HSutils.Basin_GeoGetOCG()
                 ListaVar.extend(['OCG_coef'])
             if self.checkBoxKubota.isChecked():
-                self.HSutils.Basin_GeoGetKubota()
-                ListaVar.extend(['kubota_coef'])                
+                try: 
+                    self.HSutils.Basin_GeoGetKubota()
+                    ListaVar.extend(['kubota_coef'])   
+                    self.iface.messageBar().pushInfo(u'HidroSIG:',
+                    u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')                                            
+                except:
+					#Pone un mensaje de error por si h1_max no ha sido calculado
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                    u'No ha sido cargado h1_max, Kubota no puede calcularse',
+                    level=QgsMessageBar.WARNING, duration=5)
             if self.checkBoxRunoff.isChecked():
-                #Obtiene los parametros e1 y Epsilon de las cajitas 
-                E1 = self.RunoffE1.value()
-                Epsi = self.RunoffEpsi.value()
-                self.HSutils.Basin_GeoGetRunoff(e1=E1,Epsilon=Epsi)
-                ListaVar.extend(['Runoff_coef'])
+                try: 
+                    #Obtiene los parametros e1 y Epsilon de las cajitas 
+                    E1 = self.RunoffE1.value()
+                    Epsi = self.RunoffEpsi.value()
+                    self.HSutils.Basin_GeoGetRunoff(e1=E1,Epsilon=Epsi)
+                    ListaVar.extend(['Runoff_coef']) 
+                    self.iface.messageBar().pushInfo(u'HidroSIG:',
+                    u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')                               
+                except: 
+					#Pone un mensaje de error por si Manning no ha sido calculado
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                    u'No ha sido cargado Manning, Runoff no puede calcularse',
+                    level=QgsMessageBar.WARNING, duration=5)
+                    
+            #mensaje de caso de exito (para runoff y kubota se muestran por separado)
+            if self.checkBoxRunoff.isChecked()==False and self.checkBoxKubota.isChecked()==False:
+                self.iface.messageBar().pushInfo(u'HidroSIG:',u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')
                 
-            #mensaje de caso de exito
-            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')
             #Actualiza la tabla de variables temporales 
             for k in ListaVar:
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
