@@ -194,7 +194,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.segundaCarga = True
             #Cargado de la cuenca
             Area, self.EPSG, dxp, self.noData, self.umbral = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(),
-				Simhidro, SimSed)
+                Simhidro, SimSed)
             #self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(), Simhidro, SimSed)
             self.TableStart()
             #Actualiza tabla de Nc y comboBox 
@@ -203,7 +203,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.TabNC.NewEntry(self.HSutils.DicBasinNc[k],k, self.Tabla_Prop_NC)
                 self.VarFromNC.addItem(k)
             #Area, self.EPSG, dxp, self.noData, self.umbral = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(),
-		#		Simhidro, SimSed)
+        #       Simhidro, SimSed)
             #print self.umbral
             #Habilita los botones de visualizacion de red hidrica y divisoria 
             self.Boton_verDivisoria.setEnabled(True)
@@ -390,9 +390,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 ListaVar.extend(['OCG_coef'])
             if self.checkBoxKubota.isChecked():
                 self.HSutils.Basin_GeoGetKubota()
-                ListaVar.extend(['kubota_coef'])
+                ListaVar.extend(['kubota_coef'])                
             if self.checkBoxRunoff.isChecked():
-                self.HSutils.Basin_GeoGetRunoff()
+                #Obtiene los parametros e1 y Epsilon de las cajitas 
+                E1 = self.RunoffE1.value()
+                Epsi = self.RunoffEpsi.value()
+                self.HSutils.Basin_GeoGetRunoff(e1=E1,Epsilon=Epsi)
                 ListaVar.extend(['Runoff_coef'])
                 
             #mensaje de caso de exito
