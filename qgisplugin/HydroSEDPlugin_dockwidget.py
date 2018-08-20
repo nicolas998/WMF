@@ -395,7 +395,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                     self.iface.messageBar().pushInfo(u'HidroSIG:',
                     u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')                                            
                 except:
-					#Pone un mensaje de error por si h1_max no ha sido calculado
+                    #Pone un mensaje de error por si h1_max no ha sido calculado
                     self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
                     u'No ha sido cargado h1_max, Kubota no puede calcularse',
                     level=QgsMessageBar.WARNING, duration=5)
@@ -409,7 +409,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                     self.iface.messageBar().pushInfo(u'HidroSIG:',
                     u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')                               
                 except: 
-					#Pone un mensaje de error por si Manning no ha sido calculado
+                    #Pone un mensaje de error por si Manning no ha sido calculado
                     self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
                     u'No ha sido cargado Manning, Runoff no puede calcularse',
                     level=QgsMessageBar.WARNING, duration=5)
@@ -998,6 +998,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.Tabla_Prop_NC.removeRow (selectedItems)
                 self.TabNC.DelEntry(ItemName)
                 self.HSutils.DicBasinNc.pop(ItemName)
+                self.HSutils.Nc2Save.remove(ItemName)
                 #self.HSutils.Nc2Erase.append(ItemName)
                 #Mensaje de exito 
                 self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'La variable '+ItemName + ' ha sido borrada')
@@ -1064,6 +1065,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.Tabla_Prop_NC.removeRow (selectedItems)
                 self.TabNC.DelEntry(VarName)
                 self.HSutils.DicBasinNc.pop(VarName)
+                self.HSutils.Nc2Save.remove(VarName)
                 #Mensaje de exito 
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'La variable '+VarName+' ha sido movida de NC a WMF')
             else:
