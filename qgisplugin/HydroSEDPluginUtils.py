@@ -239,12 +239,15 @@ class controlHS:
         self.cuenca = wmf.SimuBasin(rute = PathNC)
         #Cargar las variables de la cuenca a un diccionario.
         g = netCDF4.Dataset(PathNC)
+        Basicas = [True, True, False]
         ListGrupos = ['base','Geomorfo','Hidro']
         if LoadSim:
             ListGrupos.append('SimHidro')
+            Basicas.append(True)
         if LoadSed:
             ListGrupos.append('SimSediments')
-        for grupoKey in ListGrupos:  
+            Basicas.append(True)
+        for grupoKey,basicas in zip(ListGrupos, Basicas):  
             #Carga los grupos de variables en donde si se tengan variables
             if len(g.groups[grupoKey].variables.keys())>0:
                 #itera
@@ -260,7 +263,7 @@ class controlHS:
                         'tipo':g.groups[grupoKey].variables[k].dtype.name,
                         'shape':g.groups[grupoKey].variables[k].shape,
                         'raster':MapaRaster,
-                        'basica': True,
+                        'basica': basicas,
                         'categoria': grupoKey,
                         'var': g.groups[grupoKey].variables[k][:],
                         'saved':True}})

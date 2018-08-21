@@ -658,7 +658,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         ListaMetodos = ['No metodo','media','min','P10','P25','P50','P75','P90','max']
         map(self.ComboMethod4Conversion.addItem,ListaMetodos)
         #Lista de grupos posibles para una variable 
-        ListaGrupos = ['base','Geomorfo','SimHidro','Hidro']
+        #ListaGrupos = ['base','Geomorfo','SimHidro','Hidro']
+        ListaGrupos = ['Geomorfo','Hidro']
         map(self.ComboBoxNewWMFVarGroup.addItem, ListaGrupos)
         #Lista de unidades de conversion 
         ListaUnidades = ['Celdas','Laderas','Canales']
@@ -680,7 +681,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 if EsCuenca:
                     #Busca si la variable tiene una o mas dimensiones
                     try:
-                        self.HSutils.DicBasinNc[VarDestinoName]['var'][Capa] = np.copy(Var)
+                        self.HSutils.DicBasinNc[VarDestinoName]['var'][Capa-1] = np.copy(Var)
                     except:
                         self.HSutils.DicBasinNc[VarDestinoName]['var'] = np.copy(Var)
                     #Establece a la variable nueva como no guardarda
@@ -717,7 +718,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
                     u'La variable '+VarDestinoName+' ha sido cargado a la tabla WMF',
                     level=QgsMessageBar.INFO, duration=3) 
-            
+            #Pone de nuevo la capa destino igual a 0
+            self.ObjectiveLayer.setValue(0)
             
             
         
@@ -987,7 +989,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             ItemName = str(self.Tabla_Prop_NC.item(selectedItems,0).text())
             #Revisa que todavia no este guardado 
-            if ItemName[-1] == '*' and self.HSutils.DicBasinNc[ItemName[:-1]]['saved'] is False:
+            if ItemName[-1] == '*' and self.HSutils.DicBasinNc[ItemName[:-1]]['saved'] is False or self.HSutils.DicBasinNc[ItemName[:-1]]['basica'] is False:
                 ItemName = ItemName[:-1]
                 #Remueve de la tabla visible y de los demas elementos.
                 self.Tabla_Prop_NC.removeRow (selectedItems)
