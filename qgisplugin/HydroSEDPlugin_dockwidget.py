@@ -988,8 +988,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Selecciona el item y su nombre
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             ItemName = str(self.Tabla_Prop_NC.item(selectedItems,0).text())
+            UnsavedInTable = False
+            if ItemName[-1] == '*': 
+                ItemName = ItemName[:-1]
+                UnsavedInTable = True
             #Revisa que todavia no este guardado 
-            if ItemName[-1] == '*' and self.HSutils.DicBasinNc[ItemName[:-1]]['saved'] is False or self.HSutils.DicBasinNc[ItemName[:-1]]['basica'] is False:
+            if UnsavedInTable and self.HSutils.DicBasinNc[ItemName]['saved'] is False or self.HSutils.DicBasinNc[ItemName]['basica'] is False:
                 ItemName = ItemName[:-1]
                 #Remueve de la tabla visible y de los demas elementos.
                 self.Tabla_Prop_NC.removeRow (selectedItems)
