@@ -253,7 +253,7 @@ class controlHS:
                     shape = g.groups[grupoKey].variables[k].shape
                     MapaRaster = False
                     for s in shape:
-						if s == self.cuenca.ncells: MapaRaster = True
+                        if s == self.cuenca.ncells: MapaRaster = True
                     #Actualiza el diccionario
                     self.DicBasinNc.update({k:
                         {'nombre':k,
@@ -719,7 +719,13 @@ class controlHS:
             except:
                 pass
         #Formula la expresion 
-        AA = eval(expresion)
+        try:
+            AA = eval(expresion)
+        except:
+            exec(expresion)
+            pos = expresion.index('=')
+            VarName = expresion[:pos].strip()
+            AA = eval(VarName)
         return AA
                 
         

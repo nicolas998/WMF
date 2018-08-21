@@ -194,7 +194,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.segundaCarga = True
             #Cargado de la cuenca
             Area, self.EPSG, dxp, self.noData, self.umbral = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(),
-				Simhidro, SimSed)
+                Simhidro, SimSed)
             #self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(), Simhidro, SimSed)
             self.TableStart()
             #Actualiza tabla de Nc y comboBox 
@@ -203,7 +203,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.TabNC.NewEntry(self.HSutils.DicBasinNc[k],k, self.Tabla_Prop_NC)
                 self.VarFromNC.addItem(k)
             #Area, self.EPSG, dxp, self.noData, self.umbral = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(),
-		#		Simhidro, SimSed)
+        #       Simhidro, SimSed)
             #print self.umbral
             #Habilita los botones de visualizacion de red hidrica y divisoria 
             self.Boton_verDivisoria.setEnabled(True)
@@ -683,6 +683,16 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                     except:
                         self.HSutils.DicBasinNc[VarDestinoName]['var'] = np.copy(Var)
                     self.HSutils.DicBasinNc[VarDestinoName]['saved'] = False
+                    #Mensaje de exito 
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                        u'La variable '+VarDestinoName+' ha sido actualizada en NC',
+                        level=QgsMessageBar.INFO, duration=3) 
+                #Si no es cuenca da un mensaje de alerta
+                else:
+                    #Mensaje de exito o error 
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                        u'El cálculo arroja una variable que no contiene '+str(self.HSutils.cuenca.ncells)+' celdas. Favor enviar a WMF.',
+                        level=QgsMessageBar.WARNING, duration=3) 
             #si es una variable nueva la tira al WMF
             elif self.Radio2WMF.isChecked():
                 #Variable al diccionario
@@ -700,7 +710,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 #Actualiza la tabla 
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[VarDestinoName],
                     VarDestinoName, self.Tabla_Prop_WMF)
-                 
+                #Mensaje de exito o error 
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                    u'La variable '+VarDestinoName+' ha sido cargado a la tabla WMF',
+                    level=QgsMessageBar.INFO, duration=3) 
             
             
             
