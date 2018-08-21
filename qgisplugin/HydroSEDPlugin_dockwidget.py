@@ -678,11 +678,14 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 Capa = self.ObjectiveLayer.value()
                 #Solo pasa al NC si el tamano es el de la cuenca
                 if EsCuenca:
+                    #Busca si la variable tiene una o mas dimensiones
                     try:
                         self.HSutils.DicBasinNc[VarDestinoName]['var'][Capa] = np.copy(Var)
                     except:
                         self.HSutils.DicBasinNc[VarDestinoName]['var'] = np.copy(Var)
+                    #Establece a la variable nueva como no guardarda
                     self.HSutils.DicBasinNc[VarDestinoName]['saved'] = False
+                    self.TabNC.EditedEntry(VarDestinoName, self.Tabla_Prop_NC)
                     #Mensaje de exito 
                     self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
                         u'La variable '+VarDestinoName+' ha sido actualizada en NC',
@@ -1008,7 +1011,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Nombre de la variable a observar
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             VarName = self.Tabla_Prop_NC.item(selectedItems,0).text()
-            if VarName[-1] == '*': VarName = varName[:-1]
+            if VarName[-1] == '*': VarName = VarName[:-1]
             #Capa de la variable 
             if self.SpinBoxNCLayer.value() == 0:
                 Capa = None
@@ -1079,7 +1082,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.HSutils.DicBasinWMF.pop(VarName)
             self.HSutils.Nc2Save.append(VarName)
             # Mensaje de exito
-            self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'La variable '+VarName+' ha sido movida de WMF a NC') 
+            self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'La variable '+VarName+' ha sido movida de la Tabla WMF a NC') 
         
         def clickEventBasinUpdateNC():
             '''Actualiza el archivo .nc de la cuenca con las variables cargadas en la TablaNC'''
@@ -1276,6 +1279,13 @@ class Tabla():
         pos = self.TabNames.index(KeyToDel)
         self.TabNames.pop(pos)
         self.NumRows -= 1
+
+    def EditedEntry(self, KeyEdited, TabElement, New_or_Edited = 'Edited'):
+        '''Establece en la tabla visual si una entrada ha sido editada'''
+        #Encuentra la pos
+        pos = self.TabNames.index(KeyEdited)
+        #Edita el nombre en la tabla 
+        TabElement.setItem(pos, 0, QTableWidgetItem(KeyEdited+'*'))
     
     def SavedEntry(self, TabElement):
         '''Busca los elementos de la tabla que terminen con * y se los quita, solo para
