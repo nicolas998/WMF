@@ -222,7 +222,7 @@ class PlotGeomorphology():
         '''Hace el plot de un histograma de una variable seleccionada'''
         #Seleccion de datos
         if ncells > 10000:
-            pos = np.random.choice(len(var), 10000)
+            pos = np.random.choice(ncells, 10000)
         else:
             pos = range(10000)
         #Obtiene la pdf y cdf de la variable    
