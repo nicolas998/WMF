@@ -253,7 +253,7 @@ class controlHS:
                     shape = g.groups[grupoKey].variables[k].shape
                     MapaRaster = False
                     for s in shape:
-                        if s == self.cuenca.ncells: MapaRaster = True
+						if s == self.cuenca.ncells: MapaRaster = True
                     #Actualiza el diccionario
                     self.DicBasinNc.update({k:
                         {'nombre':k,
