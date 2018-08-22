@@ -2714,7 +2714,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="resources.qrc">
                         <normaloff>:/plugins/HydroSEDPlugin/icons/update.png</normaloff>:/plugins/HydroSEDPlugin/icons/update.png</iconset>
                       </property>
                      </widget>
@@ -2764,7 +2764,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="resources.qrc">
                         <normaloff>:/plugins/HydroSEDPlugin/icons/update.png</normaloff>:/plugins/HydroSEDPlugin/icons/update.png</iconset>
                       </property>
                      </widget>

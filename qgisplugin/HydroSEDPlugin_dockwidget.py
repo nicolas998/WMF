@@ -994,17 +994,20 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 UnsavedInTable = True
             #Revisa que todavia no este guardado 
             if UnsavedInTable and self.HSutils.DicBasinNc[ItemName]['saved'] is False or self.HSutils.DicBasinNc[ItemName]['basica'] is False:
-                ItemName = ItemName[:-1]
+                #ItemName = ItemName[:-1]
                 #Remueve de la tabla visible y de los demas elementos.
                 self.Tabla_Prop_NC.removeRow (selectedItems)
                 self.TabNC.DelEntry(ItemName)
                 self.HSutils.DicBasinNc.pop(ItemName)
+                print self.HSutils.Nc2Save
+                self.HSutils.Nc2Save.remove(ItemName)
+                print self.HSutils.Nc2Save
                 #self.HSutils.Nc2Erase.append(ItemName)
                 #Mensaje de exito 
                 self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'La variable '+ItemName + ' ha sido borrada')
             else:
                 #Mensaje de no exito 
-                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'La variable '+ItemName[:-1]+' no puede ser borrada del Nc (ya esta guardada)',
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'La variable '+ItemName+' no puede ser borrada del Nc (ya esta guardada)',
                     level=QgsMessageBar.WARNING, duration=5)
 
         def handleClickEventButton_Actualizar_WMF_Desde_NC ():
@@ -1065,6 +1068,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.Tabla_Prop_NC.removeRow (selectedItems)
                 self.TabNC.DelEntry(VarName)
                 self.HSutils.DicBasinNc.pop(VarName)
+                self.HSutils.Nc2Save.remove(VarName)
                 #Mensaje de exito 
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'La variable '+VarName+' ha sido movida de NC a WMF')
             else:
