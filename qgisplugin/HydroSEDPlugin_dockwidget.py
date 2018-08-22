@@ -655,7 +655,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         '''Conjunto de herramientas para gestionar las variables del NC'''
         
         #Llena de datos los combobox 
-        ListaMetodos = ['No metodo','media','min','P10','P25','P50','P75','P90','max']
+        ListaMetodos = ['No metodo','moda','media','min','P10','P25','P50','P75','P90','max']
         map(self.ComboMethod4Conversion.addItem,ListaMetodos)
         #Lista de grupos posibles para una variable 
         #ListaGrupos = ['base','Geomorfo','SimHidro','Hidro']
@@ -670,9 +670,18 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #toma la expresion y la evalua
             exp = self.LineaComando.text().strip()
             Var = self.HSutils.ExpressionParser(exp)
-            print self.HSutils.DicBasinNc.keys()
             EsCuenca = False
             if Var.size == self.HSutils.cuenca.ncells: EsCuenca = True
+            #conversion si solo si la nueva variable tiene el ncells de la cuenca
+            Agregado = self.ComboConversionUnits.currentText().strip()
+            if EsCuenca and Agregado <> 'Celdas':
+                #Revisar si es laderas o canales y metodo
+                Metodo = self.ComboMethod4Conversion.currentText().strip()
+                #Agrega
+                Var = self.HSutils.BasinConvert2HillsOrChannels(Var, Metodo, Agregado)
+                SiAgrego = True
+            else:
+                SiAgrego = False
             #Si es al nc sobre-escribe una entrada del diccionario
             if self.Radio2NcVar.isChecked():
                 VarDestinoName = self.VarFromNC.currentText().encode()

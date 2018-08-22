@@ -5,6 +5,7 @@ from PyQt4 import QtGui, uic
 import netCDF4
 from wmf import wmf
 import numpy as np 
+import scipy.stats as stat
 import pandas as pd
 import osgeo.ogr as ogr
 import HydroSEDPlots as HSplots
@@ -192,35 +193,37 @@ class controlHS:
         #Lectura del archivo 
         g = netCDF4.Dataset(PathNC,'a')
         #Inclusion de nuevas variables
-        for l in self.Nc2Save:
-            #Selecciona el grupo del nc en donde va a meter la variable
-            Grupo = self.DicBasinNc[l]['categoria']
-            Group = g.groups[Grupo]
-            #mira si el grupo tiene la dimension ncells en caso de que no, la crea
-            try:
-                pos = Group.dimensions.keys().index('ncell')
-            except:
-                DimNcell = Group.createDimension('ncell',self.cuenca.ncells)
-            #Obtiene el nombre, tipo y variable a actualizar
-            nombre = l
-            tipo = self.DicBasinNc[l]['tipo']
-            if tipo == 'float32':
-                tipo = 'f4'
-            elif tipo == 'int64':
-                tipo = 'i4'
-            Var = np.copy(self.DicBasinNc[l]['var'])
-            #Trata de meter la variable como algo no existente 
-            try:
-                #print 'variable nueva'
-                VarName = Group.createVariable(nombre,tipo,('ncell',),zlib=True)
-            #si ya existe la variable la sobre escribe 
-            except:
-                #print 'variable vieja'
-                VarName = Group.variables[nombre]
-            #guarda la variable y la actualiza en estado a guardada
-            VarName[:] = Var
-            self.DicBasinNc[l]['saved'] = True
-        self.Nc2Save = []
+        for l in self.DicBasinNc.keys():#self.Nc2Save:
+            #Si la variable no esta guradada la actualiza en el nc
+            if self.DicBasinNc[l]['saved'] is False:
+                #Selecciona el grupo del nc en donde va a meter la variable
+                Grupo = self.DicBasinNc[l]['categoria']
+                Group = g.groups[Grupo]
+                #mira si el grupo tiene la dimension ncells en caso de que no, la crea
+                try:
+                    pos = Group.dimensions.keys().index('ncell')
+                except:
+                    DimNcell = Group.createDimension('ncell',self.cuenca.ncells)
+                #Obtiene el nombre, tipo y variable a actualizar
+                nombre = l
+                tipo = self.DicBasinNc[l]['tipo']
+                if tipo == 'float32':
+                    tipo = 'f4'
+                elif tipo == 'int64':
+                    tipo = 'i4'
+                Var = np.copy(self.DicBasinNc[l]['var'])
+                #Trata de meter la variable como algo no existente 
+                try:
+                    #print 'variable nueva'
+                    VarName = Group.createVariable(nombre,tipo,('ncell',),zlib=True)
+                #si ya existe la variable la sobre escribe 
+                except:
+                    #print 'variable vieja'
+                    VarName = Group.variables[nombre]
+                #guarda la variable y la actualiza en estado a guardada
+                VarName[:] = Var
+                self.DicBasinNc[l]['saved'] = True
+        #self.Nc2Save = []
         #Cerrado del archivo nc
         g.close()
 
@@ -730,5 +733,48 @@ class controlHS:
             VarName = expresion[:pos].strip()
             AA = eval(VarName)
         return AA
+   
+    def BasinConvert2HillsOrChannels(self, Var, Metodo, Agregado):
+        '''Agrega una variable por canales o laderas de acuerdo a una metodologia'''
+        #Funcion de metodologias
+        def __fx__(x, metodo = 'media'):
+            if metodo == 'media':
+                return np.nanmean(x)
+            elif metodo[0] == 'P':
+                percentil = int(metodo[1:])
+                return np.nanpercentile(x, percentil)
+            elif metodo == 'min':
+                return np.nanmin(x)
+            elif metodo == 'max':
+                return np.nanmax(x)
+            elif metodo == 'moda':
+                res = stat.mode(x)
+                return res.mode[0]
+        #Variable vacia nula
+        VarAgregada = np.ones(self.cuenca.ncells)*wmf.cu.nodata
+        #Itera por las laderas del elemento cuenca
+        for i in range(1,self.cuenca.nhills+1):
+            #Define posiciones de acuerdo a la metodologia
+            hacer = True
+            pos = np.where(self.cuenca.hills_own == i)[0]
+            if Agregado == 'Canales':
+                pos2 = np.where((self.cuenca.hills_own == i) & (self.cuenca.CellCauce == 1))[0]
+                if len(pos2)==0:
+                    hacer = False
+                else:
+                    pos = pos2
+            #Agrega la variable
+            if hacer:
+                VarTemporal = __fx__(Var[pos], Metodo)
+                VarAgregada[pos] = VarTemporal
+            #correccion no data de canales 
+        #if Agregado == 'Canales':
+            #posMalos = np.where((self.cuenca.CellCauce == 1) & (VarAgregada == wmf.cu.nodata))[0]
+            #print posMalos
+                ##posBuenos = np.where((self.cuenca.CellCauce == 1) & (VarAgregada <> wmf.cu.nodata))[0]
+                #VarAgregada[posMalos] = VarAgregada[posBuenos].mean()
+                #print VarAgregada[posMalos].min()
+        return VarAgregada
+            
                 
         
