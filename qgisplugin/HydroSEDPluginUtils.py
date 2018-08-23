@@ -25,6 +25,7 @@ class controlHS:
         self.StreamsCount = 0
         self.DicBasinNc = {}
         self.DicBasinWMF = {}
+        self.DicParameters = {}
         self.Nc2Save = []
         self.Interpol_Columnas = []
 
@@ -272,6 +273,16 @@ class controlHS:
                         'saved':True}})
                     self.NumDicBasinNcVariables = self.NumDicBasinNcVariables + 1
                     self.NumDicBasinNcVariablesBasicas = self.NumDicBasinNcVariablesBasicas + 1
+        #Carga parametros de calib del modelo 
+        if LoadSim:
+            #Si tiene param
+            if len(g.groups['Parametros'].variables.keys())>0:
+                for k in g.groups['Parametros'].variables.keys():
+                    self.DicParameters.update({k:{
+                        'nombre': k,
+                        'var': g.groups['Parametros'].variables[k][:]}})
+        print self.DicParameters
+        #Cierra el archivo netCDF de la cuenca        
         g.close()
         #Cargar la cuenca y sus variables base a WMF 
         self.cuenca = wmf.SimuBasin(rute = PathNC)

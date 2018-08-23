@@ -219,6 +219,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Actualiza comboBox de goemorfo
             for k in self.HSutils.DicBasinWMF.keys():
                 self.ComboGeoMaskVar.addItem(k)
+            #Actualiza Param de claibracion 
+            if Simhidro:
+                for k in self.HSutils.DicParameters.keys():
+                    self.ParamNamesCombo.addItem(k)
             
         def clickEventBasinLoadDivisory():
             '''Carga la divisoria de la cuenca cargada a WMF'''
@@ -896,6 +900,18 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def setupSimulation(self):
         '''Herramientas para gestionar la simulacion hidrologica con la cuenca cargada'''
         
+        def changeEventUpdateScalarParameters():
+            '''Actualiza los parametros escalares de las tablas de acuerdo al set seleccionado'''
+            #Obtiene el nombre de la param seleccionada
+            key = self.ParamNamesCombo.currentText().strip().encode()
+            #Itera en el diccionario de param de la cuenca 
+            for c,values in enumerate(self.HSutils.DicParameters[key]['var'][:11]):
+                codigo = 'self.Param'+str(c+1)+'.setValue('+str(values)+')'
+                eval(codigo)
+            for c,values in enumerate(self.HSutils.DicParameters[key]['var'][11:]):
+                codigo = 'self.ParamExp'+str(c+1)+'.setValue('+str(values)+')'
+                eval(codigo)
+        
         def clickEventUpdateParamMapValues():
             '''Muestra en los campos de simulacion el valor medio de los mapas de simulacion'''
             VarNames = ['h1_max','h3_max', 'v_coef','v_coef','v_coef','v_coef','h_coef',
@@ -919,7 +935,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             '''Agrega un nuevo conjunto de parametros en el proyecto de cuenca'''
             #Obtiene los parametros
             PathNC = self.lineEditRutaCuenca.text().strip()
-            ParamName = self.ParamName.text().strip()
+            ParamName = self.ParamName.text().strip().encode()
             #Itera para los parametros escalares y de sedimentos
             ListaParam = []
             for i in range(1,12):
@@ -929,10 +945,13 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 ListaParam.append(getattr(self, 'ParamExp'+str(i)).value())    
             #Mete el set nuevo de calibracion
             self.HSutils.Sim_SaveParameters(PathNC, ParamName, ListaParam)
-            
+            #Actualiza la lista de parametros 
+            for k in self.HSutils.DicParameters.keys():
+                self.ParamNamesCombo.addItem(k)
             
         self.ButtonSimCalib2Nc.clicked.connect(clickEventAddNewParamSet)    
         self.tabPanelDockOpciones.currentChanged.connect(clickEventUpdateParamMapValues)
+        self.ParamNamesCombo.currentIndexChanged.connect(changeEventUpdateScalarParameters)
         
     def setupUIInputsOutputs (self):
         
