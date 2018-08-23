@@ -221,6 +221,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.ComboGeoMaskVar.addItem(k)
             #Actualiza Param de claibracion 
             if Simhidro:
+                self.ParamNamesCombo.clear()
                 for k in self.HSutils.DicParameters.keys():
                     self.ParamNamesCombo.addItem(k)
             
@@ -905,6 +906,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Obtiene el nombre de la param seleccionada
             key = self.ParamNamesCombo.currentText().strip().encode()
             #Itera en el diccionario de param de la cuenca 
+            print key
             for c,values in enumerate(self.HSutils.DicParameters[key]['var'][:11]):
                 codigo = 'self.Param'+str(c+1)+'.setValue('+str(values)+')'
                 eval(codigo)
@@ -946,6 +948,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Mete el set nuevo de calibracion
             self.HSutils.Sim_SaveParameters(PathNC, ParamName, ListaParam)
             #Actualiza la lista de parametros 
+            self.ParamNamesCombo.clear()
             for k in self.HSutils.DicParameters.keys():
                 self.ParamNamesCombo.addItem(k)
             

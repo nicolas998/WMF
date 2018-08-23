@@ -709,7 +709,11 @@ class controlHS:
             except:
                 Var = GrupoParam.variables[ParamName]
             Var[:] = scalarParam
+            self.DicParameters.update({ParamName:
+				{'nombre': ParamName,
+				'var':scalarParam}})
             Ejecuto = 0
+            
         #cierra el archivo 
         g.close()
         return Ejecuto
