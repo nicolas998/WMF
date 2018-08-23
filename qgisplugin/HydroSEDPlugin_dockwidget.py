@@ -224,6 +224,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.ParamNamesCombo.clear()
                 for k in self.HSutils.DicParameters.keys():
                     self.ParamNamesCombo.addItem(k)
+            self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'El proyecto de cuenca ha sido cargado con exito',
+                level=QgsMessageBar.INFO, duration=3)
             
         def clickEventBasinLoadDivisory():
             '''Carga la divisoria de la cuenca cargada a WMF'''
@@ -907,12 +909,13 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             key = self.ParamNamesCombo.currentText().strip().encode()
             #Itera en el diccionario de param de la cuenca 
             print key
-            for c,values in enumerate(self.HSutils.DicParameters[key]['var'][:11]):
-                codigo = 'self.Param'+str(c+1)+'.setValue('+str(values)+')'
-                eval(codigo)
-            for c,values in enumerate(self.HSutils.DicParameters[key]['var'][11:]):
-                codigo = 'self.ParamExp'+str(c+1)+'.setValue('+str(values)+')'
-                eval(codigo)
+            if key <> '':
+                for c,values in enumerate(self.HSutils.DicParameters[key]['var'][:11]):
+                    codigo = 'self.Param'+str(c+1)+'.setValue('+str(values)+')'
+                    eval(codigo)
+                for c,values in enumerate(self.HSutils.DicParameters[key]['var'][11:]):
+                    codigo = 'self.ParamExp'+str(c+1)+'.setValue('+str(values)+')'
+                    eval(codigo)
         
         def clickEventUpdateParamMapValues():
             '''Muestra en los campos de simulacion el valor medio de los mapas de simulacion'''
@@ -951,6 +954,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.ParamNamesCombo.clear()
             for k in self.HSutils.DicParameters.keys():
                 self.ParamNamesCombo.addItem(k)
+            #mensaje de exito
+            self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'La parametrización: ' + ParamName+' se ha guardado en el proyecto',
+                level=QgsMessageBar.INFO, duration=3)
             
         self.ButtonSimCalib2Nc.clicked.connect(clickEventAddNewParamSet)    
         self.tabPanelDockOpciones.currentChanged.connect(clickEventUpdateParamMapValues)
