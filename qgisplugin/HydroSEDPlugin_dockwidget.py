@@ -397,11 +397,26 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 ListaVar.extend(['OCG_coef'])
             if self.checkBoxKubota.isChecked():
                 self.HSutils.Basin_GeoGetKubota()
-                ListaVar.extend(['kubota_coef'])
+                ListaVar.extend(['Kubota_coef'])
+                #mensajes de advertencia por si no han sido cargadas las variables. 
+                if 'h1_max' not in self.HSutils.DicBasinNc.keys(): 
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:',
+                    'Como no se ha cargado h1_max al NC, se estima con h1_max = 100 mm ',
+                    level=QgsMessageBar.WARNING, duration=5)    
+                if 'v_coef' not in self.HSutils.DicBasinNc.keys(): 
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:',
+                    'Como no se ha cargado Ks al NC, se estima con Ks = 0.003 mm/s ',
+                    level=QgsMessageBar.WARNING, duration=5)    
             if self.checkBoxRunoff.isChecked():
-                self.HSutils.Basin_GeoGetRunoff()
+                E1 = self.RunoffE1.value()
+                Epsilon1 = self.RunoffEpsi.value()
+                self.HSutils.Basin_GeoGetRunoff(e1=E1,Epsilon=Epsilon1)
                 ListaVar.extend(['Runoff_coef'])
-                
+                #Mensaje de advertencia por si no ha sido cargada la variable. 
+                if 'Manning' not in self.HSutils.DicBasinWMF.keys() and 'Manning' not in self.HSutils.DicBasinNc.keys():
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:',
+                    'Como no se ha cargado Manning al NC, se estima con n_manning = 0.05',
+                    level=QgsMessageBar.WARNING, duration=5)
             #mensaje de caso de exito
             self.iface.messageBar().pushInfo(u'HidroSIG:',u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')
             #Actualiza la tabla de variables temporales 

@@ -294,8 +294,8 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-878</y>
-              <width>443</width>
+              <y>0</y>
+              <width>446</width>
               <height>2018</height>
              </rect>
             </property>
@@ -1639,7 +1639,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>443</width>
+              <width>446</width>
               <height>2018</height>
              </rect>
             </property>
@@ -2371,7 +2371,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>443</width>
+              <width>446</width>
               <height>1918</height>
              </rect>
             </property>
@@ -3194,7 +3194,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>443</width>
+              <width>446</width>
               <height>1918</height>
              </rect>
             </property>
@@ -4560,7 +4560,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>433</width>
+              <width>436</width>
               <height>1918</height>
              </rect>
             </property>

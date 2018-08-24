@@ -526,14 +526,22 @@ class controlHS:
         para el correcto calculo el susuario debe tener definidas las variables:
             - Hu: almacenamiento capilar maximo [mm] DicBasinNc['h1_max']
             - ks: conductividad saturada del suelo [mm/s] DicBasinNc['v_coef'][1]'''
-        #Copia parametros de la cuenca que deben estar definidos 
-        Hu = np.copy(self.DicBasinNc['h1_max']['var'])
-        ks = np.copy(self.DicBasinNc['v_coef']['var'][0])
+        #Busca si los parametros de la cuenca estan definidos, si no los reemplaza con constantes para Hu y ks 
+        if u'h1_max' in self.DicBasinNc.keys(): 
+            Hu = np.copy(self.DicBasinNc['h1_max']['var'])
+        else: 
+            Hu = 100    
+        if u'v_coef' in self.DicBasinNc.keys():  
+            ks = np.copy(self.DicBasinNc['v_coef']['var'][1])
+        else: 
+            ks = 0.003 
         self.cuenca.GetGeo_Cell_Basics()
         So = np.copy(self.cuenca.CellSlope)
         Factor = (wmf.cu.dxp**2.)/1000. #[m3/mm]
         #Calculo del coeficiente de kubota
         Coef = (ks*So*(wmf.cu.dxp**2.))/(3*(Hu*Factor)**2.)
+        Coef[np.where(np.isinf(Coef))]=np.mean(Coef[np.where(np.isfinite(Coef))])
+        print Coef
         #Actualiza el diccionario 
         self.DicBasinWMF.update({'Kubota_coef':
             {'nombre':'Kubota_coef',
@@ -550,9 +558,20 @@ class controlHS:
         #Obtiene pendiente y param requeridos
         self.cuenca.GetGeo_Cell_Basics()
         So = np.copy(self.cuenca.CellSlope)
-        Man = np.copy(self.DicBasinWMF['Manning']['var'])
+        #Busca si la variable esta guardada en los diccionarios, si no, la reemplaza con una constante. 
+        if 'Manning' in self.DicBasinWMF.keys() or 'Manning' in self.DicBasinNc.keys():
+            try: 
+                Man = np.copy(self.DicBasinWMF['Manning']['var'])
+            except: 
+                Man = np.copy(self.DicBasinNc['Manning']['var'])
+            Tipo_var = Man.dtype.name
+        else: 
+            Man = np.ones([self.cuenca.ncells])*0.05 
+            Tipo_var = 'float'              
         #Calcula 
-        Coef = (Epsilon/Man)*(So**2.)
+        Coef = (float(Epsilon)/Man)*(So**2.)
+        Coef[np.where(np.isinf(Coef))]=np.mean(Coef[np.where(np.isfinite(Coef))])
+        print Coef
         Expo = (2./3.)*e1
         #Pone en los diccionarios 
         self.DicBasinWMF.update({'Runoff_coef':
@@ -564,15 +583,15 @@ class controlHS:
             'categoria': 'Geomorfo',
             'var': np.copy(Coef),
             'saved':False}})
-        self.DicBasinWMF.update({'Runoff_exp':
-            {'nombre':'Runoff_exp',
-            'tipo':Expo.dtype.name,
-            'shape':Expo.shape,
-            'raster':True,
-            'basica': False,
-            'categoria': 'Geomorfo',
-            'var': np.copy(Expo),
-            'saved':False}})
+        #self.DicBasinWMF.update({'Runoff_exp':
+            #{'nombre':'Runoff_exp',
+            #'tipo':'float',
+            #'shape':len(Expo),
+            #'raster':True,
+            #'basica': False,
+            #'categoria': 'Geomorfo',
+            #'var': np.copy(Expo),
+            #'saved':False}})
           
     def Basin_GeoGetParameters(self):
         self.cuenca.GetGeo_Parameters()
@@ -710,8 +729,8 @@ class controlHS:
                 Var = GrupoParam.variables[ParamName]
             Var[:] = scalarParam
             self.DicParameters.update({ParamName:
-				{'nombre': ParamName,
-				'var':scalarParam}})
+                {'nombre': ParamName,
+                'var':scalarParam}})
             Ejecuto = 0
             
         #cierra el archivo 
