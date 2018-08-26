@@ -254,6 +254,7 @@ class controlHS:
         for grupoKey,basicas in zip(ListGrupos, Basicas):  
             #Carga los grupos de variables en donde si se tengan variables
             if len(g.groups[grupoKey].variables.keys())>0:
+                print g.groups[grupoKey].variables.keys()
                 #itera
                 for k in g.groups[grupoKey].variables.keys():
                     #Evalua si tiene la misma cantidad de celdas y puede ser un mapa
@@ -572,7 +573,7 @@ class controlHS:
         Coef = (float(Epsilon)/Man)*(So**2.)
         Coef[np.where(np.isinf(Coef))]=np.mean(Coef[np.where(np.isfinite(Coef))])
         print Coef
-        Expo = (2./3.)*e1
+        Expo = (2./3.)*e1*np.ones([self.cuenca.ncells])
         #Pone en los diccionarios 
         self.DicBasinWMF.update({'Runoff_coef':
             {'nombre':'Runoff_coef',
@@ -583,15 +584,15 @@ class controlHS:
             'categoria': 'Geomorfo',
             'var': np.copy(Coef),
             'saved':False}})
-        #self.DicBasinWMF.update({'Runoff_exp':
-            #{'nombre':'Runoff_exp',
-            #'tipo':'float',
-            #'shape':len(Expo),
-            #'raster':True,
-            #'basica': False,
-            #'categoria': 'Geomorfo',
-            #'var': np.copy(Expo),
-            #'saved':False}})
+        self.DicBasinWMF.update({'Runoff_exp':
+            {'nombre':'Runoff_exp',
+            'tipo':Coef.dtype.name,
+            'shape':Coef.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geomorfo',
+            'var': np.copy(Expo),
+            'saved':False}})
           
     def Basin_GeoGetParameters(self):
         self.cuenca.GetGeo_Parameters()
