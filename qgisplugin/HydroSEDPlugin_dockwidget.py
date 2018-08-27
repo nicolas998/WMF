@@ -397,13 +397,31 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 ListaVar.extend(['OCG_coef'])
             if self.checkBoxKubota.isChecked():
                 self.HSutils.Basin_GeoGetKubota()
-                ListaVar.extend(['kubota_coef'])
+                ListaVar.extend(['Kubota_coef'])
+                #mensajes de advertencia por si no han sido cargadas las variables. 
+                if 'h1_max' not in self.HSutils.DicBasinNc.keys(): 
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:',
+                    'Como no se ha cargado h1_max al NC, se estima con h1_max = 100 mm ',
+                    level=QgsMessageBar.WARNING, duration=5)    
+                if 'v_coef' not in self.HSutils.DicBasinNc.keys(): 
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:',
+                    'Como no se ha cargado Ks al NC, se estima con Ks = 0.003 mm/s ',
+                    level=QgsMessageBar.WARNING, duration=3)    
             if self.checkBoxRunoff.isChecked():
-                self.HSutils.Basin_GeoGetRunoff()
+                E1 = self.RunoffE1.value()
+                Epsilon1 = self.RunoffEpsi.value()
+                self.HSutils.Basin_GeoGetRunoff(e1=E1,Epsilon=Epsilon1)
                 ListaVar.extend(['Runoff_coef'])
-                
+                ListaVar.extend(['Runoff_exp'])
+                #Mensaje de advertencia por si no ha sido cargada la variable. 
+                if 'Manning' not in self.HSutils.DicBasinWMF.keys() and 'Manning' not in self.HSutils.DicBasinNc.keys():
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:',
+                    'Como no se ha cargado Manning al NC, se estima con n_manning = 0.05',
+                    level=QgsMessageBar.WARNING, duration=3)
             #mensaje de caso de exito
-            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.')
+            self.iface.messageBar().pushMessage(u'HidroSIG:',
+            u'Calculo de geomorfologia distribuida realizado, revisar la tabla Variables WMF.',
+            level=QgsMessageBar.INFO, duration=2)
             #Actualiza la tabla de variables temporales 
             for k in ListaVar:
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
@@ -498,7 +516,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
                     u'No se ha logrado acumular la variable '+ VarAcumName,
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
             
         
         #Botones de ejecucion
@@ -576,7 +594,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
                     u'No se ha logrado realizar el balance hidrológico en la cuenca',
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
             #Habilita botones de visualizacion de variables 
             if len(self.PathOutHydro_Qmed.text()) > 2:
                 self.Button_HidroViewQmed.setEnabled(True)
@@ -621,7 +639,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             Valor = -9
             if len(self.NameRaster2WMF.text())<2:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Debe ingresar un nombre para el mapa raster a convertir.',
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
                 return 1            
             try:
                 Valor = float(self.PathRaster2WMF.text())
@@ -636,7 +654,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                     print Valor
                 except:
                     self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Debe seleccionar un mapa raster para ser convertido a la cuenca.',
-                        level=QgsMessageBar.WARNING, duration=5)
+                        level=QgsMessageBar.WARNING, duration=3)
                     return 1
             else:
                 PathRaster = self.PathRaster2WMF.text()
@@ -652,7 +670,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
                     u'El mapa raster no ha ingresado a WMF.',
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
         
         #Habilita botones.
         self.ButtonPathRaster2WMF.clicked.connect(clickEventSelectorMapaRaster)
@@ -920,9 +938,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventUpdateParamMapValues():
             '''Muestra en los campos de simulacion el valor medio de los mapas de simulacion'''
             VarNames = ['h1_max','h3_max', 'v_coef','v_coef','v_coef','v_coef','h_coef',
-                'h_coef','h_coef','h_coef', 'Krusle','Crusle','Prusle',
-                'Arenas','Limos','Arcillas']
-            Ejes = [0,0,0,1,2,3,0,1,2,3,0,0,0,0,0,0]
+                'h_coef','h_coef','h_coef', 'Krus','Crus','Prus',
+                'PArLiAc','PArLiAc','PArLiAc']
+            Ejes = [0,0,0,1,2,3,0,1,2,3,0,0,0,0,1,2]
             for name, i, eje in zip(VarNames, range(1,17), Ejes):
                 Campo = getattr(self, 'ParamVal'+str(i))
                 Campo.setMinimum(-99999)
@@ -1045,7 +1063,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 #Mensaje de no exito 
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'La variable '+ItemName+' no puede ser borrada del Nc (ya esta guardada)',
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
 
         def handleClickEventButton_Actualizar_WMF_Desde_NC ():
             rows = sorted (set (index.row () for index in self.Tabla_Prop_NC.selectedIndexes ()))
@@ -1071,7 +1089,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'Se cargó la variable de forma exitosa')
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No fue posible cargar la variable',
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
             #Hace que el spinbox vuelva a lo normal 
             self.SpinBoxNCLayer.setValue(0)
         
@@ -1087,7 +1105,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'Se cargó la variable de forma exitosa')
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No fue posible cargar la variable',
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
         
         def handleClickEventButton_NC2WMF():
             '''Mueve variables de NC a WMF en la tabla.'''
@@ -1112,7 +1130,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 #Mensaje de no exito
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
                     u'La variable '+VarName+' no ha podido ser movida a WMF, ya se encuentra guardada en NC', 
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
         
         def handleClickEventButton_WMF2NC():
             '''Mueve variables de NC a WMF en la tabla.'''
@@ -1173,7 +1191,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SED', 
                     u'No fue posible cargar el mapa MDE. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.',
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
             
         def clickEventVisualizarMapaDIR ():
             pathMapaDIR = self.lineEditMapaDIR.text ().strip ()
@@ -1183,7 +1201,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SED', 
                     u'No fue posible cargar el mapa DIR. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.',
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
 
         def clickEventCargarWMFMapaDEM ():
             '''Carga el mapa dDM base para WMF'''
@@ -1195,7 +1213,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SED', 
                     u'No fue posible cargar el mapa MDE al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.',
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
             #Pone el nombre del codigo EPSG en el dialogo.
             self.LineEditEPSG.setText(self.EPSG)
             t = '%.1f' % self.noData
@@ -1211,7 +1229,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SED', 
                     u'No fue posible cargar el mapa DIR al WMF. Verifique su ruta. Verifique su formato. Y por favor intente de nuevo.',
-                    level=QgsMessageBar.WARNING, duration=5)
+                    level=QgsMessageBar.WARNING, duration=3)
 
         def clickEventSelectorBinarioNC ():
             setupLineEditButtonOpenFileDialog (self.lineEditSelectorBinarioNC, QFileDialog)
