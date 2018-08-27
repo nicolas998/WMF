@@ -704,6 +704,16 @@ class controlHS:
             'categoria': 'Hidro',
             'var': Vsum,
             'saved':False}})
+            
+    def Sim_GetQobsInfo(self,PathExcelQobs):
+         DataQ = pd.read_excel(PathExcelQobs)
+         self.QobsData = DataQ.copy()
+         self.QobsData_fi = DataQ.index[0].to_pydatetime()
+         self.QobsData_ff = DataQ.index[-1].to_pydatetime()
+         self.QobsData_fd = DataQ.index[1] - DataQ.index[0]
+         idExcelQ = self.QobsData.columns.values.tolist()
+         return idExcelQ,DataQ
+                
            
     def Sim_SaveParameters(self, PathNC, ParamName, scalarParam):
         '''Actualiza el nc con un conjunto de parametros escalares nuevo'''
