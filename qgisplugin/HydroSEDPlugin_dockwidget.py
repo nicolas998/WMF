@@ -938,9 +938,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventUpdateParamMapValues():
             '''Muestra en los campos de simulacion el valor medio de los mapas de simulacion'''
             VarNames = ['h1_max','h3_max', 'v_coef','v_coef','v_coef','v_coef','h_coef',
-                'h_coef','h_coef','h_coef', 'Krusle','Crusle','Prusle',
-                'Arenas','Limos','Arcillas']
-            Ejes = [0,0,0,1,2,3,0,1,2,3,0,0,0,0,0,0]
+                'h_coef','h_coef','h_coef', 'Krus','Crus','Prus',
+                'PArLiAc','PArLiAc','PArLiAc']
+            Ejes = [0,0,0,1,2,3,0,1,2,3,0,0,0,0,1,2]
             for name, i, eje in zip(VarNames, range(1,17), Ejes):
                 Campo = getattr(self, 'ParamVal'+str(i))
                 Campo.setMinimum(-99999)
