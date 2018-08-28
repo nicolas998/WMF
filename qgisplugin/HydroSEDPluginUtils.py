@@ -5,6 +5,7 @@ from PyQt4 import QtGui, uic
 import netCDF4
 from wmf import wmf
 import numpy as np 
+import datetime as dt
 import scipy.stats as stat
 import pandas as pd
 import osgeo.ogr as ogr
@@ -689,11 +690,13 @@ class controlHS:
         '''Obtiene un campo acumulado de precipitacion para el periodo especifico'''
         #Lee el binario y los datos en el intervalo
         Vsum = np.zeros(self.cuenca.ncells)
+        print path2bin
         for i in range(inicio, fin+1):
             vect,res = wmf.models.read_int_basin(path2bin,i,self.cuenca.ncells)
             if res == 0:
                 vect = vect.astype(float)/1000.
                 Vsum+=vect
+        print 'salida'
         #Pasa el acumulado al diccionario de WMF 
         self.DicBasinWMF.update({'Lluvia':
             {'nombre':'Lluvia',
@@ -828,7 +831,7 @@ class controlHS:
         TextoFechas = [i.strftime('%Y-%m-%d-%H:%M') for i in self.ConvertDates.to_pydatetime()]
         #Obtiene fechas equivalentes para las fechas a convertir
         DatesRadar = pd.to_datetime(FechasRadar)
-        DatesRadar = DatesRadar.ceil(tr)
+        DatesRadar = DatesRadar.ceil(TimeStep)
         #Slice de analisis
         Ini = DatesRadar.get_loc(TextoFechas[0])
         try: 
@@ -843,7 +846,7 @@ class controlHS:
         #Corte en vectores
         self.DatesRadar = DatesRadar[Ini:Fin]
         FechasRadar = FechasRadar[Ini:Fin]
-        self.ListRadar = ListRadar[Ini:Fin]
+        self.ListaRadar = ListaRadar[Ini:Fin]
         self.TextoFechas = TextoFechas
     
     def Radar_Conver2Basin(self, PathRadarBasin, TimeStep, umbral = 0.01,
@@ -861,15 +864,15 @@ class controlHS:
             except:
                 ListaPos = [s]
             #Acumula para ese periodo
-            Rain = np.zeros(cu.ncells)
+            Rain = np.zeros(self.cuenca.ncells)
             for l in ListaPos:
                 #Lee el netCDF y lo transforma 
-                g = netCDF4.Dataset(self.ListRadar[l])
+                g = netCDF4.Dataset(self.ListaRadar[l])
                 RadProp = [g.ncols, g.nrows, g.xll, g.yll, g.dx, g.dx]
                 Rain += self.cuenca.Transform_Map2Basin(g.variables['Rain'][:].T/ (12*1000.0),RadProp)
                 g.close()
             #Actualiza el binario con datos de radar
-            dentro = cu.rain_radar2basin_from_array(vec = Rain,
+            dentro = self.cuenca.rain_radar2basin_from_array(vec = Rain,
                 ruta_out = PathRadarBasin,
                 fecha = date-dt.timedelta(hours = 5),
                 dt = TimeStep,
@@ -877,5 +880,5 @@ class controlHS:
             if verbose:
                 print date, Rain.mean()
         #Cierra el binario y cea el encabezado
-        cu.rain_radar2basin_from_array(status = 'close',ruta_out = PathRadarBasin)
+        self.cuenca.rain_radar2basin_from_array(status = 'close',ruta_out = PathRadarBasin)
    

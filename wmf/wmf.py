@@ -3301,8 +3301,8 @@ class SimuBasin(Basin):
         #Edita la ruta de salida 
         if ruta_out  is not  None:
             if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
-                ruta_bin = ruta_out[:-3]+'.bin'
-                ruta_hdr = ruta_out[:-3]+'.hdr'
+                ruta_bin = ruta_out[:-4]+'.bin'
+                ruta_hdr = ruta_out[:-4]+'.hdr'
             else:
                 ruta_bin = ruta_out+'.bin'
                 ruta_hdr = ruta_out+'.hdr'

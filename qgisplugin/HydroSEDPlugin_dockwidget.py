@@ -23,6 +23,8 @@
 
 import os
 import numpy as np
+import glob 
+import datetime as dt 
 
 from PyQt4 import QtGui, uic, QtCore, Qt
 from PyQt4.QtCore import pyqtSignal, QUrl
@@ -776,8 +778,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def setupRainfall(self):
         '''Conjunto de herramientas dispuestas para interpolar campos de precipitacion'''
       
-        ListaRadarDates = []
-        FechasRadar = []
+        #ListaRadarDates = []
+        #FechasRadar = []
       
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
@@ -832,12 +834,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             setupLineEditButtonOpenRadarFileDialog(self.PathInHydro_Radar, QFileDialog)
             self.Path2Radar = self.PathInHydro_Radar
             #Actualiza lista con variables del radar
-            ListRadarDates = glob.glob(self.Path2Radar.text().strip())
-            ListRadarDates.sort()
-            FechasRadar = []
-            for L in ListRadarDates:
+            self.ListaRadarDates = glob.glob(self.Path2Radar.text().strip()+'/*.nc')
+            self.ListaRadarDates.sort()
+            self.FechasRadar = []
+            for L in self.ListaRadarDates:
                 try:
-                    self.FechasRadar.append(dt.datetime.strptime(L[-23:-11],'%Y%m%d%H%M'))
+					self.FechasRadar.append(dt.datetime.strptime(L[-23:-11],'%Y%m%d%H%M'))
                 except:
                     pass
         
@@ -890,12 +892,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             PathRadar = self.PathInHydro_Radar.text().strip()
             fi = self.Interpol_DateTimeStart_Radar.dateTime().toPyDateTime()
             ff = self.Interpol_DateTimeEnd_Radar.dateTime().toPyDateTime()
-            fd = self.Interpol_SpinBox_delta_Radar.value()
+            Step = '%dS' % self.Interpol_SpinBox_delta_Radar.value()
             PathOut = self.PathOutHydro_Radar.text().strip()
             #Obtiene las fechas para conversion y la lista de valores
-            self.HSutils.Radar_FechasProcess(fi, ff, fd, FechasRadar, ListaRadarDates)
+            self.HSutils.Radar_FechasProcess(fi, ff, Step, self.FechasRadar, self.ListaRadarDates)
             #Interpola para la cuenca seleccionada
-            self.HSutils.Radar_Conver2Basin(PathOut)
+            self.HSutils.Radar_Conver2Basin(PathOut, Step)
             #Trata de leer datos de lluvia en caso de que ya existan
             try:
                 PathData = self.PathOutHydro_Radar.text().strip()
@@ -964,6 +966,21 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Aviso de existo
             self.iface.messageBar().pushInfo(u'HidroSIG:',u'Los campos de han acumulado en la variable Lluvia de la tabla WMF')
         
+        def clickEventGetAcumRainfallRadar():
+            '''Obtiene el acumulado de lluvia en el periodo especifico'''
+            #Punto inicial y final 
+            Path = self.PathOutHydro_Radar.text().strip()
+            inicio = int(self.spinBoxCampoInicio_Radar.value())
+            fin = int(self.spinBoxCampoFin_Radar.value())
+            #Obtiene el campo acumulado para el periodo seleccionado
+            self.HSutils.Interpol_GetRainfallAcum(Path, inicio, fin)
+            #Actualiza la tabla WMF
+            k = 'Lluvia'
+            self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
+            #Aviso de existo
+            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Los campos de han acumulado en la variable Lluvia de la tabla WMF')
+        
+        
         #Botones de set de interpolacion
         self.Boton_HidroLoad_Pluvios.clicked.connect(clickEventSelectorMapaPuntosPluvio)
         self.Boton_HidroLoad_Serie.clicked.connect(clickEventSelectorArchivoExcel)
@@ -979,6 +996,13 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #botones set de radar
         self.Boton_HidroLoad_RadarData.clicked.connect(clickEventSelectorRadarFiles)
         self.Button_HidroSaveRadar.clicked.connect(clickEventSelectorArchivoBinarioLluviaRadar)
+        #Boton de ejecucion de radar
+        self.Button_Ejec_HidroRadar.clicked.connect(clickEventEjecutarConversionRadar)
+        #Botones de visualizacion
+        self.Button_InterpolCiclo_Radar.clicked.connect(clickEventViewMediaMensualRainfall)
+        self.Button_InterpolHistogram_Radar.clicked.connect(clickEventViewHistogramRainfall)
+        self.Button_InterpolSerieView_Radar.clicked.connect(clickEventViewSerieRainfall)
+        self.Button_InterpolViewRadar.clicked.connect(clickEventGetAcumRainfallRadar)
     
     def setupSimulation(self):
         '''Herramientas para gestionar la simulacion hidrologica con la cuenca cargada'''
