@@ -68,7 +68,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="resources.qrc">
+               <iconset>
                 <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
               </property>
              </widget>
@@ -238,7 +238,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>130</y>
+           <y>150</y>
            <width>469</width>
            <height>776</height>
           </rect>
@@ -254,7 +254,7 @@
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
-           <iconset resource="resources.qrc">
+           <iconset>
             <normaloff>:/plugins/HydroSEDPlugin/icons/config.png</normaloff>:/plugins/HydroSEDPlugin/icons/config.png</iconset>
           </attribute>
           <attribute name="title">
@@ -295,7 +295,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>443</width>
+              <width>318</width>
               <height>2018</height>
              </rect>
             </property>
@@ -372,6 +372,12 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="toolTip">
+                      <string>Establecer el tamaño de pixel del MDE y DIR</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Establecer el tamaño de pixel del MDE y DIR</string>
+                     </property>
                      <property name="maximum">
                       <double>10000.000000000000000</double>
                      </property>
@@ -411,6 +417,12 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="toolTip">
+                      <string>Ruta en la que se encuentra el .tif con el MDE</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Ruta en la que se encuentra el .tif con el MDE</string>
+                     </property>
                      <property name="readOnly">
                       <bool>true</bool>
                      </property>
@@ -430,11 +442,17 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="toolTip">
+                      <string>Establecer la ruta en la que se encuentra el .tif con el MDE</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Establecer la ruta en la que se encuentra el .tif con el MDE</string>
+                     </property>
                      <property name="text">
                       <string/>
                      </property>
                      <property name="icon">
-                      <iconset resource="resources.qrc">
+                      <iconset>
                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                      </property>
                     </widget>
@@ -448,7 +466,10 @@
                       </size>
                      </property>
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Establece el MDE y sus propiedades como el mapa base para WMF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>Carga el mapa base MDE para WMF</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Carga el mapa base MDE para WMF</string>
                      </property>
                      <property name="text">
                       <string>Cargar</string>
@@ -481,7 +502,10 @@
                       </size>
                      </property>
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carga el MDE en el layout de mapas de Qgis.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>Visualizar el MDE que ha sido cargado</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Visualizar el MDE que ha sido cargado</string>
                      </property>
                      <property name="text">
                       <string>Visualizar</string>
@@ -513,6 +537,12 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="toolTip">
+                      <string>Ruta en la que se encuentra el .tif con el DIR</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Ruta en la que se encuentra el .tif con el DIR</string>
+                     </property>
                      <property name="readOnly">
                       <bool>true</bool>
                      </property>
@@ -532,11 +562,17 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="toolTip">
+                      <string>Establecer la ruta en la que se encuentra el .tif con el DIR</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Establecer la ruta en la que se encuentra el .tif con el DIR</string>
+                     </property>
                      <property name="text">
                       <string/>
                      </property>
                      <property name="icon">
-                      <iconset resource="resources.qrc">
+                      <iconset>
                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                      </property>
                     </widget>
@@ -550,7 +586,10 @@
                       </size>
                      </property>
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Establece el DIR y sus propiedades como el mapa base para WMF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>Carga el mapa base DIR para WMF</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Carga el mapa base DIR para WMF</string>
                      </property>
                      <property name="text">
                       <string>Cargar</string>
@@ -583,7 +622,10 @@
                       </size>
                      </property>
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carga el DIR en el layout de mapas de Qgis.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>Visualizar el DIR que ha sido cargado</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Visualizar el DIR que ha sido cargado</string>
                      </property>
                      <property name="text">
                       <string>Visualizar</string>
@@ -738,6 +780,12 @@
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="toolTip">
+                          <string>Establecer la ruta del mapa raster a convertir</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Establecer la ruta del mapa raster a convertir</string>
+                         </property>
                          <property name="readOnly">
                           <bool>false</bool>
                          </property>
@@ -757,11 +805,17 @@
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="toolTip">
+                          <string>Establecer la ruta del mapa raster a convertir</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Establecer la ruta del mapa raster a convertir</string>
+                         </property>
                          <property name="text">
                           <string/>
                          </property>
                          <property name="icon">
-                          <iconset resource="resources.qrc">
+                          <iconset>
                            <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                          </property>
                         </widget>
@@ -791,6 +845,12 @@
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="toolTip">
+                          <string>Nombre con el que será cargado el el mapa a la tabla de variables de WMF</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Nombre con el que será cargado el el mapa a la tabla de variables de WMF</string>
+                         </property>
                          <property name="readOnly">
                           <bool>false</bool>
                          </property>
@@ -810,21 +870,28 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QComboBox" name="ComboBoxRaster2WMF"/>
+                        <widget class="QComboBox" name="ComboBoxRaster2WMF">
+                         <property name="toolTip">
+                          <string>Seleccionar la categoría del mapa a convertir</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Seleccionar la categoría del mapa a convertir</string>
+                         </property>
+                        </widget>
                        </item>
                        <item>
                         <widget class="QPushButton" name="Button_Raster2WMF">
                          <property name="toolTip">
-                          <string>Ejecutar la función de trazado de corriente.</string>
+                          <string>Ejecutar la función para convertir el raster a cuenca</string>
                          </property>
                          <property name="whatsThis">
-                          <string>Ejecutar la función de trazado de corriente.</string>
+                          <string>Ejecutar la función para convertir el raster a cuenca</string>
                          </property>
                          <property name="text">
                           <string/>
                          </property>
                          <property name="icon">
-                          <iconset resource="resources.qrc">
+                          <iconset>
                            <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                          </property>
                         </widget>
@@ -941,7 +1008,7 @@
                       <string/>
                      </property>
                      <property name="icon">
-                      <iconset resource="resources.qrc">
+                      <iconset>
                        <normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</iconset>
                      </property>
                      <property name="iconSize">
@@ -976,7 +1043,7 @@
                       <string/>
                      </property>
                      <property name="icon">
-                      <iconset resource="resources.qrc">
+                      <iconset>
                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                      </property>
                     </widget>
@@ -995,11 +1062,17 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="toolTip">
+                      <string>Eliminar variable de la tabla</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Eliminar variable de la tabla</string>
+                     </property>
                      <property name="text">
                       <string/>
                      </property>
                      <property name="icon">
-                      <iconset resource="resources.qrc">
+                      <iconset>
                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</iconset>
                      </property>
                     </widget>
@@ -1067,11 +1140,17 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="toolTip">
+                      <string>Envar variables del NC al WMF (Si no han sido guardadas en el NC)</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Envar variables del NC al WMF (Si no han sido guardadas en el NC)</string>
+                     </property>
                      <property name="text">
                       <string/>
                      </property>
                      <property name="icon">
-                      <iconset resource="resources.qrc">
+                      <iconset>
                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-arriba.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-arriba.png</iconset>
                      </property>
                     </widget>
@@ -1090,11 +1169,17 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="toolTip">
+                      <string>Enviar variables del WMF al NC</string>
+                     </property>
+                     <property name="whatsThis">
+                      <string>Enviar variables del WMF al NC</string>
+                     </property>
                      <property name="text">
                       <string/>
                      </property>
                      <property name="icon">
-                      <iconset resource="resources.qrc">
+                      <iconset>
                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-abajo.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-abajo.png</iconset>
                      </property>
                     </widget>
@@ -1168,10 +1253,10 @@
                     <item>
                      <widget class="QComboBox" name="ComboConversionUnits">
                       <property name="toolTip">
-                       <string>Tipo de conversión usada para agregar (promedio)</string>
+                       <string>Tipo de conversión usada para agregar</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Tipo de conversión usada para agregar (promedio)</string>
+                       <string>Tipo de conversión usada para agregar</string>
                       </property>
                      </widget>
                     </item>
@@ -1191,10 +1276,10 @@
                     <item>
                      <widget class="QComboBox" name="ComboMethod4Conversion">
                       <property name="toolTip">
-                       <string>Tipo de conversión usada para agregar (promedio)</string>
+                       <string>Metodología para llevar a cabo la conversión de variables</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Tipo de conversión usada para agregar (promedio)</string>
+                       <string>Metodología para llevar a cabo la conversión de variables</string>
                       </property>
                      </widget>
                     </item>
@@ -1251,6 +1336,9 @@
                           <height>70</height>
                          </size>
                         </property>
+                        <property name="toolTip">
+                         <string>Selección de la variable del Nc sobre la cual se aplicará la conversión.</string>
+                        </property>
                         <property name="whatsThis">
                          <string>Selección de la variable del Nc sobre la cual se aplicará la conversión.</string>
                         </property>
@@ -1300,8 +1388,11 @@
                           <height>70</height>
                          </size>
                         </property>
+                        <property name="toolTip">
+                         <string>Nombre de la variable nueva calculada según la expresión</string>
+                        </property>
                         <property name="whatsThis">
-                         <string>Nombre de la variable que contiene la conversión</string>
+                         <string>Nombre de la variable nueva calculada según la expresión</string>
                         </property>
                        </widget>
                       </item>
@@ -1374,16 +1465,16 @@
                          </size>
                         </property>
                         <property name="toolTip">
-                         <string>Ejecutar la función de trazado de corriente.</string>
+                         <string>Evaluar la expresión definida. </string>
                         </property>
                         <property name="whatsThis">
-                         <string>Convertir variables.</string>
+                         <string>Evaluar la expresión definida. </string>
                         </property>
                         <property name="text">
                          <string/>
                         </property>
                         <property name="icon">
-                         <iconset resource="resources.qrc">
+                         <iconset>
                           <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                         </property>
                        </widget>
@@ -1446,7 +1537,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</iconset>
                    </property>
                   </widget>
@@ -1481,7 +1572,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</iconset>
                    </property>
                    <property name="iconSize">
@@ -1564,7 +1655,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                    </property>
                   </widget>
@@ -1583,11 +1674,17 @@
                      <height>16777215</height>
                     </size>
                    </property>
+                   <property name="toolTip">
+                    <string>Eliminar variable de la tabla de variables de NC (Solo si no ha sido actualizada en el NC)</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Eliminar variable de la tabla de variables de NC (Solo si no ha sido actualizada en el NC)</string>
+                   </property>
                    <property name="text">
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</iconset>
                    </property>
                   </widget>
@@ -1639,7 +1736,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>443</width>
+              <width>268</width>
               <height>2018</height>
              </rect>
             </property>
@@ -1732,7 +1829,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</iconset>
                       </property>
                      </widget>
@@ -1846,7 +1943,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -1863,7 +1960,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                       </property>
                      </widget>
@@ -1935,11 +2032,17 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="BotonCoord_cuenca">
+                      <property name="toolTip">
+                       <string>Seleccionar las coordenadas de la salida de la cuenca a trazar</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar las coordenadas de la salida de la cuenca a trazar</string>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</iconset>
                       </property>
                      </widget>
@@ -2023,6 +2126,12 @@
                     </item>
                     <item>
                      <widget class="QDoubleSpinBox" name="spinBoxUmbralRed">
+                      <property name="toolTip">
+                       <string>Seleccionar umbral de área acumulada para estimar canales</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar umbral de área acumulada para estimar canales</string>
+                      </property>
                       <property name="decimals">
                        <number>0</number>
                       </property>
@@ -2118,11 +2227,17 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Seleccionar la ruta para para guardar el .shp con la divisoria de aguas</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la ruta para para guardar el .shp con la divisoria de aguas</string>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -2193,6 +2308,12 @@
                    <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaShapefileTrazadorCuencas_6">
                     <item>
                      <widget class="QLineEdit" name="PathOutputRed">
+                      <property name="toolTip">
+                       <string>Seleccionar la ruta para para guardar el .shp con la red hídrica</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la ruta para para guardar el .shp con la red hídrica</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
@@ -2216,7 +2337,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -2241,6 +2362,12 @@
                    <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaNCTrazadorCuencas_3">
                     <item>
                      <widget class="QLineEdit" name="PathOutputNETCDF">
+                      <property name="toolTip">
+                       <string>Seleccionar la ruta para guardar el .nc con el proyecto de cuenca</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la ruta para guardar el .nc con el proyecto de cuenca</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
@@ -2264,7 +2391,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -2285,6 +2412,12 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="NombreCuenca">
+                      <property name="toolTip">
+                       <string>Asignar un nombre a la cuenca trazada</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Asignar un nombre a la cuenca trazada</string>
+                      </property>
                       <property name="text">
                        <string>Cuenca</string>
                       </property>
@@ -2312,7 +2445,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                       </property>
                      </widget>
@@ -2371,7 +2504,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>443</width>
+              <width>318</width>
               <height>1918</height>
              </rect>
             </property>
@@ -2503,10 +2636,10 @@
                     <item row="5" column="0">
                      <widget class="QCheckBox" name="checkBoxChannels">
                       <property name="toolTip">
-                       <string>Calcula mapa raster con la distancia a la salida de cada celda (Dist2Out)</string>
+                       <string>Calcula mapa raster con los canales </string>
                       </property>
                       <property name="whatsThis">
-                       <string>Calcula mapa raster con la distancia a la salida de cada celda (Dist2Out)</string>
+                       <string>Calcula mapa raster con los canales </string>
                       </property>
                       <property name="text">
                        <string>Canales</string>
@@ -2540,7 +2673,7 @@
                          <string/>
                         </property>
                         <property name="icon">
-                         <iconset resource="resources.qrc">
+                         <iconset>
                           <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                         </property>
                        </widget>
@@ -2576,7 +2709,7 @@
                     <item row="1" column="1">
                      <widget class="QCheckBox" name="checkBoxKubota">
                       <property name="toolTip">
-                       <string/>
+                       <string>Calcular mapa de coeficiente de flujo sub-superficial (kubota, 1995), requiere: h1_max y v_coef[1] definidos en la tabla de Nc</string>
                       </property>
                       <property name="whatsThis">
                        <string>Calcular mapa de coeficiente de flujo sub-superficial (kubota, 1995), requiere: h1_max y v_coef[1] definidos en la tabla de Nc</string>
@@ -2589,7 +2722,7 @@
                     <item row="2" column="1">
                      <widget class="QCheckBox" name="checkBoxRunoff">
                       <property name="toolTip">
-                       <string/>
+                       <string>Calcular coeficiente y exp de escorrentía, requiere mapa Manning en WMF</string>
                       </property>
                       <property name="whatsThis">
                        <string>Calcular coeficiente y exp de escorrentía, requiere mapa Manning en WMF</string>
@@ -2850,7 +2983,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                       </property>
                      </widget>
@@ -2962,7 +3095,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/toexcel.png</normaloff>:/plugins/HydroSEDPlugin/icons/toexcel.png</iconset>
                       </property>
                      </widget>
@@ -2979,7 +3112,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                       </property>
                      </widget>
@@ -3013,10 +3146,10 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Grafica de perfiles de elevación y distancia a la salida</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Grafica de perfiles de elevación y distancia a la salida</string>
                       </property>
                       <property name="text">
                        <string>Perfiles</string>
@@ -3041,10 +3174,10 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Visualizar gráfica de Tiempos de concentración</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Visualizar gráfica de Tiempos de concentración</string>
                       </property>
                       <property name="text">
                        <string>Tc</string>
@@ -3120,6 +3253,12 @@
                  </item>
                  <item>
                   <widget class="QDoubleSpinBox" name="SpinGeoUmbralCanal">
+                   <property name="toolTip">
+                    <string>Seleccionar umbral de área acumulada para estimar canales</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Seleccionar umbral de área acumulada para estimar canales</string>
+                   </property>
                    <property name="decimals">
                     <number>0</number>
                    </property>
@@ -3194,7 +3333,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>443</width>
+              <width>318</width>
               <height>1918</height>
              </rect>
             </property>
@@ -3317,7 +3456,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -3343,7 +3482,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                       </property>
                      </widget>
@@ -3495,7 +3634,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -3521,7 +3660,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                       </property>
                      </widget>
@@ -3581,7 +3720,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                       </property>
                      </widget>
@@ -3676,17 +3815,30 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="Boton_HidroLoad_Pluvios">
+                      <property name="toolTip">
+                       <string>Establecer el archivo .shape con las coordenadas de las estaciones</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Establecer el archivo .shape con las coordenadas de las estaciones</string>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QComboBox" name="comboBox_Interpol"/>
+                     <widget class="QComboBox" name="comboBox_Interpol">
+                      <property name="toolTip">
+                       <string>Seleccionar el campo dentro del shape que contiene los id de las estaciones</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar el campo dentro del shape que contiene los id de las estaciones</string>
+                      </property>
+                     </widget>
                     </item>
                    </layout>
                   </item>
@@ -3746,7 +3898,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -3789,6 +3941,12 @@
                         <height>0</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Exponente para la interpolación con IDW </string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Exponente para la interpolación con IDW </string>
+                      </property>
                       <property name="decimals">
                        <number>2</number>
                       </property>
@@ -3816,6 +3974,12 @@
                     </item>
                     <item>
                      <widget class="QDateTimeEdit" name="Interpol_DateTimeStart">
+                      <property name="toolTip">
+                       <string>Fecha inicial de la interpolación</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Fecha inicial de la interpolación</string>
+                      </property>
                       <property name="date">
                        <date>
                         <year>2015</year>
@@ -3844,6 +4008,12 @@
                     </item>
                     <item>
                      <widget class="QDateTimeEdit" name="Interpol_DateTimeEnd">
+                      <property name="toolTip">
+                       <string>Fecha final de la interpolación</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Fecha final de la interpolación</string>
+                      </property>
                       <property name="date">
                        <date>
                         <year>2015</year>
@@ -3872,6 +4042,12 @@
                     </item>
                     <item>
                      <widget class="QDoubleSpinBox" name="Interpol_SpinBox_delta">
+                      <property name="toolTip">
+                       <string>Delta de tiempo para el campo que interpolado</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Delta de tiempo para el campo que interpolado</string>
+                      </property>
                       <property name="minimum">
                        <double>5.000000000000000</double>
                       </property>
@@ -3925,8 +4101,11 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="PathOutHydro_Interpol">
+                      <property name="toolTip">
+                       <string>Ruta de guardado del binario de precipitación</string>
+                      </property>
                       <property name="whatsThis">
-                       <string>Ruta de guardado</string>
+                       <string>Ruta de guardado del binario de precipitación</string>
                       </property>
                       <property name="readOnly">
                        <bool>false</bool>
@@ -3935,6 +4114,9 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="Button_HidroSaveInterpol">
+                      <property name="toolTip">
+                       <string>Establecer ruta de guardado del binario de lluvia.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Establecer ruta de guardado del binario de lluvia.</string>
                       </property>
@@ -3942,7 +4124,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -3959,7 +4141,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                       </property>
                      </widget>
@@ -3997,10 +4179,10 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Visualizar gráfica del ciclo anual de precipitación del campo interpolado. </string>
                       </property>
                       <property name="whatsThis">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Visualizar gráfica del ciclo anual de precipitación del campo interpolado. </string>
                       </property>
                       <property name="text">
                        <string>Ciclo Anual</string>
@@ -4016,10 +4198,10 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Visualizar gráfica del histograma de precipitación del campo interpolado. </string>
                       </property>
                       <property name="whatsThis">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Visualizar gráfica del histograma de precipitación del campo interpolado. </string>
                       </property>
                       <property name="text">
                        <string>Histograma</string>
@@ -4041,10 +4223,10 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Visualizar gráfica de la serie de precipitación media del campo interpolado. </string>
                       </property>
                       <property name="whatsThis">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Visualizar gráfica de la serie de precipitación media del campo interpolado. </string>
                       </property>
                       <property name="text">
                        <string>Serie</string>
@@ -4129,14 +4311,17 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Visualiza una entrada o acumulado del binario de lluvia interpolado.</string>
+                      </property>
                       <property name="whatsThis">
-                       <string>Visualiza una entrada del binario de lluvia interpolado.</string>
+                       <string>Visualiza una entrada o acumulado del binario de lluvia interpolado.</string>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                       </property>
                      </widget>
@@ -4412,7 +4597,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -4438,7 +4623,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                       </property>
                      </widget>
@@ -4498,7 +4683,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                       </property>
                      </widget>
@@ -4638,7 +4823,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -4782,7 +4967,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -4799,7 +4984,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
                       </property>
                      </widget>
@@ -4976,7 +5161,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                       </property>
                      </widget>
@@ -5000,9 +5185,9 @@
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>10</y>
+             <y>-10</y>
              <width>451</width>
-             <height>721</height>
+             <height>581</height>
             </rect>
            </property>
            <property name="minimumSize">
@@ -5027,8 +5212,8 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
-              <width>433</width>
+              <y>-248</y>
+              <width>436</width>
               <height>1918</height>
              </rect>
             </property>
@@ -5114,8 +5299,11 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Ruta del binario de precipitación</string>
+                      </property>
                       <property name="whatsThis">
-                       <string>Ruta a la serie de caudales obsevada</string>
+                       <string>Ruta del binario de precipitación</string>
                       </property>
                       <property name="readOnly">
                        <bool>false</bool>
@@ -5137,16 +5325,16 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                       <string>Seleccionar la ruta del binario de precipitación</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                       <string>Seleccionar la ruta del binario de precipitación</string>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
@@ -5166,16 +5354,16 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Visualizar variable (es convertida a raster y enviada a /tmp/Hidrosig/)</string>
+                       <string>Visualizar la serie de precipitación media del binario de precipitación cargado</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Visualizar variable (es convertida a raster y enviada a /tmp/Hidrosig/)</string>
+                       <string>Visualizar la serie de precipitación media del binario de precipitación cargadoVisualizar la serie de precipitación media del binario de precipitación cargado</string>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                       </property>
                      </widget>
@@ -5231,6 +5419,9 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Ruta a la serie de caudales obsevada</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Ruta a la serie de caudales obsevada</string>
                       </property>
@@ -5254,22 +5445,29 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                       <string>Seleccionar la ruta del Excel con el caudal observado</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                       <string>Seleccionar la ruta del Excel con el caudal observado</string>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QComboBox" name="comboBox_Selec_Qobs"/>
+                     <widget class="QComboBox" name="comboBox_Selec_Qobs">
+                      <property name="toolTip">
+                       <string>Seleccionar el ID de la estaciónde caudal a utilizar</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar el ID de la estaciónde caudal sólido a utilizar</string>
+                      </property>
+                     </widget>
                     </item>
                     <item>
                      <widget class="QPushButton" name="Boton_Visualizar_Qobs">
@@ -5286,16 +5484,16 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Visualizar variable (es convertida a raster y enviada a /tmp/Hidrosig/)</string>
+                       <string>Visualizar la serie de caudales líquidos seleccionada</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Visualizar variable (es convertida a raster y enviada a /tmp/Hidrosig/)</string>
+                       <string>Visualizar la serie de caudales líquidos seleccionada</string>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                       </property>
                      </widget>
@@ -5338,8 +5536,11 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Ruta a la serie de caudales sólidos obsevada</string>
+                      </property>
                       <property name="whatsThis">
-                       <string>Ruta a la serie de caudales obsevada</string>
+                       <string>Ruta a la serie de caudales sólidos obsevada</string>
                       </property>
                       <property name="readOnly">
                        <bool>false</bool>
@@ -5361,22 +5562,29 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                       <string>Seleccionar la ruta del Excel con el caudal sólido observado</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                       <string>Seleccionar la ruta del Excel con el caudal sólido observado</string>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QComboBox" name="comboBox_Selec_Qobs_Sed"/>
+                     <widget class="QComboBox" name="comboBox_Selec_Qobs_Sed">
+                      <property name="toolTip">
+                       <string>Seleccionar el ID de la estación a utilizar</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar el ID de la estación a utilizar</string>
+                      </property>
+                     </widget>
                     </item>
                     <item>
                      <widget class="QPushButton" name="Boton_Visualizar_Qobs_Sed">
@@ -5393,16 +5601,16 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Visualizar variable (es convertida a raster y enviada a /tmp/Hidrosig/)</string>
+                       <string>Visualizar la serie de caudales sólidos seleccionada</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Visualizar variable (es convertida a raster y enviada a /tmp/Hidrosig/)</string>
+                       <string>Visualizar la serie de caudales sólidos seleccionada</string>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                       </property>
                      </widget>
@@ -5442,7 +5650,7 @@
                   <rect>
                    <x>0</x>
                    <y>70</y>
-                   <width>401</width>
+                   <width>412</width>
                    <height>582</height>
                   </rect>
                  </property>
@@ -5514,7 +5722,7 @@
                        <string>Velocidad horizontal sub-superficial (h_coef[1])</string>
                       </property>
                       <property name="text">
-                       <string>Vh2 [m/s]</string>
+                       <string>Vh2 [mm/s]</string>
                       </property>
                      </widget>
                     </item>
@@ -5534,7 +5742,7 @@
                        <string>Velocidad horizontal subterranea (h_coef[2])</string>
                       </property>
                       <property name="text">
-                       <string>Vh3 [m/s]</string>
+                       <string>Vh3 [mm/s]</string>
                       </property>
                      </widget>
                     </item>
@@ -5544,7 +5752,7 @@
                        <string>Velocidad horizontal escorrentia (h_coef[0])</string>
                       </property>
                       <property name="text">
-                       <string>Vh1 [m/s]</string>
+                       <string>Vh1 [mm/s]</string>
                       </property>
                      </widget>
                     </item>
@@ -5574,7 +5782,7 @@
                        <string>Velocidad horizontal canales (h_coef[3])</string>
                       </property>
                       <property name="text">
-                       <string>Vh4 [m/s]</string>
+                       <string>Vh4 [mm/s]</string>
                       </property>
                      </widget>
                     </item>
@@ -5670,6 +5878,12 @@
                     </item>
                     <item row="11" column="2">
                      <widget class="QLabel" name="label_68">
+                      <property name="toolTip">
+                       <string>Parametro de calibración para la simulación de sedimentos </string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Parametro de calibración para la simulación de sedimentos </string>
+                      </property>
                       <property name="text">
                        <string>Sed Param</string>
                       </property>
@@ -5677,6 +5891,9 @@
                     </item>
                     <item row="12" column="2">
                      <widget class="QDoubleSpinBox" name="Param11">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5694,6 +5911,9 @@
                     </item>
                     <item row="1" column="2">
                      <widget class="QDoubleSpinBox" name="Param1">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5701,6 +5921,9 @@
                     </item>
                     <item row="2" column="2">
                      <widget class="QDoubleSpinBox" name="Param2">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5708,6 +5931,9 @@
                     </item>
                     <item row="3" column="2">
                      <widget class="QDoubleSpinBox" name="Param3">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5715,6 +5941,9 @@
                     </item>
                     <item row="4" column="2">
                      <widget class="QDoubleSpinBox" name="Param4">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5722,6 +5951,9 @@
                     </item>
                     <item row="5" column="2">
                      <widget class="QDoubleSpinBox" name="Param5">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5729,6 +5961,9 @@
                     </item>
                     <item row="6" column="2">
                      <widget class="QDoubleSpinBox" name="Param6">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5736,20 +5971,9 @@
                     </item>
                     <item row="7" column="2">
                      <widget class="QDoubleSpinBox" name="Param7">
-                      <property name="value">
-                       <double>1.000000000000000</double>
+                      <property name="decimals">
+                       <number>3</number>
                       </property>
-                     </widget>
-                    </item>
-                    <item row="8" column="2">
-                     <widget class="QDoubleSpinBox" name="Param8">
-                      <property name="value">
-                       <double>1.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="9" column="2">
-                     <widget class="QDoubleSpinBox" name="Param9">
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5766,6 +5990,51 @@
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="2">
+                     <widget class="QDoubleSpinBox" name="Param8">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="2">
+                     <widget class="QDoubleSpinBox" name="Param9">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal2">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
                       <property name="maximum">
                        <double>99999.000000000000000</double>
                       </property>
@@ -5776,6 +6045,9 @@
                     </item>
                     <item row="10" column="2">
                      <widget class="QDoubleSpinBox" name="Param10">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5794,25 +6066,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="1">
-                     <widget class="QDoubleSpinBox" name="ParamVal2">
-                      <property name="frame">
-                       <bool>true</bool>
-                      </property>
-                      <property name="readOnly">
-                       <bool>true</bool>
-                      </property>
-                      <property name="buttonSymbols">
-                       <enum>QAbstractSpinBox::NoButtons</enum>
-                      </property>
-                      <property name="maximum">
-                       <double>99999.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>0.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="3" column="1">
                      <widget class="QDoubleSpinBox" name="ParamVal3">
                       <property name="frame">
@@ -5824,6 +6077,9 @@
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
+                      <property name="decimals">
+                       <number>5</number>
+                      </property>
                       <property name="minimum">
                        <double>-1.000000000000000</double>
                       </property>
@@ -5832,8 +6088,8 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="6" column="1">
-                     <widget class="QDoubleSpinBox" name="ParamVal6">
+                    <item row="5" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal5">
                       <property name="frame">
                        <bool>true</bool>
                       </property>
@@ -5843,11 +6099,8 @@
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
-                      <property name="minimum">
-                       <double>-99999.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>99999.000000000000000</double>
+                      <property name="decimals">
+                       <number>5</number>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -5866,39 +6119,7 @@
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
                       <property name="decimals">
-                       <number>6</number>
-                      </property>
-                      <property name="value">
-                       <double>1.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="7" column="1">
-                     <widget class="QDoubleSpinBox" name="ParamVal7">
-                      <property name="frame">
-                       <bool>true</bool>
-                      </property>
-                      <property name="readOnly">
-                       <bool>true</bool>
-                      </property>
-                      <property name="buttonSymbols">
-                       <enum>QAbstractSpinBox::NoButtons</enum>
-                      </property>
-                      <property name="value">
-                       <double>1.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="1">
-                     <widget class="QDoubleSpinBox" name="ParamVal5">
-                      <property name="frame">
-                       <bool>true</bool>
-                      </property>
-                      <property name="readOnly">
-                       <bool>true</bool>
-                      </property>
-                      <property name="buttonSymbols">
-                       <enum>QAbstractSpinBox::NoButtons</enum>
+                       <number>5</number>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -5916,6 +6137,28 @@
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
+                      <property name="decimals">
+                       <number>5</number>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal7">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>5</number>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5931,6 +6174,9 @@
                       </property>
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>5</number>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -5948,6 +6194,9 @@
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
+                      <property name="decimals">
+                       <number>5</number>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5955,6 +6204,25 @@
                     </item>
                     <item row="11" column="1">
                      <widget class="QDoubleSpinBox" name="ParamVal11">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="15" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal15">
                       <property name="frame">
                        <bool>true</bool>
                       </property>
@@ -5980,37 +6248,8 @@
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
-                      <property name="value">
-                       <double>1.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="12" column="1">
-                     <widget class="QDoubleSpinBox" name="ParamVal12">
-                      <property name="frame">
-                       <bool>true</bool>
-                      </property>
-                      <property name="readOnly">
-                       <bool>true</bool>
-                      </property>
-                      <property name="buttonSymbols">
-                       <enum>QAbstractSpinBox::NoButtons</enum>
-                      </property>
-                      <property name="value">
-                       <double>1.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="15" column="1">
-                     <widget class="QDoubleSpinBox" name="ParamVal15">
-                      <property name="frame">
-                       <bool>true</bool>
-                      </property>
-                      <property name="readOnly">
-                       <bool>true</bool>
-                      </property>
-                      <property name="buttonSymbols">
-                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      <property name="decimals">
+                       <number>2</number>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -6027,6 +6266,28 @@
                       </property>
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="12" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal12">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -6062,6 +6323,31 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="6" column="1">
+                     <widget class="QDoubleSpinBox" name="ParamVal6">
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>5</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-99999.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </item>
                  </layout>
@@ -6086,7 +6372,14 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QComboBox" name="ParamNamesCombo"/>
+                     <widget class="QComboBox" name="ParamNamesCombo">
+                      <property name="toolTip">
+                       <string>Seleccionar una de las calibraciones que se tienen guardadas en el nc</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar una de las calibraciones que se tienen guardadas en el nc</string>
+                      </property>
+                     </widget>
                     </item>
                    </layout>
                   </item>
@@ -6113,6 +6406,15 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="ParamName">
+                      <property name="toolTip">
+                       <string>Definir el nombre de la parametrización actual</string>
+                      </property>
+                      <property name="statusTip">
+                       <string/>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Definir el nombre de la parametrización actual.</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
@@ -6120,19 +6422,18 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="ButtonSimCalib2Nc">
+                      <property name="toolTip">
+                       <string>Guarda o actualiza la parametrización actual en el nc </string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Guarda o actualiza la parametrización actual en el nc </string>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="resources.qrc">
+                       <iconset>
                         <normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="ButtonSimUseCalib">
-                      <property name="text">
-                       <string>Establecer</string>
                       </property>
                      </widget>
                     </item>
@@ -6141,26 +6442,13 @@
                  </layout>
                 </widget>
                </widget>
-               <widget class="Line" name="line_21">
-                <property name="geometry">
-                 <rect>
-                  <x>0</x>
-                  <y>1430</y>
-                  <width>411</width>
-                  <height>20</height>
-                 </rect>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
                <widget class="QGroupBox" name="groupBox_12">
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>870</y>
+                  <y>880</y>
                   <width>401</width>
-                  <height>301</height>
+                  <height>901</height>
                  </rect>
                 </property>
                 <property name="title">
@@ -6172,21 +6460,30 @@
                    <x>0</x>
                    <y>30</y>
                    <width>401</width>
-                   <height>241</height>
+                   <height>201</height>
                   </rect>
                  </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_5">
+                 <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
                   <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_66">
                     <item>
                      <widget class="QLabel" name="label_74">
                       <property name="text">
-                       <string>Fecha Inicio</string>
+                       <string>Fecha Inicio Simulación</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDateTimeEdit" name="Interpol_DateTimeStart_2">
+                     <widget class="QDateTimeEdit" name="Simulacion_DateTimeStart">
+                      <property name="toolTip">
+                       <string>Seleccionar la fecha de inicio para correr la simulación</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la fecha de inicio para correr la simulación</string>
+                      </property>
                       <property name="date">
                        <date>
                         <year>2015</year>
@@ -6209,12 +6506,18 @@
                     <item>
                      <widget class="QLabel" name="label_75">
                       <property name="text">
-                       <string>Fecha inicio interpolación</string>
+                       <string>Fecha Fin Simulación</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDateTimeEdit" name="Interpol_DateTimeStart_3">
+                     <widget class="QDateTimeEdit" name="Simulacion_DateTimeEnd">
+                      <property name="toolTip">
+                       <string>Seleccionar la fecha final de la simulación</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la fecha final de la simulación</string>
+                      </property>
                       <property name="date">
                        <date>
                         <year>2015</year>
@@ -6234,66 +6537,560 @@
                   </item>
                   <item>
                    <layout class="QGridLayout" name="gridLayout_3">
-                    <item row="0" column="0">
-                     <widget class="QCheckBox" name="checkBox_3">
+                    <item row="5" column="0">
+                     <widget class="QCheckBox" name="checkBox_Simu_SaveStorage">
+                      <property name="maximumSize">
+                       <size>
+                        <width>210</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Configura para que se guarden las condiciones finales de la simulación para ejecutar la próxima corrida </string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Configura para que se guarden las condiciones finales de la simulación para ejecutar la próxima corrida </string>
+                      </property>
                       <property name="text">
-                       <string>Separacion</string>
+                       <string>Guardar Almacenamientos</string>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>8</width>
+                        <height>16</height>
+                       </size>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="0">
-                     <widget class="QCheckBox" name="checkBox">
+                     <widget class="QCheckBox" name="checkBox_Simu_Separacion">
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Configura que la simulación entrege las salidas de caudal como Runoff, Superficial y Subterráneo</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Exportar los indicadores básicos de desempeño de la simulación a Excel</string>
+                      </property>
                       <property name="text">
-                       <string>Retrono</string>
+                       <string>Separacion</string>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>8</width>
+                        <height>16</height>
+                       </size>
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="0">
-                     <widget class="QCheckBox" name="checkBox_2">
+                    <item row="4" column="0">
+                     <widget class="QCheckBox" name="checkBox_Simu_Sedimentos">
+                      <property name="toolTip">
+                       <string>Activa la simulación de Sedimentos en el modelo </string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Activa la simulación de Sedimentos en el modelo </string>
+                      </property>
                       <property name="text">
                        <string>Sedimentos</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="0">
-                     <widget class="QCheckBox" name="checkBox_4">
+                    <item row="2" column="1">
+                     <widget class="QCheckBox" name="checkBox_Simu_Slides">
+                      <property name="toolTip">
+                       <string>Activa la simulación de Deslizamientos en el modelo </string>
+                      </property>
                       <property name="text">
                        <string>Deslizamientos</string>
                       </property>
                      </widget>
                     </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_68">
-                    <item>
-                     <widget class="QLabel" name="label_76">
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="checkBox_Simu_Retorno">
+                      <property name="toolTip">
+                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                      </property>
                       <property name="text">
-                       <string>Figuras:</string>
+                       <string>Retorno</string>
                       </property>
                      </widget>
                     </item>
                    </layout>
                   </item>
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_69">
-                    <item>
-                     <widget class="QPushButton" name="pushButton">
-                      <property name="text">
-                       <string>Almacenamientos</string>
+                   <layout class="QGridLayout" name="gridLayout_8">
+                    <item row="0" column="0">
+                     <widget class="QPushButton" name="ButtonSim_RunSimulacion">
+                      <property name="maximumSize">
+                       <size>
+                        <width>160</width>
+                        <height>16777215</height>
+                       </size>
                       </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="label_77">
+                      <property name="toolTip">
+                       <string>Ejecutar la simulación</string>
+                      </property>
+                      <property name="layoutDirection">
+                       <enum>Qt::LeftToRight</enum>
+                      </property>
                       <property name="text">
-                       <string/>
+                       <string>Ejecutar Simulación</string>
                       </property>
                      </widget>
                     </item>
                    </layout>
                   </item>
                  </layout>
+                </widget>
+                <widget class="Line" name="line_21">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>230</y>
+                   <width>411</width>
+                   <height>20</height>
+                  </rect>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+                <widget class="QGroupBox" name="groupBox_14">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>250</y>
+                   <width>401</width>
+                   <height>641</height>
+                  </rect>
+                 </property>
+                 <property name="title">
+                  <string>Resultados</string>
+                 </property>
+                 <widget class="QWidget" name="verticalLayoutWidget_10">
+                  <property name="geometry">
+                   <rect>
+                    <x>0</x>
+                    <y>30</y>
+                    <width>401</width>
+                    <height>193</height>
+                   </rect>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_25" stretch="0,0,0">
+                   <property name="spacing">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_76">
+                     <item>
+                      <widget class="QLabel" name="label_85">
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>Figuras:</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_77">
+                     <item>
+                      <layout class="QGridLayout" name="gridLayout_11">
+                       <item row="2" column="0">
+                        <widget class="QCheckBox" name="checkBox_Simu_Qs">
+                         <property name="maximumSize">
+                          <size>
+                           <width>118</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Caudal Sólido</string>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>8</width>
+                           <height>16</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="4" column="1">
+                        <widget class="QPushButton" name="ButtonSim_ViewSeries">
+                         <property name="minimumSize">
+                          <size>
+                           <width>130</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>130</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Graficar las series de caudales</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Graficar las series de caudales</string>
+                         </property>
+                         <property name="text">
+                          <string>Series de Cadual</string>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>11</width>
+                           <height>11</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="4" column="0">
+                        <widget class="QPushButton" name="ButtonSim_ViewCiclo">
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>120</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Graficar el ciclo anual de caudales </string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Graficar el ciclo anual de caudales </string>
+                         </property>
+                         <property name="text">
+                          <string>Ciclo Anual</string>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>11</width>
+                           <height>11</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="4" column="2">
+                        <widget class="QPushButton" name="ButtonSim_ViewCDC">
+                         <property name="minimumSize">
+                          <size>
+                           <width>110</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>20</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Graficar las curvas de duración de Caudales</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Graficar las curvas de duración de Caudales</string>
+                         </property>
+                         <property name="text">
+                          <string>CDC</string>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>11</width>
+                           <height>11</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="0">
+                        <widget class="QPushButton" name="ButtonSim_ViewStorage">
+                         <property name="minimumSize">
+                          <size>
+                           <width>130</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>130</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Graficar la serie de almacenamientos en los tanques</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Graficar la serie de almacenamientos en los tanques</string>
+                         </property>
+                         <property name="text">
+                          <string>Almacenamientos</string>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>11</width>
+                           <height>11</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="3" column="0">
+                        <widget class="QCheckBox" name="checkBox_Simu_Ql">
+                         <property name="maximumSize">
+                          <size>
+                           <width>130</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Caudal Líquido</string>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>8</width>
+                           <height>16</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_26">
+                     <item>
+                      <layout class="QGridLayout" name="gridLayout_17">
+                       <item row="0" column="0">
+                        <widget class="QLabel" name="label_110">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>22</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>110</width>
+                           <height>30</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Exportar Series:</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QPushButton" name="ButtonSimu_Series2Excel">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>15</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>50</width>
+                           <height>25</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Exportar series de caudales a Excel </string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Exportar series de caudales a Excel </string>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                         <property name="icon">
+                          <iconset>
+                           <normaloff>:/plugins/HydroSEDPlugin/icons/toexcel.png</normaloff>:/plugins/HydroSEDPlugin/icons/toexcel.png</iconset>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <widget class="Line" name="line_43">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>10</height>
+                        </size>
+                       </property>
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QGroupBox" name="GrupoGeoParametros_3">
+                  <property name="geometry">
+                   <rect>
+                    <x>0</x>
+                    <y>230</y>
+                    <width>411</width>
+                    <height>271</height>
+                   </rect>
+                  </property>
+                  <property name="toolTip">
+                   <string>Calcula los indicadores básicos de desempeño de la simulación</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>Calcula los indicadores básicos de desempeño de la simulación</string>
+                  </property>
+                  <property name="title">
+                   <string>Indicadores de Desempeño</string>
+                  </property>
+                  <widget class="Line" name="line_34">
+                   <property name="geometry">
+                    <rect>
+                     <x>0</x>
+                     <y>330</y>
+                     <width>411</width>
+                     <height>21</height>
+                    </rect>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                  <widget class="QWidget" name="verticalLayoutWidget_18">
+                   <property name="geometry">
+                    <rect>
+                     <x>10</x>
+                     <y>30</y>
+                     <width>391</width>
+                     <height>181</height>
+                    </rect>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_33">
+                    <item>
+                     <widget class="QTableWidget" name="TableSimu_Indicadores">
+                      <property name="dragEnabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="alternatingRowColors">
+                       <bool>true</bool>
+                      </property>
+                      <property name="sortingEnabled">
+                       <bool>true</bool>
+                      </property>
+                      <attribute name="horizontalHeaderDefaultSectionSize">
+                       <number>120</number>
+                      </attribute>
+                      <attribute name="horizontalHeaderMinimumSectionSize">
+                       <number>10</number>
+                      </attribute>
+                      <attribute name="verticalHeaderDefaultSectionSize">
+                       <number>20</number>
+                      </attribute>
+                      <attribute name="verticalHeaderMinimumSectionSize">
+                       <number>10</number>
+                      </attribute>
+                      <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+                       <bool>true</bool>
+                      </attribute>
+                      <attribute name="verticalHeaderStretchLastSection">
+                       <bool>true</bool>
+                      </attribute>
+                     </widget>
+                    </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="horizontalLayout_82">
+                      <item>
+                       <spacer name="horizontalSpacer_40">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="ButtonSimu_Indicadores2Excel">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
+                        <property name="toolTip">
+                         <string>Exportar los indicadores básicos de desempeño de la simulación a Excel</string>
+                        </property>
+                        <property name="whatsThis">
+                         <string>Exportar los indicadores básicos de desempeño de la simulación a Excel</string>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                        <property name="icon">
+                         <iconset>
+                          <normaloff>:/plugins/HydroSEDPlugin/icons/toexcel.png</normaloff>:/plugins/HydroSEDPlugin/icons/toexcel.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="ButtonSimu_Indicadores">
+                        <property name="toolTip">
+                         <string>Calcula los indicadores básicos de desempeño de la simulación</string>
+                        </property>
+                        <property name="whatsThis">
+                         <string>Calcula los indicadores básicos de desempeño de la simulación</string>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                        <property name="icon">
+                         <iconset>
+                          <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="Line" name="line_41">
+                   <property name="geometry">
+                    <rect>
+                     <x>200</x>
+                     <y>270</y>
+                     <width>411</width>
+                     <height>21</height>
+                    </rect>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </widget>
                 </widget>
                </widget>
                <widget class="Line" name="line_22">
@@ -6302,6 +7099,19 @@
                   <x>0</x>
                   <y>140</y>
                   <width>411</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+               <widget class="Line" name="line_42">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>860</y>
+                  <width>401</width>
                   <height>20</height>
                  </rect>
                 </property>
@@ -6318,28 +7128,11 @@
         </widget>
        </widget>
       </item>
-      <item>
-       <widget class="Line" name="line">
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <property name="lineWidth">
-         <number>4</number>
-        </property>
-        <property name="midLineWidth">
-         <number>2</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
    </layout>
   </widget>
  </widget>
- <resources>
- </resources>
+ <resources/>
  <connections/>
 </ui>
