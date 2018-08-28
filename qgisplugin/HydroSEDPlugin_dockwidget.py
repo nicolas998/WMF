@@ -842,6 +842,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 					self.FechasRadar.append(dt.datetime.strptime(L[-23:-11],'%Y%m%d%H%M'))
                 except:
                     pass
+            #print len(self.ListaRadarDates)
+            #print self.ListaRadarDates[0]
+            #print self.ListaRadarDates[-1]
         
         def clickEventSelectorArchivoBinarioLluvia():
             '''Selecciona la ruta en donde se guardara el binario de salida.'''

@@ -828,57 +828,74 @@ class controlHS:
         '''Obtiene las fechas adecuadas y las posiciones para ls ttfmacion de radar a cuenca'''
         #Rango de fechas a convertir
         self.ConvertDates = pd.date_range(Fi,Ff,freq=TimeStep)
-        TextoFechas = [i.strftime('%Y-%m-%d-%H:%M') for i in self.ConvertDates.to_pydatetime()]
+        #TextoFechas = [i.strftime('%Y-%m-%d %H:%M') for i in self.ConvertDates.to_pydatetime()]
         #Obtiene fechas equivalentes para las fechas a convertir
         DatesRadar = pd.to_datetime(FechasRadar)
         DatesRadar = DatesRadar.ceil(TimeStep)
+        print DatesRadar[:5]
+        print DatesRadar[-5:]
         #Slice de analisis
-        Ini = DatesRadar.get_loc(TextoFechas[0])
-        try: 
-            Ini = Ini.start
-        except:
-            pass
-        Fin = DatesRadar.get_loc(TextoFechas[-1])
-        try: 
-            Fin = Fin.stop
-        except:
-            pass
+        Flag = True
+        pos = 0
+        while Flag:
+            try:
+                Ini = np.where(DatesRadar == self.ConvertDates[pos])[0].tolist()[0]
+                Flag = False
+                print Ini, pos
+            except:
+                pos += 1
+            if pos>DatesRadar.size: Flag = False
+        Flag = True
+        pos = -1
+        while Flag:
+            try:
+                Fin = np.where(DatesRadar == self.ConvertDates[pos])[0].tolist()[0]
+                Flag = False
+                print Fin, pos
+            except:
+                pos -= 1
+            if pos>DatesRadar.size: Flag = False
         #Corte en vectores
         self.DatesRadar = DatesRadar[Ini:Fin]
         FechasRadar = FechasRadar[Ini:Fin]
         self.ListaRadar = ListaRadar[Ini:Fin]
-        self.TextoFechas = TextoFechas
+        #self.TextoFechas = TextoFechas
     
     def Radar_Conver2Basin(self, PathRadarBasin, TimeStep, umbral = 0.01,
-        verbose = False, old = False):
+        verbose = True, old = False):
         '''Convierte barridos de radar a la cuenca'''
         #Se fija si ya existia un binario con campos 
         if old:
             self.cuenca.rain_radar2basin_from_array(status='old',ruta_out= PathRadarBasin)
         #Convierte para las fechas
-        for ft,date in zip(self.TextoFechas, self.ConvertDates.to_pydatetime()):
+        Rain = np.zeros(self.cuenca.ncells)
+        for ft,date in zip(self.ConvertDates, self.ConvertDates.to_pydatetime()):
             #Posiciones de datos de radar
-            s = self.DatesRadar.get_loc(ft)
-            try:
-                ListaPos = range(s.start, s.stop)
-            except:
-                ListaPos = [s]
+            ListaPos = np.where(self.DatesRadar == ft)[0].tolist()
+            Entra = True
+            if Rain.mean()>umbral and len(ListaPos) == 0:
+                RainFin = np.copy(Rain)
+                Entra = False
+            elif len(ListaPos)>0:
+                Entra = True
             #Acumula para ese periodo
-            Rain = np.zeros(self.cuenca.ncells)
-            for l in ListaPos:
-                #Lee el netCDF y lo transforma 
-                g = netCDF4.Dataset(self.ListaRadar[l])
-                RadProp = [g.ncols, g.nrows, g.xll, g.yll, g.dx, g.dx]
-                Rain += self.cuenca.Transform_Map2Basin(g.variables['Rain'][:].T/ (12*1000.0),RadProp)
-                g.close()
+            if Entra:        
+                Rain = np.zeros(self.cuenca.ncells)
+                for l in ListaPos:
+                    #Lee el netCDF y lo transforma 
+                    g = netCDF4.Dataset(self.ListaRadar[l])
+                    RadProp = [g.ncols, g.nrows, g.xll, g.yll, g.dx, g.dx]
+                    Rain += self.cuenca.Transform_Map2Basin(g.variables['Rain'][:].T/ (12*1000.0),RadProp)
+                    g.close()
+                RainFin = np.copy(Rain)
             #Actualiza el binario con datos de radar
-            dentro = self.cuenca.rain_radar2basin_from_array(vec = Rain,
+            dentro = self.cuenca.rain_radar2basin_from_array(vec = RainFin,
                 ruta_out = PathRadarBasin,
                 fecha = date-dt.timedelta(hours = 5),
                 dt = TimeStep,
                 umbral = umbral)
             if verbose:
-                print date, Rain.mean()
+                print date, RainFin.mean(), ListaPos
         #Cierra el binario y cea el encabezado
         self.cuenca.rain_radar2basin_from_array(status = 'close',ruta_out = PathRadarBasin)
-   
+        self.cuenca.rain_radar2basin_from_array(status = 'reset')
