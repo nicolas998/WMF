@@ -775,9 +775,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
     
     def setupRainfall(self):
         '''Conjunto de herramientas dispuestas para interpolar campos de precipitacion'''
-        
-        #self.PathInHydro_Radar.setText('/home/nicolas/Radar')
-        
+      
+        ListaRadarDates = []
+        FechasRadar = []
+      
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
@@ -794,6 +795,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         def setupLineEditButtonOpenRadarFileDialog (lineEditHolder, fileDialogHolder):
             '''Para cambiar la carpeta por defecto donde se buscan las imagenes de radar'''
+            #Obtiene la ruta donde esta lo de radar
             OutputFolder = fileDialogHolder.getExistingDirectory(QtGui.QDialog(), "Cargador de Cuencas", "/tmp/", QFileDialog.ShowDirsOnly)
             lineEditHolder.setText (OutputFolder)
         
@@ -826,9 +828,18 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         def clickEventSelectorRadarFiles():
             '''Evento de seleccion de la carpeta contenedora de los archivos de radar'''
+            #Obtiene la ruta donde estan los archivos de radar
             setupLineEditButtonOpenRadarFileDialog(self.PathInHydro_Radar, QFileDialog)
             self.Path2Radar = self.PathInHydro_Radar
-        
+            #Actualiza lista con variables del radar
+            ListRadarDates = glob.glob(self.Path2Radar.text().strip())
+            ListRadarDates.sort()
+            FechasRadar = []
+            for L in ListRadarDates:
+                try:
+                    self.FechasRadar.append(dt.datetime.strptime(L[-23:-11],'%Y%m%d%H%M'))
+                except:
+                    pass
         
         def clickEventSelectorArchivoBinarioLluvia():
             '''Selecciona la ruta en donde se guardara el binario de salida.'''
@@ -874,16 +885,18 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.messageBar().pushInfo(u'HidroSIG:',u'Interpolacion de campos de precipitacion realizada con exito')
         
         def clickEventEjecutarConversionRadar():
-			'''Convierte campos de radar en la cuenca usando el archivo netCDF que se encuentran en la ruta especificada'''
-			#Toma los parametros para la interpolacion
+            '''Convierte campos de radar en la cuenca usando el archivo netCDF que se encuentran en la ruta especificada'''
+            #Toma los parametros para la interpolacion
             PathRadar = self.PathInHydro_Radar.text().strip()
             fi = self.Interpol_DateTimeStart_Radar.dateTime().toPyDateTime()
             ff = self.Interpol_DateTimeEnd_Radar.dateTime().toPyDateTime()
             fd = self.Interpol_SpinBox_delta_Radar.value()
             PathOut = self.PathOutHydro_Radar.text().strip()
+            #Obtiene las fechas para conversion y la lista de valores
+            self.HSutils.Radar_FechasProcess(fi, ff, fd, FechasRadar, ListaRadarDates)
             #Interpola para la cuenca seleccionada
-            self.HSutils.Radar_Conver2Basin(PathRadar,fi,ff,fd,PathOut)
-			#Trata de leer datos de lluvia en caso de que ya existan
+            self.HSutils.Radar_Conver2Basin(PathOut)
+            #Trata de leer datos de lluvia en caso de que ya existan
             try:
                 PathData = self.PathOutHydro_Radar.text().strip()
                 self.HSplots = HSplots.PlotRainfall(PathData)
@@ -1039,8 +1052,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             setupLineEditButtonOpenExcelCaudalFileDialog (self.PathinSimu_Qobs, QFileDialog) 
             #vacia la lista desplegable 
             if self.Segunda_carga_Qobs == True:
-				self.comboBox_Selec_Qobs.clear()
-				
+                self.comboBox_Selec_Qobs.clear()
+                
             for l in self.HSutils.Sim_GetQobsInfo(self.PathinSimu_Qobs.text().strip())[0]:
                 self.comboBox_Selec_Qobs.addItem(str(l))
                 
@@ -1052,7 +1065,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             
             #vacia la lista desplegable    
             if self.Segunda_carga_Qobs_Sed == True:
-				self.comboBox_Selec_Qobs_Sed.clear()
+                self.comboBox_Selec_Qobs_Sed.clear()
             
             for l in self.HSutils.Sim_GetQobsInfo(self.PathinSimu_Qobs_Sed.text().strip())[0]:
                 self.comboBox_Selec_Qobs_Sed.addItem(str(l))
