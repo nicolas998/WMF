@@ -212,6 +212,59 @@ class PlotRainfall():
         fig = dict(data=data, layout=layout)
         plot(fig,filename=pathFigure, auto_open = False)
 
+class PlotCaudal():
+    def __init__(self):
+        self.a = 0
+        
+    def Plot_Caudal(self, pathFigure,DataQ,id_est,colorline):
+        '''Hace el plot de la serie de tiempo de lluvia e incluye en esta toda la info necesaria'''
+        #obtiene los records
+        Q = DataQ[id_est].copy()
+        #Datos de lluvia 
+        trace1 = go.Scatter(
+            x = Q.index.to_pydatetime(),
+            y = Q.values,
+            name = 'Caudal Observado',
+            line = dict(color = (colorline),width=3),
+            fill='tozeroy'
+        )
+        #Datos y formato de la figura
+        data = [trace1]
+        layout = dict(
+            width=1020,
+            height=400,
+            showlegend = False,
+            margin=dict(
+                l=50,
+                r=50,
+                b=50,
+                t=50,
+                pad=4
+            ),
+            yaxis=dict(
+                title='Caudal Observado [m3/s]',
+                titlefont=dict(
+                    color='black',
+                    size = 15
+                ),
+                tickangle=-90,
+                tickfont=dict(
+                    color='black',
+                    size = 16,            
+                ),
+            ),
+            
+            xaxis = dict(
+                tickfont = dict(
+                    size = 16
+                ), 
+            ),
+            )
+        #Figura 
+        fig = dict(data=data, layout=layout)
+        #Guarda el html
+        plot(fig,filename=pathFigure, auto_open = False)
+
 
 class PlotGeomorphology():
     

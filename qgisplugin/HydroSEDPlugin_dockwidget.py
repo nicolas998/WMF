@@ -70,6 +70,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.TablaFila_NC = 0
         self.botonClicked = False
         self.segundaCarga = False
+        self.Segunda_carga_Qobs = False 
+        self.Segunda_carga_Qobs_Sed = False 
         self.Path2Radar = ''
         
         self.GeoPlots = HSplots.PlotGeomorphology()
@@ -968,6 +970,14 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def setupSimulation(self):
         '''Herramientas para gestionar la simulacion hidrologica con la cuenca cargada'''
         
+        def setupLineEditButtonOpenExcelCaudalFileDialog (lineEditHolder, fileDialogHolder):
+            '''Que solo busque los archivos con esa extension .xlsx'''
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Excel (*.xlsx);;")) 
+            
+        def setupLineEditButtonOpenBinFileDialog (lineEditHolder, fileDialogHolder):
+            '''Que solo busque los archivos con esa extension .bin'''
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Binarios (*.bin);;")) 
+        
         def changeEventUpdateScalarParameters():
             '''Actualiza los parametros escalares de las tablas de acuerdo al set seleccionado'''
             #Obtiene el nombre de la param seleccionada
@@ -1022,11 +1032,109 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #mensaje de exito
             self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'La parametrización: ' + ParamName+' se ha guardado en el proyecto',
                 level=QgsMessageBar.INFO, duration=3)
+                                  
+        def clickEventSelectorArchivoExcelCaudales():
+            '''Evento de click: selecciona el archivo de excel con los datos caudal observado a utilizar'''
+            #Busca el archivo
+            setupLineEditButtonOpenExcelCaudalFileDialog (self.PathinSimu_Qobs, QFileDialog) 
+            #vacia la lista desplegable 
+            if self.Segunda_carga_Qobs == True:
+				self.comboBox_Selec_Qobs.clear()
+				
+            for l in self.HSutils.Sim_GetQobsInfo(self.PathinSimu_Qobs.text().strip())[0]:
+                self.comboBox_Selec_Qobs.addItem(str(l))
+                
+            self.Segunda_carga_Qobs = True
+        def clickEventSelectorArchivoExcelCaudalesSed():
+            '''Evento de click: selecciona el archivo de excel con los datos de Caudal solido a usar'''
+            #Busca el archivo
+            setupLineEditButtonOpenExcelCaudalFileDialog (self.PathinSimu_Qobs_Sed, QFileDialog) 
             
+            #vacia la lista desplegable    
+            if self.Segunda_carga_Qobs_Sed == True:
+				self.comboBox_Selec_Qobs_Sed.clear()
+            
+            for l in self.HSutils.Sim_GetQobsInfo(self.PathinSimu_Qobs_Sed.text().strip())[0]:
+                self.comboBox_Selec_Qobs_Sed.addItem(str(l))
+                
+            self.Segunda_carga_Qobs_Sed = True
+            
+        def clickEventSelectorArchivoBinarioSimulacion():
+            '''Evento de click: selecciona el archivo binario con la precipitacion para correr el modelo'''
+            #Busca el archivo
+            setupLineEditButtonOpenBinFileDialog (self.PathinSimu_Precipitacion,QFileDialog)
+            try:
+                PathData = self.PathinSimu_Precipitacion.text().strip()
+                self.HSplots = HSplots.PlotRainfall(PathData)
+            except:
+                pass
+                
+        def clickEventViewSerieSimuRainfall():
+            '''Genera y visualiza la grafica de lluvia interpolada para la cuenca con la que se va a simular'''
+            #Hace la figura
+            PathFigure = '/tmp/HydroSED/Plots_Rainfall/RainfallPlotSimu.html'
+            self.HSplots.Plot_Rainfall(PathFigure)
+            #Set de la ventana que contiene la figura.
+            self.VistaRainWeb = QWebView(None)
+            self.VistaRainWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaRainWeb.setWindowTitle('Precipitacion media en la cuenca')
+            self.VistaRainWeb.setMinimumWidth(1100)
+            self.VistaRainWeb.setMaximumWidth(3000)
+            self.VistaRainWeb.setMinimumHeight(100)
+            self.VistaRainWeb.setMaximumHeight(400)
+            self.VistaRainWeb.show()
+            
+        def clickEventViewSerieQobs():
+            PathFigure =  '/tmp/HydroSED/Plots_Rainfall/QobsPlotSimu.html'
+            PathQobs = self.PathinSimu_Qobs.text().strip()
+            #Obtiene el id de la estación 
+            id_est = int(self.comboBox_Selec_Qobs.currentText().encode())
+            #Obtiene la serie de caudales 
+            DataQ = self.HSutils.Sim_GetQobsInfo(PathQobs)[1]
+            self.HSplots = HSplots.PlotCaudal()
+            self.HSplots.Plot_Caudal(PathFigure,DataQ,id_est,'blue')
+            #Set de la ventana que contiene la figura.
+            self.VistaQobsWeb = QWebView(None)
+            self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaQobsWeb.setWindowTitle('Serie de Caudales medios')
+            self.VistaQobsWeb.setMinimumWidth(1100)
+            self.VistaQobsWeb.setMaximumWidth(3000)
+            self.VistaQobsWeb.setMinimumHeight(100)
+            self.VistaQobsWeb.setMaximumHeight(400)
+            self.VistaQobsWeb.show()
+            
+            
+        def clickEventViewSerieQobsSed():
+            PathFigure =  '/tmp/HydroSED/Plots_Rainfall/QobsSedPlotSimu.html'
+            PathQobs = self.PathinSimu_Qobs_Sed.text().strip()
+            #Obtiene el id de la estación 
+            id_est = int(self.comboBox_Selec_Qobs_Sed.currentText().encode())
+            #Obtiene la serie de caudales 
+            DataQ = self.HSutils.Sim_GetQobsInfo(PathQobs)[1]
+            self.HSplots = HSplots.PlotCaudal()
+            self.HSplots.Plot_Caudal(PathFigure,DataQ,id_est,'goldenrod')
+            #Set de la ventana que contiene la figura.
+            self.VistaQobsWeb = QWebView(None)
+            self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaQobsWeb.setWindowTitle('Serie de Caudales medios')
+            self.VistaQobsWeb.setMinimumWidth(1100)
+            self.VistaQobsWeb.setMaximumWidth(3000)
+            self.VistaQobsWeb.setMinimumHeight(100)
+            self.VistaQobsWeb.setMaximumHeight(400)
+            self.VistaQobsWeb.show()
+              
         self.ButtonSimCalib2Nc.clicked.connect(clickEventAddNewParamSet)    
         self.tabPanelDockOpciones.currentChanged.connect(clickEventUpdateParamMapValues)
-        self.ParamNamesCombo.currentIndexChanged.connect(changeEventUpdateScalarParameters)
+        self.ParamNamesCombo.currentIndexChanged.connect(changeEventUpdateScalarParameters) 
+             
+        self.Boton_SimuSelec_Qobs.clicked.connect(clickEventSelectorArchivoExcelCaudales)
+        self.Boton_SimuSelec_Qobs_Sed.clicked.connect(clickEventSelectorArchivoExcelCaudalesSed)
+        self.Boton_SimuSelec_Binario.clicked.connect(clickEventSelectorArchivoBinarioSimulacion)
         
+        self.Boton_Visualizar_Binario.clicked.connect(clickEventViewSerieSimuRainfall)
+        self.Boton_Visualizar_Qobs.clicked.connect(clickEventViewSerieQobs)
+        self.Boton_Visualizar_Qobs_Sed.clicked.connect(clickEventViewSerieQobsSed)
+  
     def setupUIInputsOutputs (self):
         
         def DrawClickEvent_histogram_WMF():
