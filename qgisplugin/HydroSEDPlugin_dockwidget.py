@@ -62,7 +62,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.setupBasinManager()
         self.setupGeomorfologia()
         #self.setupUIButtonEvents ()
-        self.setupRainfallInterpolation()
+        self.setupRainfall()
         self.setupSimulation()
         self.setupNcVariables()
         
@@ -72,6 +72,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.segundaCarga = False
         self.Segunda_carga_Qobs = False 
         self.Segunda_carga_Qobs_Sed = False 
+        self.Path2Radar = ''
         
         self.GeoPlots = HSplots.PlotGeomorphology()
         
@@ -772,8 +773,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         self.Button_EditNcVariable.clicked.connect(clickEventEvalString)
     
-    def setupRainfallInterpolation(self):
+    def setupRainfall(self):
         '''Conjunto de herramientas dispuestas para interpolar campos de precipitacion'''
+        
+        #self.PathInHydro_Radar.setText('/home/nicolas/Radar')
         
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
@@ -788,7 +791,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def setupLineEditButtonOpenExcelFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Excel (*.xlsx);;"))
-            
+        
+        def setupLineEditButtonOpenRadarFileDialog (lineEditHolder, fileDialogHolder):
+            '''Para cambiar la carpeta por defecto donde se buscan las imagenes de radar'''
+            OutputFolder = fileDialogHolder.getExistingDirectory(QtGui.QDialog(), "Cargador de Cuencas", "/tmp/", QFileDialog.ShowDirsOnly)
+            lineEditHolder.setText (OutputFolder)
+        
         def clickEventSelectorMapaPuntosPluvio():
             '''Evento de click: selecciona el shp con las estaciones'''
             #Reinicia el vector con los nombres de las variables y abre el archivo de puntos
@@ -816,6 +824,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Pone el intervalo de tiempo de interpolacion
             self.Interpol_SpinBox_delta.setValue(self.HSutils.Interpol_fd.total_seconds())
         
+        def clickEventSelectorRadarFiles():
+            '''Evento de seleccion de la carpeta contenedora de los archivos de radar'''
+            setupLineEditButtonOpenRadarFileDialog(self.PathInHydro_Radar, QFileDialog)
+            self.Path2Radar = self.PathInHydro_Radar
+        
+        
         def clickEventSelectorArchivoBinarioLluvia():
             '''Selecciona la ruta en donde se guardara el binario de salida.'''
             #pone el camino del archivo con la lluvia de la cuenca
@@ -823,6 +837,17 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Trata de leer datos de lluvia en caso de que ya existan
             try:
                 PathData = self.PathOutHydro_Interpol.text().strip()
+                self.HSplots = HSplots.PlotRainfall(PathData)
+            except:
+                pass
+        
+        def clickEventSelectorArchivoBinarioLluviaRadar():
+            '''Selecciona la ruta en donde se guardara el binario de salida.'''
+            #pone el camino del archivo con la lluvia de la cuenca
+            setupLineEditButtonSaveFileDialog(self.PathOutHydro_Radar,QFileDialog)
+            #Trata de leer datos de lluvia en caso de que ya existan
+            try:
+                PathData = self.PathOutHydro_Radar.text().strip()
                 self.HSplots = HSplots.PlotRainfall(PathData)
             except:
                 pass
@@ -847,6 +872,25 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 pass
             #Aviso de existo
             self.iface.messageBar().pushInfo(u'HidroSIG:',u'Interpolacion de campos de precipitacion realizada con exito')
+        
+        def clickEventEjecutarConversionRadar():
+			'''Convierte campos de radar en la cuenca usando el archivo netCDF que se encuentran en la ruta especificada'''
+			#Toma los parametros para la interpolacion
+            PathRadar = self.PathInHydro_Radar.text().strip()
+            fi = self.Interpol_DateTimeStart_Radar.dateTime().toPyDateTime()
+            ff = self.Interpol_DateTimeEnd_Radar.dateTime().toPyDateTime()
+            fd = self.Interpol_SpinBox_delta_Radar.value()
+            PathOut = self.PathOutHydro_Radar.text().strip()
+            #Interpola para la cuenca seleccionada
+            self.HSutils.Radar_Conver2Basin(PathRadar,fi,ff,fd,PathOut)
+			#Trata de leer datos de lluvia en caso de que ya existan
+            try:
+                PathData = self.PathOutHydro_Radar.text().strip()
+                self.HSplots = HSplots.PlotRainfall(PathData)
+            except:
+                pass
+            #Aviso de existo
+            self.iface.messageBar().pushInfo(u'HidroSIG:',u'Conversión de campos de radar realizada con exito')
         
         def clickEventViewSerieRainfall():
             '''Genera y visualiza la grafica de lluvia interpolada para la cuenca'''
@@ -919,6 +963,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Button_InterpolHistogram.clicked.connect(clickEventViewHistogramRainfall)
         self.Button_InterpolCiclo.clicked.connect(clickEventViewMediaMensualRainfall)
         
+        #botones set de radar
+        self.Boton_HidroLoad_RadarData.clicked.connect(clickEventSelectorRadarFiles)
+        self.Button_HidroSaveRadar.clicked.connect(clickEventSelectorArchivoBinarioLluviaRadar)
     
     def setupSimulation(self):
         '''Herramientas para gestionar la simulacion hidrologica con la cuenca cargada'''

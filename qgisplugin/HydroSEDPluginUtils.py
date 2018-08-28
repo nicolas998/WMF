@@ -821,5 +821,106 @@ class controlHS:
                 #print VarAgregada[posMalos].min()
         return VarAgregada
             
-                
+	def Radar_Conver2Basin(self, RadarFiles,fi,ff, TimeDelta, PathOut):
+		
+		
+#si el binario el viejo, establece las variables para actualizar
+if old:
+    self.cuenca.rain_radar2basin_from_array(status='old',ruta_out= args.rutaRes)
+    
+#Itera sobre las fechas para actualizar el binario de campos
+datesDt = datesDt.to_pydatetime()
+for dates,pos in zip(datesDt[1:],PosDates):
+	rvec = np.zeros(cuAMVA.ncells)
+	if args.save_escenarios:
+		rhigh = np.zeros(cuAMVA.ncells)
+		rlow = np.zeros(cuAMVA.ncells)
+	Conv = np.zeros(cuAMVA.ncells, dtype = int)
+	Stra = np.zeros(cuAMVA.ncells, dtype = int)
+	try:
+		for c,p in enumerate(pos):
+			#Lee la imagen de radar para esa fecha
+			g = netCDF4.Dataset(ListRutas[p])
+			print ListRutas[p]
+			RadProp = [g.ncols, g.nrows, g.xll, g.yll, g.dx, g.dx]
+			#Agrega la lluvia en el intervalo 
+			rvec += cuAMVA.Transform_Map2Basin(g.variables['Rain'][:].T/ (12*1000.0),RadProp)
+			if args.save_escenarios:
+				rhigh += cuAMVA.Transform_Map2Basin(g.variables['Rhigh'][:].T / (12*1000.0), RadProp) 
+				rlow += cuAMVA.Transform_Map2Basin(g.variables['Rlow'][:].T / (12*1000.0), RadProp) 
+			#Agrega la clasificacion para la ultima imagen del intervalo
+			ConvStra = cuAMVA.Transform_Map2Basin(g.variables['Conv_Strat'][:].T, RadProp)
+			Conv = np.copy(ConvStra)
+			Conv[Conv == 1] = 0; Conv[Conv == 2] = 1
+			Stra = np.copy(ConvStra)
+			Stra[Stra == 2] = 0 
+			#rvec[(Conv == 0) & (Stra == 0)] = 0
+			if args.save_escenarios:
+				rhigh[(Conv == 0) & (Stra == 0)] = 0
+				rlow[(Conv == 0) & (Stra == 0)] = 0
+			Conv[rvec == 0] = 0
+			Stra[rvec == 0] = 0
+			#Cierra el netCDF
+			g.close()
+	except Exception, e:
+		print 'error'
+                rvec = np.zeros(cuAMVA.ncells)
+		if args.save_escenarios:
+			rhigh = np.zeros(cuAMVA.ncells)
+			rlow = np.zeros(cuAMVA.ncells)
+		Conv = np.zeros(cuAMVA.ncells)
+		Stra = np.zeros(cuAMVA.ncells)
+	#rvec[ConvStra==0] = 0
+	#rhigh[ConvStra==0] = 0
+	#rlow[ConvStra==0] = 0
+    #Escribe el binario de lluvia
+	dentro = cuAMVA.rain_radar2basin_from_array(vec = rvec,
+		ruta_out = args.rutaRes,
+		fecha = dates-dt.timedelta(hours = 5),
+		dt = args.dt,
+		umbral = args.umbral)
+	if args.save_escenarios:
+		dentro = cuHigh.rain_radar2basin_from_array(vec = rhigh,
+			ruta_out = args.rutaRes+'_high',
+			fecha = dates-dt.timedelta(hours = 5),
+			dt = args.dt,
+			umbral = args.umbral)
+		dentro = cuLow.rain_radar2basin_from_array(vec = rlow,
+			ruta_out = args.rutaRes+'_low',
+			fecha = dates-dt.timedelta(hours = 5),
+			dt = args.dt,
+			umbral = args.umbral)
+	if dentro == 0: 
+		hagalo = True
+	else:
+		hagalo = False
+	#mira si guarda o no los clasificados
+	if args.save_class:
+		#Escribe el binario convectivo
+		aa = cuConv.rain_radar2basin_from_array(vec = Conv,
+			ruta_out = args.rutaRes+'_conv',
+			fecha = dates-dt.timedelta(hours = 5),
+			dt = args.dt,
+			doit = hagalo)
+	    #Escribe el binario estratiforme
+		aa = cuStra.rain_radar2basin_from_array(vec = Stra,
+			ruta_out = args.rutaRes+'_stra',
+			fecha = dates-dt.timedelta(hours = 5),
+			dt = args.dt,
+			doit = hagalo)	
+    #Opcion Vervose
+	if args.verbose:
+		print dates.strftime('%Y%m%d-%H:%M'), pos
+
+#Cierrra el binario y escribe encabezado
+cuAMVA.rain_radar2basin_from_array(status = 'close',ruta_out = args.rutaRes)
+if args.save_class:
+	cuConv.rain_radar2basin_from_array(status = 'close',ruta_out = args.rutaRes+'_conv')
+	cuStra.rain_radar2basin_from_array(status = 'close',ruta_out = args.rutaRes+'_stra')
+if args.save_escenarios:
+	cuHigh.rain_radar2basin_from_array(status = 'close',ruta_out = args.rutaRes+'_high')
+	cuLow.rain_radar2basin_from_array(status = 'close',ruta_out = args.rutaRes+'_low')
+#Imprime en lo que va
+if args.verbose:
+        print 'Encabezados de binarios de cuenca cerrados y listos'
         
