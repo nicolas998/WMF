@@ -913,11 +913,14 @@ class controlHS:
         self.cuenca.rain_radar2basin_from_array(status = 'reset')
 
 
-    def Sim_Basin(self, Start, Nsteps, Calibracion, PathRain, DeltaT, exponentes):
+    def Sim_Basin(self, Start, Nsteps, Calibracion, PathRain, DeltaT, exponentes, PathStore):
         '''Hace la simulacion hidrologica de la cuenca'''        
         #Set de calibracion
         wmf.models.sed_factor = Calibracion[-1]
         Calibracion = Calibracion[:-1]
+        print Calibracion
+        Calibracion = Calibracion[2:] + Calibracion[:2]
+        print Calibracion
         #Set del intervalo de tiempo de simulacion
         wmf.models.dt = DeltaT
         #SEtea el tipo de velocidad de acuerdo a los exponentes
@@ -931,12 +934,14 @@ class controlHS:
             Results, Qsim = self.cuenca.run_shia(Calibracion, 
                PathRain, 
                Nsteps,
-               Start)
+               Start,
+               ruta_storage = PathStore)
         elif wmf.models.sim_sediments == 1:
             Results, Qsim, Qsed = self.cuenca.run_shia(Calibracion, 
                PathRain, 
                Nsteps,
-               Start)
+               Start,
+               ruta_storage = PathStore)
         #Obtiene resultados como cosas genericas
         self.Sim_index = Qsim.index
         self.Sim_Streamflow = Qsim.copy()
@@ -963,7 +968,40 @@ class controlHS:
             #SErie de sedimentos simulada 
             self.Sim_Sediments = Qsed.copy()
         
-           
+    def Sim_setStates_ConstValue(self, Tanque, Valor):
+        '''Establece condiciones de almacenamiento constantes basado en un valor constante para toda la cuenca'''
+        #Si es un almacenamiento del modelo 
+        if Tanque < 6:
+            self.cuenca.set_Storage(Valor, Tanque - 1)
+        #Si es sedimentos de la cuenca.
+        else:
+            wmf.models.vd = np.ones(self.cuenca.ncells)*Valor
+    
+    def Sim_setStates_FileValue(self, Tanque, Path2Bin, Fecha):
+        '''Establece las condiciones de almacenamiento basado en un binario con datos de almacenamiento anteriores'''
+        #Si es un tanque del modelo 
+        if Tanque < 6:
+            #Obtiene el record.
+            Fecha = Fecha.strftime('%Y-%m-%d %H:%M')
+            Data = wmf.read_storage_struct(Path2Bin)
+            record = Data.index.get_loc(Fecha)
+            #lee el archivo 
+            Valor, res = wmf.read_float_basin_Ncol(Path2Bin, 
+                record, self.cuenca.ncells, 5) 
+            if res == 0:
+                self.cuenca.set_Storage(Valor, Tanque - 1)
+    
+    def Sim_setStates_NcValue(self, Tanque):
+        '''Establece condiciones de un tanque en funcion del estado que se tiene en la tabla NC'''
+        #Saca el valor del diccionario
+        if Tanque < 6:
+            Valor = self.DicBasinNc['storage']['var'][Tanque-1]
+            self.cuenca.set_Storage(Valor, Tanque -1)
+        
+        
+        
+        
+        
             
             
             

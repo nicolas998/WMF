@@ -558,6 +558,17 @@ def read_rain_struct(ruta):
     usecols = (1,2,3))
     return D
 
+def read_storage_struct(ruta):
+	'''Lee la estructura del archivo encabezado de almacenamiento'''
+	#Obtiene rutaHdr
+	PathBin, PathHdr = __Add_hdr_bin_2route__(ruta,storage=True)
+	#Lee el archivo 
+	Data = pd.read_csv(PathHdr, 
+		skiprows=4, 
+		index_col=6, 
+		parse_dates=True)
+	return Data
+
 def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     Mean_Storage):
     #Lee fechas para el intervalo de tiempo

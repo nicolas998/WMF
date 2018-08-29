@@ -967,7 +967,7 @@
                       <string/>
                      </property>
                      <property name="icon">
-                      <iconset>
+                      <iconset resource="resources.qrc">
                        <normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</iconset>
                      </property>
                      <property name="iconSize">
@@ -1629,7 +1629,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
+                    <iconset resource="resources.qrc">
                      <normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</iconset>
                    </property>
                    <property name="iconSize">
@@ -5212,8 +5212,8 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-1526</y>
-              <width>436</width>
+              <y>-1083</y>
+              <width>433</width>
               <height>2518</height>
              </rect>
             </property>
@@ -6475,8 +6475,8 @@
                <widget class="QGroupBox" name="groupBox_12">
                 <property name="geometry">
                  <rect>
-                  <x>10</x>
-                  <y>1370</y>
+                  <x>0</x>
+                  <y>1280</y>
                   <width>401</width>
                   <height>901</height>
                  </rect>
@@ -6490,7 +6490,7 @@
                    <x>0</x>
                    <y>30</y>
                    <width>401</width>
-                   <height>201</height>
+                   <height>204</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0">
@@ -6567,7 +6567,33 @@
                   </item>
                   <item>
                    <layout class="QGridLayout" name="gridLayout_3">
-                    <item row="2" column="1">
+                    <item row="4" column="0">
+                     <widget class="QCheckBox" name="checkBox_Simu_Sedimentos">
+                      <property name="toolTip">
+                       <string>Activa la simulación de Sedimentos en el modelo </string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Activa la simulación de Sedimentos en el modelo </string>
+                      </property>
+                      <property name="text">
+                       <string>Sedimentos</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="0">
+                     <widget class="QCheckBox" name="checkBox_Simu_Retorno">
+                      <property name="toolTip">
+                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                      </property>
+                      <property name="text">
+                       <string>Retorno</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
                      <widget class="QCheckBox" name="checkBox_Simu_MeanSpeed">
                       <property name="maximumSize">
                        <size>
@@ -6592,20 +6618,29 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="0">
-                     <widget class="QCheckBox" name="checkBox_Simu_Sedimentos">
+                    <item row="3" column="1">
+                     <widget class="QLineEdit" name="Where2SaveStates">
+                      <property name="maximumSize">
+                       <size>
+                        <width>157</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="toolTip">
-                       <string>Activa la simulación de Sedimentos en el modelo </string>
+                       <string>Definir el nombre de la parametrización actual</string>
+                      </property>
+                      <property name="statusTip">
+                       <string/>
                       </property>
                       <property name="whatsThis">
-                       <string>Activa la simulación de Sedimentos en el modelo </string>
+                       <string>Definir el nombre de la parametrización actual.</string>
                       </property>
-                      <property name="text">
-                       <string>Sedimentos</string>
+                      <property name="readOnly">
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="1">
+                    <item row="6" column="0">
                      <widget class="QCheckBox" name="checkBox_Simu_MeanStorage">
                       <property name="toolTip">
                        <string>Activa la simulación de Deslizamientos en el modelo </string>
@@ -6615,16 +6650,26 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="0">
-                     <widget class="QCheckBox" name="checkBox_Simu_Retorno">
-                      <property name="toolTip">
-                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                    <item row="3" column="2">
+                     <widget class="QPushButton" name="BotonSelectSaveStateRute">
+                      <property name="minimumSize">
+                       <size>
+                        <width>30</width>
+                        <height>0</height>
+                       </size>
                       </property>
-                      <property name="whatsThis">
-                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
                       </property>
                       <property name="text">
-                       <string>Retorno</string>
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
                     </item>
@@ -7422,7 +7467,7 @@
                   <x>0</x>
                   <y>880</y>
                   <width>401</width>
-                  <height>401</height>
+                  <height>371</height>
                  </rect>
                 </property>
                 <property name="title">
@@ -7434,7 +7479,7 @@
                    <x>0</x>
                    <y>30</y>
                    <width>401</width>
-                   <height>365</height>
+                   <height>341</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_23">
@@ -7528,13 +7573,16 @@
                        <bool>true</bool>
                       </property>
                       <property name="readOnly">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
                       <property name="decimals">
                        <number>2</number>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -7553,13 +7601,16 @@
                        <bool>true</bool>
                       </property>
                       <property name="readOnly">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
                       <property name="decimals">
                        <number>2</number>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -7578,13 +7629,16 @@
                        <bool>true</bool>
                       </property>
                       <property name="readOnly">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
                       <property name="decimals">
                        <number>2</number>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -7603,13 +7657,16 @@
                        <bool>true</bool>
                       </property>
                       <property name="readOnly">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
                       <property name="decimals">
                        <number>2</number>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -7628,13 +7685,16 @@
                        <bool>true</bool>
                       </property>
                       <property name="readOnly">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <property name="buttonSymbols">
                        <enum>QAbstractSpinBox::NoButtons</enum>
                       </property>
                       <property name="decimals">
                        <number>2</number>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -7742,7 +7802,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="RadioO1S1_2">
+                      <widget class="QRadioButton" name="RadioO2S1">
                        <property name="geometry">
                         <rect>
                          <x>90</x>
@@ -7761,7 +7821,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="RadioO1S1_3">
+                      <widget class="QRadioButton" name="RadioO3S1">
                        <property name="geometry">
                         <rect>
                          <x>160</x>
@@ -7785,6 +7845,34 @@
                       </widget>
                      </widget>
                     </item>
+                    <item row="1" column="1">
+                     <widget class="QDoubleSpinBox" name="Storage1Val">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="2" column="2">
                      <widget class="QGroupBox" name="groupBox_16">
                       <property name="title">
@@ -7799,7 +7887,7 @@
                       <property name="checkable">
                        <bool>false</bool>
                       </property>
-                      <widget class="QRadioButton" name="radioButton_31">
+                      <widget class="QRadioButton" name="RadioO1S2">
                        <property name="geometry">
                         <rect>
                          <x>20</x>
@@ -7818,7 +7906,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="radioButton_32">
+                      <widget class="QRadioButton" name="RadioO2S2">
                        <property name="geometry">
                         <rect>
                          <x>90</x>
@@ -7837,7 +7925,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="radioButton_33">
+                      <widget class="QRadioButton" name="RadioO3S2">
                        <property name="geometry">
                         <rect>
                          <x>160</x>
@@ -7875,7 +7963,7 @@
                       <property name="checkable">
                        <bool>false</bool>
                       </property>
-                      <widget class="QRadioButton" name="radioButton_34">
+                      <widget class="QRadioButton" name="RadioO1S3">
                        <property name="geometry">
                         <rect>
                          <x>20</x>
@@ -7894,7 +7982,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="radioButton_35">
+                      <widget class="QRadioButton" name="RadioO2S3">
                        <property name="geometry">
                         <rect>
                          <x>90</x>
@@ -7913,7 +8001,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="radioButton_36">
+                      <widget class="QRadioButton" name="RadioO3S3">
                        <property name="geometry">
                         <rect>
                          <x>160</x>
@@ -7951,7 +8039,7 @@
                       <property name="checkable">
                        <bool>false</bool>
                       </property>
-                      <widget class="QRadioButton" name="radioButton_37">
+                      <widget class="QRadioButton" name="RadioO1S4">
                        <property name="geometry">
                         <rect>
                          <x>20</x>
@@ -7970,7 +8058,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="radioButton_38">
+                      <widget class="QRadioButton" name="RadioO2S4">
                        <property name="geometry">
                         <rect>
                          <x>90</x>
@@ -7989,7 +8077,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="radioButton_39">
+                      <widget class="QRadioButton" name="RadioO3S4">
                        <property name="geometry">
                         <rect>
                          <x>160</x>
@@ -8027,7 +8115,7 @@
                       <property name="checkable">
                        <bool>false</bool>
                       </property>
-                      <widget class="QRadioButton" name="radioButton_40">
+                      <widget class="QRadioButton" name="RadioO1S5">
                        <property name="geometry">
                         <rect>
                          <x>20</x>
@@ -8046,7 +8134,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="radioButton_41">
+                      <widget class="QRadioButton" name="RadioO2S5">
                        <property name="geometry">
                         <rect>
                          <x>90</x>
@@ -8065,7 +8153,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="radioButton_42">
+                      <widget class="QRadioButton" name="RadioO3S5">
                        <property name="geometry">
                         <rect>
                          <x>160</x>
@@ -8103,7 +8191,7 @@
                       <property name="checkable">
                        <bool>false</bool>
                       </property>
-                      <widget class="QRadioButton" name="radioButton_43">
+                      <widget class="QRadioButton" name="RadioO1S6">
                        <property name="geometry">
                         <rect>
                          <x>20</x>
@@ -8122,7 +8210,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="radioButton_44">
+                      <widget class="QRadioButton" name="RadioO2S6">
                        <property name="geometry">
                         <rect>
                          <x>90</x>
@@ -8141,7 +8229,7 @@
                         <string/>
                        </property>
                       </widget>
-                      <widget class="QRadioButton" name="radioButton_45">
+                      <widget class="QRadioButton" name="RadioO3S6">
                        <property name="geometry">
                         <rect>
                          <x>160</x>
@@ -8165,34 +8253,6 @@
                       </widget>
                      </widget>
                     </item>
-                    <item row="1" column="1">
-                     <widget class="QDoubleSpinBox" name="Storage1Val">
-                      <property name="maximumSize">
-                       <size>
-                        <width>70</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="frame">
-                       <bool>true</bool>
-                      </property>
-                      <property name="readOnly">
-                       <bool>true</bool>
-                      </property>
-                      <property name="buttonSymbols">
-                       <enum>QAbstractSpinBox::NoButtons</enum>
-                      </property>
-                      <property name="decimals">
-                       <number>2</number>
-                      </property>
-                      <property name="maximum">
-                       <double>99999.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>1.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                    </layout>
                   </item>
                   <item>
@@ -8205,7 +8265,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="ParamName_2">
+                     <widget class="QLineEdit" name="StateFilePath">
                       <property name="maximumSize">
                        <size>
                         <width>157</width>
@@ -8261,7 +8321,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDateTimeEdit" name="Simulacion_DateTimeStart_2">
+                     <widget class="QDateTimeEdit" name="StateDate">
                       <property name="toolTip">
                        <string>Seleccionar la fecha de inicio para correr la simulación</string>
                       </property>
@@ -8301,7 +8361,33 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton">
+                     <widget class="QPushButton" name="Button_StatesView">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Visualiza una entrada o acumulado del binario de lluvia interpolado.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Visualiza una entrada o acumulado del binario de lluvia interpolado.</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="ButtonSimSetStates">
                       <property name="text">
                        <string>Establecer</string>
                       </property>
@@ -8315,8 +8401,8 @@
                <widget class="Line" name="line_43">
                 <property name="geometry">
                  <rect>
-                  <x>20</x>
-                  <y>1340</y>
+                  <x>0</x>
+                  <y>1260</y>
                   <width>401</width>
                   <height>20</height>
                  </rect>
