@@ -503,6 +503,7 @@ class controlHS:
         Area = self.cuenca.CellAcum*wmf.cu.dxp**2/1e6
         #Obtiene el coeficiente 
         Coef, Expo = wmf.OCG_param(pend=self.cuenca.CellSlope, area=Area)
+        Expo = np.ones(self.cuenca.ncells)*Expo
         #Agrea los resultados al diccionario
         self.DicBasinWMF.update({'OCG_coef':
             {'nombre':'OCG_coef',
@@ -515,8 +516,8 @@ class controlHS:
             'saved':False}})
         self.DicBasinWMF.update({'OCG_exp':
             {'nombre':'OCG_exp',
-            'tipo':Coef.dtype.name,
-            'shape':Coef.shape,
+            'tipo':Expo.dtype.name,
+            'shape':Expo.shape,
             'raster':True,
             'basica': False,
             'categoria': 'Geomorfo',
@@ -553,6 +554,16 @@ class controlHS:
             'basica': False,
             'categoria': 'Geomorfo',
             'var': np.copy(Coef),
+            'saved': False}})
+        KubotaExpo = np.ones(self.cuenca.ncells)*2
+        self.DicBasinWMF.update({'Kubota_exp':
+            {'nombre':'Kubota_exp',
+            'tipo':KubotaExpo.dtype.name,
+            'shape':KubotaExpo.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Geomorfo',
+            'var': np.copy(KubotaExpo),
             'saved': False}})
         
     def Basin_GeoGetRunoff(self, e1, Epsilon):
@@ -899,3 +910,30 @@ class controlHS:
         #Cierra el binario y cea el encabezado
         self.cuenca.rain_radar2basin_from_array(status = 'close',ruta_out = PathRadarBasin)
         self.cuenca.rain_radar2basin_from_array(status = 'reset')
+
+
+    def Sim_Basin(self, Start, Nsteps, Calibracion, PathRain, DeltaT, exponentes):
+        '''Hace la simulacion hidrologica de la cuenca'''        
+        #Set de calibracion
+        wmf.models.sed_factor = Calibracion[-1]
+        Calibracion = Calibracion[:-1]
+        #Set del intervalo de tiempo de simulacion
+        wmf.models.dt = DeltaT
+        #SEtea el tipo de velocidad de acuerdo a los exponentes
+        for c,i in enumerate(exponentes):
+            if i<>1:
+                wmf.models.speed_type[c] = 2
+            else:
+                wmf.models.speed_type[c] = 1
+        #Simulacion de la cuenca
+        Results, Qsim = self.cuenca.run_shia(Calibracion, 
+           PathRain, 
+           Nsteps,
+           Start)
+        #Obtiene resultados como cosas genericas
+        self.Sim_index = Qsim.index
+        self.Sim_Streamflow = Qsim.copy()
+        self.Sim_Rainfall = pd.Series(Results['Rain_hietogram'][0], index = self.Sim_index)
+        self.Sim_Balance = pd.Series(Results['Balance'][0], index = self.Sim_index)
+        self.Sim_Storage = Results['Storage']
+        self.Sim_RainfallField = np.copy(Results['Rain_Acum'])

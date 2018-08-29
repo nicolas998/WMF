@@ -399,15 +399,15 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 ListaVar.extend(['Channels'])
             if self.checkBoxOCG.isChecked():
                 self.HSutils.Basin_GeoGetOCG()
-                ListaVar.extend(['OCG_coef'])
+                ListaVar.extend(['OCG_coef','OCG_exp'])
             if self.checkBoxKubota.isChecked():
-                self.HSutils.Basin_GeoGetKubota()
-                ListaVar.extend(['Kubota_coef'])
+                self.HSutils.Basin_GeoGetKubota()                
+                ListaVar.extend(['Kubota_coef','Kubota_exp'])
                 #mensajes de advertencia por si no han sido cargadas las variables. 
                 if 'h1_max' not in self.HSutils.DicBasinNc.keys(): 
                     self.iface.messageBar().pushMessage (u'Hydro-SIG:',
                     'Como no se ha cargado h1_max al NC, se estima con h1_max = 100 mm ',
-                    level=QgsMessageBar.WARNING, duration=5)    
+                    level=QgsMessageBar.WARNING, duration=3)    
                 if 'v_coef' not in self.HSutils.DicBasinNc.keys(): 
                     self.iface.messageBar().pushMessage (u'Hydro-SIG:',
                     'Como no se ha cargado Ks al NC, se estima con Ks = 0.003 mm/s ',
@@ -839,7 +839,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.FechasRadar = []
             for L in self.ListaRadarDates:
                 try:
-					self.FechasRadar.append(dt.datetime.strptime(L[-23:-11],'%Y%m%d%H%M'))
+                    self.FechasRadar.append(dt.datetime.strptime(L[-23:-11],'%Y%m%d%H%M'))
                 except:
                     pass
             #print len(self.ListaRadarDates)
@@ -1028,17 +1028,17 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 for c,values in enumerate(self.HSutils.DicParameters[key]['var'][:11]):
                     codigo = 'self.Param'+str(c+1)+'.setValue('+str(values)+')'
                     eval(codigo)
-                for c,values in enumerate(self.HSutils.DicParameters[key]['var'][11:]):
-                    codigo = 'self.ParamExp'+str(c+1)+'.setValue('+str(values)+')'
-                    eval(codigo)
+                #for c,values in enumerate(self.HSutils.DicParameters[key]['var'][11:]):
+                 #   codigo = 'self.ParamExp'+str(c+1)+'.setValue('+str(values)+')'
+                  #  eval(codigo)
         
         def clickEventUpdateParamMapValues():
             '''Muestra en los campos de simulacion el valor medio de los mapas de simulacion'''
             VarNames = ['h1_max','h3_max', 'v_coef','v_coef','v_coef','v_coef','h_coef',
                 'h_coef','h_coef','h_coef', 'Krus','Crus','Prus',
-                'PArLiAc','PArLiAc','PArLiAc']
-            Ejes = [0,0,0,1,2,3,0,1,2,3,0,0,0,0,1,2]
-            for name, i, eje in zip(VarNames, range(1,17), Ejes):
+                'PArLiAc','PArLiAc','PArLiAc','h_exp','h_exp','h_exp','h_exp']
+            Ejes = [0,0,0,1,2,3,0,1,2,3,0,0,0,0,1,2,0,1,2,3]
+            for name, i, eje in zip(VarNames, range(1,21), Ejes):
                 Campo = getattr(self, 'ParamVal'+str(i))
                 Campo.setMinimum(-99999)
                 Campo.setValue(0)
@@ -1103,6 +1103,14 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             '''Evento de click: selecciona el archivo binario con la precipitacion para correr el modelo'''
             #Busca el archivo
             setupLineEditButtonOpenBinFileDialog (self.PathinSimu_Precipitacion,QFileDialog)
+            #Obtiene el Dt de modelacion a partir de la lluvia
+            PathRBin, PathRHdr = HSutils.wmf.__Add_hdr_bin_2route__(self.PathinSimu_Precipitacion.text().strip())
+            RainStruct = HSutils.wmf.read_rain_struct(PathRHdr)
+            #Obtiene el Dt
+            Dt = RainStruct.index[1] - RainStruct.index[0]
+            Texto = '%d' % Dt.seconds
+            self.DtShowFrame.setText(Texto)
+            #SEt para la figura de lluvia
             try:
                 PathData = self.PathinSimu_Precipitacion.text().strip()
                 self.HSplots = HSplots.PlotRainfall(PathData)
@@ -1163,6 +1171,65 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.VistaQobsWeb.setMaximumHeight(400)
             self.VistaQobsWeb.show()
               
+        def __ParseCalibValues__():
+            '''Obtiene una lista de los param de calibracion a partir de los elem que estan en al interfaz'''
+            Calibracion = []
+            for i in range(1,12):
+                Calibracion.append(getattr(self, 'Param'+str(i)).value())
+            return Calibracion
+        
+        def __Dates2Start_Nsteps__(fi,ff,PathRain):
+            '''A partir de la fecha inicio y fin obtien el paso de inicio y la cantidad de pasos'''
+            #Obtiene el path para header y para el binario, lee la estructura de la lluvia
+            PathRBin, PathRHdr = HSutils.wmf.__Add_hdr_bin_2route__(PathRain)
+            RainStruct = HSutils.wmf.read_rain_struct(PathRHdr)
+            #Obtiene el Dt
+            Dt = RainStruct.index[1] - RainStruct.index[0]
+            Dt = Dt.seconds
+            #Obtiene punto de inicio 
+            Start = RainStruct.index.get_loc(fi.strftime('%Y-%m-%d %H:%M'))
+            End = RainStruct.index.get_loc(ff.strftime('%Y-%m-%d %H:%M'))
+            Nsteps = End - Start
+            #Retorna
+            return Start, Nsteps, PathRBin, Dt
+        
+        def clickEventSimulationDeCuenca():
+            '''Hace la simulacion hidrologica con el set de param seleccionados y los mapas propios de la cuenca'''
+            #Obtiene lo que se necesita para ejecutar 
+            PathRain = self.PathinSimu_Precipitacion.text().strip()
+            Calib = __ParseCalibValues__()
+            #Obtiene pubnto de inicio y cantidad de pasos 
+            Fi = self.Simulacion_DateTimeStart.dateTime().toPyDateTime()
+            Ff = self.Simulacion_DateTimeEnd.dateTime().toPyDateTime()
+            Inicio, Npasos, PathBin, TimeDelta = __Dates2Start_Nsteps__(Fi,Ff,PathRain)
+            #Exponenetes de funciones lineales o no lineales
+            Exponenetes = []
+            for i in [17,18,19]:
+                Campo = getattr(self, 'ParamVal'+str(i))
+                Exponenetes.append(Campo)
+            #Simulacion hidrologica
+            self.HSutils.Sim_Basin(Inicio, Npasos, Calib, PathBin, TimeDelta, Exponenetes)
+            #Pone estados de almacenamiento finales en el NC
+            self.HSutils.DicBasinNc['storage']['var'] = np.copy(self.HSutils.Sim_Storage)
+            self.HSutils.DicBasinNc['storage']['saved'] = False
+            self.TabNC.EditedEntry('storage', self.Tabla_Prop_NC)
+            #Pone el campo acumulado de lluvia usado en el WMF
+            self.HSutils.DicBasinWMF.update({'Sim_Rain':
+                    {'nombre':'Sim_Rain',
+                    'tipo':self.HSutils.Sim_RainfallField.dtype.name,
+                    'shape':self.HSutils.Sim_RainfallField.shape,
+                    'raster':True,
+                    'basica': False,
+                    'categoria': 'Hidro',
+                    'var': np.copy(self.HSutils.Sim_RainfallField),
+                    'saved':False}})
+            self.TabWMF.NewEntry(self.HSutils.DicBasinWMF['Sim_Rain'],
+                'Sim_Rain', self.Tabla_Prop_WMF)
+            #Mensaje de exito 
+            self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                u'El modelo se ha ejecutado con exito',
+                level=QgsMessageBar.INFO, duration=3) 
+        
         self.ButtonSimCalib2Nc.clicked.connect(clickEventAddNewParamSet)    
         self.tabPanelDockOpciones.currentChanged.connect(clickEventUpdateParamMapValues)
         self.ParamNamesCombo.currentIndexChanged.connect(changeEventUpdateScalarParameters) 
@@ -1174,6 +1241,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Boton_Visualizar_Binario.clicked.connect(clickEventViewSerieSimuRainfall)
         self.Boton_Visualizar_Qobs.clicked.connect(clickEventViewSerieQobs)
         self.Boton_Visualizar_Qobs_Sed.clicked.connect(clickEventViewSerieQobsSed)
+        
+        self.ButtonSim_RunSimulacion.clicked.connect(clickEventSimulationDeCuenca)
   
     def setupUIInputsOutputs (self):
         
