@@ -5212,7 +5212,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-752</y>
+              <y>-1301</y>
               <width>433</width>
               <height>2518</height>
              </rect>
@@ -6739,7 +6739,7 @@
                         <widget class="QSpinBox" name="spinBox"/>
                        </item>
                        <item row="1" column="0">
-                        <widget class="QPushButton" name="ButtonSim_ViewSeries">
+                        <widget class="QPushButton" name="ButtonSim_ViewStreamflow">
                          <property name="minimumSize">
                           <size>
                            <width>130</width>
@@ -6770,7 +6770,7 @@
                         </widget>
                        </item>
                        <item row="2" column="0">
-                        <widget class="QPushButton" name="ButtonSim_ViewSeries_2">
+                        <widget class="QPushButton" name="ButtonSim_ViewCDC">
                          <property name="minimumSize">
                           <size>
                            <width>130</width>
@@ -6842,7 +6842,7 @@
                         </widget>
                        </item>
                        <item row="4" column="0">
-                        <widget class="QPushButton" name="ButtonSim_ViewSeries_3">
+                        <widget class="QPushButton" name="ButtonSim_ViewSediments">
                          <property name="minimumSize">
                           <size>
                            <width>130</width>
@@ -6914,7 +6914,7 @@
                         </widget>
                        </item>
                        <item row="3" column="0">
-                        <widget class="QPushButton" name="ButtonSim_ViewSeries_4">
+                        <widget class="QPushButton" name="ButtonSim_ViewStreamCiclo">
                          <property name="minimumSize">
                           <size>
                            <width>130</width>
@@ -6976,7 +6976,7 @@
                         </widget>
                        </item>
                        <item row="6" column="0">
-                        <widget class="QPushButton" name="ButtonSim_ViewStorage_2">
+                        <widget class="QPushButton" name="ButtonSim_ViewSpeed">
                          <property name="minimumSize">
                           <size>
                            <width>130</width>
@@ -7007,7 +7007,7 @@
                         </widget>
                        </item>
                        <item row="1" column="3">
-                        <widget class="QPushButton" name="ButtonSimu_Series2Excel">
+                        <widget class="QPushButton" name="Sim2Excel_Streamflow">
                          <property name="enabled">
                           <bool>false</bool>
                          </property>
@@ -7039,7 +7039,7 @@
                         </widget>
                        </item>
                        <item row="2" column="3">
-                        <widget class="QPushButton" name="ButtonSimu_Series2Excel_2">
+                        <widget class="QPushButton" name="Sim2Excel_CDC">
                          <property name="enabled">
                           <bool>false</bool>
                          </property>
@@ -7071,7 +7071,7 @@
                         </widget>
                        </item>
                        <item row="3" column="3">
-                        <widget class="QPushButton" name="ButtonSimu_Series2Excel_3">
+                        <widget class="QPushButton" name="Sim2Excel_Ciclo">
                          <property name="enabled">
                           <bool>false</bool>
                          </property>
@@ -7103,7 +7103,7 @@
                         </widget>
                        </item>
                        <item row="4" column="3">
-                        <widget class="QPushButton" name="ButtonSimu_Series2Excel_4">
+                        <widget class="QPushButton" name="Sim2Excel_Sediments">
                          <property name="enabled">
                           <bool>false</bool>
                          </property>
@@ -7135,7 +7135,7 @@
                         </widget>
                        </item>
                        <item row="5" column="3">
-                        <widget class="QPushButton" name="ButtonSimu_Series2Excel_5">
+                        <widget class="QPushButton" name="Sim2Excel_Storage">
                          <property name="enabled">
                           <bool>false</bool>
                          </property>
@@ -7167,7 +7167,7 @@
                         </widget>
                        </item>
                        <item row="6" column="3">
-                        <widget class="QPushButton" name="ButtonSimu_Series2Excel_6">
+                        <widget class="QPushButton" name="Sim2Excel_Speed">
                          <property name="enabled">
                           <bool>false</bool>
                          </property>
