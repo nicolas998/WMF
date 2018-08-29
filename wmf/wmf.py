@@ -4046,9 +4046,10 @@ class SimuBasin(Basin):
 		'QsimDataFrame: Retorna un data frame con los caudales simulados indicando su id de acuerdo con el\n'\
 		'	que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
                 'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de laradiacion\n'\
-                'WheretoStore: (None) Serie de pandas indicando en que fechas el modelo guarda condiciones\n'\
+                'WheretoStore: (None) Array de numpy o lista  indicando con numeros ascendentes\n'\
+                '(dif. de 0) las posiciones donde guardar condiciones dentro del periodo de ejecucion\n'\
 		'\n'\
-		'Retornos\n'\
+                'Retornos\n'\
 		'----------\n'\
 		'Qsim : Caudal simulado en los puntos de control.\n'\
 		'Hsim : Humedad simulada en los puntos de control.\n'\
@@ -4134,7 +4135,9 @@ class SimuBasin(Basin):
                 if WheretoStore is None:
                     models.guarda_cond = np.zeros(N_intervals)
                 else:
-                    models.guarda_cond = np.copy(WheretoStore.values)
+                    rng=pd.date_range(Rain.index[0],periods=N_intervals,freq=pd.infer_freq(Rain.index))
+                    SerieToStore=pd.Series(WheretoStore,index=rng)
+                    models.guarda_cond = np.copy(SerieToStore.values)
                 # Ejecuta el modelo 
 		Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
@@ -4176,7 +4179,7 @@ class SimuBasin(Basin):
 			if models.show_storage == 1:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
 					start_point,self,np.copy(models.mean_storage),
-                                        WheretoStore.values)
+                                        SerieToStore.values)
 			#Caso en el que no hay alm medio para cada uno de los 
 			else:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
