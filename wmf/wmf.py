@@ -550,7 +550,7 @@ def read_rain_struct(ruta):
 	return D
 
 def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
-	Mean_Storage):
+	Mean_Storage,WhereStored):
 	#Lee fechas para el intervalo de tiempo
 	S = read_mean_rain(rute_rain,Nintervals,FirstInt)
 	#Escribe el encabezado del archivo 
@@ -563,10 +563,10 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
 	c = 1
 	#Si no hay almacenamiento medio lo coloca en -9999 
 	#Escribe registros medios y fechas de los almacenamientos 
-	for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
+	for d,sto,c in zip(S.index.to_pydatetime(),Mean_Storage.T, WhereStored):
 		f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
 			(c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
-		c+=1
+		#c+=1
 	f.close()
 
 def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
@@ -4010,7 +4010,7 @@ class SimuBasin(Basin):
 	def run_shia(self,Calibracion,
 		rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
 		ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5,
-              QsimDataFrame = True, EvpVariable = False):
+              QsimDataFrame = True, EvpVariable = False, WheretoStore = None):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
 		'	variables requeridas . \n'\
@@ -4054,9 +4054,11 @@ class SimuBasin(Basin):
 		'				cu.set_Storage(j,c)\n'\
 		'QsimDataFrame: Retorna un data frame con los caudales simulados indicando su id de acuerdo con el\n'\
 		'	que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
-                'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
+                'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de laradiacion\n'\
+                'WheretoStore: (None) Array de numpy o lista  indicando con numeros ascendentes\n'\
+                '(dif. de 0) las posiciones donde guardar condiciones dentro del periodo de ejecucion\n'\
 		'\n'\
-		'Retornos\n'\
+                'Retornos\n'\
 		'----------\n'\
 		'Qsim : Caudal simulado en los puntos de control.\n'\
 		'Hsim : Humedad simulada en los puntos de control.\n'\
@@ -4084,6 +4086,7 @@ class SimuBasin(Basin):
 		#Prepara variables de guardado de almacenamiento
 		if ruta_storage is not None:
 			models.save_storage = 1
+                        models.show_storage = 1
 			ruta_sto_bin, ruta_sto_hdr = __Add_hdr_bin_2route__(ruta_storage,
 				storage = True)
 		else:
@@ -4137,6 +4140,13 @@ class SimuBasin(Basin):
                     Rad = self.__GetEVP_Serie__(Rain.index)
                 else:
                     models.evpserie = np.ones(N_intervals)
+                #Set del vector de guardado de condiciones del modelo 
+                if WheretoStore is None:
+                    models.guarda_cond = np.array(range(N_intervals))+1
+                else:
+                    rng=pd.date_range(Rain.index[0],periods=N_intervals,freq=pd.infer_freq(Rain.index))
+                    SerieToStore=pd.Series(WheretoStore,index=rng)
+                    models.guarda_cond = np.copy(SerieToStore.values)
                 # Ejecuta el modelo 
 		Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
@@ -4177,7 +4187,8 @@ class SimuBasin(Basin):
 			#Caso en el que se registra el alm medio 
 			if models.show_storage == 1:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-					start_point,self,Mean_Storage = np.copy(models.mean_storage))
+					start_point,self,np.copy(models.mean_storage),
+                                        np.array(models.guarda_cond))
 			#Caso en el que no hay alm medio para cada uno de los 
 			else:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
@@ -4249,12 +4260,30 @@ class SimuBasin(Basin):
 				index = pd.MultiIndex.from_tuples(tupla, names=['reach','Sediments'])
 				Qsedi = np.array(Qsedi)
 				QsediDict = pd.DataFrame(Qsedi.T, index=Rain.index, columns=index)
+                        #Si separo tipo de lluvia en el caudal
+                        if models.separate_rain == 1:
+				Qrain = []
+				tupla = []
+				for i,j in zip(Retornos['Rain_Sep'][1:], ids):
+					tupla.append((str(j),'Convective'))
+					tupla.append((str(j),'Stratiform'))
+					Qrain.extend([i[0],i[1],i[2]])#  [i[0],i[1],z-i[0]-i[1]])
+				index = pd.MultiIndex.from_tuples(tupla, names=['reach','Rain_sep'])
+				Qrain = np.array(Qrain)
+				QRainDict = pd.DataFrame(Qrain.T, index=Rain.index, columns=index)
+
+
+                        #Determina los retornos en funcion de las banderas que se activaron
                         if models.separate_fluxes == 1 and models.sim_sediments == 0:
                             return Retornos, Qdict, QsepDict 
                         if models.separate_fluxes == 1 and models.sim_sediments == 1:
                             return Retornos, Qdict, QsepDict, QsediDict
                         if models.separate_fluxes == 0 and models.sim_sediments == 1:
                             return Retornos, Qdict, QsediDict
+                        if models.separate_rain == 1 and models.separate_fluxes == 0:
+                            return Retornos, Qdict, QRainDict
+                        if models.separate_rain == 1 and models.separate_fluxes == 1:
+                            return Retornos, Qdict, QsepDict, QRainDict
                         return Retornos, Qdict
 		return Retornos
 

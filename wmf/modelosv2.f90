@@ -362,20 +362,20 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 
     !Prepara en caso de que se vayan a guardar condiciones, este cambio busca 
     !que se guarden condiciones de forma especifica 
-    if (save_storage .eq. 1) then 
+    !if (save_storage .eq. 1) then 
         !Verifica si no esta alojada la vairable, en caso de que no no guarda condiciones
-        if (allocated(guarda_cond) .eqv. .false.) then 
-            allocate(guarda_cond(N_reg))
-            guarda_cond = 0
-        else    
+     !   if (allocated(guarda_cond) .eqv. .false.) then 
+      !      allocate(guarda_cond(N_reg))
+       !     guarda_cond = 0
+        !else    
             !Si esta aojada, pero no coincide con la cantidad de registros, tampoco guarda nada
-            if (sizeof(guarda_cond) .ne. N_reg) then 
-                deallocate(guarda_cond)
-                allocate(guarda_cond(N_reg))
-                guarda_cond = 0
-            endif    
-        endif
-    endif 
+         !   if (sizeof(guarda_cond) .ne. N_reg) then 
+          !      deallocate(guarda_cond)
+           !     allocate(guarda_cond(N_reg))
+           !     guarda_cond = 0
+           ! endif    
+        !endif
+    !endif 
 
 	!--------------------------------------------------------------------------
     !EJECUCION DEL MODELO 
@@ -723,8 +723,8 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
         Mean_Rain(1,tiempo)=rain_sum/N_cel
                 
         !Guarda campo de estados del modelo 
-        if (save_storage .eq. 1) then
-            call write_float_basin(ruta_storage,StoOut,tiempo,N_cel,5)
+        if (guarda_cond(tiempo) .gt. 0 .and. save_storage .eq. 1) then
+            call write_float_basin(ruta_storage,StoOut,guarda_cond(tiempo),N_cel,5)
         endif
         !Guarda campo de velocidades del modelo
         if (save_speed .eq. 1) then
@@ -841,9 +841,12 @@ subroutine write_float_basin(ruta,vect,record,N_cel,N_col)
     !Escritura     
     estado='old'
     if (record.eq.1) estado='replace'
-    open(10,file=ruta,form='unformatted',status=estado,access='direct',RECL=4*N_col*N_cel)
-		write(10,rec=record) vect
-    close(10)
+    !Solo guarda condiciones si el record de guardado es mayor a cero
+    if (record.gt.0) then 
+        open(10,file=ruta,form='unformatted',status=estado,access='direct',RECL=4*N_col*N_cel)
+		    write(10,rec=record) vect
+        close(10)
+    endif 
 end subroutine
 !Lee los datos flotantes de un binario de cuenca en los records ordenados
 subroutine write_int_basin(ruta,vect,record,N_cel,N_col) 
