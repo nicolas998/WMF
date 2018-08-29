@@ -918,9 +918,7 @@ class controlHS:
         #Set de calibracion
         wmf.models.sed_factor = Calibracion[-1]
         Calibracion = Calibracion[:-1]
-        print Calibracion
         Calibracion = Calibracion[2:] + Calibracion[:2]
-        print Calibracion
         #Set del intervalo de tiempo de simulacion
         wmf.models.dt = DeltaT
         #SEtea el tipo de velocidad de acuerdo a los exponentes
@@ -945,7 +943,6 @@ class controlHS:
         #Obtiene resultados como cosas genericas
         self.Sim_index = Qsim.index
         self.Sim_Streamflow = Qsim.copy()
-        print 'qsim',self.Sim_Streamflow
         self.Sim_Rainfall = pd.Series(Results['Rain_hietogram'][0], index = self.Sim_index)
         self.Sim_Balance = pd.Series(Results['Balance'][0], index = self.Sim_index)
         self.Sim_Storage = Results['Storage']
@@ -953,10 +950,8 @@ class controlHS:
         #Resultados opcionales
         if wmf.models.show_storage == 1:
             self.Sim_StorageSerie = pd.DataFrame(Results['Mean_Storage'].T, index = self.Sim_index)
-            print self.Sim_StorageSerie
         if wmf.models.show_mean_speed == 1:
             self.Sim_SpeedSerie = pd.DataFrame(Results['Mean_Speed'].T, index = self.Sim_index)
-            print self.Sim_SpeedSerie
         if wmf.models.retorno == 1:
             self.Sim_RetornoSerie = pd.DataFrame(wmf.models.mean_retorno, index = self.Sim_index)
             self.Sim_RetornoMap = np.copy(wmf.models.retorned)
@@ -986,10 +981,13 @@ class controlHS:
             Data = wmf.read_storage_struct(Path2Bin)
             record = Data.index.get_loc(Fecha)
             #lee el archivo 
-            Valor, res = wmf.read_float_basin_Ncol(Path2Bin, 
+            Valor, res = wmf.models.read_float_basin_ncol(Path2Bin, 
                 record, self.cuenca.ncells, 5) 
             if res == 0:
-                self.cuenca.set_Storage(Valor, Tanque - 1)
+                self.cuenca.set_Storage(Valor[Tanque-1], Tanque - 1)
+                return Valor[Tanque-1].mean(), Valor[Tanque-1]
+            else:
+                return 0.0
     
     def Sim_setStates_NcValue(self, Tanque):
         '''Establece condiciones de un tanque en funcion del estado que se tiene en la tabla NC'''
@@ -997,6 +995,7 @@ class controlHS:
         if Tanque < 6:
             Valor = self.DicBasinNc['storage']['var'][Tanque-1]
             self.cuenca.set_Storage(Valor, Tanque -1)
+            return Valor.mean(), Valor
         
         
         
