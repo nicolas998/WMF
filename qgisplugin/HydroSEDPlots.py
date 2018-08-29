@@ -286,12 +286,12 @@ class PlotCaudal():
                         name = "Q Observado",
                         line = dict(color = 'blue'),
                         opacity = 0.8,
-                        yaxis='y2')
+                        yaxis='y2',
+                        fill='tozeroy')
 
         data = [trace_high,trace_low,trace_inv]
 
-        layout = dict(
-            title = u"Series de caudal",
+        layout = dict(showlegend = False,
             xaxis = dict(
                 title='Fechas'),
             yaxis=dict(
@@ -308,14 +308,14 @@ class PlotCaudal():
         plot(fig,filename=pathFigure, auto_open = False)
 
     def Plot_CDC_caudal(self,pathFigure,dfQobs,dfQsim):
-        plt.close('all')
-        Qs=np.sort(np.array(dfQobs.values))
+        
+        Qs=np.sort(np.array(dfQsim.values))
         Qo=np.sort(np.array(dfQobs.values))
         porcen_s=[]
         porcen_o=[]
         for i in range(len(Qo)):
-            porcen_s.append((len(Qs[Qs>Qs[i]]))/float(len(Qo))*100)
-            porcen_o.append((len(Qo[Qo>Qo[i]]))/float(len(Qo[np.isfinite(Qo)]))*100)
+            porcen_s.append((len(Qs[Qs>Qs[i]]))/float(len(Qs))*100)
+            porcen_o.append((len(Qo[Qo>Qo[i]]))/float(len(Qo))*100)
             
         trace_high = go.Scatter(
                 x=porcen_s,
@@ -333,20 +333,16 @@ class PlotCaudal():
 
         data = [trace_high,trace_low]
 
-        layout = dict(
-            width=670,
-            height=500,
-            title = u'Curvas de duracion de Caudal',
+        layout = dict(showlegend = False,
+            width=500,
+            height=400,
             xaxis = dict(
                 title='Porcentaje de Excedencia'),
             yaxis=dict(
                 title='$Caudal [m^3/s]$')
     
         )
-
-
         fig = dict(data=data, layout=layout)
-        py.iplot(fig, filename = "Hidrografa")  
         #Guarda el html
         plot(fig,filename=pathFigure, auto_open = False)        
     

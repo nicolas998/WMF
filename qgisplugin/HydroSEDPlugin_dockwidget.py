@@ -1145,8 +1145,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             id_est = int(self.comboBox_Selec_Qobs.currentText().encode())
             #Obtiene la serie de caudales 
             self.DataQ = self.HSutils.Sim_GetQobsInfo(self.PathQobs)[1]
-            self.HSplots = HSplots.PlotCaudal()
-            self.HSplots.Plot_Caudal(PathFigure,self.DataQ,id_est,'blue')
+            self.HSplotsCaudal = HSplots.PlotCaudal()
+            self.HSplotsCaudal.Plot_Caudal(PathFigure,self.DataQ,id_est,'blue')
             #Set de la ventana que contiene la figura.
             self.VistaQobsWeb = QWebView(None)
             self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure))
@@ -1165,8 +1165,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             id_est = int(self.comboBox_Selec_Qobs_Sed.currentText().encode())
             #Obtiene la serie de caudales 
             self.DataQsed = self.HSutils.Sim_GetQobsInfo(PathQobs)[1]
-            self.HSplots = HSplots.PlotCaudal()
-            self.HSplots.Plot_Caudal(PathFigure,self.DataQsed,id_est,'goldenrod')
+            self.HSplotsCaudal = HSplots.PlotCaudal()
+            self.HSplotsCaudal.Plot_Caudal(PathFigure,self.DataQsed,id_est,'goldenrod')
             #Set de la ventana que contiene la figura.
             self.VistaQobsWeb = QWebView(None)
             self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure))
@@ -1305,7 +1305,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Llama el df en el id de tramo que puso el usuario 
             self.dfDataQsim = dfDataQsim[id_tramo]
             #Llama la clase de plot caudal 
-            self.HSplots = HSplots.PlotCaudal()
+            self.HSplotsCaudal = HSplots.PlotCaudal()
             PathFigure =  '/tmp/HydroSED/Plots_Rainfall/QobsQsimPlotSimu.html'
             
             if self.checkBox_Simu_Qs.isChecked():
@@ -1320,34 +1320,52 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             else:
                 self.dfDataQobs = self.dfDataQsim*np.nan
             print self.HSutils.Sim_Rainfall
-            self.HSplots.Plot_Caudal_Simu(PathFigure,self.dfDataQobs,self.dfDataQsim,self.HSutils.Sim_Rainfall)
+            self.HSplotsCaudal.Plot_Caudal_Simu(PathFigure,self.dfDataQobs,self.dfDataQsim,self.HSutils.Sim_Rainfall)
             #Set de la ventana que contiene la figura
             self.VistaQobsWeb = QWebView(None)
             self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure))
             self.VistaQobsWeb.setWindowTitle('Series de Caudales')
             self.VistaQobsWeb.setMinimumWidth(1100)
             self.VistaQobsWeb.setMaximumWidth(3000)
-            self.VistaQobsWeb.setMinimumHeight(100)
-            self.VistaQobsWeb.setMaximumHeight(400)
+            self.VistaQobsWeb.setMinimumHeight(200)
+            self.VistaQobsWeb.setMaximumHeight(500)
             self.VistaQobsWeb.show()
             
         def clickEventViewCDCQobsQsim():
-            self.HSplots = HSplots.PlotCaudal()
-            PathFigure =  '/tmp/HydroSED/Plots_Rainfall/CDCQobsQsimuPlotSimu.html'
-            PathQobs = self.PathinSimu_Qobs_Sed.text().strip()
-            #Obtiene el id de la estación 
-            id_est = int(self.comboBox_Selec_Qobs_Sed.currentText().encode())
+            self.f_ini = self.Simulacion_DateTimeStart.dateTime().toPyDateTime()
+            self.f_fin = self.Simulacion_DateTimeEnd.dateTime().toPyDateTime()
+            self.HSplotsCaudal = HSplots.PlotCaudal()
+            PathFigure1 =  '/tmp/HydroSED/Plots_Rainfall/CDCQobsQsimuPlotSimu.html'
+            #llama el df de caudal observado 
+            dfDataQsim = self.HSutils.Sim_Streamflow
+            #identifica el tramo para graficar 
+            id_tramo = str(self.spinBox_2.value())
+            #Llama el df en el id de tramo que puso el usuario 
+            self.dfDataQsim = dfDataQsim[id_tramo]
+            
+            if self.checkBox_Simu_Qs_2.isChecked():
+                #Selecciona el id que haya puesto el usuario
+                id_est = int(self.comboBox_Selec_Qobs.currentText().encode())
+                #Obtiene la serie de caudales 
+                self.PathQobs = self.PathinSimu_Qobs.text().strip()
+                #llama el df de caudal observado 
+                self.DataQ = self.HSutils.Sim_GetQobsInfo(self.PathQobs)[1]
+                #Crea el dataframe 
+                self.dfDataQobs = self.DataQ[id_est][self.f_ini:self.f_fin]
+            else:
+                self.dfDataQobs = self.dfDataQsim*np.nan
+            
             #Obtiene la serie de caudales 
-            self.HSplots.Plot_CDC_caudal(PathFigure,self.dfDataQobs,self.dfDataQsim)
+            self.HSplotsCaudal.Plot_CDC_caudal(PathFigure1,self.dfDataQobs,self.dfDataQsim)
             #Set de la ventana que contiene la figura
             self.VistaQobsWeb = QWebView(None)
-            self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure))
-            self.VistaQobsWeb.setWindowTitle('Curvas de duración de Caudales')
-            self.VistaRainWeb.setMinimumWidth(200)
-            self.VistaRainWeb.setMaximumWidth(400)
-            self.VistaRainWeb.setMinimumHeight(400)
-            self.VistaRainWeb.setMaximumHeight(400)
-            self.VistaRainWeb.show()
+            self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure1))
+            self.VistaQobsWeb.setWindowTitle('Curvas de duracion de Caudales')
+            self.VistaQobsWeb.setMinimumWidth(400)
+            self.VistaQobsWeb.setMaximumWidth(500)
+            self.VistaQobsWeb.setMinimumHeight(400)
+            self.VistaQobsWeb.setMaximumHeight(400)
+            self.VistaQobsWeb.show()
                                   
          
         self.ButtonSimCalib2Nc.clicked.connect(clickEventAddNewParamSet)    
