@@ -963,7 +963,40 @@ class controlHS:
             #SErie de sedimentos simulada 
             self.Sim_Sediments = Qsed.copy()
         
-           
+    def Sim_setStates_ConstValue(self, Tanque, Valor):
+        '''Establece condiciones de almacenamiento constantes basado en un valor constante para toda la cuenca'''
+        #Si es un almacenamiento del modelo 
+        if Tanque < 6:
+            self.cuenca.set_Storage(Valor, Tanque - 1)
+        #Si es sedimentos de la cuenca.
+        else:
+            wmf.models.vd = np.ones(self.cuenca.ncells)*Valor
+    
+    def Sim_setStates_FileValue(self, Tanque, Path2Bin, Fecha):
+        '''Establece las condiciones de almacenamiento basado en un binario con datos de almacenamiento anteriores'''
+        #Si es un tanque del modelo 
+        if Tanque < 6:
+            #Obtiene el record.
+            Fecha = Fecha.strftime('%Y-%m-%d %H:%M')
+            Data = wmf.read_storage_struct(Path2Bin)
+            record = Data.index.get_loc(Fecha)
+            #lee el archivo 
+            Valor, res = wmf.read_float_basin_Ncol(Path2Bin, 
+                record, self.cuenca.ncells, 5) 
+            if res == 0:
+                self.cuenca.set_Storage(Valor, Tanque - 1)
+    
+    def Sim_setStates_NcValue(self, Tanque):
+        '''Establece condiciones de un tanque en funcion del estado que se tiene en la tabla NC'''
+        #Saca el valor del diccionario
+        if Tanque < 6:
+            Valor = self.DicBasinNc['storage']['var'][Tanque-1]
+            self.cuenca.set_Storage(Valor, Tanque -1)
+        
+        
+        
+        
+        
             
             
             

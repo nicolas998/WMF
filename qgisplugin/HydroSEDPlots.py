@@ -327,7 +327,7 @@ class PlotCaudal():
         layout = dict(
             width=670,
             height=500,
-            title = "Curvas de duración de Caudal",
+            title = "Curvas de duracion de Caudal",
             xaxis = dict(
                 title='Porcentaje de Excedencia',
                 range = [str(df.index[0]),str(df.index[-1])]),
