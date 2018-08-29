@@ -727,8 +727,7 @@ class controlHS:
          self.QobsData_ff = DataQ.index[-1].to_pydatetime()
          self.QobsData_fd = DataQ.index[1] - DataQ.index[0]
          idExcelQ = self.QobsData.columns.values.tolist()
-         DataQdf = pd.Dataframe(Data={'Q':self.QobsData},index = self.DataQindex)
-         return idExcelQ,DataQ,DataQindex,DataQdf
+         return idExcelQ,DataQ,self.DataQindex
                 
            
     def Sim_SaveParameters(self, PathNC, ParamName, scalarParam):
@@ -946,6 +945,7 @@ class controlHS:
         #Obtiene resultados como cosas genericas
         self.Sim_index = Qsim.index
         self.Sim_Streamflow = Qsim.copy()
+        print 'qsim',self.Sim_Streamflow
         self.Sim_Rainfall = pd.Series(Results['Rain_hietogram'][0], index = self.Sim_index)
         self.Sim_Balance = pd.Series(Results['Balance'][0], index = self.Sim_index)
         self.Sim_Storage = Results['Storage']

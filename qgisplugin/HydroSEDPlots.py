@@ -265,7 +265,7 @@ class PlotCaudal():
         #Guarda el html
         plot(fig,filename=pathFigure, auto_open = False)
         
-    def Plot_Caudal_Simu(self,pathFigure,dfQobs,dfQsim):
+    def Plot_Caudal_Simu(self,pathFigure,dfQobs,dfQsim,rain_mean):
     
         trace_high = go.Scatter(
                         x=dfQsim.index,
@@ -280,21 +280,30 @@ class PlotCaudal():
                         name = "Q Observado",
                         line = dict(color = 'blue'),
                         opacity = 0.8)
+        trace_inv = go.Scatter(
+                        x=dfQsim.index,
+                        y=rain_mean.values,
+                        name = "Q Observado",
+                        line = dict(color = 'blue'),
+                        opacity = 0.8,
+                        yaxis='y2')
 
-        data = [trace_high,trace_low]
+        data = [trace_high,trace_low,trace_inv]
 
         layout = dict(
             title = u"Series de caudal",
             xaxis = dict(
-                title='Fechas',
-                range = [str(df.index[0]),str(df.index[-1])]),
+                title='Fechas'),
             yaxis=dict(
-                title="$Caudal [m^3/s]$")
+                title="Caudal [m3/s]"),
+            yaxis2=dict(autorange="reversed",
+                title="Caudal [m3/s]",
+                overlaying ='y',
+                side='right')
             
         )
 
         fig = dict(data=data, layout=layout)
-        #py.iplot(fig, filename = "Series")
         #Guarda el html
         plot(fig,filename=pathFigure, auto_open = False)
 
@@ -327,10 +336,9 @@ class PlotCaudal():
         layout = dict(
             width=670,
             height=500,
-            title = "Curvas de duracion de Caudal",
+            title = u'Curvas de duracion de Caudal',
             xaxis = dict(
-                title='Porcentaje de Excedencia',
-                range = [str(df.index[0]),str(df.index[-1])]),
+                title='Porcentaje de Excedencia'),
             yaxis=dict(
                 title='$Caudal [m^3/s]$')
     
