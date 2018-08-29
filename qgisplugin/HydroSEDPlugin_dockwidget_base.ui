@@ -5212,9 +5212,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-847</y>
+              <y>-752</y>
               <width>433</width>
-              <height>1918</height>
+              <height>2518</height>
              </rect>
             </property>
             <property name="minimumSize">
@@ -5235,7 +5235,7 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>1900</height>
+                 <height>2500</height>
                 </size>
                </property>
                <widget class="QGroupBox" name="groupBox_4">
@@ -5855,6 +5855,9 @@
                       <property name="decimals">
                        <number>3</number>
                       </property>
+                      <property name="maximum">
+                       <double>9999999.000000000000000</double>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -6472,8 +6475,8 @@
                <widget class="QGroupBox" name="groupBox_12">
                 <property name="geometry">
                  <rect>
-                  <x>0</x>
-                  <y>880</y>
+                  <x>10</x>
+                  <y>1370</y>
                   <width>401</width>
                   <height>901</height>
                  </rect>
@@ -6579,7 +6582,7 @@
                        <string>Configura para que se guarden las condiciones finales de la simulación para ejecutar la próxima corrida </string>
                       </property>
                       <property name="text">
-                       <string>Velocidad media</string>
+                       <string>Guardar estados</string>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -6608,7 +6611,7 @@
                        <string>Activa la simulación de Deslizamientos en el modelo </string>
                       </property>
                       <property name="text">
-                       <string>Almacenamiento </string>
+                       <string>Estados medios</string>
                       </property>
                      </widget>
                     </item>
@@ -7389,6 +7392,915 @@
                  <rect>
                   <x>0</x>
                   <y>860</y>
+                  <width>401</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+               <widget class="QGroupBox" name="groupBox_6">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>880</y>
+                  <width>401</width>
+                  <height>401</height>
+                 </rect>
+                </property>
+                <property name="title">
+                 <string>Estados de almacenamiento</string>
+                </property>
+                <widget class="QWidget" name="verticalLayoutWidget_11">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>30</y>
+                   <width>401</width>
+                   <height>365</height>
+                  </rect>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_23">
+                  <item>
+                   <layout class="QGridLayout" name="gridLayout_5">
+                    <item row="6" column="0">
+                     <widget class="QLabel" name="label_88">
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Porcentaje de arenas (0-100)</string>
+                      </property>
+                      <property name="text">
+                       <string>VolSED depositados</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="label_76">
+                      <property name="whatsThis">
+                       <string>Porcentaje de arenas (0-100)</string>
+                      </property>
+                      <property name="text">
+                       <string>Variable</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="label_77">
+                      <property name="whatsThis">
+                       <string>Porcentaje de arenas (0-100)</string>
+                      </property>
+                      <property name="text">
+                       <string>S1, Capilar</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_86">
+                      <property name="whatsThis">
+                       <string>Porcentaje de arenas (0-100)</string>
+                      </property>
+                      <property name="text">
+                       <string>S4, Subterráneo</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="label_83">
+                      <property name="whatsThis">
+                       <string>Porcentaje de arenas (0-100)</string>
+                      </property>
+                      <property name="text">
+                       <string>S2, Escorrentía</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="0">
+                     <widget class="QLabel" name="label_87">
+                      <property name="whatsThis">
+                       <string>Porcentaje de arenas (0-100)</string>
+                      </property>
+                      <property name="text">
+                       <string>S5, Canales</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="label_84">
+                      <property name="whatsThis">
+                       <string>Porcentaje de arenas (0-100)</string>
+                      </property>
+                      <property name="text">
+                       <string>S3, Gravitacional</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QDoubleSpinBox" name="Storage2Val">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QDoubleSpinBox" name="Storage3Val">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QDoubleSpinBox" name="Storage4Val">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="1">
+                     <widget class="QDoubleSpinBox" name="Storage5Val">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="6" column="1">
+                     <widget class="QDoubleSpinBox" name="Storage6Val">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QLabel" name="label_89">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Porcentaje de arenas (0-100)</string>
+                      </property>
+                      <property name="text">
+                       <string>Valor [mm]</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="2">
+                     <layout class="QHBoxLayout" name="horizontalLayout_75">
+                      <item>
+                       <widget class="QLabel" name="label_90">
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                        <property name="whatsThis">
+                         <string>Porcentaje de arenas (0-100)</string>
+                        </property>
+                        <property name="text">
+                         <string>Valor</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_91">
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                        <property name="whatsThis">
+                         <string>Porcentaje de arenas (0-100)</string>
+                        </property>
+                        <property name="text">
+                         <string>Archivo</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_92">
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                        <property name="whatsThis">
+                         <string>Porcentaje de arenas (0-100)</string>
+                        </property>
+                        <property name="text">
+                         <string>Nc</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="1" column="2">
+                     <widget class="QGroupBox" name="groupBox_15">
+                      <property name="title">
+                       <string/>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+                      </property>
+                      <property name="flat">
+                       <bool>false</bool>
+                      </property>
+                      <property name="checkable">
+                       <bool>false</bool>
+                      </property>
+                      <widget class="QRadioButton" name="RadioO1S1">
+                       <property name="geometry">
+                        <rect>
+                         <x>20</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="RadioO1S1_2">
+                       <property name="geometry">
+                        <rect>
+                         <x>90</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="RadioO1S1_3">
+                       <property name="geometry">
+                        <rect>
+                         <x>160</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </widget>
+                    </item>
+                    <item row="2" column="2">
+                     <widget class="QGroupBox" name="groupBox_16">
+                      <property name="title">
+                       <string/>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+                      </property>
+                      <property name="flat">
+                       <bool>false</bool>
+                      </property>
+                      <property name="checkable">
+                       <bool>false</bool>
+                      </property>
+                      <widget class="QRadioButton" name="radioButton_31">
+                       <property name="geometry">
+                        <rect>
+                         <x>20</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="radioButton_32">
+                       <property name="geometry">
+                        <rect>
+                         <x>90</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="radioButton_33">
+                       <property name="geometry">
+                        <rect>
+                         <x>160</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="QGroupBox" name="groupBox_17">
+                      <property name="title">
+                       <string/>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+                      </property>
+                      <property name="flat">
+                       <bool>false</bool>
+                      </property>
+                      <property name="checkable">
+                       <bool>false</bool>
+                      </property>
+                      <widget class="QRadioButton" name="radioButton_34">
+                       <property name="geometry">
+                        <rect>
+                         <x>20</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="radioButton_35">
+                       <property name="geometry">
+                        <rect>
+                         <x>90</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="radioButton_36">
+                       <property name="geometry">
+                        <rect>
+                         <x>160</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="QGroupBox" name="groupBox_18">
+                      <property name="title">
+                       <string/>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+                      </property>
+                      <property name="flat">
+                       <bool>false</bool>
+                      </property>
+                      <property name="checkable">
+                       <bool>false</bool>
+                      </property>
+                      <widget class="QRadioButton" name="radioButton_37">
+                       <property name="geometry">
+                        <rect>
+                         <x>20</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="radioButton_38">
+                       <property name="geometry">
+                        <rect>
+                         <x>90</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="radioButton_39">
+                       <property name="geometry">
+                        <rect>
+                         <x>160</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </widget>
+                    </item>
+                    <item row="5" column="2">
+                     <widget class="QGroupBox" name="groupBox_19">
+                      <property name="title">
+                       <string/>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+                      </property>
+                      <property name="flat">
+                       <bool>false</bool>
+                      </property>
+                      <property name="checkable">
+                       <bool>false</bool>
+                      </property>
+                      <widget class="QRadioButton" name="radioButton_40">
+                       <property name="geometry">
+                        <rect>
+                         <x>20</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="radioButton_41">
+                       <property name="geometry">
+                        <rect>
+                         <x>90</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="radioButton_42">
+                       <property name="geometry">
+                        <rect>
+                         <x>160</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </widget>
+                    </item>
+                    <item row="6" column="2">
+                     <widget class="QGroupBox" name="groupBox_20">
+                      <property name="title">
+                       <string/>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+                      </property>
+                      <property name="flat">
+                       <bool>false</bool>
+                      </property>
+                      <property name="checkable">
+                       <bool>false</bool>
+                      </property>
+                      <widget class="QRadioButton" name="radioButton_43">
+                       <property name="geometry">
+                        <rect>
+                         <x>20</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="radioButton_44">
+                       <property name="geometry">
+                        <rect>
+                         <x>90</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                      <widget class="QRadioButton" name="radioButton_45">
+                       <property name="geometry">
+                        <rect>
+                         <x>160</x>
+                         <y>10</y>
+                         <width>20</width>
+                         <height>21</height>
+                        </rect>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>20</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QDoubleSpinBox" name="Storage1Val">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="frame">
+                       <bool>true</bool>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_79">
+                    <item>
+                     <widget class="QLabel" name="label_39">
+                      <property name="text">
+                       <string>Archivo de estados</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="ParamName_2">
+                      <property name="maximumSize">
+                       <size>
+                        <width>157</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Definir el nombre de la parametrización actual</string>
+                      </property>
+                      <property name="statusTip">
+                       <string/>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Definir el nombre de la parametrización actual.</string>
+                      </property>
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="botonSelectorProyectBasin_2">
+                      <property name="minimumSize">
+                       <size>
+                        <width>30</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_80">
+                    <item>
+                     <widget class="QLabel" name="label_93">
+                      <property name="text">
+                       <string>Fecha estados</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDateTimeEdit" name="Simulacion_DateTimeStart_2">
+                      <property name="toolTip">
+                       <string>Seleccionar la fecha de inicio para correr la simulación</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la fecha de inicio para correr la simulación</string>
+                      </property>
+                      <property name="date">
+                       <date>
+                        <year>2015</year>
+                        <month>1</month>
+                        <day>1</day>
+                       </date>
+                      </property>
+                      <property name="displayFormat">
+                       <string>dd/MMM/yyyy HH:mm</string>
+                      </property>
+                      <property name="calendarPopup">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_78">
+                    <item>
+                     <spacer name="horizontalSpacer_35">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="pushButton">
+                      <property name="text">
+                       <string>Establecer</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
+               <widget class="Line" name="line_43">
+                <property name="geometry">
+                 <rect>
+                  <x>20</x>
+                  <y>1340</y>
                   <width>401</width>
                   <height>20</height>
                  </rect>
