@@ -1018,6 +1018,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             '''Que solo busque los archivos con esa extension .bin'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Binarios (*.bin);;")) 
         
+        def setupLineEditButtonOpenBinStoFileDialog (lineEditHolder, fileDialogHolder):
+            '''Que solo busque los archivos con esa extension .bin'''
+            lineEditHolder.setText (fileDialogHolder.getSaveFileName (QtGui.QDialog (), "Guardar estados almacenamiento", "*", "Binario (*.StObin);;")) 
+            
+            #getSaveFileName (QtGui.QDialog (), "Guardar parametros en un archivo de excel", "*", "Excel (*.xlsx);;")
+        
         def changeEventUpdateScalarParameters():
             '''Actualiza los parametros escalares de las tablas de acuerdo al set seleccionado'''
             #Obtiene el nombre de la param seleccionada
@@ -1207,29 +1213,40 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[varName],
                 varName, self.Tabla_Prop_WMF)
         
+        def clickEventSaveAlmacenamientos():
+            '''Establece la ruta de guardado de los almacenamientos'''
+            #Establece el punto de guardado
+            setupLineEditButtonOpenBinStoFileDialog(self.Where2SaveStates, QFileDialog)
+            Path = self.Where2SaveStates.text().strip()
+            #Hace check del boton
+            self.checkBox_Simu_MeanSpeed.setChecked(True)
+        
         def clickEventSetAlmacenamientos():
-			'''Establece que clase de almacenamientos se van a usar para la simulacion'''
-			#Itera por opciones y almacenamientos
-			self.DictStatesOptions = {}
-			for state in range(1,7):
-				for option in range(1,4):
-					#Determina en que opcion esta 
-					boton = 'RadioO'+str(option)+'S'+str(state)
-					Estado = getattr(self, boton).isChecked()
-					#Si encontro el estado lo habilita
-					if Estado:
-						#Valor dado por el susuario
-						if option == 1:
-							Value = getattr(self, 'Storage'+str(state)+'Val').value()
-							self.HSutils.Sim_setStates_ConstValue(state, Value)
-						#Valor tomado de un archivo de estados de almacenamiento
-						if option == 2:
-							FilePath = self.StateFilePath.text().strip()
-							Date = self.StateDate.dateTime().toPyDateTime()
-							Return = self.HSutils.Sim_setStates_FileValue(state, FilePath, Date)
-						#Valor tomado de la variable storage del NC
-						if option == 3:
-							self.HSutils.Sim_setStates_NcValue(state)
+            '''Establece que clase de almacenamientos se van a usar para la simulacion'''
+            #Itera por opciones y almacenamientos
+            self.DictStatesOptions = {}
+            for state in range(1,7):
+                for option in range(1,4):
+                    #Determina en que opcion esta 
+                    boton = 'RadioO'+str(option)+'S'+str(state)
+                    Estado = getattr(self, boton).isChecked()
+                    #Si encontro el estado lo habilita
+                    if Estado:
+                        #Valor dado por el susuario
+                        if option == 1:
+                            Value = getattr(self, 'Storage'+str(state)+'Val').value()
+                            self.HSutils.Sim_setStates_ConstValue(state, Value)
+                        #Valor tomado de un archivo de estados de almacenamiento
+                        if option == 2:
+                            FilePath = self.StateFilePath.text().strip()
+                            Date = self.StateDate.dateTime().toPyDateTime()
+                            Return = self.HSutils.Sim_setStates_FileValue(state, FilePath, Date)
+                        #Valor tomado de la variable storage del NC
+                        if option == 3:
+                            self.HSutils.Sim_setStates_NcValue(state)
+                if state<6:
+                    print HSutils.wmf.models.storage[state-1]
+                    print '----'
         
         def clickEventSimulationDeCuenca():
             '''Hace la simulacion hidrologica con el set de param seleccionados y los mapas propios de la cuenca'''
@@ -1255,8 +1272,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if self.checkBox_Simu_Retorno.isChecked():
                 HSutils.wmf.models.retorno = 1
                 HSutils.wmf.models.show_mean_retorno = 1
+            #Guarda o no estados de almacenamiento
+            pathStorage = None
+            if self.checkBox_Simu_MeanSpeed.isChecked():
+                pathStorage = self.Where2SaveStates.text().strip()
             #Simulacion hidrologica
-            self.HSutils.Sim_Basin(Inicio, Npasos, Calib, PathBin, TimeDelta, Exponenetes)
+            self.HSutils.Sim_Basin(Inicio, Npasos, Calib, PathBin, TimeDelta, Exponenetes, pathStorage)
             #Pone estados de almacenamiento finales en el NC
             self.HSutils.DicBasinNc['storage']['var'] = np.copy(self.HSutils.Sim_Storage)
             self.HSutils.DicBasinNc['storage']['saved'] = False
@@ -1328,6 +1349,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Boton_Visualizar_Qobs.clicked.connect(clickEventViewSerieQobs)
         self.Boton_Visualizar_Qobs_Sed.clicked.connect(clickEventViewSerieQobsSed)
         
+        self.BotonSelectSaveStateRute.clicked.connect(clickEventSaveAlmacenamientos)
         self.ButtonSimSetStates.clicked.connect(clickEventSetAlmacenamientos)
         self.ButtonSim_RunSimulacion.clicked.connect(clickEventSimulationDeCuenca)
         #self.ButtonSim_ViewSeries.clicked.connect(clickEventViewSerieQobsQsim)

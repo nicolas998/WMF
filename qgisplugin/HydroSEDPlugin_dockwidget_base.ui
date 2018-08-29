@@ -5212,7 +5212,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-833</y>
+              <y>-1083</y>
               <width>433</width>
               <height>2518</height>
              </rect>
@@ -6476,7 +6476,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>1310</y>
+                  <y>1280</y>
                   <width>401</width>
                   <height>901</height>
                  </rect>
@@ -6490,7 +6490,7 @@
                    <x>0</x>
                    <y>30</y>
                    <width>401</width>
-                   <height>201</height>
+                   <height>204</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0">
@@ -6567,7 +6567,33 @@
                   </item>
                   <item>
                    <layout class="QGridLayout" name="gridLayout_3">
-                    <item row="2" column="1">
+                    <item row="4" column="0">
+                     <widget class="QCheckBox" name="checkBox_Simu_Sedimentos">
+                      <property name="toolTip">
+                       <string>Activa la simulación de Sedimentos en el modelo </string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Activa la simulación de Sedimentos en el modelo </string>
+                      </property>
+                      <property name="text">
+                       <string>Sedimentos</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="0">
+                     <widget class="QCheckBox" name="checkBox_Simu_Retorno">
+                      <property name="toolTip">
+                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                      </property>
+                      <property name="text">
+                       <string>Retorno</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
                      <widget class="QCheckBox" name="checkBox_Simu_MeanSpeed">
                       <property name="maximumSize">
                        <size>
@@ -6592,20 +6618,29 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="0">
-                     <widget class="QCheckBox" name="checkBox_Simu_Sedimentos">
+                    <item row="3" column="1">
+                     <widget class="QLineEdit" name="Where2SaveStates">
+                      <property name="maximumSize">
+                       <size>
+                        <width>157</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="toolTip">
-                       <string>Activa la simulación de Sedimentos en el modelo </string>
+                       <string>Definir el nombre de la parametrización actual</string>
+                      </property>
+                      <property name="statusTip">
+                       <string/>
                       </property>
                       <property name="whatsThis">
-                       <string>Activa la simulación de Sedimentos en el modelo </string>
+                       <string>Definir el nombre de la parametrización actual.</string>
                       </property>
-                      <property name="text">
-                       <string>Sedimentos</string>
+                      <property name="readOnly">
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="1">
+                    <item row="6" column="0">
                      <widget class="QCheckBox" name="checkBox_Simu_MeanStorage">
                       <property name="toolTip">
                        <string>Activa la simulación de Deslizamientos en el modelo </string>
@@ -6615,16 +6650,26 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="0">
-                     <widget class="QCheckBox" name="checkBox_Simu_Retorno">
-                      <property name="toolTip">
-                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                    <item row="3" column="2">
+                     <widget class="QPushButton" name="BotonSelectSaveStateRute">
+                      <property name="minimumSize">
+                       <size>
+                        <width>30</width>
+                        <height>0</height>
+                       </size>
                       </property>
-                      <property name="whatsThis">
-                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
                       </property>
                       <property name="text">
-                       <string>Retorno</string>
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
                       </property>
                      </widget>
                     </item>
@@ -7406,7 +7451,7 @@
                   <x>0</x>
                   <y>880</y>
                   <width>401</width>
-                  <height>401</height>
+                  <height>371</height>
                  </rect>
                 </property>
                 <property name="title">
@@ -7418,7 +7463,7 @@
                    <x>0</x>
                    <y>30</y>
                    <width>401</width>
-                   <height>365</height>
+                   <height>341</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_23">
@@ -7520,6 +7565,9 @@
                       <property name="decimals">
                        <number>2</number>
                       </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -7544,6 +7592,9 @@
                       </property>
                       <property name="decimals">
                        <number>2</number>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -7570,6 +7621,9 @@
                       <property name="decimals">
                        <number>2</number>
                       </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -7595,6 +7649,9 @@
                       <property name="decimals">
                        <number>2</number>
                       </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -7619,6 +7676,9 @@
                       </property>
                       <property name="decimals">
                        <number>2</number>
+                      </property>
+                      <property name="maximum">
+                       <double>99999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -8326,7 +8386,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>1290</y>
+                  <y>1260</y>
                   <width>401</width>
                   <height>20</height>
                  </rect>
@@ -8350,7 +8410,6 @@
   </widget>
  </widget>
  <resources>
-  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>

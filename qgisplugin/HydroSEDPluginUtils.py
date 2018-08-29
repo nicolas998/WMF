@@ -914,11 +914,14 @@ class controlHS:
         self.cuenca.rain_radar2basin_from_array(status = 'reset')
 
 
-    def Sim_Basin(self, Start, Nsteps, Calibracion, PathRain, DeltaT, exponentes):
+    def Sim_Basin(self, Start, Nsteps, Calibracion, PathRain, DeltaT, exponentes, PathStore):
         '''Hace la simulacion hidrologica de la cuenca'''        
         #Set de calibracion
         wmf.models.sed_factor = Calibracion[-1]
         Calibracion = Calibracion[:-1]
+        print Calibracion
+        Calibracion = Calibracion[2:] + Calibracion[:2]
+        print Calibracion
         #Set del intervalo de tiempo de simulacion
         wmf.models.dt = DeltaT
         #SEtea el tipo de velocidad de acuerdo a los exponentes
@@ -932,12 +935,14 @@ class controlHS:
             Results, Qsim = self.cuenca.run_shia(Calibracion, 
                PathRain, 
                Nsteps,
-               Start)
+               Start,
+               ruta_storage = PathStore)
         elif wmf.models.sim_sediments == 1:
             Results, Qsim, Qsed = self.cuenca.run_shia(Calibracion, 
                PathRain, 
                Nsteps,
-               Start)
+               Start,
+               ruta_storage = PathStore)
         #Obtiene resultados como cosas genericas
         self.Sim_index = Qsim.index
         self.Sim_Streamflow = Qsim.copy()
