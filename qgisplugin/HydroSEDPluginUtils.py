@@ -722,11 +722,13 @@ class controlHS:
     def Sim_GetQobsInfo(self,PathExcelQobs):
          DataQ = pd.read_excel(PathExcelQobs)
          self.QobsData = DataQ.copy()
+         self.DataQindex = DataQ.index 
          self.QobsData_fi = DataQ.index[0].to_pydatetime()
          self.QobsData_ff = DataQ.index[-1].to_pydatetime()
          self.QobsData_fd = DataQ.index[1] - DataQ.index[0]
          idExcelQ = self.QobsData.columns.values.tolist()
-         return idExcelQ,DataQ
+         DataQdf = pd.Dataframe(Data={'Q':self.QobsData},index = self.DataQindex)
+         return idExcelQ,DataQ,DataQindex,DataQdf
                 
            
     def Sim_SaveParameters(self, PathNC, ParamName, scalarParam):
@@ -960,6 +962,8 @@ class controlHS:
             self.Sim_DepositionMap = np.copy(wmf.models.voldepo)
             #SErie de sedimentos simulada 
             self.Sim_Sediments = Qsed.copy()
+        
+           
             
             
             

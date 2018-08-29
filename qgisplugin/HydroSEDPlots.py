@@ -264,7 +264,84 @@ class PlotCaudal():
         fig = dict(data=data, layout=layout)
         #Guarda el html
         plot(fig,filename=pathFigure, auto_open = False)
+        
+    def Plot_Caudal_Simu(self,pathFigure,dfQobs,dfQsim):
+    
+        trace_high = go.Scatter(
+                        x=dfQsim.index,
+                        y=dfQsim.values,
+                        name = "Q Simulado",
+                        line = dict(color = 'red'),
+                        opacity = 0.8)
 
+        trace_low = go.Scatter(
+                        x=dfQsim.index,
+                        y=dfQobs.values,
+                        name = "Q Observado",
+                        line = dict(color = 'blue'),
+                        opacity = 0.8)
+
+        data = [trace_high,trace_low]
+
+        layout = dict(
+            title = u"Series de caudal",
+            xaxis = dict(
+                title='Fechas',
+                range = [str(df.index[0]),str(df.index[-1])]),
+            yaxis=dict(
+                title="$Caudal [m^3/s]$")
+            
+        )
+
+        fig = dict(data=data, layout=layout)
+        #py.iplot(fig, filename = "Series")
+        #Guarda el html
+        plot(fig,filename=pathFigure, auto_open = False)
+
+    def Plot_CDC_caudal(self,pathFigure,dfQobs,dfQsim):
+        plt.close('all')
+        Qs=np.sort(np.array(dfQobs.values))
+        Qo=np.sort(np.array(dfQobs.values))
+        porcen_s=[]
+        porcen_o=[]
+        for i in range(len(Qo)):
+            porcen_s.append((len(Qs[Qs>Qs[i]]))/float(len(Qo))*100)
+            porcen_o.append((len(Qo[Qo>Qo[i]]))/float(len(Qo[np.isfinite(Qo)]))*100)
+            
+        trace_high = go.Scatter(
+                x=porcen_s,
+                y=Qs,
+                name = "Q simulado",
+                line = dict(color = 'red'),
+                opacity = 0.8)
+
+        trace_low = go.Scatter(
+                        x=porcen_o,
+                        y=Qo,
+                        name = "Q observado",
+                        line = dict(color = 'blue'),
+                        opacity = 0.8)
+
+        data = [trace_high,trace_low]
+
+        layout = dict(
+            width=670,
+            height=500,
+            title = "Curvas de duración de Caudal",
+            xaxis = dict(
+                title='Porcentaje de Excedencia',
+                range = [str(df.index[0]),str(df.index[-1])]),
+            yaxis=dict(
+                title='$Caudal [m^3/s]$')
+    
+        )
+
+
+        fig = dict(data=data, layout=layout)
+        py.iplot(fig, filename = "Hidrografa")  
+        #Guarda el html
+        plot(fig,filename=pathFigure, auto_open = False)        
+    
 
 class PlotGeomorphology():
     

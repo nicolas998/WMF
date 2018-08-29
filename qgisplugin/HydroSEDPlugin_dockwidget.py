@@ -1247,7 +1247,51 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
                 u'El modelo se ha ejecutado con exito',
                 level=QgsMessageBar.INFO, duration=3) 
-        
+                
+                
+        def clickEventViewSerieQobsQsim():
+            self.HSplots = HSplots.PlotCaudal()
+            PathFigure =  '/tmp/HydroSED/Plots_Rainfall/QobsQsimPlotSimu.html'
+            PathQobs = self.PathinSimu_Qobs_Sed.text().strip()
+            #Obtiene el id de la estación 
+            id_est = int(self.comboBox_Selec_Qobs_Sed.currentText().encode())
+            #Obtiene la serie de caudales 
+            dfDataQobs = self.HSutils.Sim_GetQobsInfo(PathQobs)[3]
+            dfDataQsim = self.HSutils.Sim_Streamflow
+            f_ini = self.Simulacion_DateTimeStart.dateTime().toPyDateTime()
+            f_fin = self.Simulacion_DateTimeEnd.dateTime().toPyDateTime()
+            self.dfDataQobs = dfDataQobs[id_est][f_ini:f_fin]
+            self.dfDataQsim = dfDataQsim[f_ini:f_fin]
+            self.HSplots.Plot_Caudal_Simu(PathFigure,self.dfDataQobs,self.dfDataQsim)
+            #Set de la ventana que contiene la figura
+            self.VistaQobsWeb = QWebView(None)
+            self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaQobsWeb.setWindowTitle('Series de Caudales')
+            self.VistaQobsWeb.setMinimumWidth(1100)
+            self.VistaQobsWeb.setMaximumWidth(3000)
+            self.VistaQobsWeb.setMinimumHeight(100)
+            self.VistaQobsWeb.setMaximumHeight(400)
+            self.VistaQobsWeb.show()
+            
+        def clickEventViewCDCQobsQsim():
+            self.HSplots = HSplots.PlotCaudal()
+            PathFigure =  '/tmp/HydroSED/Plots_Rainfall/CDCQobsQsimuPlotSimu.html'
+            PathQobs = self.PathinSimu_Qobs_Sed.text().strip()
+            #Obtiene el id de la estación 
+            id_est = int(self.comboBox_Selec_Qobs_Sed.currentText().encode())
+            #Obtiene la serie de caudales 
+            self.HSplots.Plot_CDC_caudal(PathFigure,self.dfDataQobs,self.dfDataQsim)
+            #Set de la ventana que contiene la figura
+            self.VistaQobsWeb = QWebView(None)
+            self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaQobsWeb.setWindowTitle('Curvas de duración de Caudales')
+            self.VistaRainWeb.setMinimumWidth(200)
+            self.VistaRainWeb.setMaximumWidth(400)
+            self.VistaRainWeb.setMinimumHeight(400)
+            self.VistaRainWeb.setMaximumHeight(400)
+            self.VistaRainWeb.show()
+                                  
+         
         self.ButtonSimCalib2Nc.clicked.connect(clickEventAddNewParamSet)    
         self.tabPanelDockOpciones.currentChanged.connect(clickEventUpdateParamMapValues)
         self.ParamNamesCombo.currentIndexChanged.connect(changeEventUpdateScalarParameters) 
@@ -1261,6 +1305,9 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Boton_Visualizar_Qobs_Sed.clicked.connect(clickEventViewSerieQobsSed)
         
         self.ButtonSim_RunSimulacion.clicked.connect(clickEventSimulationDeCuenca)
+        #self.ButtonSim_ViewSeries.clicked.connect(clickEventViewSerieQobsQsim)
+        #self.ButtonSim_ViewSeries_2.clicked.connect(clickEventViewCDCQobsQsim)
+        
   
     def setupUIInputsOutputs (self):
         
