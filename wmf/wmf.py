@@ -4133,7 +4133,7 @@ class SimuBasin(Basin):
                     models.evpserie = np.ones(N_intervals)
                 #Set del vector de guardado de condiciones del modelo 
                 if WheretoStore is None:
-                    models.guarda_cond = np.zeros(N_intervals)
+                    models.guarda_cond = np.array(range(N_intervals))+1
                 else:
                     rng=pd.date_range(Rain.index[0],periods=N_intervals,freq=pd.infer_freq(Rain.index))
                     SerieToStore=pd.Series(WheretoStore,index=rng)
@@ -4179,7 +4179,7 @@ class SimuBasin(Basin):
 			if models.show_storage == 1:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
 					start_point,self,np.copy(models.mean_storage),
-                                        SerieToStore.values)
+                                        np.array(models.guarda_cond))
 			#Caso en el que no hay alm medio para cada uno de los 
 			else:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
