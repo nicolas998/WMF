@@ -926,10 +926,16 @@ class controlHS:
             else:
                 wmf.models.speed_type[c] = 1
         #Simulacion de la cuenca
-        Results, Qsim = self.cuenca.run_shia(Calibracion, 
-           PathRain, 
-           Nsteps,
-           Start)
+        if wmf.models.sim_sediments == 0:
+            Results, Qsim = self.cuenca.run_shia(Calibracion, 
+               PathRain, 
+               Nsteps,
+               Start)
+        elif wmf.models.sim_sediments == 1:
+            Results, Qsim, Qsed = self.cuenca.run_shia(Calibracion, 
+               PathRain, 
+               Nsteps,
+               Start)
         #Obtiene resultados como cosas genericas
         self.Sim_index = Qsim.index
         self.Sim_Streamflow = Qsim.copy()
@@ -937,3 +943,28 @@ class controlHS:
         self.Sim_Balance = pd.Series(Results['Balance'][0], index = self.Sim_index)
         self.Sim_Storage = Results['Storage']
         self.Sim_RainfallField = np.copy(Results['Rain_Acum'])
+        #Resultados opcionales
+        if wmf.models.show_storage == 1:
+            self.Sim_StorageSerie = pd.DataFrame(Results['Mean_Storage'].T, index = self.Sim_index)
+            print self.Sim_StorageSerie
+        if wmf.models.show_mean_speed == 1:
+            self.Sim_SpeedSerie = pd.DataFrame(Results['Mean_Speed'].T, index = self.Sim_index)
+            print self.Sim_SpeedSerie
+        if wmf.models.retorno == 1:
+            self.Sim_RetornoSerie = pd.DataFrame(wmf.models.mean_retorno, index = self.Sim_index)
+            self.Sim_RetornoMap = np.copy(wmf.models.retorned)
+        #Resultados de sedimentos 
+        if wmf.models.sim_sediments == 1:
+            #Mapas de erosion y depositacion
+            self.Sim_ErosionMap = np.copy(wmf.models.volero)
+            self.Sim_DepositionMap = np.copy(wmf.models.voldepo)
+            #SErie de sedimentos simulada 
+            self.Sim_Sediments = Qsed.copy()
+            
+            
+            
+            
+            
+            
+            
+            

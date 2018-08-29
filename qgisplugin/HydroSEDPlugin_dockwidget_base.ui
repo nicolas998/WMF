@@ -6564,33 +6564,8 @@
                   </item>
                   <item>
                    <layout class="QGridLayout" name="gridLayout_3">
-                    <item row="2" column="0">
-                     <widget class="QCheckBox" name="checkBox_Simu_Separacion">
-                      <property name="maximumSize">
-                       <size>
-                        <width>120</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Configura que la simulación entrege las salidas de caudal como Runoff, Superficial y Subterráneo</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Exportar los indicadores básicos de desempeño de la simulación a Excel</string>
-                      </property>
-                      <property name="text">
-                       <string>Separacion</string>
-                      </property>
-                      <property name="iconSize">
-                       <size>
-                        <width>8</width>
-                        <height>16</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="2" column="1">
-                     <widget class="QCheckBox" name="checkBox_Simu_SaveStorage_2">
+                     <widget class="QCheckBox" name="checkBox_Simu_MeanSpeed">
                       <property name="maximumSize">
                        <size>
                         <width>210</width>
@@ -6614,19 +6589,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="1">
-                     <widget class="QCheckBox" name="checkBox_Simu_Retorno">
-                      <property name="toolTip">
-                       <string>Activa el retorno desde el tanque subsuperficial</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Activa el retorno desde el tanque subsuperficial</string>
-                      </property>
-                      <property name="text">
-                       <string>Retorno</string>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="3" column="0">
                      <widget class="QCheckBox" name="checkBox_Simu_Sedimentos">
                       <property name="toolTip">
@@ -6640,38 +6602,26 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="0">
-                     <widget class="QCheckBox" name="checkBox_Simu_SaveStorage">
-                      <property name="maximumSize">
-                       <size>
-                        <width>210</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Configura para que se guarden las condiciones finales de la simulación para ejecutar la próxima corrida </string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Configura para que se guarden las condiciones finales de la simulación para ejecutar la próxima corrida </string>
-                      </property>
-                      <property name="text">
-                       <string>Guardar Almacenamientos</string>
-                      </property>
-                      <property name="iconSize">
-                       <size>
-                        <width>8</width>
-                        <height>16</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
-                     <widget class="QCheckBox" name="checkBox_Simu_Slides">
+                    <item row="3" column="1">
+                     <widget class="QCheckBox" name="checkBox_Simu_MeanStorage">
                       <property name="toolTip">
                        <string>Activa la simulación de Deslizamientos en el modelo </string>
                       </property>
                       <property name="text">
-                       <string>Deslizamientos</string>
+                       <string>Almacenamiento </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QCheckBox" name="checkBox_Simu_Retorno">
+                      <property name="toolTip">
+                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Activa el retorno desde el tanque subsuperficial</string>
+                      </property>
+                      <property name="text">
+                       <string>Retorno</string>
                       </property>
                      </widget>
                     </item>

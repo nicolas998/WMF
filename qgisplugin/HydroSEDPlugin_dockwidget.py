@@ -1193,6 +1193,20 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #Retorna
             return Start, Nsteps, PathRBin, Dt
         
+        def __UpdateVar2WMFTable__(varName, varValue):
+            '''Agrega una variable a la tabla de WMF'''
+            self.HSutils.DicBasinWMF.update({varName:
+                    {'nombre':varName,
+                    'tipo':varValue.dtype.name,
+                    'shape':varValue.shape,
+                    'raster':True,
+                    'basica': False,
+                    'categoria': 'Hidro',
+                    'var': np.copy(varValue),
+                    'saved':False}})
+            self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[varName],
+                varName, self.Tabla_Prop_WMF)
+        
         def clickEventSimulationDeCuenca():
             '''Hace la simulacion hidrologica con el set de param seleccionados y los mapas propios de la cuenca'''
             #Obtiene lo que se necesita para ejecutar 
@@ -1207,6 +1221,16 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             for i in [17,18,19]:
                 Campo = getattr(self, 'ParamVal'+str(i))
                 Exponenetes.append(Campo)
+            #Banderas de ejecucion
+            if self.checkBox_Simu_Sedimentos.isChecked():
+                HSutils.wmf.models.sim_sediments = 1
+            if self.checkBox_Simu_MeanSpeed.isChecked():
+                HSutils.wmf.models.show_mean_speed = 1
+            if self.checkBox_Simu_MeanStorage.isChecked():
+                HSutils.wmf.models.show_mean_storage = 1
+            if self.checkBox_Simu_Retorno.isChecked():
+                HSutils.wmf.models.retorno = 1
+                HSutils.wmf.models.show_mean_retorno = 1
             #Simulacion hidrologica
             self.HSutils.Sim_Basin(Inicio, Npasos, Calib, PathBin, TimeDelta, Exponenetes)
             #Pone estados de almacenamiento finales en el NC
@@ -1214,17 +1238,11 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.HSutils.DicBasinNc['storage']['saved'] = False
             self.TabNC.EditedEntry('storage', self.Tabla_Prop_NC)
             #Pone el campo acumulado de lluvia usado en el WMF
-            self.HSutils.DicBasinWMF.update({'Sim_Rain':
-                    {'nombre':'Sim_Rain',
-                    'tipo':self.HSutils.Sim_RainfallField.dtype.name,
-                    'shape':self.HSutils.Sim_RainfallField.shape,
-                    'raster':True,
-                    'basica': False,
-                    'categoria': 'Hidro',
-                    'var': np.copy(self.HSutils.Sim_RainfallField),
-                    'saved':False}})
-            self.TabWMF.NewEntry(self.HSutils.DicBasinWMF['Sim_Rain'],
-                'Sim_Rain', self.Tabla_Prop_WMF)
+            __UpdateVar2WMFTable__('Sim_Rain',self.HSutils.Sim_RainfallField)
+            #Campos de erosion en caso de que este se simule 
+            if self.checkBox_Simu_Sedimentos.isChecked():
+                __UpdateVar2WMFTable__('Sim_Erosion',self.HSutils.Sim_ErosionMap)
+                __UpdateVar2WMFTable__('Sim_Deposit',self.HSutils.Sim_DepositionMap)
             #Mensaje de exito 
             self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
                 u'El modelo se ha ejecutado con exito',
