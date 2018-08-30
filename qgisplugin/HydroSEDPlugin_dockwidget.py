@@ -77,6 +77,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Path2Radar = ''
         
         self.GeoPlots = HSplots.PlotGeomorphology()
+        self.SimStoragePlots = HSplots.PlotStorage()
         
         #Inicia el comboBox de la seleccion de categoria para transformar raster a WMF
         for k in ['base','Geomorfo','SimHidro','Hidro']:
@@ -1183,6 +1184,25 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.VistaQobsWeb.setMaximumHeight(400)
             self.VistaQobsWeb.show()
               
+        def clickEventViewSimStorageSeries():
+            '''Hace plot de las condiciones medias de almacenamiento de la cuenca'''
+            #Path de la figura
+            PathFigure =  '/tmp/HydroSED/Plots_Sim/SimStoredConditions.html'
+            #Obtiene el path de los datos
+            Path = self.Where2SaveStates.text().strip()
+            PathBin, PathHdr = HSutils.wmf.__Add_hdr_bin_2route__(Path, storage = True)
+            #Invoca la figura 
+            self.SimStoragePlots.Plot_Storages(PathHdr, PathFigure)
+            #Set de la ventana que contiene la figura.
+            self.VistaQobsWeb = QWebView(None)
+            self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaQobsWeb.setWindowTitle('Series de almacenamiento medio')
+            self.VistaQobsWeb.setMinimumWidth(600)
+            self.VistaQobsWeb.setMaximumWidth(600)
+            self.VistaQobsWeb.setMinimumHeight(500)
+            self.VistaQobsWeb.setMaximumHeight(700)
+            self.VistaQobsWeb.show()
+        
         def __ParseCalibValues__():
             '''Obtiene una lista de los param de calibracion a partir de los elem que estan en al interfaz'''
             Calibracion = []
@@ -1401,6 +1421,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Boton_Visualizar_Binario.clicked.connect(clickEventViewSerieSimuRainfall)
         self.Boton_Visualizar_Qobs.clicked.connect(clickEventViewSerieQobs)
         self.Boton_Visualizar_Qobs_Sed.clicked.connect(clickEventViewSerieQobsSed)
+        self.ButtonSim_ViewStorage.clicked.connect(clickEventViewSimStorageSeries)
         
         self.ButtonSelectPath2States.clicked.connect(clickEventSetPath2States)
         self.BotonSelectSaveStateRute.clicked.connect(clickEventSaveAlmacenamientos)

@@ -1,6 +1,8 @@
 from wmf import wmf 
 import numpy as np
 import plotly.graph_objs as go
+import pandas as pd
+from plotly import tools
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 
 class PlotRainfall():
@@ -562,3 +564,35 @@ class PlotGeomorphology():
         fig = dict(data=data, layout=layout)
         plot(fig,filename=pathFigure, auto_open = False)
     
+class PlotStorage():
+	
+	def __init__(self):
+		self.foo = 1
+	
+	def Plot_Storages(self, StoragePath, PathFigure):
+		'''Hace un plot del storage en el periodo de simulacion'''
+		#Lee los datos 
+		Data = pd.read_csv(StoragePath, skiprows=4, index_col=6, parse_dates=True)
+		#Hace la figura
+		fig = tools.make_subplots(rows=5, cols=1)
+		for c,key in enumerate(Data.columns.values[1:].tolist()):
+		    trace1 = go.Scatter(
+		        x = Data.index.to_pydatetime(),
+		        y = Data[key].values,
+		        name = key,
+		        line = {'width':3},
+		        fill='tozeroy',
+		    )
+		    fig.append_trace(trace1, c+1, 1)
+		fig['layout'].update(height=600, width=600,
+		    showlegend = False,
+		    yaxis=dict(title='Estado [mm]',),
+		    margin=dict(
+		        l=50,
+		        r=50,
+		        b=50,
+		        t=50,
+		        pad=4
+		    ))
+		plot(fig,filename=PathFigure, auto_open = False)
+	
