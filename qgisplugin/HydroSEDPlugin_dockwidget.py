@@ -1409,6 +1409,49 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.VistaQobsWeb.setMinimumHeight(400)
             self.VistaQobsWeb.setMaximumHeight(400)
             self.VistaQobsWeb.show()
+            
+        def clickEventViewSerieSedimentos():
+            #Fechas de inicio y fin de simulacion
+            self.f_ini = self.Simulacion_DateTimeStart.dateTime().toPyDateTime()
+            self.f_fin = self.Simulacion_DateTimeEnd.dateTime().toPyDateTime()
+            #llama el df de caudal observado 
+            dfDataQsim = self.HSutils.Sim_Sediments
+            #identifica el tramo para graficar 
+            id_tramo = str(self.spinBox_3.value())
+            #Llama el df en el id de tramo que puso el usuario 
+            dfDataQsim = dfDataQsim[id_tramo]
+            #Llama la clase de plot caudal 
+            self.HSplotsCaudal = HSplots.PlotCaudal()
+            self.Arenas=dfDataQsim['Sand']
+            self.Limos=dfDataQsim['Lime']
+            self.Arcillas= dfDataQsim['Clay']
+            self.Sed_total = self.Arenas + self.Limos + self.Arcillas 
+            
+            PathFigure =  '/tmp/HydroSED/Plots_Rainfall/QSedPlotSimu.html'
+            
+            if self.checkBox_Simu_Qs_3.isChecked():
+                #Selecciona el id que haya puesto el usuario
+                id_est = int(self.comboBox_Selec_Qobs_Sed.currentText().encode())
+                #Obtiene la serie de caudales 
+                self.PathQobs = self.PathinSimu_Qobs_Sed.text().strip()
+                #llama el df de caudal observado 
+                self.DataQ = self.HSutils.Sim_GetQobsInfo(self.PathQobs)[1]
+                #Recorta el DF a las fechas 
+                self.dfDataQobs = self.DataQ[id_est][self.f_ini:self.f_fin]
+            else:
+                self.dfDataQobs = self.Arenas*np.nan
+            #print self.HSutils.Sim_Rainfall
+            self.HSplotsCaudal.Plot_Series_Sedimentos(PathFigure,self.Arenas,self.Limos,self.Arcillas,self.Sed_total,self.dfDataQobs)
+            #Set de la ventana que contiene la figura
+            self.VistaQobsWeb = QWebView(None)
+            self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure))
+            self.VistaQobsWeb.setWindowTitle('Series de Caudales solidos')
+            self.VistaQobsWeb.setMinimumWidth(1100)
+            self.VistaQobsWeb.setMaximumWidth(3000)
+            self.VistaQobsWeb.setMinimumHeight(200)
+            self.VistaQobsWeb.setMaximumHeight(500)
+            self.VistaQobsWeb.show()                                  
+                                  
                                   
          
         self.ButtonSimCalib2Nc.clicked.connect(clickEventAddNewParamSet)    
@@ -1430,6 +1473,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.ButtonSim_RunSimulacion.clicked.connect(clickEventSimulationDeCuenca)
         self.ButtonSim_ViewStreamflow.clicked.connect(clickEventViewSerieQobsQsim)
         self.ButtonSim_ViewCDC.clicked.connect(clickEventViewCDCQobsQsim)
+        self.ButtonSim_ViewSediments.clicked.connect(clickEventViewSerieSedimentos)
         
   
     def setupUIInputsOutputs (self):

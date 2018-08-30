@@ -289,7 +289,8 @@ class PlotCaudal():
                         line = dict(color = 'blue'),
                         opacity = 0.8,
                         yaxis='y2',
-                        fill='tozeroy')
+                        fill='tozeroy',
+                        fillcolor='rgba(0, 102, 153,0.2)')
 
         data = [trace_high,trace_low,trace_inv]
 
@@ -346,9 +347,61 @@ class PlotCaudal():
         )
         fig = dict(data=data, layout=layout)
         #Guarda el html
-        plot(fig,filename=pathFigure, auto_open = False)        
-    
+        plot(fig,filename=pathFigure, auto_open = False)    
+        
+    def Plot_Series_Sedimentos(self,pathFigure,dfArenas,dfLimos,dfArcillas,dfSed_total,dfDataQobs):   
+             
+        trace_high = go.Scatter(
+                        x=dfArenas.index,
+                        y=dfArenas.values,
+                        name = "Arenas",
+                        line = dict(color = 'rgb(255, 255, 0)',dash = 'dashdot'),
+                        opacity = 0.8)
 
+        trace_1 = go.Scatter(
+                        x=dfArenas.index,
+                        y=dfLimos.values,
+                        name = "Limos",
+                        line = dict(color = 'rgb(179, 143, 0)',dash = 'dash'),
+                        opacity = 0.8)
+                        
+        trace_2 = go.Scatter(
+                        x=dfArenas.index,
+                        y=dfArcillas.values,
+                        name = "Arcillas",
+                        line = dict(color = 'rgb(85, 128, 0)',dash = 'dot'),
+                        opacity = 0.8)
+                        
+        trace_3 = go.Scatter(
+                        x=dfArenas.index,
+                        y=dfSed_total.values,
+                        name = "Qsed total",
+                        line = dict(color = 'red',width=3),
+                        opacity = 0.8)
+                        
+        trace_4 = go.Scatter(
+                        x=dfArenas.index,
+                        y=dfDataQobs.values,
+                        name = "Qsed Observado",
+                        line = dict(color = ('rgb(255, 71, 26)'),width=3),
+                        opacity = 0.8)        
+                                                   
+
+        data = [trace_high,trace_1,trace_2,trace_3,trace_4]
+
+        layout = dict(showlegend = False,
+            xaxis = dict(
+                title='Fechas'),
+            yaxis=dict(
+                title="Caudal Solido [m3/s]"),
+            
+        )
+
+        fig = dict(data=data, layout=layout)
+        #Guarda el html
+        plot(fig,filename=pathFigure, auto_open = False)
+            
+   
 class PlotGeomorphology():
     
     def __init__(self):
