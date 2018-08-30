@@ -5212,7 +5212,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-830</y>
+              <y>-137</y>
               <width>433</width>
               <height>2518</height>
              </rect>
@@ -5878,6 +5878,9 @@
                       <property name="decimals">
                        <number>3</number>
                       </property>
+                      <property name="maximum">
+                       <double>999999.000000000000000</double>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5887,6 +5890,9 @@
                      <widget class="QDoubleSpinBox" name="Param2">
                       <property name="decimals">
                        <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>999999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -5898,6 +5904,9 @@
                       <property name="decimals">
                        <number>3</number>
                       </property>
+                      <property name="maximum">
+                       <double>999999.000000000000000</double>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5907,6 +5916,9 @@
                      <widget class="QDoubleSpinBox" name="Param4">
                       <property name="decimals">
                        <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>999999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -5918,6 +5930,9 @@
                       <property name="decimals">
                        <number>3</number>
                       </property>
+                      <property name="maximum">
+                       <double>999999.000000000000000</double>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5927,6 +5942,9 @@
                      <widget class="QDoubleSpinBox" name="Param5">
                       <property name="decimals">
                        <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>999999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -5960,6 +5978,9 @@
                       <property name="decimals">
                        <number>3</number>
                       </property>
+                      <property name="maximum">
+                       <double>999999.000000000000000</double>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5970,6 +5991,9 @@
                       <property name="decimals">
                        <number>3</number>
                       </property>
+                      <property name="maximum">
+                       <double>999999.000000000000000</double>
+                      </property>
                       <property name="value">
                        <double>1.000000000000000</double>
                       </property>
@@ -5979,6 +6003,9 @@
                      <widget class="QDoubleSpinBox" name="Param9">
                       <property name="decimals">
                        <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>999999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
@@ -6011,6 +6038,9 @@
                      <widget class="QDoubleSpinBox" name="Param10">
                       <property name="decimals">
                        <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>999999.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>

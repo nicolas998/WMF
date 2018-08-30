@@ -530,19 +530,22 @@ class controlHS:
             - Hu: almacenamiento capilar maximo [mm] DicBasinNc['h1_max']
             - ks: conductividad saturada del suelo [mm/s] DicBasinNc['v_coef'][1]'''
         #Busca si los parametros de la cuenca estan definidos, si no los reemplaza con constantes para Hu y ks 
-        if u'h1_max' in self.DicBasinNc.keys(): 
-            Hu = np.copy(self.DicBasinNc['h1_max']['var'])
+        if u'h3_max' in self.DicBasinNc.keys(): 
+            Hg = np.copy(self.DicBasinNc['h3_max']['var'])
+            Hg[Hg<=0] = Hg.mean()
         else: 
-            Hu = 100    
+            Hg = 250    
         if u'v_coef' in self.DicBasinNc.keys():  
             ks = np.copy(self.DicBasinNc['v_coef']['var'][1])
         else: 
-            ks = 0.003 
+            ks = 0.00128 
         self.cuenca.GetGeo_Cell_Basics()
         So = np.copy(self.cuenca.CellSlope)
-        Factor = (wmf.cu.dxp**2.)/1000. #[m3/mm]
+        Factor = (wmf.cu.dxp**2.)/1000./1000. #[m3/mm]
         #Calculo del coeficiente de kubota
-        Coef = (ks*So*(wmf.cu.dxp**2.))/(3*(Hu*Factor)**2.)
+        Coef = (ks*So*(wmf.cu.dxp**2.))/(3*(Hg*Factor)**2.)
+        Coef[Coef==0] = np.percentile(Coef, 50)
+        #ksh=(Ks*cuSalgar.CellSlope*(12.7**2.0))/(3*(Hg*0.9/1000.0)**2)
         Coef[np.where(np.isinf(Coef))]=np.mean(Coef[np.where(np.isfinite(Coef))])
         print Coef
         #Actualiza el diccionario 

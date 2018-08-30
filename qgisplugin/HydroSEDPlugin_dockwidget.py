@@ -1074,9 +1074,10 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             for i in range(1,12):
                 ListaParam.append(getattr(self, 'Param'+str(i)).value())
             #Itera en los exponentes
-            for i in range(1,5):
-                ListaParam.append(getattr(self, 'ParamExp'+str(i)).value())    
+            #for i in range(1,5):
+             #   ListaParam.append(getattr(self, 'ParamExp'+str(i)).value())    
             #Mete el set nuevo de calibracion
+            ListaParam.extend([0,0,0,0])
             self.HSutils.Sim_SaveParameters(PathNC, ParamName, ListaParam)
             #Actualiza la lista de parametros 
             self.ParamNamesCombo.clear()
@@ -1242,7 +1243,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         def clickEventSaveAlmacenamientos():
             '''Establece la ruta de guardado de los almacenamientos'''
             #Establece el punto de guardado
-            setupLineEditButtonOpenBinStoFileDialog(self.Where2SaveStates, QFileDialog)
+            setupLineEditButtonSaveBinStoFileDialog(self.Where2SaveStates, QFileDialog)
             Path = self.Where2SaveStates.text().strip()
             #Hace check del boton
             self.checkBox_Simu_MeanSpeed.setChecked(True)
