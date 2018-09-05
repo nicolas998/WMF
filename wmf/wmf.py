@@ -59,7 +59,6 @@ except:
     FlagBasinPolygon = False
 
 import random
-# np.seterr(divide='ignore', invalid='ignore')
 
 #-----------------------------------------------------------------------
 #Ploteo de variables
