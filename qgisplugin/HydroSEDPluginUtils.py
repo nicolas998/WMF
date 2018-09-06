@@ -587,6 +587,7 @@ class controlHS:
         #Calcula 
         Coef = (float(Epsilon)/Man)*(So**2.)
         Coef[np.where(np.isinf(Coef))]=np.mean(Coef[np.where(np.isfinite(Coef))])
+        Coef[Coef<=0] = np.percentile(Coef, 50)
         print Coef
         Expo = (2./3.)*e1*np.ones([self.cuenca.ncells])
         #Pone en los diccionarios 

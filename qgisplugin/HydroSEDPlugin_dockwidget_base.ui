@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>495</width>
-    <height>936</height>
+    <height>937</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -250,7 +250,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>4</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-309</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -317,6 +317,1060 @@
                <property name="minimumSize">
                 <size>
                  <width>300</width>
+                 <height>1000</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>50000</width>
+                 <height>50000</height>
+                </size>
+               </property>
+               <widget class="QGroupBox" name="groupBox_22">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>0</y>
+                  <width>421</width>
+                  <height>361</height>
+                 </rect>
+                </property>
+                <property name="title">
+                 <string>Configuración mapas raster</string>
+                </property>
+                <widget class="QWidget" name="layoutWidget">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>30</y>
+                   <width>421</width>
+                   <height>331</height>
+                  </rect>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayoutConfiguracionGeneral">
+                  <property name="sizeConstraint">
+                   <enum>QLayout::SetMinimumSize</enum>
+                  </property>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_3">
+                    <item>
+                     <widget class="QLabel" name="label_set_dxp">
+                      <property name="toolTip">
+                       <string>Valor en metros del tamano de una celda en el mapa
+ (establecer antes de cargar MDE).</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Valor en metros del tamano de una celda en el mapa.</string>
+                      </property>
+                      <property name="layoutDirection">
+                       <enum>Qt::LeftToRight</enum>
+                      </property>
+                      <property name="text">
+                       <string>1. Valor Dxp [m]</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="spinBox_dxPlano">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>150</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Establecer el tamaño de pixel del MDE y DIR</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Establecer el tamaño de pixel del MDE y DIR</string>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>12.699999999999999</double>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="labelDEM">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dirección al MDE (modelo digital de elevación), este se usa como base para un proyecto.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dirección al MDE (modelo digital de elevación), este se usa como base para un proyecto.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>2. Mapa MDE:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayoutSelectorArchivosMapaDEM">
+                    <item>
+                     <widget class="QLineEdit" name="lineEditMapaDEM">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>290</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Ruta en la que se encuentra el .tif con el MDE</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta en la que se encuentra el .tif con el MDE</string>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="botonSelectorMapaDEM">
+                      <property name="minimumSize">
+                       <size>
+                        <width>30</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Establecer la ruta en la que se encuentra el .tif con el MDE</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Establecer la ruta en la que se encuentra el .tif con el MDE</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Boton_MDE2WMF">
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Carga el mapa base MDE para WMF</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Carga el mapa base MDE para WMF</string>
+                      </property>
+                      <property name="text">
+                       <string>Cargar</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_4">
+                    <item>
+                     <spacer name="horizontalSpacer_2">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Boton_verMDE">
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Visualizar el MDE que ha sido cargado</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Visualizar el MDE que ha sido cargado</string>
+                      </property>
+                      <property name="text">
+                       <string>Visualizar</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="labelDIR">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>3. Mapa DIR:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayoutSelectorArchivosMapaDIR">
+                    <item>
+                     <widget class="QLineEdit" name="lineEditMapaDIR">
+                      <property name="maximumSize">
+                       <size>
+                        <width>290</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Ruta en la que se encuentra el .tif con el DIR</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta en la que se encuentra el .tif con el DIR</string>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="botonSelectorMapaDIR">
+                      <property name="minimumSize">
+                       <size>
+                        <width>30</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Establecer la ruta en la que se encuentra el .tif con el DIR</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Establecer la ruta en la que se encuentra el .tif con el DIR</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Boton_DIR2WMF">
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Carga el mapa base DIR para WMF</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Carga el mapa base DIR para WMF</string>
+                      </property>
+                      <property name="text">
+                       <string>Cargar</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_5">
+                    <item>
+                     <spacer name="horizontalSpacer_4">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Boton_verDIR">
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Visualizar el DIR que ha sido cargado</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Visualizar el DIR que ha sido cargado</string>
+                      </property>
+                      <property name="text">
+                       <string>Visualizar</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_6">
+                    <item>
+                     <widget class="QLabel" name="label_set_dxp_4">
+                      <property name="toolTip">
+                       <string>Código EPSG de los mapas DEM y DIR cargados para el proyecto.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Valor en metros del tamano de una celda en el mapa.</string>
+                      </property>
+                      <property name="layoutDirection">
+                       <enum>Qt::LeftToRight</enum>
+                      </property>
+                      <property name="text">
+                       <string>Propiedades espaciales.</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_35">
+                    <item>
+                     <widget class="QLabel" name="label_set_dxp_2">
+                      <property name="toolTip">
+                       <string>Código EPSG de los mapas DEM y DIR cargados para el proyecto.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Valor en metros del tamano de una celda en el mapa.</string>
+                      </property>
+                      <property name="layoutDirection">
+                       <enum>Qt::LeftToRight</enum>
+                      </property>
+                      <property name="text">
+                       <string>Proyección EPSG </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_22">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="LineEditEPSG">
+                      <property name="maximumSize">
+                       <size>
+                        <width>85</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_39">
+                    <item>
+                     <widget class="QLabel" name="label_set_dxp_3">
+                      <property name="toolTip">
+                       <string>Código EPSG de los mapas DEM y DIR cargados para el proyecto.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Valor en metros del tamano de una celda en el mapa.</string>
+                      </property>
+                      <property name="layoutDirection">
+                       <enum>Qt::LeftToRight</enum>
+                      </property>
+                      <property name="text">
+                       <string>Valor datos nulos</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_23">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="LineEditNoData">
+                      <property name="maximumSize">
+                       <size>
+                        <width>85</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
+               <widget class="Line" name="line_4">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>370</y>
+                  <width>419</width>
+                  <height>3</height>
+                 </rect>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+               <widget class="QGroupBox" name="groupBox_23">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>380</y>
+                  <width>421</width>
+                  <height>391</height>
+                 </rect>
+                </property>
+                <property name="title">
+                 <string>Trazadores</string>
+                </property>
+                <widget class="QWidget" name="verticalLayoutWidget_13">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>20</y>
+                   <width>421</width>
+                   <height>141</height>
+                  </rect>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_26">
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_22">
+                    <item>
+                     <widget class="QLabel" name="labelLatitudTrazadorCorrientes_4">
+                      <property name="toolTip">
+                       <string>Punto de inicio de trazado de la corriente</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Punto de inicio de trazado de la corriente</string>
+                      </property>
+                      <property name="text">
+                       <string>1. Corriente</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_81">
+                    <item>
+                     <widget class="QLabel" name="labelLongitudTrazadorCorrientes_7">
+                      <property name="toolTip">
+                       <string>Coordenada en Y del punto de inicio.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Coordenada en Y del punto de inicio.</string>
+                      </property>
+                      <property name="text">
+                       <string>Latitud: </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCorrientes">
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-200.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>200.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="labelLongitudTrazadorCorrientes_8">
+                      <property name="toolTip">
+                       <string>Coordenada en X del punto de inicio.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Coordenada en X del punto de inicio.</string>
+                      </property>
+                      <property name="text">
+                       <string>Longitud</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCorrientes">
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-200.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>200.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="BotonCoord_corriente">
+                      <property name="toolTip">
+                       <string>Obtener coordenadas dando click sobre el mapa</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Obtener coordenadas dando click sobre el mapa</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="botonEjecutarTrazadorCorrientes">
+                      <property name="toolTip">
+                       <string>Ejecutar la función de trazado de corriente.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecutar la función de trazado de corriente.</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayoutSelectorOutputCorrienteShapefileTrazadorCorrientes_2">
+                    <item>
+                     <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile_9">
+                      <property name="minimumSize">
+                       <size>
+                        <width>120</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Corriente (.shp)</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="PathCorriente_out">
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="botonSelectorOutputCorrienteShapefileTrazadorCorrientes">
+                      <property name="minimumSize">
+                       <size>
+                        <width>30</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="verticalLayoutWidget_14">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>180</y>
+                   <width>421</width>
+                   <height>171</height>
+                  </rect>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_27">
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_83">
+                    <item>
+                     <widget class="QLabel" name="labelLatitudTrazadorCorrientes_6">
+                      <property name="toolTip">
+                       <string>Punto de inicio de trazado de la corriente</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Punto de inicio de trazado de la corriente</string>
+                      </property>
+                      <property name="text">
+                       <string>2. Cuenca</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_7">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="labelLongitudTrazadorCorrientes_14">
+                      <property name="toolTip">
+                       <string>Umbral mínimo para determinar red de drenaje en la cuenca</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Umbral mínimo para determinar red de drenaje en la cuenca</string>
+                      </property>
+                      <property name="text">
+                       <string>Umbral</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="spinBoxUmbralRed">
+                      <property name="toolTip">
+                       <string>Seleccionar umbral de área acumulada para estimar canales</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar umbral de área acumulada para estimar canales</string>
+                      </property>
+                      <property name="decimals">
+                       <number>0</number>
+                      </property>
+                      <property name="minimum">
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_84">
+                    <item>
+                     <widget class="QLabel" name="labelLongitudTrazadorCorrientes_9">
+                      <property name="toolTip">
+                       <string>Coordenada en Y del punto de inicio.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Coordenada en Y del punto de inicio.</string>
+                      </property>
+                      <property name="text">
+                       <string>Latitud: </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCuencas">
+                      <property name="maximumSize">
+                       <size>
+                        <width>80</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-200.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>200.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="labelLongitudTrazadorCorrientes_10">
+                      <property name="toolTip">
+                       <string>Coordenada en X del punto de inicio.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Coordenada en X del punto de inicio.</string>
+                      </property>
+                      <property name="text">
+                       <string>Longitud</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCuencas">
+                      <property name="maximumSize">
+                       <size>
+                        <width>80</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-200.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>200.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="BotonCoord_cuenca">
+                      <property name="toolTip">
+                       <string>Seleccionar las coordenadas de la salida de la cuenca a trazar</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar las coordenadas de la salida de la cuenca a trazar</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="botonEjecutarTrazadorCuencas">
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaShapefileTrazadorCuencas_5">
+                    <item>
+                     <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile_5">
+                      <property name="minimumSize">
+                       <size>
+                        <width>120</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>150</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Divisoria (.shp)</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="PathOutputDivisoria">
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="BotonPathDivisoria">
+                      <property name="minimumSize">
+                       <size>
+                        <width>30</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Seleccionar la ruta para para guardar el .shp con la divisoria de aguas</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la ruta para para guardar el .shp con la divisoria de aguas</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaShapefileTrazadorCuencas_6">
+                    <item>
+                     <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile_7">
+                      <property name="text">
+                       <string>Red Hídrica (.shp)</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="PathOutputRed">
+                      <property name="toolTip">
+                       <string>Seleccionar la ruta para para guardar el .shp con la red hídrica</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la ruta para para guardar el .shp con la red hídrica</string>
+                      </property>
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="BotonPathRed">
+                      <property name="minimumSize">
+                       <size>
+                        <width>30</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaNCTrazadorCuencas_3">
+                    <item>
+                     <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile_10">
+                      <property name="minimumSize">
+                       <size>
+                        <width>120</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Topologia (.nc)</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="PathOutputNETCDF">
+                      <property name="toolTip">
+                       <string>Seleccionar la ruta para guardar el .nc con el proyecto de cuenca</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la ruta para guardar el .nc con el proyecto de cuenca</string>
+                      </property>
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="BotonPathNC">
+                      <property name="minimumSize">
+                       <size>
+                        <width>30</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile_8">
+                 <property name="geometry">
+                  <rect>
+                   <x>110</x>
+                   <y>390</y>
+                   <width>59</width>
+                   <height>27</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Divisoria</string>
+                 </property>
+                </widget>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </widget>
+         <widget class="QWidget" name="tabTrazadores">
+          <attribute name="title">
+           <string>Gestor</string>
+          </attribute>
+          <widget class="QScrollArea" name="scrollArea_trazadores">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>461</width>
+             <height>730</height>
+            </rect>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>430</width>
+             <height>400</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50000</width>
+             <height>50000</height>
+            </size>
+           </property>
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOn</enum>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAsNeeded</enum>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents_3">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>443</width>
+              <height>2018</height>
+             </rect>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_6">
+             <item>
+              <widget class="QWidget" name="widget_2" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>250</width>
                  <height>2000</height>
                 </size>
                </property>
@@ -326,898 +1380,694 @@
                  <height>50000</height>
                 </size>
                </property>
-               <widget class="QWidget" name="layoutWidget">
+               <widget class="QGroupBox" name="groupBox_3">
                 <property name="geometry">
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>425</width>
-                  <height>1151</height>
+                  <width>423</width>
+                  <height>100</height>
                  </rect>
                 </property>
-                <layout class="QVBoxLayout" name="verticalLayoutConfiguracionGeneral">
-                 <property name="sizeConstraint">
-                  <enum>QLayout::SetMinimumSize</enum>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>100</height>
+                 </size>
+                </property>
+                <property name="title">
+                 <string>Convertir raster a cuenca.</string>
+                </property>
+                <widget class="QWidget" name="verticalLayoutWidget">
+                 <property name="geometry">
+                  <rect>
+                   <x>10</x>
+                   <y>20</y>
+                   <width>401</width>
+                   <height>71</height>
+                  </rect>
                  </property>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_3">
-                   <item>
-                    <widget class="QLabel" name="label_set_dxp">
-                     <property name="toolTip">
-                      <string>Valor en metros del tamano de una celda en el mapa
- (establecer antes de cargar MDE).</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Valor en metros del tamano de una celda en el mapa.</string>
-                     </property>
-                     <property name="layoutDirection">
-                      <enum>Qt::LeftToRight</enum>
-                     </property>
-                     <property name="text">
-                      <string>Valor Dxp [m]</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QDoubleSpinBox" name="spinBox_dxPlano">
-                     <property name="minimumSize">
-                      <size>
-                       <width>100</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>150</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Establecer el tamaño de pixel del MDE y DIR</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Establecer el tamaño de pixel del MDE y DIR</string>
-                     </property>
-                     <property name="maximum">
-                      <double>10000.000000000000000</double>
-                     </property>
-                     <property name="value">
-                      <double>12.699999999999999</double>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="labelDEM">
-                   <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dirección al MDE (modelo digital de elevación), este se usa como base para un proyecto.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dirección al MDE (modelo digital de elevación), este se usa como base para un proyecto.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                   <property name="text">
-                    <string>Mapa MDE:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayoutSelectorArchivosMapaDEM">
-                   <item>
-                    <widget class="QLineEdit" name="lineEditMapaDEM">
-                     <property name="minimumSize">
-                      <size>
-                       <width>100</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>290</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Ruta en la que se encuentra el .tif con el MDE</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Ruta en la que se encuentra el .tif con el MDE</string>
-                     </property>
-                     <property name="readOnly">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="botonSelectorMapaDEM">
-                     <property name="minimumSize">
-                      <size>
-                       <width>30</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Establecer la ruta en la que se encuentra el .tif con el MDE</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Establecer la ruta en la que se encuentra el .tif con el MDE</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="resources.qrc">
-                       <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="Boton_MDE2WMF">
-                     <property name="maximumSize">
-                      <size>
-                       <width>100</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Carga el mapa base MDE para WMF</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Carga el mapa base MDE para WMF</string>
-                     </property>
-                     <property name="text">
-                      <string>Cargar</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_4">
-                   <item>
-                    <spacer name="horizontalSpacer_2">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="Boton_verMDE">
-                     <property name="maximumSize">
-                      <size>
-                       <width>100</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Visualizar el MDE que ha sido cargado</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Visualizar el MDE que ha sido cargado</string>
-                     </property>
-                     <property name="text">
-                      <string>Visualizar</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="labelDIR">
-                   <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                   <property name="text">
-                    <string>Mapa DIR:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayoutSelectorArchivosMapaDIR">
-                   <item>
-                    <widget class="QLineEdit" name="lineEditMapaDIR">
-                     <property name="maximumSize">
-                      <size>
-                       <width>290</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Ruta en la que se encuentra el .tif con el DIR</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Ruta en la que se encuentra el .tif con el DIR</string>
-                     </property>
-                     <property name="readOnly">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="botonSelectorMapaDIR">
-                     <property name="minimumSize">
-                      <size>
-                       <width>30</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Establecer la ruta en la que se encuentra el .tif con el DIR</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Establecer la ruta en la que se encuentra el .tif con el DIR</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="resources.qrc">
-                       <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="Boton_DIR2WMF">
-                     <property name="maximumSize">
-                      <size>
-                       <width>100</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Carga el mapa base DIR para WMF</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Carga el mapa base DIR para WMF</string>
-                     </property>
-                     <property name="text">
-                      <string>Cargar</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_5">
-                   <item>
-                    <spacer name="horizontalSpacer_4">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="Boton_verDIR">
-                     <property name="maximumSize">
-                      <size>
-                       <width>100</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Visualizar el DIR que ha sido cargado</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Visualizar el DIR que ha sido cargado</string>
-                     </property>
-                     <property name="text">
-                      <string>Visualizar</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_6"/>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_35">
-                   <item>
-                    <widget class="QLabel" name="label_set_dxp_2">
-                     <property name="toolTip">
-                      <string>Código EPSG de los mapas DEM y DIR cargados para el proyecto.</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Valor en metros del tamano de una celda en el mapa.</string>
-                     </property>
-                     <property name="layoutDirection">
-                      <enum>Qt::LeftToRight</enum>
-                     </property>
-                     <property name="text">
-                      <string>Proyección EPSG </string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_22">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QLineEdit" name="LineEditEPSG">
-                     <property name="maximumSize">
-                      <size>
-                       <width>85</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="readOnly">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_39">
-                   <item>
-                    <widget class="QLabel" name="label_set_dxp_3">
-                     <property name="toolTip">
-                      <string>Código EPSG de los mapas DEM y DIR cargados para el proyecto.</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Valor en metros del tamano de una celda en el mapa.</string>
-                     </property>
-                     <property name="layoutDirection">
-                      <enum>Qt::LeftToRight</enum>
-                     </property>
-                     <property name="text">
-                      <string>Valor datos nulos</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_23">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QLineEdit" name="LineEditNoData">
-                     <property name="maximumSize">
-                      <size>
-                       <width>85</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="readOnly">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <widget class="Line" name="line_15">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QGroupBox" name="groupBox_3">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>100</height>
-                    </size>
-                   </property>
-                   <property name="title">
-                    <string>Convertir raster a cuenca.</string>
-                   </property>
-                   <widget class="QWidget" name="verticalLayoutWidget">
-                    <property name="geometry">
-                     <rect>
-                      <x>10</x>
-                      <y>20</y>
-                      <width>401</width>
-                      <height>71</height>
-                     </rect>
+                 <layout class="QVBoxLayout" name="verticalLayout_19">
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_40">
+                    <item>
+                     <widget class="QLabel" name="labelDIR_4">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>Mapa raster</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="PathRaster2WMF">
+                      <property name="maximumSize">
+                       <size>
+                        <width>290</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Establecer la ruta del mapa raster a convertir</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Establecer la ruta del mapa raster a convertir</string>
+                      </property>
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="ButtonPathRaster2WMF">
+                      <property name="minimumSize">
+                       <size>
+                        <width>30</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Establecer la ruta del mapa raster a convertir</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Establecer la ruta del mapa raster a convertir</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_41">
+                    <item>
+                     <widget class="QLabel" name="labelDIR_5">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>Nombre: </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="NameRaster2WMF">
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Nombre con el que será cargado el el mapa a la tabla de variables de WMF</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Nombre con el que será cargado el el mapa a la tabla de variables de WMF</string>
+                      </property>
+                      <property name="readOnly">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="labelDIR_6">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>Categoría: </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QComboBox" name="ComboBoxRaster2WMF">
+                      <property name="toolTip">
+                       <string>Seleccionar la categoría del mapa a convertir</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la categoría del mapa a convertir</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_Raster2WMF">
+                      <property name="toolTip">
+                       <string>Ejecutar la función para convertir el raster a cuenca</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecutar la función para convertir el raster a cuenca</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
+               <widget class="QGroupBox" name="groupBox_21">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>100</y>
+                  <width>421</width>
+                  <height>601</height>
+                 </rect>
+                </property>
+                <property name="title">
+                 <string>Gestión de variables</string>
+                </property>
+                <widget class="QWidget" name="verticalLayoutWidget_12">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>30</y>
+                   <width>421</width>
+                   <height>571</height>
+                  </rect>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_24">
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_28">
+                    <item>
+                     <widget class="QLabel" name="labelDIR_2">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>Variables WMF</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_15">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="ButtonDraw_histogram_WMF">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="contextMenuPolicy">
+                       <enum>Qt::DefaultContextMenu</enum>
+                      </property>
+                      <property name="toolTip">
+                       <string>Grafica el histograma de la variable seleccionada</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Grafica el histograma de la variable seleccionada</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>16</width>
+                        <height>16</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="ButtonVar2Net_WMF">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="contextMenuPolicy">
+                       <enum>Qt::DefaultContextMenu</enum>
+                      </property>
+                      <property name="toolTip">
+                       <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>16</width>
+                        <height>16</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_Visualizar_Desde_WMF">
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Visualizar variable (es convertida a raster y enviada a /tmp/Hidrosig/)</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Visualizar variable (es convertida a raster y enviada a /tmp/Hidrosig/)</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_Eliminar_Desde_WMF">
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Eliminar variable de la tabla</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Eliminar variable de la tabla</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="QTableWidget" name="Tabla_Prop_WMF">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>200</height>
+                     </size>
                     </property>
-                    <layout class="QVBoxLayout" name="verticalLayout_19">
-                     <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_40">
-                       <item>
-                        <widget class="QLabel" name="labelDIR_4">
-                         <property name="toolTip">
-                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                         </property>
-                         <property name="whatsThis">
-                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                         </property>
-                         <property name="text">
-                          <string>Mapa raster</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="PathRaster2WMF">
-                         <property name="maximumSize">
-                          <size>
-                           <width>290</width>
-                           <height>16777215</height>
-                          </size>
-                         </property>
-                         <property name="toolTip">
-                          <string>Establecer la ruta del mapa raster a convertir</string>
-                         </property>
-                         <property name="whatsThis">
-                          <string>Establecer la ruta del mapa raster a convertir</string>
-                         </property>
-                         <property name="readOnly">
-                          <bool>false</bool>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QPushButton" name="ButtonPathRaster2WMF">
-                         <property name="minimumSize">
-                          <size>
-                           <width>30</width>
-                           <height>0</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>30</width>
-                           <height>16777215</height>
-                          </size>
-                         </property>
-                         <property name="toolTip">
-                          <string>Establecer la ruta del mapa raster a convertir</string>
-                         </property>
-                         <property name="whatsThis">
-                          <string>Establecer la ruta del mapa raster a convertir</string>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                         <property name="icon">
-                          <iconset resource="resources.qrc">
-                           <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </item>
-                     <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_41">
-                       <item>
-                        <widget class="QLabel" name="labelDIR_5">
-                         <property name="toolTip">
-                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                         </property>
-                         <property name="whatsThis">
-                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                         </property>
-                         <property name="text">
-                          <string>Nombre: </string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="NameRaster2WMF">
-                         <property name="maximumSize">
-                          <size>
-                           <width>100</width>
-                           <height>16777215</height>
-                          </size>
-                         </property>
-                         <property name="toolTip">
-                          <string>Nombre con el que será cargado el el mapa a la tabla de variables de WMF</string>
-                         </property>
-                         <property name="whatsThis">
-                          <string>Nombre con el que será cargado el el mapa a la tabla de variables de WMF</string>
-                         </property>
-                         <property name="readOnly">
-                          <bool>false</bool>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="labelDIR_6">
-                         <property name="toolTip">
-                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                         </property>
-                         <property name="whatsThis">
-                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                         </property>
-                         <property name="text">
-                          <string>Categoría: </string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QComboBox" name="ComboBoxRaster2WMF">
-                         <property name="toolTip">
-                          <string>Seleccionar la categoría del mapa a convertir</string>
-                         </property>
-                         <property name="whatsThis">
-                          <string>Seleccionar la categoría del mapa a convertir</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QPushButton" name="Button_Raster2WMF">
-                         <property name="toolTip">
-                          <string>Ejecutar la función para convertir el raster a cuenca</string>
-                         </property>
-                         <property name="whatsThis">
-                          <string>Ejecutar la función para convertir el raster a cuenca</string>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                         <property name="icon">
-                          <iconset resource="resources.qrc">
-                           <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </item>
-                    </layout>
+                    <property name="selectionMode">
+                     <enum>QAbstractItemView::MultiSelection</enum>
+                    </property>
+                    <property name="selectionBehavior">
+                     <enum>QAbstractItemView::SelectRows</enum>
+                    </property>
+                    <property name="sortingEnabled">
+                     <bool>true</bool>
+                    </property>
                    </widget>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="Line" name="line_4">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_28">
-                   <item>
-                    <widget class="QLabel" name="labelDIR_2">
-                     <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                     </property>
-                     <property name="text">
-                      <string>Variables WMF</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_15">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="ButtonDraw_histogram_WMF">
-                     <property name="enabled">
-                      <bool>true</bool>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>50</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="contextMenuPolicy">
-                      <enum>Qt::DefaultContextMenu</enum>
-                     </property>
-                     <property name="toolTip">
-                      <string>Grafica el histograma de la variable seleccionada</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Grafica el histograma de la variable seleccionada</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="resources.qrc">
-                       <normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>16</width>
-                       <height>16</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="ButtonVar2Net_WMF">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>50</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="contextMenuPolicy">
-                      <enum>Qt::DefaultContextMenu</enum>
-                     </property>
-                     <property name="toolTip">
-                      <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="resources.qrc">
-                       <normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>16</width>
-                       <height>16</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="Button_Visualizar_Desde_WMF">
-                     <property name="minimumSize">
-                      <size>
-                       <width>50</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Visualizar variable (es convertida a raster y enviada a /tmp/Hidrosig/)</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Visualizar variable (es convertida a raster y enviada a /tmp/Hidrosig/)</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="resources.qrc">
-                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="Button_Eliminar_Desde_WMF">
-                     <property name="minimumSize">
-                      <size>
-                       <width>50</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Eliminar variable de la tabla</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Eliminar variable de la tabla</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="resources.qrc">
-                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <widget class="QTableWidget" name="Tabla_Prop_WMF">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>200</height>
-                    </size>
-                   </property>
-                   <property name="selectionMode">
-                    <enum>QAbstractItemView::MultiSelection</enum>
-                   </property>
-                   <property name="selectionBehavior">
-                    <enum>QAbstractItemView::SelectRows</enum>
-                   </property>
-                   <property name="sortingEnabled">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_7">
-                   <item>
-                    <widget class="QLabel" name="labelDIR_3">
-                     <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                     </property>
-                     <property name="text">
-                      <string>Variables NC</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_13">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="Button_NC2WMF">
-                     <property name="minimumSize">
-                      <size>
-                       <width>50</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Envar variables del NC al WMF (Si no han sido guardadas en el NC)</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Envar variables del NC al WMF (Si no han sido guardadas en el NC)</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="resources.qrc">
-                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-arriba.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-arriba.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="Button_WMF2NC">
-                     <property name="minimumSize">
-                      <size>
-                       <width>50</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>Enviar variables del WMF al NC</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>Enviar variables del WMF al NC</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="resources.qrc">
-                       <normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-abajo.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-abajo.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <widget class="QTableWidget" name="Tabla_Prop_NC">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>200</height>
-                    </size>
-                   </property>
-                   <property name="defaultDropAction">
-                    <enum>Qt::TargetMoveAction</enum>
-                   </property>
-                   <property name="alternatingRowColors">
-                    <bool>true</bool>
-                   </property>
-                   <property name="selectionMode">
-                    <enum>QAbstractItemView::SingleSelection</enum>
-                   </property>
-                   <property name="selectionBehavior">
-                    <enum>QAbstractItemView::SelectRows</enum>
-                   </property>
-                   <property name="sortingEnabled">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_7">
+                    <item>
+                     <widget class="QLabel" name="labelDIR_3">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mapa DIR (direcciones de flujo) obtenido a partir del MDE.  Se debe obtener mediante la herramienta &lt;span style=&quot; font-style:italic;&quot;&gt;r.watershed&lt;/span&gt; de GRASS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>Variables NC</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_13">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_NC2WMF">
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Envar variables del NC al WMF (Si no han sido guardadas en el NC)</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Envar variables del NC al WMF (Si no han sido guardadas en el NC)</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-arriba.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-arriba.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_WMF2NC">
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Enviar variables del WMF al NC</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Enviar variables del WMF al NC</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-abajo.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-flecha-abajo.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="QTableWidget" name="Tabla_Prop_NC">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>200</height>
+                     </size>
+                    </property>
+                    <property name="defaultDropAction">
+                     <enum>Qt::TargetMoveAction</enum>
+                    </property>
+                    <property name="alternatingRowColors">
+                     <bool>true</bool>
+                    </property>
+                    <property name="selectionMode">
+                     <enum>QAbstractItemView::SingleSelection</enum>
+                    </property>
+                    <property name="selectionBehavior">
+                     <enum>QAbstractItemView::SelectRows</enum>
+                    </property>
+                    <property name="sortingEnabled">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_63">
+                    <item>
+                     <spacer name="horizontalSpacer_18">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_Update_NC">
+                      <property name="maximumSize">
+                       <size>
+                        <width>50</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Actualizar variables del Nc.</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="ButtonVar2Net_NC">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="contextMenuPolicy">
+                       <enum>Qt::DefaultContextMenu</enum>
+                      </property>
+                      <property name="toolTip">
+                       <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>16</width>
+                        <height>16</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QSpinBox" name="SpinBoxNCLayer">
+                      <property name="maximumSize">
+                       <size>
+                        <width>50</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Capa a ver (o editar) de la variable Nc.</string>
+                      </property>
+                      <property name="maximum">
+                       <number>5</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="ButtonDraw_histogram_NC">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="contextMenuPolicy">
+                       <enum>Qt::DefaultContextMenu</enum>
+                      </property>
+                      <property name="toolTip">
+                       <string>Grafica el histograma de la variable seleccionada</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Grafica el histograma de la variable seleccionada</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>16</width>
+                        <height>16</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_Visualizar_Desde_NC">
+                      <property name="maximumSize">
+                       <size>
+                        <width>50</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Visualizar una variable del Nc</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="Button_Eliminar_Desde_NC">
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>30</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Eliminar variable de la tabla de variables de NC (Solo si no ha sido actualizada en el NC)</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Eliminar variable de la tabla de variables de NC (Solo si no ha sido actualizada en el NC)</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
                </widget>
                <widget class="QGroupBox" name="groupBox_11">
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>1200</y>
+                  <y>720</y>
                   <width>421</width>
                   <height>311</height>
                  </rect>
@@ -1499,962 +2349,9 @@
                  </layout>
                 </widget>
                </widget>
-               <widget class="QWidget" name="layoutWidget_5">
-                <property name="geometry">
-                 <rect>
-                  <x>0</x>
-                  <y>1150</y>
-                  <width>423</width>
-                  <height>41</height>
-                 </rect>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_63">
-                 <item>
-                  <spacer name="horizontalSpacer_18">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="Button_Update_NC">
-                   <property name="maximumSize">
-                    <size>
-                     <width>50</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Actualizar variables del Nc.</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="resources.qrc">
-                     <normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</normaloff>:/plugins/HydroSEDPlugin/icons/save.svg</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="ButtonVar2Net_NC">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>50</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>30</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="contextMenuPolicy">
-                    <enum>Qt::DefaultContextMenu</enum>
-                   </property>
-                   <property name="toolTip">
-                    <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Convertir variable a red hídrica (promedia celdas del tramo).</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="resources.qrc">
-                     <normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</normaloff>:/plugins/HydroSEDPlugin/icons/RedHidrica.ico</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>16</width>
-                     <height>16</height>
-                    </size>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="SpinBoxNCLayer">
-                   <property name="maximumSize">
-                    <size>
-                     <width>50</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Capa a ver (o editar) de la variable Nc.</string>
-                   </property>
-                   <property name="maximum">
-                    <number>5</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="ButtonDraw_histogram_NC">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>50</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>30</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="contextMenuPolicy">
-                    <enum>Qt::DefaultContextMenu</enum>
-                   </property>
-                   <property name="toolTip">
-                    <string>Grafica el histograma de la variable seleccionada</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Grafica el histograma de la variable seleccionada</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="resources.qrc">
-                     <normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</normaloff>:/plugins/HydroSEDPlugin/icons/histograma.ico</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>16</width>
-                     <height>16</height>
-                    </size>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="Button_Visualizar_Desde_NC">
-                   <property name="maximumSize">
-                    <size>
-                     <width>50</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Visualizar una variable del Nc</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="resources.qrc">
-                     <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="Button_Eliminar_Desde_NC">
-                   <property name="minimumSize">
-                    <size>
-                     <width>50</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>30</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="toolTip">
-                    <string>Eliminar variable de la tabla de variables de NC (Solo si no ha sido actualizada en el NC)</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Eliminar variable de la tabla de variables de NC (Solo si no ha sido actualizada en el NC)</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="resources.qrc">
-                     <normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-borrar.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </widget>
-         </widget>
-         <widget class="QWidget" name="tabTrazadores">
-          <attribute name="title">
-           <string>Trazadores</string>
-          </attribute>
-          <widget class="QScrollArea" name="scrollArea_trazadores">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>461</width>
-             <height>730</height>
-            </rect>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>430</width>
-             <height>400</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>50000</width>
-             <height>50000</height>
-            </size>
-           </property>
-           <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOn</enum>
-           </property>
-           <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
-           </property>
-           <property name="widgetResizable">
-            <bool>true</bool>
-           </property>
-           <widget class="QWidget" name="scrollAreaWidgetContents_3">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>443</width>
-              <height>2018</height>
-             </rect>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_6">
-             <item>
-              <widget class="QWidget" name="widget_2" native="true">
-               <property name="minimumSize">
-                <size>
-                 <width>250</width>
-                 <height>2000</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>50000</width>
-                 <height>50000</height>
-                </size>
-               </property>
-               <widget class="QGroupBox" name="groupBox_10">
-                <property name="geometry">
-                 <rect>
-                  <x>0</x>
-                  <y>0</y>
-                  <width>421</width>
-                  <height>231</height>
-                 </rect>
-                </property>
-                <property name="title">
-                 <string>Corriente</string>
-                </property>
-                <widget class="QWidget" name="layoutWidget_2">
-                 <property name="geometry">
-                  <rect>
-                   <x>0</x>
-                   <y>20</y>
-                   <width>421</width>
-                   <height>211</height>
-                  </rect>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayoutTrazadorCorrientes_2">
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_15">
-                    <item>
-                     <widget class="QLabel" name="labelLatitudTrazadorCorrientes_3">
-                      <property name="toolTip">
-                       <string>Punto de inicio de trazado de la corriente</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Punto de inicio de trazado de la corriente</string>
-                      </property>
-                      <property name="text">
-                       <string>Ubicación</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_7">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="BotonCoord_corriente">
-                      <property name="toolTip">
-                       <string>Obtener coordenadas dando click sobre el mapa</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Obtener coordenadas dando click sobre el mapa</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_16">
-                    <item>
-                     <widget class="QLabel" name="labelLongitudTrazadorCorrientes_7">
-                      <property name="toolTip">
-                       <string>Coordenada en Y del punto de inicio.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Coordenada en Y del punto de inicio.</string>
-                      </property>
-                      <property name="text">
-                       <string>Latitud: </string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCorrientes">
-                      <property name="decimals">
-                       <number>6</number>
-                      </property>
-                      <property name="minimum">
-                       <double>-200.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>200.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_17">
-                    <item>
-                     <widget class="QLabel" name="labelLongitudTrazadorCorrientes_8">
-                      <property name="toolTip">
-                       <string>Coordenada en X del punto de inicio.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Coordenada en X del punto de inicio.</string>
-                      </property>
-                      <property name="text">
-                       <string>Longitud</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCorrientes">
-                      <property name="decimals">
-                       <number>6</number>
-                      </property>
-                      <property name="minimum">
-                       <double>-200.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>200.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <widget class="Line" name="line_6">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="labelFileOutputTrazadorCorrientesShapefile_2">
-                    <property name="text">
-                     <string>Ruta corriente trazada (*.shp):</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayoutSelectorOutputCorrienteShapefileTrazadorCorrientes_2">
-                    <item>
-                     <widget class="QLineEdit" name="PathCorriente_out">
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="botonSelectorOutputCorrienteShapefileTrazadorCorrientes">
-                      <property name="minimumSize">
-                       <size>
-                        <width>30</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>30</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Seleccionar la ruta donde se va a guardar la corriente.</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="botonEjecutarTrazadorCorrientes">
-                      <property name="toolTip">
-                       <string>Ejecutar la función de trazado de corriente.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Ejecutar la función de trazado de corriente.</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                 </layout>
-                </widget>
-               </widget>
-               <widget class="Line" name="line_5">
-                <property name="geometry">
-                 <rect>
-                  <x>0</x>
-                  <y>240</y>
-                  <width>421</width>
-                  <height>16</height>
-                 </rect>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-               <widget class="QGroupBox" name="groupBox">
-                <property name="geometry">
-                 <rect>
-                  <x>0</x>
-                  <y>250</y>
-                  <width>421</width>
-                  <height>461</height>
-                 </rect>
-                </property>
-                <property name="title">
-                 <string>Cuencas</string>
-                </property>
-                <widget class="QWidget" name="layoutWidget_4">
-                 <property name="geometry">
-                  <rect>
-                   <x>0</x>
-                   <y>20</y>
-                   <width>421</width>
-                   <height>436</height>
-                  </rect>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayoutTrazadorCuencas_3">
-                  <property name="sizeConstraint">
-                   <enum>QLayout::SetMinimumSize</enum>
-                  </property>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_23">
-                    <item>
-                     <widget class="QLabel" name="labelLatitudTrazadorCorrientes_5">
-                      <property name="text">
-                       <string>Ubicación</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_10">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="BotonCoord_cuenca">
-                      <property name="toolTip">
-                       <string>Seleccionar las coordenadas de la salida de la cuenca a trazar</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Seleccionar las coordenadas de la salida de la cuenca a trazar</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</normaloff>:/plugins/HydroSEDPlugin/icons/coordCapture.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_24">
-                    <item>
-                     <widget class="QLabel" name="labelLongitudTrazadorCorrientes_12">
-                      <property name="toolTip">
-                       <string>Coordenada en X del punto de inicio.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Coordenada en X del punto de inicio.</string>
-                      </property>
-                      <property name="text">
-                       <string>Latitud: </string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCuencas">
-                      <property name="decimals">
-                       <number>6</number>
-                      </property>
-                      <property name="minimum">
-                       <double>-200.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>200.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_25">
-                    <item>
-                     <widget class="QLabel" name="labelLongitudTrazadorCorrientes_13">
-                      <property name="toolTip">
-                       <string>Coordenada en Y del punto de inicio.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Coordenada en Y del punto de inicio.</string>
-                      </property>
-                      <property name="text">
-                       <string>Longitud</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCuencas">
-                      <property name="decimals">
-                       <number>6</number>
-                      </property>
-                      <property name="minimum">
-                       <double>-200.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>200.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_26">
-                    <item>
-                     <widget class="QLabel" name="labelLongitudTrazadorCorrientes_14">
-                      <property name="toolTip">
-                       <string>Umbral mínimo para determinar red de drenaje en la cuenca</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Umbral mínimo para determinar red de drenaje en la cuenca</string>
-                      </property>
-                      <property name="text">
-                       <string>Umbral</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spinBoxUmbralRed">
-                      <property name="toolTip">
-                       <string>Seleccionar umbral de área acumulada para estimar canales</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Seleccionar umbral de área acumulada para estimar canales</string>
-                      </property>
-                      <property name="decimals">
-                       <number>0</number>
-                      </property>
-                      <property name="minimum">
-                       <double>10.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_11">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="labelInputCorrienteShapefileTrazadorCuencas_3">
-                      <property name="toolTip">
-                       <string>Usar la ultima corriente trazada para corregir la coordenada de trazado de cuenca</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Usar la ultima corriente trazada para corregir la coordenada de trazado de cuenca</string>
-                      </property>
-                      <property name="text">
-                       <string>Ultima corriente</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QCheckBox" name="CheckUltimaCorriente">
-                      <property name="toolTip">
-                       <string>Si usar o no usar ultima corriente</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Si usar o no usar ultima corriente</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <widget class="Line" name="line_8">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile_5">
-                    <property name="text">
-                     <string>Ruta divisoria de aguas (*.shp):</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaShapefileTrazadorCuencas_5">
-                    <item>
-                     <widget class="QLineEdit" name="PathOutputDivisoria">
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="BotonPathDivisoria">
-                      <property name="minimumSize">
-                       <size>
-                        <width>30</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>30</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Seleccionar la ruta para para guardar el .shp con la divisoria de aguas</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Seleccionar la ruta para para guardar el .shp con la divisoria de aguas</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <widget class="Line" name="line_9">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="labelOutputTrazadorCuencasShapefile_6">
-                    <property name="text">
-                     <string>Ruta red hidrica (*.shp):</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_27">
-                    <item>
-                     <widget class="QCheckBox" name="CheckTopoNodes">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="toolTip">
-                       <string>Obtiene automaticamente los nodos topograficos.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Obtiene automaticamente los nodos topograficos.</string>
-                      </property>
-                      <property name="text">
-                       <string>Topo Nodes</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QCheckBox" name="CheckGeomorfo">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="toolTip">
-                       <string>Obtiene parametros geomorfologicos de la cuenca.</string>
-                      </property>
-                      <property name="text">
-                       <string>GetGeo</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QCheckBox" name="CheckAnchoCanal">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="toolTip">
-                       <string>Obtiene el ancho del canal en cada tramo.</string>
-                      </property>
-                      <property name="text">
-                       <string>Ancho canal</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaShapefileTrazadorCuencas_6">
-                    <item>
-                     <widget class="QLineEdit" name="PathOutputRed">
-                      <property name="toolTip">
-                       <string>Seleccionar la ruta para para guardar el .shp con la red hídrica</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Seleccionar la ruta para para guardar el .shp con la red hídrica</string>
-                      </property>
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="BotonPathRed">
-                      <property name="minimumSize">
-                       <size>
-                        <width>30</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>30</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <widget class="Line" name="line_10">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="labelOutputTrazadorCuencasNC_3">
-                    <property name="text">
-                     <string>Path Salida (*.nc):</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaNCTrazadorCuencas_3">
-                    <item>
-                     <widget class="QLineEdit" name="PathOutputNETCDF">
-                      <property name="toolTip">
-                       <string>Seleccionar la ruta para guardar el .nc con el proyecto de cuenca</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Seleccionar la ruta para guardar el .nc con el proyecto de cuenca</string>
-                      </property>
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="BotonPathNC">
-                      <property name="minimumSize">
-                       <size>
-                        <width>30</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>30</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayoutOutputCuencaNCTrazadorCuencas_4">
-                    <item>
-                     <widget class="QLabel" name="labelOutputTrazadorCuencasNC_4">
-                      <property name="toolTip">
-                       <string>Nombre interno que identifica a la cuenca trazada (Cuenca)</string>
-                      </property>
-                      <property name="text">
-                       <string>Nombre: </string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="NombreCuenca">
-                      <property name="toolTip">
-                       <string>Asignar un nombre a la cuenca trazada</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Asignar un nombre a la cuenca trazada</string>
-                      </property>
-                      <property name="text">
-                       <string>Cuenca</string>
-                      </property>
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_21">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="botonEjecutarTrazadorCuencas">
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/play.png</normaloff>:/plugins/HydroSEDPlugin/icons/play.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                 </layout>
-                </widget>
-               </widget>
+               <zorder>groupBox_21</zorder>
+               <zorder>groupBox_3</zorder>
+               <zorder>groupBox_11</zorder>
               </widget>
              </item>
             </layout>
@@ -5212,7 +5109,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-137</y>
+              <y>-914</y>
               <width>433</width>
               <height>2518</height>
              </rect>

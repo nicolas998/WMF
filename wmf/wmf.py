@@ -4228,7 +4228,7 @@ class SimuBasin(Basin):
         if models.save_storage == 1:
             rutaStorageHdr = __Add_hdr_bin_2route__(ruta_storage)
             #Caso en el que se registra el alm medio 
-            if models.show_storage == 1:
+            if models.show_storage == 1:                
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
                     start_point,self,Mean_Storage = np.copy(models.mean_storage))
             #Caso en el que no hay alm medio para cada uno de los 
