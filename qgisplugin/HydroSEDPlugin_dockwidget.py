@@ -19,6 +19,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+ comando para cargar todos los iconos: pyrcc4 -o resources.py resources.qrc
 """
 
 import os
@@ -70,7 +71,8 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         self.TablaFila_WMF = 0
         self.TablaFila_NC = 0
-        self.botonClicked = False
+        self.botonClicked_NC = False
+        self.botonClicked_WMF = False
         self.segundaCarga = False
         self.Segunda_carga_Qobs = False 
         self.Segunda_carga_Qobs_Sed = False 
@@ -175,7 +177,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         def SelectNetworkshapeDialog (fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''            
-            lineEditHolder = fileDialogHolder.getOpenFileName (QtGui.QDialog (), "Guardar en capa vectorial...", "*", "Shapefiles (*.shp);;")
+            lineEditHolder = fileDialogHolder.getSaveFileName (QtGui.QDialog (), "Guardar en capa vectorial...", "*", "Shapefiles (*.shp);;")
             return lineEditHolder
             #if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
              #   self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
@@ -252,25 +254,47 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         
         def clickEventBasinVarNC2Network():
             '''Convierte un conjunto de variables a una red hidrica de la cuenca'''
-            if self.botonClicked is False:
+            if self.botonClicked_NC is False:
                 #Hace que la seleccion sea multiple en la columna de NC
                 self.Tabla_Prop_NC.setSelectionMode(QAbstractItemView.MultiSelection)
                 self.ruta2Network = ''
                 #imprime las variables seleccionadas
                 self.Vars2Network = []
-                self.botonClicked = True
-                self.ButtonVar2Net_NC.setText('Variables')
+                self.botonClicked_NC = True
                 return
-            elif self.botonClicked is True:
+            elif self.botonClicked_NC is True:
                 for i in self.Tabla_Prop_NC.selectedItems()[::4]:
                     self.Vars2Network.append(i.text())
                 #En el segundo click selecciona el archivo y ejecuta 
                 self.ruta2Network = SelectNetworkshapeDialog(QFileDialog)
                 self.Tabla_Prop_NC.setSelectionMode(QAbstractItemView.SingleSelection)
-                self.botonClicked = False
+                self.botonClicked_NC = False
                 #Guardado de las variables en formato red hidrica
                 self.HSutils.BasinNc2Network(self.ruta2Network,self.Vars2Network)
-                self.ButtonVar2Net_NC.setText('Var2Net')
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Las variables seleccionadas han sido convertidas a la red hidrica',
+                    level=QgsMessageBar.INFO, duration=3)
+        
+        def clickEventBasinVarWMF2Network():
+            '''Convierte un conjunto de variables a una red hidrica de la cuenca'''
+            if self.botonClicked_WMF is False:
+                #Hace que la seleccion sea multiple en la columna de NC
+                self.Tabla_Prop_WMF.setSelectionMode(QAbstractItemView.MultiSelection)
+                self.ruta2Network = ''
+                #imprime las variables seleccionadas
+                self.Vars2Network = []
+                self.botonClicked_WMF = True
+                return
+            elif self.botonClicked_WMF is True:
+                for i in self.Tabla_Prop_WMF.selectedItems()[::4]:
+                    self.Vars2Network.append(i.text())
+                #En el segundo click selecciona el archivo y ejecuta 
+                self.ruta2Network = SelectNetworkshapeDialog(QFileDialog)
+                self.Tabla_Prop_WMF.setSelectionMode(QAbstractItemView.SingleSelection)
+                self.botonClicked_WMF = False
+                #Guardado de las variables en formato red hidrica
+                self.HSutils.BasinWMF2Network(self.ruta2Network,self.Vars2Network)
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Las variables seleccionadas han sido convertidas a la red hidrica',
+                    level=QgsMessageBar.INFO, duration=3)
         
         #Botones para variables de entrada 
         self.botonSelectorProyectBasin.clicked.connect(clickEventSelectorBasin)
@@ -280,6 +304,7 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.Boton_verRedHidrica.clicked.connect(clickEventBasinLoadNetwork)
         #boton para convertir variables a red hidrica
         self.ButtonVar2Net_NC.clicked.connect(clickEventBasinVarNC2Network)
+        self.ButtonVar2Net_WMF.clicked.connect(clickEventBasinVarWMF2Network)
         
 
     def setupGeomorfologia(self):
@@ -589,32 +614,23 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             Retorno, QSalida = self.HSutils.hidologia_balance(self.spinBox_dxPlano.value(),
                 self.spinBoxUmbralRed.value(), 
                 self.PathInHydro_Rain.text(), 
-                TipoETR, 
-                self.PathOutHydro_Qmed.text())
+                TipoETR)
             #Pone el valor de cadual medio en el cuadro
             textoCaudal = '%.3f' % QSalida
             self.ShowResultQmed.setText(textoCaudal)
             #Mensaje de exito 
             if Retorno == 0:
-                self.iface.messageBar().pushInfo(u'HidroSIG:',u'Balance realizado: variables Caudal, ETR y Runoff cargadas a Tabla de propiedades WMF.')
+                self.iface.messageBar().pushMessage(u'HidroSIG:',
+                    u'Balance realizado: variables Caudal, ETR y Runoff cargadas a Tabla de propiedades WMF.',
+                    level=QgsMessageBar.INFO, duration=3)
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
                     u'No se ha logrado realizar el balance hidrológico en la cuenca',
                     level=QgsMessageBar.WARNING, duration=3)
-            #Habilita botones de visualizacion de variables 
-            if len(self.PathOutHydro_Qmed.text()) > 2:
-                self.Button_HidroViewQmed.setEnabled(True)
             #Actualiza la tabla de variables temporales y actualiza comboBox de gomorfo
             for k in ['Caudal','ETR','Runoff']:
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
                 
-        #Botones para variables de entrada 
-        self.Boton_HidroLoadRain.clicked.connect(clickEventSelectorRaster)
-        #Botones para variables de salida
-        self.Button_HidroSaveQmed.clicked.connect(clickEventOutQmed)
-        #Botones para visualizar variables 
-        self.Button_HidroViewRain.clicked.connect(clickEventViewRainfall)
-        self.Button_HidroViewQmed.clicked.connect(clickEventViewQmedNetwork)
         #Botones para ejecutar
         self.Butto_Ejec_HidroBalance.clicked.connect(hadleClickEventEjecutarBalance)
         

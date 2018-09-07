@@ -250,7 +250,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-309</y>
+              <y>-329</y>
               <width>443</width>
               <height>2018</height>
              </rect>
@@ -314,6 +314,12 @@
             <layout class="QVBoxLayout" name="verticalLayout_11">
              <item>
               <widget class="QWidget" name="widget_6" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="minimumSize">
                 <size>
                  <width>300</width>
@@ -780,7 +786,7 @@
                   <x>0</x>
                   <y>380</y>
                   <width>421</width>
-                  <height>391</height>
+                  <height>321</height>
                  </rect>
                 </property>
                 <property name="title">
@@ -792,7 +798,7 @@
                    <x>0</x>
                    <y>20</y>
                    <width>421</width>
-                   <height>141</height>
+                   <height>101</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_26">
@@ -830,6 +836,12 @@
                     </item>
                     <item>
                      <widget class="QDoubleSpinBox" name="spinBoxLatitudTrazadorCorrientes">
+                      <property name="maximumSize">
+                       <size>
+                        <width>80</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="decimals">
                        <number>6</number>
                       </property>
@@ -856,6 +868,12 @@
                     </item>
                     <item>
                      <widget class="QDoubleSpinBox" name="spinBoxLongitudTrazadorCorrientes">
+                      <property name="maximumSize">
+                       <size>
+                        <width>80</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="decimals">
                        <number>6</number>
                       </property>
@@ -869,6 +887,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="BotonCoord_corriente">
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="toolTip">
                        <string>Obtener coordenadas dando click sobre el mapa</string>
                       </property>
@@ -886,6 +910,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="botonEjecutarTrazadorCorrientes">
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="toolTip">
                        <string>Ejecutar la función de trazado de corriente.</string>
                       </property>
@@ -962,7 +992,7 @@
                  <property name="geometry">
                   <rect>
                    <x>0</x>
-                   <y>180</y>
+                   <y>140</y>
                    <width>421</width>
                    <height>171</height>
                   </rect>
@@ -1101,6 +1131,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="BotonCoord_cuenca">
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="toolTip">
                        <string>Seleccionar las coordenadas de la salida de la cuenca a trazar</string>
                       </property>
@@ -1118,6 +1154,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="botonEjecutarTrazadorCuencas">
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
@@ -1368,10 +1410,16 @@
             <layout class="QVBoxLayout" name="verticalLayout_6">
              <item>
               <widget class="QWidget" name="widget_2" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="minimumSize">
                 <size>
                  <width>250</width>
-                 <height>2000</height>
+                 <height>1500</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -1646,7 +1694,7 @@
                     <item>
                      <widget class="QPushButton" name="ButtonVar2Net_WMF">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="minimumSize">
                        <size>
@@ -1914,7 +1962,7 @@
                     <item>
                      <widget class="QPushButton" name="ButtonVar2Net_NC">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="minimumSize">
                        <size>
@@ -2400,7 +2448,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-74</y>
               <width>443</width>
               <height>1918</height>
              </rect>
@@ -2744,8 +2792,14 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/update.png</normaloff>:/plugins/HydroSEDPlugin/icons/update.png</iconset>
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/reload.png</normaloff>:/plugins/HydroSEDPlugin/icons/reload.png</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>20</width>
+                        <height>20</height>
+                       </size>
                       </property>
                      </widget>
                     </item>
@@ -2794,8 +2848,14 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/update.png</normaloff>:/plugins/HydroSEDPlugin/icons/update.png</iconset>
+                       <iconset resource="resources.qrc">
+                        <normaloff>:/plugins/HydroSEDPlugin/icons/reload.png</normaloff>:/plugins/HydroSEDPlugin/icons/reload.png</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>20</width>
+                        <height>20</height>
+                       </size>
                       </property>
                      </widget>
                     </item>
@@ -3229,7 +3289,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-615</y>
               <width>443</width>
               <height>1918</height>
              </rect>
@@ -3279,7 +3339,7 @@
                    <x>0</x>
                    <y>30</y>
                    <width>411</width>
-                   <height>203</height>
+                   <height>161</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -3339,48 +3399,11 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="PathInHydro_Rain">
+                      <property name="toolTip">
+                       <string>Nombre del mapa con precipitacion media cargado en WMF o NC</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Boton_HidroLoadRain">
-                      <property name="toolTip">
-                       <string>Establecer ruta donde se aloja el mapa de precipitación.</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroViewRain">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>40</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Visualizar shp con el caudal calculado por tramos.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Visualizar shp con el caudal calculado por tramos.</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
                       </property>
                      </widget>
                     </item>
@@ -3486,83 +3509,6 @@
                      <enum>Qt::AutoText</enum>
                     </property>
                    </widget>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_54">
-                    <item>
-                     <widget class="QLabel" name="label_53">
-                      <property name="toolTip">
-                       <string>El valor del caudal calculado en cada tramo hidrológico.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>El valor del caudal calculado en cada tramo hidrológico.</string>
-                      </property>
-                      <property name="text">
-                       <string>Qmed*[m3/s]</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_29">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>10</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="PathOutHydro_Qmed">
-                      <property name="whatsThis">
-                       <string>Ruta de guardado</string>
-                      </property>
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroSaveQmed">
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroViewQmed">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>40</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Visualizar shp con el caudal calculado por tramos.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Visualizar shp con el caudal calculado por tramos.</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
                   </item>
                   <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_55">
@@ -4245,13 +4191,13 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>1080</y>
+                  <y>1030</y>
                   <width>421</width>
-                  <height>271</height>
+                  <height>241</height>
                  </rect>
                 </property>
                 <property name="title">
-                 <string>Máximos regionalización</string>
+                 <string>Extremos regionalización</string>
                 </property>
                 <widget class="QWidget" name="layoutWidget_8">
                  <property name="geometry">
@@ -4259,7 +4205,7 @@
                    <x>0</x>
                    <y>30</y>
                    <width>411</width>
-                   <height>236</height>
+                   <height>226</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -4294,7 +4240,7 @@
                     <item>
                      <widget class="QLabel" name="label_56">
                       <property name="toolTip">
-                       <string>Mapa raster (o valor) con la precipitación anual en la cuenca [mm/año]</string>
+                       <string>Nombre de la capa de WMF o NC que contenga el caudal medio estimado para la cuenca.</string>
                       </property>
                       <property name="whatsThis">
                        <string>Mapa raster (o valor) con la precipitación anual en la cuenca [mm/año]</string>
@@ -4318,7 +4264,10 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="PathInHydro_Rain_3">
+                     <widget class="QLineEdit" name="PathInHydro_Qmed4Qmax">
+                      <property name="toolTip">
+                       <string>Colocar nombre d ela cpaa WMF o NC con el caudal medio</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
@@ -4330,10 +4279,14 @@
                    <layout class="QHBoxLayout" name="horizontalLayout_57">
                     <item>
                      <layout class="QGridLayout" name="gridLayout_2">
-                      <item row="0" column="2">
-                       <widget class="QDoubleSpinBox" name="doubleSpinBox_20"/>
+                      <item row="1" column="2">
+                       <widget class="QDoubleSpinBox" name="SpinBox_Cmed">
+                        <property name="toolTip">
+                         <string>Coeficiente caudal medio extremo (Poveda, 2007)</string>
+                        </property>
+                       </widget>
                       </item>
-                      <item row="0" column="1">
+                      <item row="1" column="1">
                        <widget class="QLabel" name="label_57">
                         <property name="toolTip">
                          <string>Mapa raster (o valor) con la precipitación anual en la cuenca [mm/año]</string>
@@ -4346,10 +4299,14 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="0" column="4">
-                       <widget class="QDoubleSpinBox" name="doubleSpinBox_21"/>
+                      <item row="1" column="4">
+                       <widget class="QDoubleSpinBox" name="SpinBox_Cdes">
+                        <property name="toolTip">
+                         <string>Coeficiente desviacion caudal extremo (Poveda, 2007)</string>
+                        </property>
+                       </widget>
                       </item>
-                      <item row="0" column="3">
+                      <item row="1" column="3">
                        <widget class="QLabel" name="label_61">
                         <property name="toolTip">
                          <string>Mapa raster (o valor) con la precipitación anual en la cuenca [mm/año]</string>
@@ -4362,7 +4319,7 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="1">
+                      <item row="5" column="1">
                        <widget class="QLabel" name="label_62">
                         <property name="toolTip">
                          <string>Mapa raster (o valor) con la precipitación anual en la cuenca [mm/año]</string>
@@ -4375,10 +4332,14 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="2">
-                       <widget class="QDoubleSpinBox" name="doubleSpinBox_22"/>
+                      <item row="5" column="2">
+                       <widget class="QDoubleSpinBox" name="SpinBox_Emed">
+                        <property name="toolTip">
+                         <string>Exponente caudal medio extremo (Poveda, 2007)</string>
+                        </property>
+                       </widget>
                       </item>
-                      <item row="1" column="3">
+                      <item row="5" column="3">
                        <widget class="QLabel" name="label_63">
                         <property name="toolTip">
                          <string>Mapa raster (o valor) con la precipitación anual en la cuenca [mm/año]</string>
@@ -4391,41 +4352,53 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="4">
-                       <widget class="QDoubleSpinBox" name="doubleSpinBox_23"/>
+                      <item row="5" column="4">
+                       <widget class="QDoubleSpinBox" name="SpinBox_Edes">
+                        <property name="toolTip">
+                         <string>Exponente desviacion caudal extremo (Poveda, 2007)</string>
+                        </property>
+                       </widget>
                       </item>
                       <item row="1" column="0">
-                       <spacer name="horizontalSpacer_32">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>10</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_64">
+                       <widget class="QRadioButton" name="RadButton_maximos">
                         <property name="toolTip">
-                         <string>Mapa raster (o valor) con la precipitación anual en la cuenca [mm/año]</string>
-                        </property>
-                        <property name="whatsThis">
-                         <string>Mapa raster (o valor) con la precipitación anual en la cuenca [mm/año]</string>
+                         <string>Seleccionar calcular caudales máximos</string>
                         </property>
                         <property name="text">
-                         <string/>
+                         <string>Máximo</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="5" column="0">
+                       <widget class="QRadioButton" name="RadButton_minimos">
+                        <property name="toolTip">
+                         <string>Calcular caudales mínimos</string>
+                        </property>
+                        <property name="text">
+                         <string>Mínimo</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="0">
+                       <widget class="QLabel" name="label_20">
+                        <property name="toolTip">
+                         <string>Periodo de retorno</string>
+                        </property>
+                        <property name="text">
+                         <string>Tr</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="1">
+                       <widget class="QDoubleSpinBox" name="doubleSpinBox">
+                        <property name="toolTip">
+                         <string>Periodo de retorno en años para la estimación de extremos</string>
                         </property>
                        </widget>
                       </item>
                      </layout>
                     </item>
                    </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_58"/>
                   </item>
                   <item>
                    <widget class="Line" name="line_28">
@@ -4451,83 +4424,6 @@
                    </widget>
                   </item>
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_59">
-                    <item>
-                     <widget class="QLabel" name="label_59">
-                      <property name="toolTip">
-                       <string>El valor del caudal calculado en cada tramo hidrológico.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>El valor del caudal calculado en cada tramo hidrológico.</string>
-                      </property>
-                      <property name="text">
-                       <string>Qmax*[m3/s]</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_33">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>10</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="PathOutHydro_Qmed_3">
-                      <property name="whatsThis">
-                       <string>Ruta de guardado</string>
-                      </property>
-                      <property name="readOnly">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroSaveQmed_4">
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</normaloff>:/plugins/HydroSEDPlugin/icons/folder.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="Button_HidroViewQmed_3">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>40</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Visualizar shp con el caudal calculado por tramos.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Visualizar shp con el caudal calculado por tramos.</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="resources.qrc">
-                        <normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</normaloff>:/plugins/HydroSEDPlugin/icons/icono-ver.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_60">
                     <item>
                      <widget class="QLabel" name="label_60">
@@ -4544,7 +4440,7 @@
                        <string>El valor del caudal calculado solo a la salida de la cuenca.</string>
                       </property>
                       <property name="text">
-                       <string>Qmax  salida [m3/s]:</string>
+                       <string>Qextremo  salida [m3/s]:</string>
                       </property>
                      </widget>
                     </item>
@@ -4562,16 +4458,19 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="ShowResultQmed_3">
+                     <widget class="QLineEdit" name="ShowResultQextremo">
+                      <property name="toolTip">
+                       <string>Valor del caudal extremo calculado a la salida.</string>
+                      </property>
                       <property name="readOnly">
                        <bool>true</bool>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="Butto_Ejec_HidroBalance_3">
+                     <widget class="QPushButton" name="Butto_Ejec_HidroExtremos">
                       <property name="toolTip">
-                       <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
+                       <string>Ejecutar cálculo de caudales extremos resultado cargado a WMF como QmaxTr o QminTr donde Tr es el periodo de retorno seleccionado</string>
                       </property>
                       <property name="whatsThis">
                        <string>Ejecuta el balance de largo plazo con los parametros dados.</string>
@@ -4594,7 +4493,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>1060</y>
+                  <y>1010</y>
                   <width>411</width>
                   <height>20</height>
                  </rect>

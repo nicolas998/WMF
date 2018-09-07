@@ -142,17 +142,33 @@ class controlHS:
             umbral = self.cuenca.umbral,
             EPSG = int(self.cuenca.epsg),
             Dict = DicVar)
+    
+    def BasinWMF2Network(self,pathNetwork, names):
+        '''Guarda una red hidrica con las variables seleccionadas del diccionario NC'''
+        # genera el diccionario de las variables a guardar
+        DicVar = {}
+        for n in names:
+            DicVar.update({n.encode():self.DicBasinWMF[n]['var'].data})
+        print DicVar
+        #Guarda la red hidrica 
+        self.cuenca.Save_Net2Map(pathNetwork, wmf.cu.dxp, 
+            umbral = self.cuenca.umbral,
+            EPSG = int(self.cuenca.epsg),
+            Dict = DicVar)
         
-    def hidologia_balance(self, dxp, umbral, PathRain, PathETR, PathQmed):
+    def hidologia_balance(self, dxp, umbral, PathRain, PathETR):
         #Se fija si la lluvia es un path o un valor 
         try:
             Rain = float(PathRain)
         except:
-            Rain, prop, epsg = wmf.read_map_raster(PathRain) 
-            if epsg == self.cuenca.epsg:
-                Rain = self.cuenca.Transform_Map2Basin(Rain, prop)
-            else:
-                return 1, 1
+            #Trata de sacarlo del WMF
+            try:
+                Rain = np.copy(self.DicBasinWMF[PathRain]['var'])
+            except:
+                try:
+                    Rain = np.copy(self.DicBasinNc[PathRain]['var'])
+                except:
+                    return 1
         #Realiza el balance 
         self.cuenca.GetQ_Balance(Rain, Tipo_ETR = PathETR)
         #Actualiza el diccionario de WMF 
@@ -184,9 +200,6 @@ class controlHS:
             'categoria': 'Hidro',
             'var': Runoff,
             'saved':False}})
-        # Guarda el resultado 
-        if len(PathQmed)>2:
-            self.cuenca.Save_Net2Map(PathQmed, dxp, umbral, qmed = self.cuenca.CellQmed)
         #Retorna el resultado a la salida 
         return 0,self.cuenca.CellQmed[-1]
 
