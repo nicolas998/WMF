@@ -550,7 +550,7 @@ def read_rain_struct(ruta):
 	return D
 
 def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
-	Mean_Storage):
+	Mean_Storage,WhereStored):
 	#Lee fechas para el intervalo de tiempo
 	S = read_mean_rain(rute_rain,Nintervals,FirstInt)
 	#Escribe el encabezado del archivo
@@ -561,12 +561,12 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
 	f.write('Tipo Modelo: %s \n' % cuenca.modelType)
 	f.write('IDfecha, Tanque 1, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
 	c = 1
-	#Si no hay almacenamiento medio lo coloca en -9999
-	#Escribe registros medios y fechas de los almacenamientos
-	for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
-		f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' %
+	#Si no hay almacenamiento medio lo coloca en -9999 
+	#Escribe registros medios y fechas de los almacenamientos 
+	for d,sto,c in zip(S.index.to_pydatetime(),Mean_Storage.T, WhereStored):
+		f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
 			(c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
-		c+=1
+		#c+=1
 	f.close()
 
 def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
@@ -728,14 +728,16 @@ def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
 
 #Funciones de ejecucion en paralelo del modelo
 def __multiprocess_Warper__(Lista):
-	Res = Lista[4].run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
+	Res = Lista[4].run_shia(Lista[0],Lista[1],Lista[2],Lista[3],ruta_conv=Lista[5],
+                                ruta_stra=Lista[6])
 	return Res
 def __ejec_parallel__(ListEjecs, nproc, nodo):
 	P = Pool(processes=nproc)
 	Res = P.map(__multiprocess_Warper__, ListEjecs)
-	Lista = [i['Qsim'][nodo][0] for i in Res]
+        Lista = [i[0]['Qsim'][nodo] for i in Res]
 	P.close()
-	return Lista
+        P.join()
+        return Lista,Res
 
 #-----------------------------------------------------------------------
 #Transformacion de datos
@@ -2172,6 +2174,8 @@ class Basin:
 			'	-shpWidth: Ancho de las lineas del shp cargado.\n'\
 			'	-shpColor: Color de las lineas del shp cargado.\n'\
 			'	-backMap: Pone de fondo un mapa tipo arcGIS.\n'\
+                        '	    - Topo: topografia.\n'\
+                        '	    - Hillshade: fondo con mapa de sombras.\n'\
 			'Otros argumentos:.\n'\
 			'	-axis = Entorno de grafica que contiene elementos de las figuras.\n'\
 			'	-parallels = Grafica Paralelos, list-like.\n'\
@@ -2223,7 +2227,7 @@ class Basin:
 			show = kwargs.get('show',True)
 			if fig is None:
 				fig = pl.figure(figsize = figsize)
-			if axis == None:
+			if axis is None:
 				ax = fig.add_subplot(axloc)
 			else:
 				show = False
@@ -2238,11 +2242,13 @@ class Basin:
 				lats.max(),lines_spaces))
 			parallels_labels = kwargs.get('parallels_labels',[1,0,0,0])
 			parallel_offset = kwargs.get('parallels_offset', 0.001)
-			m.drawparallels(parallels,
+			ticksize = kwargs.get('ticksize',16)
+                        m.drawparallels(parallels,
 				labels = parallels_labels,
 				fmt="%.2f",
 				rotation='vertical',
-				xoffset=parallel_offset)
+				xoffset=parallel_offset,
+                                fontsize = ticksize)
 			meridians = kwargs.get('meridians', np.arange(longs.min(),
 				longs.max(),lines_spaces))
 			meridians_labels = kwargs.get('meridians_labels', [0,0,1,0])
@@ -2250,14 +2256,17 @@ class Basin:
 			m.drawmeridians(meridians,
 				labels=meridians_labels,
 				fmt="%.2f",
-				yoffset=meridians_offset)
+				yoffset=meridians_offset,
+                                fontsize = ticksize)
 			Xm,Ym=m(X,Y)
 			#plotea el mapa de fondo de arcGIS
-			if backMap:
-				#if backMap == 'arcGIS':
-				m.arcgisimage(server='http://server.arcgisonline.com/ArcGIS', service='World_Topo_Map', xpixels = 1500, verbose = True)
-			#Plotea el contorno de la cuenca y la red
-                        xp,yp = m(self.Polygon[0], self.Polygon[1])
+			if backMap is not None:
+				if backMap == 'Topo':
+          m.arcgisimage(server='http://server.arcgisonline.com/ArcGIS', service='World_Topo_Map', xpixels = 1500, verbose = True)
+        elif backMap == 'Hillshade':
+          m.arcgisimage(server='http://server.arcgisonline.com/ArcGIS',service='World_Shaded_Relief', xpixels = 1500, verbose = True)
+			#Plotea el contorno de la cuenca y la red 
+      xp,yp = m(self.Polygon[0], self.Polygon[1])
 			per_color = kwargs.get('per_color','r')
 			per_lw = kwargs.get('per_lw',2)
 			m.plot(xp, yp, color=per_color,lw=per_lw)
@@ -2321,7 +2330,7 @@ class Basin:
 			if xy is None:
 				return m,ax
 			else:
-				return m, ax, sx
+				return m,ax,sx
 	#Grafica de plot para montar en paginas web o presentaciones
 	def Plot_basinClean(self, vec, ruta = None, umbral = 0.0,
 		vmin = 0.0, vmax = None, show_cbar = False, **kwargs):
@@ -4001,7 +4010,7 @@ class SimuBasin(Basin):
 	def run_shia(self,Calibracion,
 		rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
 		ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5,
-              QsimDataFrame = True, EvpVariable = False):
+              QsimDataFrame = True, EvpVariable = False, WheretoStore = None):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
 		'	variables requeridas . \n'\
@@ -4045,9 +4054,11 @@ class SimuBasin(Basin):
 		'				cu.set_Storage(j,c)\n'\
 		'QsimDataFrame: Retorna un data frame con los caudales simulados indicando su id de acuerdo con el\n'\
 		'	que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
-                'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
+                'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de laradiacion\n'\
+                'WheretoStore: (None) Array de numpy o lista  indicando con numeros ascendentes\n'\
+                '(dif. de 0) las posiciones donde guardar condiciones dentro del periodo de ejecucion\n'\
 		'\n'\
-		'Retornos\n'\
+                'Retornos\n'\
 		'----------\n'\
 		'Qsim : Caudal simulado en los puntos de control.\n'\
 		'Hsim : Humedad simulada en los puntos de control.\n'\
@@ -4075,6 +4086,7 @@ class SimuBasin(Basin):
 		#Prepara variables de guardado de almacenamiento
 		if ruta_storage is not None:
 			models.save_storage = 1
+                        models.show_storage = 1
 			ruta_sto_bin, ruta_sto_hdr = __Add_hdr_bin_2route__(ruta_storage,
 				storage = True)
 		else:
@@ -4128,7 +4140,14 @@ class SimuBasin(Basin):
                     Rad = self.__GetEVP_Serie__(Rain.index)
                 else:
                     models.evpserie = np.ones(N_intervals)
-                # Ejecuta el modelo
+                #Set del vector de guardado de condiciones del modelo 
+                if WheretoStore is None:
+                    models.guarda_cond = np.array(range(N_intervals))+1
+                else:
+                    rng=pd.date_range(Rain.index[0],periods=N_intervals,freq=pd.infer_freq(Rain.index))
+                    SerieToStore=pd.Series(WheretoStore,index=rng)
+                    models.guarda_cond = np.copy(SerieToStore.values)
+                # Ejecuta el modelo 
 		Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
 			rain_ruteHdr,
@@ -4168,8 +4187,9 @@ class SimuBasin(Basin):
 			#Caso en el que se registra el alm medio
 			if models.show_storage == 1:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-					start_point,self,Mean_Storage = np.copy(models.mean_storage))
-			#Caso en el que no hay alm medio para cada uno de los
+					start_point,self,np.copy(models.mean_storage),
+                                        np.array(models.guarda_cond))
+			#Caso en el que no hay alm medio para cada uno de los 
 			else:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
 					start_point,self,Mean_Storage=np.zeros((5,N))*-9999)
@@ -4240,12 +4260,30 @@ class SimuBasin(Basin):
 				index = pd.MultiIndex.from_tuples(tupla, names=['reach','Sediments'])
 				Qsedi = np.array(Qsedi)
 				QsediDict = pd.DataFrame(Qsedi.T, index=Rain.index, columns=index)
+                        #Si separo tipo de lluvia en el caudal
+                        if models.separate_rain == 1:
+				Qrain = []
+				tupla = []
+				for i,j in zip(Retornos['Rain_Sep'][1:], ids):
+					tupla.append((str(j),'Convective'))
+					tupla.append((str(j),'Stratiform'))
+					Qrain.extend([i[0],i[1],i[2]])#  [i[0],i[1],z-i[0]-i[1]])
+				index = pd.MultiIndex.from_tuples(tupla, names=['reach','Rain_sep'])
+				Qrain = np.array(Qrain)
+				QRainDict = pd.DataFrame(Qrain.T, index=Rain.index, columns=index)
+
+
+                        #Determina los retornos en funcion de las banderas que se activaron
                         if models.separate_fluxes == 1 and models.sim_sediments == 0:
                             return Retornos, Qdict, QsepDict
                         if models.separate_fluxes == 1 and models.sim_sediments == 1:
                             return Retornos, Qdict, QsepDict, QsediDict
                         if models.separate_fluxes == 0 and models.sim_sediments == 1:
                             return Retornos, Qdict, QsediDict
+                        if models.separate_rain == 1 and models.separate_fluxes == 0:
+                            return Retornos, Qdict, QRainDict
+                        if models.separate_rain == 1 and models.separate_fluxes == 1:
+                            return Retornos, Qdict, QsepDict, QRainDict
                         return Retornos, Qdict
 		return Retornos
 
@@ -4302,7 +4340,7 @@ class SimuBasin(Basin):
 		pop = nsga_el.toolbox.population(pop_size)
 		Ejecs = map(nsga_el.__crea_ejec__, pop)
 		#Ejecuta a la poblacion
-		QsimPar = __ejec_parallel__(Ejecs, process, nodo_eval)
+		QsimPar, Results = __ejec_parallel__(Ejecs, process, nodo_eval)
 		fitnesses = map(nsga_el.toolbox.evaluate, QsimPar)
 		for ind, fit in zip(pop, fitnesses):
 			ind.fitness.values = fit
@@ -4324,7 +4362,7 @@ class SimuBasin(Basin):
 					del mutant.fitness.values
 			#Ejecuta a la nueva generacion
 			Ejecs = map(nsga_el.__crea_ejec__, offspring)
-			QsimPar = __ejec_parallel__(Ejecs, process, nodo_eval)
+			QsimPar, Results = __ejec_parallel__(Ejecs, process, nodo_eval)
 			#Identifica a la gente que no cumple de la generacion
 			Qsim_invalid = []
 			invalid_ind = []
@@ -4338,17 +4376,14 @@ class SimuBasin(Basin):
 				ind.fitness.values = fit
 			#Toma la siguiente generacion
 			pop = nsga_el.toolbox.select(pop + offspring, pop_size)
-		#Retorno
-		return pop, QsimPar, np.array(fitnesses).T
-
-
+      return pop, QsimPar, Results, np.array(fitnesses).T
 class nsgaii_element:
 	def __init__(self, rutaLluvia, Qobs, npasos, inicio, SimuBasinElem ,evp =[0,1], infil = [1,200], perco = [1, 40],
 		losses = [0,1],velRun = [0.1, 1], velSub = [0.1, 1], velSup =[0.1, 1],
 		velStream = [0.1, 1], Hu = [0.1, 1], Hg = [0.1, 1],
 		probCruce = np.ones(10)*0.5, probMutacion = np.ones(10)*0.5,
 		rangosMutacion = [[0,1], [1,200], [1,40], [0,1], [0.1,1], [0.1, 1], [0.1,1], [0.1,1], [0.1, 1], [0.1,1]],
-		MaxMinOptima = (1.0, -1.0), CrowDist = 0.5):
+		MaxMinOptima = (1.0, -1.0), CrowDist = 0.5, **kwargs):
 		'Descripcion: Inicia el objeto de calibracion genetica tipo NSGAII\n'\
 		'	este objeto contiene las reglas principales para la implementacion\n'\
 		'	de todo el algoritmo de calibracion genetico.\n'\
@@ -4386,6 +4421,10 @@ class nsgaii_element:
 		self.rangos_mutacion = rangosMutacion
 		self.optimiza = MaxMinOptima
 		self.crowdist = CrowDist
+    #Rutas para ejecuciones diferentes del modelo
+    self.ruta_conv = kwargs.get('ruta_conv',None)
+    self.ruta_stra = kwargs.get('ruta_stra',None)
+    self.v_humedad = kwargs.get('v_humedad',None)
 
 	def __crea_calibracion__(self):
 	    #Evp
@@ -4442,7 +4481,13 @@ class nsgaii_element:
 		return [evp, infil, perco, losses, velRun, velSub, velSup, velStream, hu, hg]
 
 	def __crea_ejec__(self, calibracion):
-		return [calibracion, self.ruta_lluvia, self.npasos, self.inicio, self.simelem]
+                # Si se asigna, setea C.I. a partir del v - porque las demas funciones para setear estan teniendo problemas.
+                if self.v_humedad is not None:
+                   for pos, y in enumerate(self.v_humedad):
+                       self.simelem.set_Storage(y,pos)
+
+                return [calibracion, self.ruta_lluvia, self.npasos, self.inicio, self.simelem,
+                        self.ruta_conv, self.ruta_stra]
 
 	def __evalfunc__(self, Qsim, f1 = __eval_nash__, f2 = __eval_q_pico__):
 		E1 = f1(self.Qobs, Qsim)
