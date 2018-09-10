@@ -1905,7 +1905,7 @@ class Basin:
         self.CellQmed,self.CellETR = cu.basin_qmed(
             self.structure,
             self.CellHeight,
-                        precip,
+            precip,
             Tipo_ETR,
             mu_choud,
             self.ncells,)
@@ -2075,7 +2075,7 @@ class Basin:
                     new_field=osgeo.ogr.FieldDefn(k[:10],osgeo.ogr.OFTReal)
                     layer.CreateField(new_field)
                     netsizeT = cu.basin_netxy_find(self.structure,nodos,cauce*Dict[k],self.ncells)
-                    netDict.append(cu.basin_netxy_cut(netsize,self.ncells))
+                    netDict.append(cu.basin_netxy_cut(netsizeT,self.ncells))
         #Para cada tramo
         featureFID=0
         for i,j in zip(cortes[:-1],cortes[1:]):

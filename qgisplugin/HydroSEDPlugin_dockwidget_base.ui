@@ -3289,7 +3289,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-615</y>
+              <y>-730</y>
               <width>443</width>
               <height>1918</height>
              </rect>
@@ -4193,7 +4193,7 @@
                   <x>0</x>
                   <y>1030</y>
                   <width>421</width>
-                  <height>241</height>
+                  <height>261</height>
                  </rect>
                 </property>
                 <property name="title">
@@ -4280,7 +4280,7 @@
                     <item>
                      <layout class="QGridLayout" name="gridLayout_2">
                       <item row="1" column="2">
-                       <widget class="QDoubleSpinBox" name="SpinBox_Cmed">
+                       <widget class="QDoubleSpinBox" name="SpinBox_C1">
                         <property name="toolTip">
                          <string>Coeficiente caudal medio extremo (Poveda, 2007)</string>
                         </property>
@@ -4300,7 +4300,7 @@
                        </widget>
                       </item>
                       <item row="1" column="4">
-                       <widget class="QDoubleSpinBox" name="SpinBox_Cdes">
+                       <widget class="QDoubleSpinBox" name="SpinBox_C3">
                         <property name="toolTip">
                          <string>Coeficiente desviacion caudal extremo (Poveda, 2007)</string>
                         </property>
@@ -4333,7 +4333,7 @@
                        </widget>
                       </item>
                       <item row="5" column="2">
-                       <widget class="QDoubleSpinBox" name="SpinBox_Emed">
+                       <widget class="QDoubleSpinBox" name="SpinBox_C2">
                         <property name="toolTip">
                          <string>Exponente caudal medio extremo (Poveda, 2007)</string>
                         </property>
@@ -4353,7 +4353,7 @@
                        </widget>
                       </item>
                       <item row="5" column="4">
-                       <widget class="QDoubleSpinBox" name="SpinBox_Edes">
+                       <widget class="QDoubleSpinBox" name="SpinBox_C4">
                         <property name="toolTip">
                          <string>Exponente desviacion caudal extremo (Poveda, 2007)</string>
                         </property>
@@ -4379,20 +4379,29 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="6" column="0">
-                       <widget class="QLabel" name="label_20">
+                      <item row="6" column="2">
+                       <widget class="QLabel" name="label_32">
                         <property name="toolTip">
                          <string>Periodo de retorno</string>
                         </property>
                         <property name="text">
-                         <string>Tr</string>
+                         <string>f(x)</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="6" column="1">
-                       <widget class="QDoubleSpinBox" name="doubleSpinBox">
+                      <item row="6" column="3" colspan="2">
+                       <widget class="QComboBox" name="ComboQmaxPDF">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>0</height>
+                         </size>
+                        </property>
                         <property name="toolTip">
-                         <string>Periodo de retorno en años para la estimación de extremos</string>
+                         <string>Función de distribución usada para obtener la estimación de máximos.</string>
+                        </property>
+                        <property name="whatsThis">
+                         <string>Función de distribución usada para obtener la estimación de máximos.</string>
                         </property>
                        </widget>
                       </item>
@@ -4401,49 +4410,7 @@
                    </layout>
                   </item>
                   <item>
-                   <widget class="Line" name="line_28">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_58">
-                    <property name="font">
-                     <font>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Datos de salida:</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_60">
-                    <item>
-                     <widget class="QLabel" name="label_60">
-                      <property name="font">
-                       <font>
-                        <weight>75</weight>
-                        <bold>true</bold>
-                       </font>
-                      </property>
-                      <property name="toolTip">
-                       <string>El valor del caudal calculado solo a la salida de la cuenca.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>El valor del caudal calculado solo a la salida de la cuenca.</string>
-                      </property>
-                      <property name="text">
-                       <string>Qextremo  salida [m3/s]:</string>
-                      </property>
-                     </widget>
-                    </item>
                     <item>
                      <spacer name="horizontalSpacer_34">
                       <property name="orientation">
@@ -4456,16 +4423,6 @@
                        </size>
                       </property>
                      </spacer>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="ShowResultQextremo">
-                      <property name="toolTip">
-                       <string>Valor del caudal extremo calculado a la salida.</string>
-                      </property>
-                      <property name="readOnly">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
                     </item>
                     <item>
                      <widget class="QPushButton" name="Butto_Ejec_HidroExtremos">

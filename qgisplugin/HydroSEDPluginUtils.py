@@ -203,6 +203,39 @@ class controlHS:
         #Retorna el resultado a la salida 
         return 0,self.cuenca.CellQmed[-1]
 
+    def hidrologia_extremos_regional(self, Qmed, CoefExpoList, Pdf2Use, MaxorMin):
+        '''Obtiene caudales maximos o minimos para los periodos de retorno 
+        de 2.33, 5, 10, 25, 50, 100, 500'''
+        #Organiza cioeficientes y expo 
+        Coef = [CoefExpoList[i] for i in [0, 2]]
+        Expo = [CoefExpoList[i] for i in [1, 3]]
+        #Trata de hacerlo
+        #try:
+        print Coef
+        print Expo
+        print Pdf2Use
+		#Hace de acuerdo a una cosa o la otra 
+        if MaxorMin == 'QMax':
+            Qext = self.cuenca.GetQ_Max(Qmed, Coef, Expo, Dist = Pdf2Use)
+        elif MaxorMin == 'QMin':
+            Qext = self.cuenca.GetQ_Min(Qmed, Coef, Expo, Dist = Pdf2Use)
+        #Actualiza el diccionario 
+        Nombre = MaxorMin
+        #Actualiza diccionarios 
+        for Tr,Q in zip([2.33, 5, 10, 25, 50, 100], Qext):
+            nombre2 = Nombre + '_' + str(Tr)
+            self.DicBasinWMF.update({nombre2:{'nombre':nombre2,
+            'tipo':'float32',
+            'shape':Q.shape,
+            'raster':True,
+            'basica': False,
+            'categoria': 'Hidro',
+            'var': np.copy(Q),
+            'saved':False}})
+          #  return 0
+        #except:
+         #   return 1
+
     def Basin_Update(self, PathNC):
         '''Actualiza el archivo nc de la cuenca con las variables agregadas o borradas de la misma'''
         #Lectura del archivo 

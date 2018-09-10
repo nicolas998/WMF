@@ -568,6 +568,12 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
     
     def setupHidro_Balance(self):
         
+        #Inicia Combo box de funciones de distribucion
+        self.ComboQmaxPDF.addItem('gumbel')
+        self.ComboQmaxPDF.addItem('lognorm')
+        self.ComboQmaxPDF.setCurrentIndex(self.ComboQmaxPDF.findData('Gumbel'))
+        
+        
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que solo se busquen formatos aceptados por GDAL'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
@@ -631,8 +637,59 @@ class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
             for k in ['Caudal','ETR','Runoff']:
                 self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[k],k, self.Tabla_Prop_WMF)
                 
+        def handleClickEventExtremeByRegionalization():
+            '''Calcula caudales extremos a partir de regionalizacion'''
+            #Obtiene el caudal medio 
+            NombreQmed = self.PathInHydro_Qmed4Qmax.text().strip()
+            try:
+                Qmed = np.copy(self.HSutils.DicBasinWMF[NombreQmed]['var'])
+            except:
+                try:
+                    Qmed = np.copy(self.HSutils.DicBasinNc[NombreQmed]['var'])
+                except:
+                    self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                        u'No se encuentra la variable '+NombreQmed+' en WMF o NC, no es posible estimar Qmax o Qmin',
+                        level=QgsMessageBar.ERROR, duration=3)
+                    return
+            #Si es maximo establece valores por defecto de coeifciente y exponentes
+            if self.RadButton_maximos.isChecked():
+                CoefExpoList = [6.71, 0.82, 3.29, 0.64]
+                StrVal = ['%.4f' % i for i in CoefExpoList]
+                isMaxorMin = 'QMax'
+            elif self.RadButton_minimos.isChecked():
+                CoefExpoList = [0.4168, 1.058, 0.2, 0.98]
+                StrVal = ['%.4f' % i for i in CoefExpoList]
+                isMaxorMin = 'QMin'
+            #Valores por defecto
+            for i in range(1,5):
+                val = getattr(self, 'SpinBox_C'+str(i)).value()
+                if val == 0.0:
+                    comando = 'self.SpinBox_C'+str(i)+'.setValue('+StrVal[i-1]+')'
+                    eval(comando)
+            #Obtiene la funcion de distribucion 
+            Pdf2Use = self.ComboQmaxPDF.currentText().encode()
+            #Ejecuta el calculo de caudal a largo plazo 
+            retorno = self.HSutils.hidrologia_extremos_regional(Qmed, CoefExpoList, Pdf2Use, isMaxorMin)
+            #Mensajes de exito o error
+            if retorno == 0:
+                #Actualiza la tabla de WMF
+                for Tr in [2.33, 5, 10, 25, 50, 100]:
+                    nombre = isMaxorMin+'_'+str(Tr)
+                    self.TabWMF.NewEntry(self.HSutils.DicBasinWMF[nombre],nombre, self.Tabla_Prop_WMF)
+                #Mensaje de exito 
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                    u'Caudales extremos calculados con exito',
+                    level=QgsMessageBar.INFO, duration=3)
+            else:
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', 
+                    u'No ha sido posible determinar caudales extremos para esta cuenca',
+                    level=QgsMessageBar.WARNING, duration=3)
+                    
+            
+        
         #Botones para ejecutar
         self.Butto_Ejec_HidroBalance.clicked.connect(hadleClickEventEjecutarBalance)
+        self.Butto_Ejec_HidroExtremos.clicked.connect(handleClickEventExtremeByRegionalization)
         
     def TableStart (self):
         '''Arranca las tablas de NC y WMF'''
