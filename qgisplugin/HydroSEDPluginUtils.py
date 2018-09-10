@@ -148,7 +148,7 @@ class controlHS:
         # genera el diccionario de las variables a guardar
         DicVar = {}
         for n in names:
-            DicVar.update({n.encode():self.DicBasinWMF[n]['var'].data})
+            DicVar.update({n.encode():self.DicBasinWMF[n]['var']})
         print DicVar
         #Guarda la red hidrica 
         self.cuenca.Save_Net2Map(pathNetwork, wmf.cu.dxp, 
