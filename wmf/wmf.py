@@ -559,15 +559,15 @@ def read_rain_struct(ruta):
     return D
 
 def read_storage_struct(ruta):
-	'''Lee la estructura del archivo encabezado de almacenamiento'''
-	#Obtiene rutaHdr
-	PathBin, PathHdr = __Add_hdr_bin_2route__(ruta,storage=True)
-	#Lee el archivo 
-	Data = pd.read_csv(PathHdr, 
-		skiprows=4, 
-		index_col=6, 
-		parse_dates=True)
-	return Data
+    '''Lee la estructura del archivo encabezado de almacenamiento'''
+    #Obtiene rutaHdr
+    PathBin, PathHdr = __Add_hdr_bin_2route__(ruta,storage=True)
+    #Lee el archivo 
+    Data = pd.read_csv(PathHdr, 
+        skiprows=4, 
+        index_col=6, 
+        parse_dates=True)
+    return Data
 
 def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     Mean_Storage):
@@ -2827,6 +2827,12 @@ class SimuBasin(Basin):
             models.calc_niter = 5
             models.retorno = 0
             models.verbose = 0
+            #Aloja las varaibles de sedimentos
+            models.krus = np.ones((1,N))
+            models.prus = np.ones((1,N))
+            models.crus = np.ones((1,N))
+            models.parliac = np.zeros((3,N))
+            
             #Define los puntos de control       
             models.control = np.zeros((1,N))
             #Si se da la opcion de puntos de control en toda la red lo hace
