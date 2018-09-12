@@ -14,7 +14,7 @@
 #!You should have received a copy of the GNU General Public License
 #!along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #Algo
-import matplotlib 
+import matplotlib
 matplotlib.use('Agg')
 from cu import *
 from models import *
@@ -76,10 +76,10 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
     ax1 = axis o entorno para graficar
     **kwargs = Argumentos por defecto, se pueden cambiar.
     Estos argumentos son:
-
+    
     ARGUMENTOS POR DEFECTO
-    rain_alpha': 0.4, Transparencia de la lluvia
-    rain_color': blue, Color de la lluvia
+    rain_alpha: 0.4, Transparencia de la lluvia
+    rain_color: blue, Color de la lluvia
     rain_lw : 0, Ancho de linea de lluvia
     rain_ylabel: Precipitation [$mm$], Etiqueta del eje y de la lluvia
     label_size: 14, Tamano de fuente 
@@ -92,7 +92,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
     Qo_label : Observed, Leyenda de caudal observado
     Qs_label : Simulated, Leyenda de caudal simulado
     xlabel : Time [$min$], Etiqueta del eje x
-    ylabel : Streamflow $[m^3/seg], Etiqueta del eje y
+    ylabel : Streamflow $[m^3/seg]$, Etiqueta del eje y
     legend_loc : upper center, Ubicacion de la leyenda
     bbox_to_anchor : (0.5,-0.12), Ajuste de la caja de la leyenda
     legend_ncol : 4, Numero de columnas para la leyenda
@@ -227,7 +227,7 @@ def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
         return ax
 
 #-----------------------------------------------------------------------
-#Lectura de informacion y mapas 
+#Lectura de informacion y mapas
 #-----------------------------------------------------------------------
 def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = False,DIRformat = 'r.watershed'):
     'Funcion: read_map\n'\
@@ -250,7 +250,7 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = F
     '       de cuencas y tramos.\n' \
     #Abre el mapa
     direction=gdal.Open(ruta_map)
-    #Proyecction
+    #Projection
     proj = osgeo.osr.SpatialReference(wkt=direction.GetProjection())
     EPSG_code = proj.GetAttrValue('AUTHORITY',1)
     #lee la informacion del mapa
@@ -659,13 +659,11 @@ def SimuBains_Update_DEM_DIR(ruta_basin, rute_dem, rute_dir):
     g.DEM = rute_dem
     g.DIR = rute_dir
     g.close()
-    
+
 #-----------------------------------------------------------------------
 #Ecuaciones Que son de utilidad
 #-----------------------------------------------------------------------
-def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],
-    c1=5.54,k=0.5,fhi=0.95,Omega=0.13,pend=None,area=None,
-    ):
+def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],    c1=5.54,k=0.5,fhi=0.95,Omega=0.13,pend=None,area=None,):
     'Funcion: OCG_param\n'\
     'Descripcion: Calcula los parametros de la onda cinematica.\n'\
     'geomorfologica (Velez, 2001).\n'\
@@ -688,7 +686,7 @@ def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],
         var = B*(pend**w2)*(area**w3)
         return var,w1
     else:
-        return B,w1,w2,w3       
+        return B,w1,w2,w3
 
 def PotCritica(S,D,te = 0.056):
     ti = te * (D*1600*9.8)
@@ -700,10 +698,12 @@ def __eval_nash__(s_o,s_s):
     Dif_med=(s_o-med_s_o)**2
     E=1-(np.nansum(Dif_sim)/np.nansum(Dif_med))
     return E
+
 def __eval_rmse__(So,Ss):
     Dif=(So-Ss)**2
     Dif=np.ma.array(Dif,mask=np.isnan(Dif))
     return np.sqrt(Dif.sum()/Dif.shape[0])
+
 def __eval_rmse_log__(So,Ss):
     So=np.ma.array(So,mask=np.isnan(So))
     Ss=np.ma.array(Ss,mask=np.isnan(Ss))
@@ -711,11 +711,13 @@ def __eval_rmse_log__(So,Ss):
     Dif=(So-Ss)**2
     Dif=np.ma.array(Dif,mask=np.isnan(Dif))
     return np.sqrt(Dif.sum()/Dif.shape[0])
+
 def __eval_t_pico__(s_o,s_s,dt):    
     max_o=np.argmax(np.ma.array(s_o,mask=np.isnan(s_o)))
     max_s=np.argmax(np.ma.array(s_s,mask=np.isnan(s_s)))
     dif_tpico=(max_o-max_s)*dt
     return dif_tpico
+
 def __eval_q_pico__(s_o,s_s):
     max_o=np.argmax(np.ma.array(s_o,mask=np.isnan(s_o)))
     max_s=np.argmax(np.ma.array(s_s,mask=np.isnan(s_s)))
@@ -750,6 +752,7 @@ def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
 def __multiprocess_Warper__(Lista):
     Res = Lista[4].run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
     return Res
+
 def __ejec_parallel__(ListEjecs, nproc, nodo):
     P = Pool(processes=nproc)
     Res = P.map(__multiprocess_Warper__, ListEjecs)
@@ -796,8 +799,7 @@ def __ModifyElevErode__(X,slope=0.01,d2 = 0.03, window = 25):
 #Clase de cuencas
 #-----------------------------------------------------------------------
 
-class Basin:
-    
+class Basin:    
     #------------------------------------------------------
     # Subrutinas de trazado de cuenca y obtencion de parametros
     #------------------------------------------------------
@@ -1072,13 +1074,13 @@ class Basin:
             if FlagBasinPolygon:
                 #Obtiene mapa raster, propiedades geo y formato para escribir
                 Map, Prop = self.Transform_Basin2Map(np.ones(self.ncells))
-                tt = [Prop[2], Prop[4].tolist(), 0.0,
-                        Prop[1]*Prop[-2] + Prop[3], 0.0, -1*Prop[5].tolist()]
+                tt = [Prop[2], Prop[4].tolist(), 0.0,Prop[1]*Prop[-2] + Prop[3], 0.0, -1*Prop[5].tolist()]
                 #Obtiene los shps con la forma de la o las envolventes de cuenca
                 Map = Map.T
                 mask = Map != -9999.
+                c,a,b,f,d,e = tt;tt = __fea__.rasterio.Affine(a,b,c,d,e,f) if (float('.'.join(__fea__.rasterio.__version__.split('.')[:2]))>=0.8) else tt
                 shapes = __fea__.shapes(Map, mask=mask, transform=tt)
-                #Obtiene el poligono de la cuenca completo 
+                #Obtiene el poligono de la cuenca completo
                 Shtemp = []
                 flag = True
                 while flag:
@@ -1134,13 +1136,13 @@ class Basin:
         'Parametros\n'\
         '----------\n'\
         'self : no necesita nada es autocontenido.\n'\
-                'MajorBasins : Obtiene binarios con las sub-cuencas drenando.\n'\
-                '   unicamente a cuencas de orden mayor (ej: todas las orden 2 que \n'\
-                '   drenan a orden 3 o major).\n'\
-                'umbral: Cantidad minima de celdas para considerar canal (aplica cuando\n'\
-                '   se obtienen las sub-cuencas mayores.\n'\
-                'verbose: Muestra el paso de calculo de cuencas mayores.\n'\
-                'FirtsOrder: Primer orden a partir dle cual se analizan ordenes mayores.\n'\
+        'MajorBasins : Obtiene binarios con las sub-cuencas drenando.\n'\
+        '   unicamente a cuencas de orden mayor (ej: todas las orden 2 que \n'\
+        '   drenan a orden 3 o major).\n'\
+        'umbral: Cantidad minima de celdas para considerar canal (aplica cuando\n'\
+        '   se obtienen las sub-cuencas mayores.\n'\
+        'verbose: Muestra el paso de calculo de cuencas mayores.\n'\
+        'FirtsOrder: Primer orden a partir dle cual se analizan ordenes mayores.\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -1784,32 +1786,33 @@ class Basin:
             CellMap, self.nhills, Ma, SumMeanMax, self.ncells)
         return HillsMap
 
-        def Transform_Basin2Polygon(self, Vector,):
-            'Descripcion: convierte una variable de topologia de la cuenca en varios poligonos\n'\
-            '   cada poligono corresponde al numero de esa variable\n'\
-            'parametros\n'\
-            '----------\n'\
-            'Vector: Vector con la topologia de la cuenca que contiene los datos a transformar'
-            'Retorna\n'\
-            '----------\n'\
-            'DicPoly: Diccionario donde el key indica el poligono encontrado y contiene las coord'\
-            #Obtiene mapa raster, propiedades geo y formato para escribir
-            Map, Prop = self.Transform_Basin2Map(Vector)
-            tt = [Prop[2], Prop[4].tolist(), 0.0,
-                Prop[1]*Prop[-2] + Prop[3], 0.0, -1*Prop[5].tolist()]
-            #Obtiene los shps con la forma de la o las envolventes de cuenca
-            Map = Map.T
-            mask = Map != -9999.
-            shapes = __fea__.shapes(Map, mask=mask, transform=tt)
-            #Obtiene el poligono de la cuenca completo 
-            DicPoly = {}
-            for Sh in shapes:
-                Coord = Sh[0]['coordinates']
-                Value = int(Sh[1])
-                DicPoly.update({str(Value):{}})
-                for cont,co in enumerate(Coord):
-                    DicPoly[str(Value)].update({str(cont):np.array(co).T})
-            return DicPoly
+
+    def Transform_Basin2Polygon(self, Vector,):
+        'Descripcion: convierte una variable de topologia de la cuenca en varios poligonos\n'\
+        '   cada poligono corresponde al numero de esa variable\n'\
+        'parametros\n'\
+        '----------\n'\
+        'Vector: Vector con la topologia de la cuenca que contiene los datos a transformar'
+        'Retorna\n'\
+        '----------\n'\
+        'DicPoly: Diccionario donde el key indica el poligono encontrado y contiene las coord'\
+        #Obtiene mapa raster, propiedades geo y formato para escribir
+        Map, Prop = self.Transform_Basin2Map(Vector)
+        tt = [Prop[2], Prop[4].tolist(), 0.0,
+            Prop[1]*Prop[-2] + Prop[3], 0.0, -1*Prop[5].tolist()]
+        #Obtiene los shps con la forma de la o las envolventes de cuenca
+        Map = Map.T
+        mask = Map != -9999.
+        shapes = __fea__.shapes(Map, mask=mask, transform=tt)
+        #Obtiene el poligono de la cuenca completo
+        DicPoly = {}
+        for Sh in shapes:
+            Coord = Sh[0]['coordinates']
+            Value = int(Sh[1])
+            DicPoly.update({str(Value):{}})
+            for cont,co in enumerate(Coord):
+                DicPoly[str(Value)].update({str(cont):np.array(co).T})
+        return DicPoly
 
     #------------------------------------------------------
     # Trabajo con datos puntuales puntos 
@@ -2621,8 +2624,7 @@ class Basin:
     #Plot de histograma de pendientes 
     def PlotSlopeHist(self,ruta=None,bins=[0,2,0.2],
         Nsize=1000, figsize = (8,6), fig = None, show = True,**kwargs):
-        '''Hace un plot del histograma de distribucion de 
-                pendientes en la cuenca.
+        '''Hace un plot del histograma de distribucion de pendientes en la cuenca.
                 Requiere:
                     - ruta: ruta de guaradado de la imagen,
                     - bins: rango inferior, superior y paso para intervalos.
@@ -3480,8 +3482,7 @@ class SimuBasin(Basin):
             models.hill_slope = np.ones((1,N))*self.Transform_Basin2Hills(pend) 
             models.stream_long = np.ones((1,N))*stream_long
             models.stream_slope = np.ones((1,N))*stream_slope
-            models.stream_width = np.ones((1,N))*cu.basin_subbasin_map2subbasin(
-                self.hills_own,stream_width,self.nhills,cauce,0,self.ncells)
+            models.stream_width = np.ones((1,N))*cu.basin_subbasin_map2subbasin(self.hills_own,stream_width,self.nhills,cauce,0,self.ncells)
             no0min = models.stream_width[models.stream_width<>0].min()
             models.stream_width[models.stream_width==0] = no0min
             models.elem_area = np.ones((1,N))*np.array([self.hills_own[self.hills_own==i].shape[0] for i in range(1,self.hills.shape[1]+1)])*cu.dxp**2.0
