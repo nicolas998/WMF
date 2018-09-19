@@ -14,7 +14,7 @@
 #!You should have received a copy of the GNU General Public License
 #!along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #Algo
-import matplotlib 
+import matplotlib
 matplotlib.use('Agg')
 from cu import *
 from models import *
@@ -35,27 +35,27 @@ except:
     try:
         import netCDF4 as netcdf
     except:
-        print 'No netcdf en esta maquina, se desabilita la funcion SimuBasin.save_SimuBasin'
+        print('No netcdf en esta maquina, se desabilita la funcion SimuBasin.save_SimuBasin')
         pass
 try:
     from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid, cm
     from matplotlib.patches import Polygon
     from matplotlib.collections import PatchCollection
 except:
-    print 'No se logra importar basemap, por lo tanto no funciona Plot_basin'
+    print('No se logra importar basemap, por lo tanto no funciona Plot_basin')
     pass
 try:
     from deap import base, creator
     from deap import tools
     FlagCalib_NSGAII = True
 except:
-    print 'No se logra importar deap tools, por lo tanto se deshabilita SimuBasin.Calib_NSGAII'
+    print('No se logra importar deap tools, por lo tanto se deshabilita SimuBasin.Calib_NSGAII')
     FlagCalib_NSGAII = False
 try:
-    import rasterio.features as __fea__
+    from rasterio import features as __fea__
     FlagBasinPolygon = True
 except:
-    print 'No se logra importar rasterio, se deshabilita obtencion de poligono de cuenca'
+    print('No se logra importar rasterio, se deshabilita obtencion de poligono de cuenca')
     FlagBasinPolygon = False
 
 import random
@@ -78,11 +78,11 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
     Estos argumentos son:
 
     ARGUMENTOS POR DEFECTO
-    rain_alpha': 0.4, Transparencia de la lluvia
-    rain_color': blue, Color de la lluvia
+    rain_alpha: 0.4, Transparencia de la lluvia
+    rain_color: blue, Color de la lluvia
     rain_lw : 0, Ancho de linea de lluvia
     rain_ylabel: Precipitation [$mm$], Etiqueta del eje y de la lluvia
-    label_size: 14, Tamano de fuente 
+    label_size: 14, Tamano de fuente
     rain_ylim : Se ajusta, Limite del eje y
     ColorSim : ['r','g','k','c','y'], Colores para simulacion de caudal
     Qs_lw : 1.5, Ancho de linea de caudal simulado
@@ -92,7 +92,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
     Qo_label : Observed, Leyenda de caudal observado
     Qs_label : Simulated, Leyenda de caudal simulado
     xlabel : Time [$min$], Etiqueta del eje x
-    ylabel : Streamflow $[m^3/seg], Etiqueta del eje y
+    ylabel : Streamflow $[m^3/seg]$, Etiqueta del eje y
     legend_loc : upper center, Ubicacion de la leyenda
     bbox_to_anchor : (0.5,-0.12), Ajuste de la caja de la leyenda
     legend_ncol : 4, Numero de columnas para la leyenda
@@ -127,7 +127,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
         ylim = kwargs.get('rain_ylim',ax2AX.get_ylim() [::-1])
         ax2AX.set_ylim(ylim)
     else:
-        ax2 = None    
+        ax2 = None
     #grafica las hidrografas
     ColorSim=kwargs.get('ColorSim',['r','g','k','c','y'])
     Qs_lw = kwargs.get('Qs_lw',1.5)
@@ -140,9 +140,9 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
         if ids is None:
             ids = np.arange(1,Qs.shape[0]+1)
         for i,c,d in zip(Qs,ColorSim,ids):
-            ax1.plot(ejeX,i,c,lw=Qs_lw,label=str(d))    
+            ax1.plot(ejeX,i,c,lw=Qs_lw,label=str(d))
     else:
-        ax1.plot(ejeX,Qs,Qs_color,lw=Qs_lw,label=Qs_label)    
+        ax1.plot(ejeX,Qs,Qs_color,lw=Qs_lw,label=Qs_label)
     if Qo is not None: ax1.plot(ejeX,Qo,Qo_color,lw=Qo_lw,label=Qo_label)
     #Pone elementos en la figura
     xlabel = kwargs.get('xlabel','Time [$min$]')
@@ -163,7 +163,7 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
         pl.show()
     return ax1, ax2
 
-def plot_mean_storage(Mean_Storage, Dates = None, mrain = None, 
+def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
     rute = None, **kwargs):
     'Funcion: plot_mean_storage\n'\
     'Descripcion: Plotea como se encuentran los almacenamientos medios en la cuenca.\n'\
@@ -215,7 +215,7 @@ def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
             ax2.fill_between(ejeX,0,mrain,alpha=alpha,color=colorRain,lw=lwRain)
             ylim = ax2AX.get_ylim()[::-1]; ylim = list(ylim); ylim[1] = 0
             ax2AX.set_ylim(ylim)
-        #Nombre de cada tanque 
+        #Nombre de cada tanque
         ax.set_ylabel(nombres[c], size = ysize)
     if rute is not None:
         pl.savefig(rute, bbox_inches='tight')
@@ -227,7 +227,7 @@ def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
         return ax
 
 #-----------------------------------------------------------------------
-#Lectura de informacion y mapas 
+#Lectura de informacion y mapas
 #-----------------------------------------------------------------------
 def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = False,DIRformat = 'r.watershed'):
     'Funcion: read_map\n'\
@@ -250,7 +250,7 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = F
     '       de cuencas y tramos.\n' \
     #Abre el mapa
     direction=gdal.Open(ruta_map)
-    #Proyecction
+    #Projection
     proj = osgeo.osr.SpatialReference(wkt=direction.GetProjection())
     EPSG_code = proj.GetAttrValue('AUTHORITY',1)
     #lee la informacion del mapa
@@ -285,7 +285,7 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = F
         #Guarda la variable para el proyecto
         global Global_EPSG
         Global_EPSG = EPSG_code
-        # si es un dir se fija si es de r.watershed 
+        # si es un dir se fija si es de r.watershed
         if isDIR:
             if DIRformat == 'r.watershed':
                 Mapa[Mapa<=0] = cu.nodata.astype(int)
@@ -295,10 +295,10 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = F
                 Mapa[Mapa<=0] = cu.nodata.astype(int)
                 Mapa = cu.dir_reclass_opentopo(Mapa.T,cu.ncols,cu.nrows)
                 return Mapa, EPSG_code
-        #retorna el mapa 
-        return Mapa.T,EPSG_code
+        #retorna el mapa
+        return Mapa.T.astype(float),EPSG_code
     else:
-        return Mapa.T,[ncols,nrows,xll,yll,dx,dy,noData],EPSG_code
+        return Mapa.T.astype(float),[ncols,nrows,xll,yll,dx,dy,noData],EPSG_code
 
 def read_map_points(ruta_map, ListAtr = None):
     'Funcion: read_map_points\n'\
@@ -335,11 +335,11 @@ def read_map_points(ruta_map, ListAtr = None):
                     f = l.GetFeature(i)
                     vals.append(f.GetField(pos))
                 Dict.update({j:np.array(vals)})
-        #Cierra el mapa 
+        #Cierra el mapa
         dr.Destroy()
         return Cord, Dict
     else:
-        #Cierra el mapa 
+        #Cierra el mapa
         dr.Destroy()
         return Cord
 
@@ -348,11 +348,11 @@ def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
     #Formato de condiciones del mapa
     x_pixels = Array.shape[0]  # number of pixels in x
     y_pixels = Array.shape[1]  # number of pixels in y
-    PIXEL_SIZE = ArrayProp[4]  # size of the pixel...        
-    x_min = ArrayProp[2]  
+    PIXEL_SIZE = ArrayProp[4]  # size of the pixel...
+    x_min = ArrayProp[2]
     y_max = ArrayProp[3] + ArrayProp[4] * ArrayProp[1] # x_min & y_max are like the "top left" corner.
     driver = gdal.GetDriverByName(Format)
-    #Para encontrar el formato de GDAL 
+    #Para encontrar el formato de GDAL
     NP2GDAL_CONVERSION = {
       "uint8": 1,
       "int8": 1,
@@ -380,7 +380,7 @@ def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
         0,                      # 2
         y_max,    # 3
         0,                      # 4
-        -PIXEL_SIZE))  
+        -PIXEL_SIZE))
     #coloca la proyeccion a partir de un EPSG
     proj = osgeo.osr.SpatialReference()
     texto = 'EPSG:' + str(EPSG)
@@ -388,13 +388,13 @@ def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
     dataset.SetProjection(proj.ExportToWkt())
     #Coloca el nodata
     band = dataset.GetRasterBand(1)
-    if ArrayProp[-1] == None:        
+    if ArrayProp[-1] == None:
         band.SetNoDataValue(wmf.cu.nodata.astype(int).max())
     else:
         band.SetNoDataValue(-9999)
     #Guarda el mapa
     dataset.GetRasterBand(1).WriteArray(Array.T)
-    dataset.FlushCache() 
+    dataset.FlushCache()
 
 def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
     DriverFormat='ESRI Shapefile'):
@@ -438,8 +438,8 @@ def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
     N=np.size(XY,axis=1)
     if N>1:
         for i in XY.T:
-            if i[0]<>-9999.0 and i[1]<>-9999.0:
-                #inserta el punto 
+            if i[0]!=-9999.0 and i[1]!=-9999.0:
+                #inserta el punto
                 point = osgeo.ogr.Geometry(osgeo.ogr.wkbPoint)
                 point.SetPoint(0, float(i[0]), float(i[1]))
                 feature = osgeo.ogr.Feature(layerDefinition)
@@ -448,7 +448,7 @@ def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
                 feature.SetField('Estacion',ids[contador])
                 #Le coloca lo del diccionario
                 if Dict is not None:
-                    for p in Dict.keys():       
+                    for p in Dict.keys():
                         tipo = type(Dict[p][0])
                         if tipo is np.float64:
                             feature.SetField(p[:10],float("%.2f" % Dict[p][contador]))
@@ -468,13 +468,13 @@ def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
         feature.SetGeometry(point)
         feature.SetFID(featureIndex)
         feature.SetField('Estacion',ids)
-        for p in Dict.keys():       
+        for p in Dict.keys():
             feature.SetField(p[:p.index('[')].strip()[:10],float("%.2f" % Param[p]))
         contador+=1
         layer.CreateFeature(feature)
         point.Destroy()
         feature.Destroy()
-    shapeData.Destroy() 
+    shapeData.Destroy()
 
 def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
     'Funcion: OCG_param\n'\
@@ -498,11 +498,11 @@ def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
     DatesFin = []
     for i in Dates:
         try:
-            stringB=string+i.strftime(fmt)+exten 
+            stringB=string+i.strftime(fmt)+exten
             Pos=L.index(stringB)
             Lista.append(L[Pos])
             DatesFin.append(i)
-        except: 
+        except:
             pass
     return Lista,DatesFin
 
@@ -543,7 +543,7 @@ def read_mean_rain(ruta,Nintervals=None,FirstInt=0):
     Data = np.loadtxt(ruta,skiprows=6,usecols=(2,3),delimiter=',',dtype='str')
     Rain = np.array([float(i[0]) for i in Data])
     Dates = [datetime.datetime.strptime(i[1],' %Y-%m-%d-%H:%M  ') for i in Data]
-    #Corrige pedazo para capturar   
+    #Corrige pedazo para capturar
     if Nintervals == None: Nintervals = Rain.size
     #Obtiene el pedazo
     Dates = Dates[FirstInt:FirstInt+Nintervals]
@@ -553,8 +553,8 @@ def read_mean_rain(ruta,Nintervals=None,FirstInt=0):
 
 def read_rain_struct(ruta):
     D = pd.read_csv(ruta,skiprows=5,
-    index_col=2, parse_dates=True, 
-    infer_datetime_format=True, 
+    index_col=2, parse_dates=True,
+    infer_datetime_format=True,
     usecols = (1,2,3))
     return D
 
@@ -562,10 +562,10 @@ def read_storage_struct(ruta):
     '''Lee la estructura del archivo encabezado de almacenamiento'''
     #Obtiene rutaHdr
     PathBin, PathHdr = __Add_hdr_bin_2route__(ruta,storage=True)
-    #Lee el archivo 
-    Data = pd.read_csv(PathHdr, 
-        skiprows=4, 
-        index_col=6, 
+    #Lee el archivo
+    Data = pd.read_csv(PathHdr,
+        skiprows=4,
+        index_col=6,
         parse_dates=True)
     return Data
 
@@ -573,7 +573,7 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     Mean_Storage):
     #Lee fechas para el intervalo de tiempo
     S = read_mean_rain(rute_rain,Nintervals,FirstInt)
-    #Escribe el encabezado del archivo 
+    #Escribe el encabezado del archivo
     f=open(rute,'w')
     f.write('Numero de celdas: %d \n' % cuenca.ncells)
     f.write('Numero de laderas: %d \n' % cuenca.nhills)
@@ -581,10 +581,10 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     f.write('Tipo Modelo: %s \n' % cuenca.modelType)
     f.write('IDfecha, Tanque 1, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
     c = 1
-    #Si no hay almacenamiento medio lo coloca en -9999 
-    #Escribe registros medios y fechas de los almacenamientos 
+    #Si no hay almacenamiento medio lo coloca en -9999
+    #Escribe registros medios y fechas de los almacenamientos
     for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
-        f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
+        f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' %
             (c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
         c+=1
     f.close()
@@ -593,7 +593,7 @@ def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     Mean_Speed = None):
     #Lee fechas para el intervalo de tiempo
     S = read_mean_rain(rute_rain,Nintervals,FirstInt)
-    #Escribe el encabezado del archivo 
+    #Escribe el encabezado del archivo
     f=open(rute,'w')
     f.write('Numero de celdas: %d \n' % cuenca.ncells)
     f.write('Numero de laderas: %d \n' % cuenca.nhills)
@@ -601,12 +601,12 @@ def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     f.write('Tipo Modelo: %s \n' % cuenca.modelType)
     f.write('IDfecha, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
     c = 1
-    #Si no hay almacenamiento medio lo coloca en -9999 
+    #Si no hay almacenamiento medio lo coloca en -9999
     if Mean_Speed == None:
         Mean_Speed = np.ones((5,Nintervals))*-9999
-    #Escribe registros medios y fechas de los almacenamientos 
+    #Escribe registros medios y fechas de los almacenamientos
     for d,sto in zip(S.index.to_pydatetime(),Mean_Speed.T):
-        f.write('%d, \t %.2f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
+        f.write('%d, \t %.2f, \t %.4f, \t %.2f, \t %.2f, %s \n' %
             (c,sto[0],sto[1],sto[2],sto[3],d.strftime('%Y-%m-%d-%H:%M')))
         c+=1
     f.close()
@@ -615,7 +615,7 @@ def __Save_retorno_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     Mean_retorno = None):
     #Lee fechas para el intervalo de tiempo
     S = read_mean_rain(rute_rain,Nintervals,FirstInt)
-    #Escribe el encabezado del archivo 
+    #Escribe el encabezado del archivo
     f=open(rute,'w')
     f.write('Numero de celdas: %d \n' % cuenca.ncells)
     f.write('Numero de laderas: %d \n' % cuenca.nhills)
@@ -623,10 +623,10 @@ def __Save_retorno_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     f.write('Tipo Modelo: %s \n' % cuenca.modelType)
     f.write('IDfecha, Retorno[mm], Fecha \n')
     c = 1
-    #Si no hay almacenamiento medio lo coloca en -9999 
+    #Si no hay almacenamiento medio lo coloca en -9999
     if Mean_retorno == None:
         Mean_retorno = np.ones(Nintervals)*-9999
-    #Escribe registros medios y fechas de los almacenamientos 
+    #Escribe registros medios y fechas de los almacenamientos
     for d,sto in zip(S.index.to_pydatetime(),Mean_retorno):
         f.write('%d, \t %.2f, %s \n' % (c, sto,d.strftime('%Y-%m-%d-%H:%M')))
         c+=1
@@ -659,13 +659,11 @@ def SimuBains_Update_DEM_DIR(ruta_basin, rute_dem, rute_dir):
     g.DEM = rute_dem
     g.DIR = rute_dir
     g.close()
-    
+
 #-----------------------------------------------------------------------
 #Ecuaciones Que son de utilidad
 #-----------------------------------------------------------------------
-def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],
-    c1=5.54,k=0.5,fhi=0.95,Omega=0.13,pend=None,area=None,
-    ):
+def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],    c1=5.54,k=0.5,fhi=0.95,Omega=0.13,pend=None,area=None,):
     'Funcion: OCG_param\n'\
     'Descripcion: Calcula los parametros de la onda cinematica.\n'\
     'geomorfologica (Velez, 2001).\n'\
@@ -676,7 +674,7 @@ def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],
     '   Parametros: B, w1, w2 y w3.\n'\
     '       si se entregan los mapas de pend, aacum entrega h_coef(4,:) .\n' \
     '       se asume que w1 corresponde a h_exp(4,:) .\n' \
-    #Calcula los parametros de la ecuacion de onda cinematica 
+    #Calcula los parametros de la ecuacion de onda cinematica
     B = Omega*(c1*k**(alfa[0]-alfa[1]))**((2.0/3.0)-alfa[1])
     eB=1.0/(1+alfa[1]*((2/3.0)-sigma[1]))
     w1=((2/3.0)-sigma[1])*(1.0-alfa[1])*eB
@@ -688,7 +686,7 @@ def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],
         var = B*(pend**w2)*(area**w3)
         return var,w1
     else:
-        return B,w1,w2,w3       
+        return B,w1,w2,w3
 
 def PotCritica(S,D,te = 0.056):
     ti = te * (D*1600*9.8)
@@ -700,10 +698,12 @@ def __eval_nash__(s_o,s_s):
     Dif_med=(s_o-med_s_o)**2
     E=1-(np.nansum(Dif_sim)/np.nansum(Dif_med))
     return E
+
 def __eval_rmse__(So,Ss):
     Dif=(So-Ss)**2
     Dif=np.ma.array(Dif,mask=np.isnan(Dif))
     return np.sqrt(Dif.sum()/Dif.shape[0])
+
 def __eval_rmse_log__(So,Ss):
     So=np.ma.array(So,mask=np.isnan(So))
     Ss=np.ma.array(Ss,mask=np.isnan(Ss))
@@ -711,11 +711,13 @@ def __eval_rmse_log__(So,Ss):
     Dif=(So-Ss)**2
     Dif=np.ma.array(Dif,mask=np.isnan(Dif))
     return np.sqrt(Dif.sum()/Dif.shape[0])
-def __eval_t_pico__(s_o,s_s,dt):    
+
+def __eval_t_pico__(s_o,s_s,dt):
     max_o=np.argmax(np.ma.array(s_o,mask=np.isnan(s_o)))
     max_s=np.argmax(np.ma.array(s_s,mask=np.isnan(s_s)))
     dif_tpico=(max_o-max_s)*dt
     return dif_tpico
+
 def __eval_q_pico__(s_o,s_s):
     max_o=np.argmax(np.ma.array(s_o,mask=np.isnan(s_o)))
     max_s=np.argmax(np.ma.array(s_s,mask=np.isnan(s_s)))
@@ -734,15 +736,15 @@ def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
     '   -print_netCDF: Imprime la info generica del netCDF.\n'\
     'Retorno:.\n'\
     '   DataFram de pandas con las variables del netCDF.\n'\
-    # lectura 
+    # lectura
     g = netcdf.Dataset(ruta)
     Dict = {}
     for k in g.variables.keys():
         D = {'type': g.variables[k].datatype, 'dimensions': g.variables[k].dimensions}
-        Dict.update({k:D})  
-    # if print 
+        Dict.update({k:D})
+    # if print
     if print_netCDF:
-        print g
+        print(g)
     g.close()
     return pd.DataFrame.from_dict(Dict, orient='index')
 
@@ -750,6 +752,7 @@ def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
 def __multiprocess_Warper__(Lista):
     Res = Lista[4].run_shia(Lista[0],Lista[1],Lista[2],Lista[3])
     return Res
+
 def __ejec_parallel__(ListEjecs, nproc, nodo):
     P = Pool(processes=nproc)
     Res = P.map(__multiprocess_Warper__, ListEjecs)
@@ -771,17 +774,17 @@ def __ModifyElevErode__(X,slope=0.01,d2 = 0.03, window = 25):
             Flag = True
             c2 = c
             c3 = 0
-            while Flag:    
+            while Flag:
                 if i<Y[c2]:
                     Y[c2] = i-slope*c3
                     c2+=1
                     c3+=1
-                    if c2 >= Y.size: Flag = False 
+                    if c2 >= Y.size: Flag = False
                 else:
                     Flag=False
                     Pos.append(c2)
         c+=1
-    # Obtiene la segunda derivada de la corriente corregida 
+    # Obtiene la segunda derivada de la corriente corregida
 
     Y = pd.Series(Y)
     Y = Y.rolling(window).mean()
@@ -797,7 +800,6 @@ def __ModifyElevErode__(X,slope=0.01,d2 = 0.03, window = 25):
 #-----------------------------------------------------------------------
 
 class Basin:
-    
     #------------------------------------------------------
     # Subrutinas de trazado de cuenca y obtencion de parametros
     #------------------------------------------------------
@@ -848,16 +850,19 @@ class Basin:
                     cu.ncols,cu.nrows)
             #copia la direccion de los mapas de DEM y DIR, para no llamarlos mas
             self.name=name
-            #Traza la cuenca 
+            #Traza la cuenca
             self.ncells = cu.basin_find(lat,lon,DIR,
                 cu.ncols,cu.nrows)
             self.structure = cu.basin_cut(self.ncells)
             self.umbral = umbral
+            self.DEMvec = self.Transform_Map2Basin(DEM,[cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy])
+            self.DIRvec = self.Transform_Map2Basin(DIR,[cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy])
         else:
             self.__Load_BasinNc(ruta)
-            #Genera el poligono de la cuenca 
-            self.__GetBasinPolygon__()
-    #Cargador de cuenca 
+            #Genera el poligono de la cuenca
+            
+        self.__GetBasinPolygon__()
+    #Cargador de cuenca
     def __Load_BasinNc(self,ruta,Var2Search=None):
         'Descripcion: Lee una cuenca posteriormente guardada\n'\
         '   La cuenca debio ser guardada con Basin.Save_Basin2nc\n'\
@@ -869,14 +874,14 @@ class Basin:
         'Retornos\n'\
         '----------\n'\
         'self : La cuenca con sus parametros ya cargada.\n'\
-        #Abre el archivo binario de la cuenca 
+        #Abre el archivo binario de la cuenca
         self.rutaNC = ruta
         gr = netcdf.Dataset(ruta,'a')
         #obtiene las prop de la cuenca
         self.name = gr.nombre
         self.ncells = gr.ncells
         self.umbral = gr.umbral
-        #Obtiene las prop de los mapas 
+        #Obtiene las prop de los mapas
         cu.ncols=gr.ncols
         cu.nrows=gr.nrows
         cu.nodata=gr.noData
@@ -884,12 +889,12 @@ class Basin:
         cu.xll=gr.xll
         cu.yll=gr.yll
         cu.dxp=gr.dxp
-        #Obtiene las variables vectoriales 
+        #Obtiene las variables vectoriales
         self.structure = gr.variables['structure'][:]
-        #Cierra el archivo 
+        #Cierra el archivo
         gr.close()
 
-    def Load_BasinVar(self, varName):       
+    def Load_BasinVar(self, varName):
         'Descripcion: Lee una variable especifica del netCDf de la cuenca\n'\
         '\n'\
         'Parametros\n'\
@@ -903,8 +908,8 @@ class Basin:
         Var = gr.variables[varName][:]
         gr.close()
         return Var
-        
-    #Guardado de de la cuenca en nc 
+
+    #Guardado de de la cuenca en nc
     def Save_Basin2nc(self,ruta,qmed=None,q233=None,q5=None,
         ExtraVar=None):
         'Descripcion: guarda una cuenca previamente ejecutada\n'\
@@ -921,7 +926,7 @@ class Basin:
         'Retornos\n'\
         '----------\n'\
         'self : Con las variables iniciadas.\n'\
-        #Diccionario con las propiedades 
+        #Diccionario con las propiedades
         Dict = {'nombre':self.name,
             'noData':cu.nodata,
             'ncells':self.ncells,
@@ -932,9 +937,9 @@ class Basin:
             'yll':cu.yll,
             'ncols':cu.ncols,
             'nrows':cu.nrows}
-        #abre el archivo 
+        #abre el archivo
         gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
-        #Establece tamano de las variables 
+        #Establece tamano de las variables
         DimNcell = gr.createDimension('ncell',self.ncells)
         DimCol3 = gr.createDimension('col3',3)
         #Crea variables
@@ -942,7 +947,7 @@ class Basin:
         VarQmed = gr.createVariable('q_med','f4',('ncell',),zlib=True)
         VarQ233 = gr.createVariable('q_233','f4',('ncell',),zlib=True)
         VarQ5 = gr.createVariable('q_5','f4',('ncell',),zlib=True)
-        #Variables opcionales 
+        #Variables opcionales
         if type(ExtraVar) is dict:
             for k in ExtraVar.keys():
                 Var = gr.createVariable(k,'f4',('ncell',),zlib=True)
@@ -955,12 +960,12 @@ class Basin:
             VarQ233[:] = q233
         if q5 is not None:
             VarQ5[:] = q5
-        #asignlas prop a la cuenca 
+        #asignlas prop a la cuenca
         gr.setncatts(Dict)
-        #Cierra el archivo 
+        #Cierra el archivo
         gr.close()
         #Sale del programa
-        return 
+        return
     #Parametros Geomorfologicos
     def GetGeo_Parameters(self,rutaParamASC=None,plotTc=False,
         rutaTcPlot = None, figsize=(8,5), GetPerim=True):
@@ -979,7 +984,7 @@ class Basin:
         'Tc :  Tiempo de concentracion calculado para la cuenca.\n'\
         #Calcula lo que se necesita para sacar los parametros
         acum,longCeld,slope,Elev=cu.basin_basics(self.structure,
-            self.DEMvec,self.DIRvec,self.ncells)     
+            self.DEMvec,self.DIRvec,self.ncells)
         Lpma,puntto=cu.basin_findlong(self.structure,self.ncells)
         cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(self.structure,
             acum,self.umbral,self.ncells)
@@ -989,7 +994,7 @@ class Basin:
         self.hipso_main,self.hipso_basin=cu.basin_ppal_hipsometric(
             self.structure,Elev,punto,30,ppal_nceldas,self.ncells)
         self.main_stream=ppal
-        #Obtiene los parametros     
+        #Obtiene los parametros
         Perim = self.Polygon.shape[1]*cu.dxp/1000.
         Area=(self.ncells*cu.dxp**2)/1e6
         TotalCauces = self.CellCauce*self.CellLong
@@ -1002,7 +1007,7 @@ class Basin:
         HCmax=Elev[punto]
         x,y = cu.basin_coordxy(self.structure,self.ncells)
         CentXY = [np.median(x),np.median(y)]
-        #Genera un diccionario con las propiedades de la cuenca 
+        #Genera un diccionario con las propiedades de la cuenca
         self.GeoParameters={'Area_[km2]': Area,
             'Pend_Cauce_[%]':Scau,
             'Long_Cauce_[km]': Lcau,
@@ -1037,7 +1042,7 @@ class Basin:
         Tc=0.3*(Lcau/(((HCmax-Hmin)/Lcau)*100)**0.25)**0.75
         Tiempos.update({'Temez': Tc})
         self.Tc=Tiempos
-        #Si se habilita la funcion para guardar el ascii de param lo hace 
+        #Si se habilita la funcion para guardar el ascii de param lo hace
         if rutaParamASC is not None:
             self.__WriteGeoParam__(rutaParamASC)
         # Grafica Tc si se habilita
@@ -1063,7 +1068,7 @@ class Basin:
             f.write('%s : %.4f \n' % (i,v))
         f.close()
 
-    #Obtiene la envolvente de la cuenca 
+    #Obtiene la envolvente de la cuenca
     def __GetBasinPolygon__(self):
             'Descripcion: obtiene la envolvente de la cuenca, en coordenadas \n'\
             '   x,y, esta informacion luego sirve para plot y para escribir el\n'\
@@ -1072,18 +1077,19 @@ class Basin:
             if FlagBasinPolygon:
                 #Obtiene mapa raster, propiedades geo y formato para escribir
                 Map, Prop = self.Transform_Basin2Map(np.ones(self.ncells))
-                tt = [Prop[2], Prop[4].tolist(), 0.0,
-                        Prop[1]*Prop[-2] + Prop[3], 0.0, -1*Prop[5].tolist()]
+                tt = [Prop[2], Prop[4].tolist(), 0.0,Prop[1]*Prop[-2] + Prop[3], 0.0, -1*Prop[5].tolist()]
                 #Obtiene los shps con la forma de la o las envolventes de cuenca
                 Map = Map.T
                 mask = Map != -9999.
+                c,a,b,f,d,e = tt;tt = __fea__.rasterio.Affine(a,b,c,d,e,f) if (float('.'.join(__fea__.rasterio.__version__.split('.')[:2]))>=0.8) else tt
                 shapes = __fea__.shapes(Map, mask=mask, transform=tt)
-                #Obtiene el poligono de la cuenca completo 
+                #Obtiene el poligono de la cuenca completo
                 Shtemp = []
                 flag = True
+                
                 while flag:
                         try:
-                                Shtemp.append(shapes.next())
+                                Shtemp.append(next(shapes))
                         except:
                                 flag = False
                 DicPoly = {}
@@ -1095,6 +1101,7 @@ class Basin:
                         DicPoly[str(Value)].update({str(cont):np.array(co).T})
                 #Por si hay mas de un poligono al interior
                 Tam = 0
+                #return DicPoly
                 for k in DicPoly['1'].keys():
                     if DicPoly['1'][k].size > Tam:
                         Tam = DicPoly['1'][k].size
@@ -1124,7 +1131,7 @@ class Basin:
             self.DEMvec,self.DIRvec,self.ncells)
         self.CellAcum=acum; self.CellLong=longCeld
         self.CellSlope=S0; self.CellHeight=Elev
-        #Obtiene el canal en la cuenca 
+        #Obtiene el canal en la cuenca
         self.CellCauce = np.zeros(self.ncells)
         self.CellCauce[self.CellAcum>self.umbral]=1
     def GetGeo_StreamOrder(self, MajorBasins = False, umbral = 100, verbose = False, FirtsOrder = 1):
@@ -1134,13 +1141,13 @@ class Basin:
         'Parametros\n'\
         '----------\n'\
         'self : no necesita nada es autocontenido.\n'\
-                'MajorBasins : Obtiene binarios con las sub-cuencas drenando.\n'\
-                '   unicamente a cuencas de orden mayor (ej: todas las orden 2 que \n'\
-                '   drenan a orden 3 o major).\n'\
-                'umbral: Cantidad minima de celdas para considerar canal (aplica cuando\n'\
-                '   se obtienen las sub-cuencas mayores.\n'\
-                'verbose: Muestra el paso de calculo de cuencas mayores.\n'\
-                'FirtsOrder: Primer orden a partir dle cual se analizan ordenes mayores.\n'\
+        'MajorBasins : Obtiene binarios con las sub-cuencas drenando.\n'\
+        '   unicamente a cuencas de orden mayor (ej: todas las orden 2 que \n'\
+        '   drenan a orden 3 o major).\n'\
+        'umbral: Cantidad minima de celdas para considerar canal (aplica cuando\n'\
+        '   se obtienen las sub-cuencas mayores.\n'\
+        'verbose: Muestra el paso de calculo de cuencas mayores.\n'\
+        'FirtsOrder: Primer orden a partir dle cual se analizan ordenes mayores.\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -1151,20 +1158,20 @@ class Basin:
         sub_pert,sub_basin = cu.basin_subbasin_find(self.structure,nodos_fin,n_nodos,self.ncells)
         sub_basins = cu.basin_subbasin_cut(n_nodos)
         sub_horton,nod_horton = cu.basin_subbasin_horton(sub_basins,self.ncells,n_nodos)
-        self.CellHorton_Hill,sub_basin = cu.basin_subbasin_find(self.structure,nod_horton,n_nodos,self.ncells)  
-        #Obtiene el canal en la cuenca 
+        self.CellHorton_Hill,sub_basin = cu.basin_subbasin_find(self.structure,nod_horton,n_nodos,self.ncells)
+        #Obtiene el canal en la cuenca
         self.CellHorton_Stream = self.CellCauce * self.CellHorton_Hill
-        #Obtiene las cuencas mayores 
+        #Obtiene las cuencas mayores
         if MajorBasins:
             pos = np.where(models.control>0)[1]
             X,Y = cu.basin_coordxy(self.structure, self.ncells)
             DictBasins = {}
             for Orden in range(FirtsOrder,self.CellHorton_Hill[-1]):
-                #Encuentra cuencas de un orden que drenen a un orden mayor 
+                #Encuentra cuencas de un orden que drenen a un orden mayor
                 pos2 = np.where(self.CellHorton_Stream[pos] == Orden)[0]
                 drena = self.ncells - self.structure[0]
                 pos3 = np.where(self.CellHorton_Stream[drena[pos[pos2]]] > Orden)[0]
-                #Las ubica en un mapa dentro d ela cuenca 
+                #Las ubica en un mapa dentro d ela cuenca
                 SubCuencas = np.zeros(self.ncells)
                 cont = 1
                 for x,y in zip(X[pos[pos2[pos3]]], Y[pos[pos2[pos3]]]):
@@ -1177,17 +1184,17 @@ class Basin:
                     Var[Var == 0] = -9999
                     Var[Var == 1] = cont
                     ptemp = np.where(Var == cont)[0]
-                    #Lo pega en la mascara de sub-uencas 
+                    #Lo pega en la mascara de sub-uencas
                     SubCuencas[ptemp] = SubCuencas[ptemp] + Var[ptemp]
                     cont+=1
-                #Agrega al diccionario 
+                #Agrega al diccionario
                 DictBasins.update({str(Orden):SubCuencas})
                 #Si es verbose muestra en que paso va
                 if verbose:
-                    print 'Sub-cuencas orden '+str(Orden)+' calculadas'
+                    print('Sub-cuencas orden '+str(Orden)+' calculadas')
             #Traza la cuenca original para no danar la estructura de guardado
             cuTemp = SimuBasin(X[-1], Y[-1], self.DEM, self.DIR, umbral = umbral)
-            #Retorna el diccionario con las sub-cuencas mayore                    
+            #Retorna el diccionario con las sub-cuencas mayore
             return DictBasins
     def GetGeo_IsoChrones(self,Tc,Niter=4):
         'Descripcion: Obtiene el tiempo de viaje aproximado de cada  \n'\
@@ -1207,7 +1214,7 @@ class Basin:
         acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
             self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
         rangos=[50,25,1]
-        for i in range(Niter):          
+        for i in range(Niter):
             times=[]
             for r in rangos:
                 speed = r*S0**(0.5)
@@ -1218,7 +1225,7 @@ class Basin:
                 if Tc>times[j] and Tc<times[j+1]:
                     rangos=[rangos[j],(rangos[j]+rangos[j+1])/2.0,
                         rangos[j+1]]
-        #Calcula los intervalos 
+        #Calcula los intervalos
         intervalos=np.arange(0,np.ceil(time.max())+1,
             np.ceil(time.max())/10.0)
         timeC=np.zeros(self.ncells)
@@ -1227,10 +1234,10 @@ class Basin:
             timeC[(time>=i) & (time<j)]=(i+j)/2.0
             tamano.append(timeC[timeC==(i+j)/2.0].shape[0])
         tamano=np.array(tamano)
-        aportes=(tamano/float(self.ncells))*((self.ncells*cu.dxp**2)/1e6)   
+        aportes=(tamano/float(self.ncells))*((self.ncells*cu.dxp**2)/1e6)
         self.CellTravelTime=time
-    
-    def GetGeo_WidthFunction(self, binsC = 50, binsN = 50, 
+
+    def GetGeo_WidthFunction(self, binsC = 50, binsN = 50,
         ruta = None, Npos = 10000, **kwargs):
         'Descripcion: Obtiene la funcion de ancho de la cuenca  \n'\
         '   Entrega como resultado la distancia de cada elemento a la salida. \n'\
@@ -1261,9 +1268,9 @@ class Basin:
         ncolor = kwargs.get("ncolor",'r')
         figsize = kwargs.get("figsize", (8,5))
         #Calcula la velocidad adecuada para que el tiempo coincida
-        self.CellDist2Out = cu.basin_time_to_out(self.structure, 
+        self.CellDist2Out = cu.basin_time_to_out(self.structure,
             self.CellLong, np.ones(self.ncells), self.ncells)
-        #Cantidad de puntos 
+        #Cantidad de puntos
         pos = np.random.choice(self.ncells, Npos)
         #Calcula la funcion de ancho para la cuenca y para la red hidrica
         hc,bc = np.histogram(self.CellDist2Out[pos], bins = binsC)
@@ -1293,14 +1300,14 @@ class Basin:
         ax2.plot(bn[:-1]/1000.0, hn.cumsum(), ncolor, lw = 3, ls = '--',label = 'Network Width')
         ax2.tick_params(labelsize = 15)
         ax2.set_ylabel('CDF', size = 16)
-        #Guarda la figura 
+        #Guarda la figura
         if ruta is not None:
             pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
         if show:
             pl.show()
         #Retorna ejes de manipulacion
         return ax,ax2
-    
+
     def GetGeo_Ppal_Hipsometric(self,umbral=1000,
         intervals = 30):
         'Descripcion: Calcula y grafica la curva hipsometrica de\n'\
@@ -1318,7 +1325,7 @@ class Basin:
         '   - Curva sobre cauce ppal.\n'\
         '   - Curva como histograma de la cuenca.\n'\
         'Figura: Figura de ambas curvas.\n'\
-        # Obtiene los nodos de la red hidrica 
+        # Obtiene los nodos de la red hidrica
         cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(
             self.structure,
             self.CellAcum,
@@ -1335,7 +1342,7 @@ class Basin:
             self.ncells)
         #Corrige el perfil del cauce ppal
         self.ppal_stream[0],self.ppal_slope = __ModifyElevErode__(self.ppal_stream[0])
-        # Obtiene la curva hipsometrica 
+        # Obtiene la curva hipsometrica
         self.hipso_ppal, self.hipso_basin = cu.basin_ppal_hipsometric(
             self.structure,
             self.CellHeight,
@@ -1358,11 +1365,11 @@ class Basin:
         acum = cu.basin_acum(self.structure, self.ncells)
         #Obtiene la pendiente en radianes
         acum,longCeld,slope,Elev=cu.basin_basics(self.structure,
-            self.DEMvec,self.DIRvec,self.ncells)   
+            self.DEMvec,self.DIRvec,self.ncells)
         slope = np.arctan(slope)
         slope[slope == 0] = 0.0001
         return np.log((acum*cu.dxp) / np.tan(slope))
-    
+
     def GetGeo_HAND(self,umbral=1000):
         'Descripcion: Calcula Height Above the Nearest Drainage (HAND) \n'\
         '   y Horizontal Distance to the Nearest Drainage (HDND) (Renno, 2008). \n'\
@@ -1378,7 +1385,7 @@ class Basin:
         'HDND : Distancia horizontal a la red de drenaje cercana [mts].\n'\
         #obtiene los parametros basicos por celdas
         acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
-            self.DEMvec,self.DIRvec,self.ncells)     
+            self.DEMvec,self.DIRvec,self.ncells)
         cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(
             self.structure,acum,umbral,self.ncells)
         hand,hdnd,hand_destiny = cu.geo_hand(self.structure,Elev,longCeld,cauce,self.ncells)
@@ -1386,12 +1393,12 @@ class Basin:
         handC[hand<5.3]=1
         handC[(hand>=5.3) & (hand<=15.0)]=2
         handC[(hand>15.0) & (S0<0.076)]=4
-        handC[(hand>15.0) & (S0>=0.076)]=3  
+        handC[(hand>15.0) & (S0>=0.076)]=3
         self.CellHAND=hand
         self.CellHAND_class=handC
         self.CellHDND=hdnd
         self.CellHAND_drainCell=hand_destiny
-    
+
     def GetGeo_Sections(self, NumCeldas = 6):
         'Descripcion: Obtiene secciones transversales a traves de todos.\n'\
         '   los elementos de la red de drenaje, las secciones se obtienen\n'\
@@ -1408,18 +1415,18 @@ class Basin:
         '----------\n'\
         'self.Sections : Secciones a traves de los elementos del cauce.\n'\
         '   su tamano es [NumCeldas*2 + 1, self.ncells]\n'\
-        #Obtiene mapa de cauces 
+        #Obtiene mapa de cauces
         self.GetGeo_Cell_Basics()
-        #Obtiene vector de direcciones 
-        directions = self.Transform_Map2Basin(self.DIR, 
+        #Obtiene vector de direcciones
+        directions = self.Transform_Map2Basin(self.DIR,
             [cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy ,0.0])
-        #Obtiene las secciones 
+        #Obtiene las secciones
         self.Sections, self.Sections_Cells = cu.basin_stream_sections(self.structure,
             self.CellCauce, directions, self.DEM, NumCeldas,
             self.ncells, cu.ncols, cu.nrows)
-            
+
     #------------------------------------------------------
-    # Subrutinas para el calculo de extremos mediante hidrografa unitaria sintetica 
+    # Subrutinas para el calculo de extremos mediante hidrografa unitaria sintetica
     #------------------------------------------------------
     def GetHU_Snyder(self,Area,Tc,Cp=0.8,Fc=2.9,pequena='si'):
         'Descripcion: Obtiene HU segun Snyder.\n'\
@@ -1472,7 +1479,7 @@ class Basin:
                 if t>h1[0] and t<h2[0]:
                     p=np.polyfit([h1[0],h2[0]],[h1[1],h2[1]],1)
                     Q[cont]=t*p[0]+p[1]
-        AreaBajoCurva=Q.sum()*Dt*60/1000.0      
+        AreaBajoCurva=Q.sum()*Dt*60/1000.0
         Diferencia=100*((Area-AreaBajoCurva)/Area)
         #Devuelve el hu y la diferencia
         return Tiempo,Q,HU,Diferencia
@@ -1519,7 +1526,7 @@ class Basin:
                 Q[cont]=HU[1,2]*np.exp((t1-t[1])/(3*k))
             if t[1]<t1 and t[1]>to:
                 Q[cont]=HU[1,1]*np.exp((to-t[1])/k)
-        return Tiempo*60,Q,HU   
+        return Tiempo*60,Q,HU
     def GetHU_SCS(self,AreaCuenca,Tc,N=25):
         'Descripcion: Obtiene HU segun SCS.\n'\
         '\n'\
@@ -1550,7 +1557,7 @@ class Basin:
         HU=[]
         for t,u in zip(ttp,UUp):
             uTemp=u*Upa
-            HU.append([t*Tpico,uTemp*0.3048**3/25.4])  
+            HU.append([t*Tpico,uTemp*0.3048**3/25.4])
         HU=np.array(HU)
         #Obtiene los intervalod de tiempo
         Dt=Tc*0.1*60 #min
@@ -1567,7 +1574,7 @@ class Basin:
         return np.array(Tiempo),np.array(Q),HU.T
     # Funcion Tormenta de diseno
     def GetHU_DesingStorm(self,IntTr,Dur,CN=70,plot='no',ruta=None,Tr=None,
-        CurvaHuff=np.array([0.18,0.47,0.65,0.74,0.80,0.85,0.89,0.92,0.94,1.0])):    
+        CurvaHuff=np.array([0.18,0.47,0.65,0.74,0.80,0.85,0.89,0.92,0.94,1.0])):
         'Descripcion: Obtiene la tormenta de diseno a partir de una tormenta\n'\
         '\n'\
         'Parametros\n'\
@@ -1596,22 +1603,22 @@ class Basin:
         if CN is not None:
             S=(1000.0/float(CN)-10.0)*25.4; Ia=0.2*S
             lluviaTrTemp=[]
-            for l in lluviaTrAcum:          
+            for l in lluviaTrAcum:
                 L=[]
                 for i in l:
                     if i>0:
                         L.append(((i-Ia)**2)/(i-Ia+S))
                     else:
-                        L.append(0)             
+                        L.append(0)
                 lluviaTrTemp.append(L)
             lluviaTrTemp=np.array(lluviaTrTemp)
             lluviaTrEfect=lluviaTrTemp[:,1:]-lluviaTrTemp[:,:-1]
             lluviaTrEfect[lluviaTrEfect<0]=0
             lluviaTrEfect=np.insert(lluviaTrEfect,0,lluviaTrTemp[:,0],axis=1)
         if plot=='si':
-            #if Tr==None or len(Tr)<>IntTr.size():
+            #if Tr==None or len(Tr)!=IntTr.size():
             #   Lista=[2.33,5,10,25,50,100,500,1000]
-            #   Tr=[l for l in Lista[:IntTr.size]]          
+            #   Tr=[l for l in Lista[:IntTr.size]]
             fig=pl.figure(edgecolor='w',facecolor='w')
             ax=fig.add_subplot(111)
             X=np.linspace(0,Dur,lluviaTrEfect.shape[1])
@@ -1663,7 +1670,7 @@ class Basin:
         for i in range(1,lluvEfect.shape[1]):
             T.append(Tlast+i*Dt)
         return np.array(Qtr), np.array(QmaxTr),np.array(T)
-    #Grafica los hidrogramas sinteticos 
+    #Grafica los hidrogramas sinteticos
     def PlotHU_Synthetic(self,DictHU,ruta = None):
         fig=pl.figure(edgecolor='w',facecolor='w')
         ax=fig.add_subplot(111)
@@ -1679,7 +1686,7 @@ class Basin:
         if ruta is not None:
             pl.savefig(ruta,bbox_inches='tight')
         pl.show()
-    
+
     #------------------------------------------------------
     # Trabajo con mapas externos y variables fisicas
     #------------------------------------------------------
@@ -1701,7 +1708,7 @@ class Basin:
         'Retornos\n'\
         '----------\n'\
         'vecMap : Vector conla informacion del mapa al interio de la cuenca.\n'\
-        #Comienza le codifgo 
+        #Comienza le codifgo
         vec = cu.basin_map2basin(self.structure,
             Map,MapProp[2],MapProp[3],MapProp[4],MapProp[5],
             cu.nodata,
@@ -1723,11 +1730,11 @@ class Basin:
         '----------\n'\
         'Map : Matriz con la variable de la cuenca, donde no hay cuenca es wmf.cu.nodata .\n'\
         '   el tamano de la matriz es igual a DEM.shape.\n'\
-        # Convierte la variable a mapa 
+        # Convierte la variable a mapa
         map_ncols,map_nrows = cu.basin_2map_find(self.structure,self.ncells)
         M,mxll,myll = cu.basin_2map(self.structure, BasinVar,
             map_ncols, map_nrows, self.ncells)
-        # Si exporta el mapa lo guarda si no simplemente devuelve la matriz 
+        # Si exporta el mapa lo guarda si no simplemente devuelve la matriz
         if ruta is not None:
             Save_Array2Raster(M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.nodata],
                 ruta = ruta, EPSG = EPSG, Format = DriverFormat)
@@ -1779,40 +1786,41 @@ class Basin:
                 Ma = np.copy(mask)
         else:
             Ma = np.ones(self.ncells)
-        #Pasa el mapa de celdas a mapa de laderas       
+        #Pasa el mapa de celdas a mapa de laderas
         HillsMap = cu.basin_subbasin_map2subbasin(self.hills_own,
             CellMap, self.nhills, Ma, SumMeanMax, self.ncells)
         return HillsMap
 
-        def Transform_Basin2Polygon(self, Vector,):
-            'Descripcion: convierte una variable de topologia de la cuenca en varios poligonos\n'\
-            '   cada poligono corresponde al numero de esa variable\n'\
-            'parametros\n'\
-            '----------\n'\
-            'Vector: Vector con la topologia de la cuenca que contiene los datos a transformar'
-            'Retorna\n'\
-            '----------\n'\
-            'DicPoly: Diccionario donde el key indica el poligono encontrado y contiene las coord'\
-            #Obtiene mapa raster, propiedades geo y formato para escribir
-            Map, Prop = self.Transform_Basin2Map(Vector)
-            tt = [Prop[2], Prop[4].tolist(), 0.0,
-                Prop[1]*Prop[-2] + Prop[3], 0.0, -1*Prop[5].tolist()]
-            #Obtiene los shps con la forma de la o las envolventes de cuenca
-            Map = Map.T
-            mask = Map != -9999.
-            shapes = __fea__.shapes(Map, mask=mask, transform=tt)
-            #Obtiene el poligono de la cuenca completo 
-            DicPoly = {}
-            for Sh in shapes:
-                Coord = Sh[0]['coordinates']
-                Value = int(Sh[1])
-                DicPoly.update({str(Value):{}})
-                for cont,co in enumerate(Coord):
-                    DicPoly[str(Value)].update({str(cont):np.array(co).T})
-            return DicPoly
+
+    def Transform_Basin2Polygon(self, Vector,):
+        'Descripcion: convierte una variable de topologia de la cuenca en varios poligonos\n'\
+        '   cada poligono corresponde al numero de esa variable\n'\
+        'parametros\n'\
+        '----------\n'\
+        'Vector: Vector con la topologia de la cuenca que contiene los datos a transformar'
+        'Retorna\n'\
+        '----------\n'\
+        'DicPoly: Diccionario donde el key indica el poligono encontrado y contiene las coord'\
+        #Obtiene mapa raster, propiedades geo y formato para escribir
+        Map, Prop = self.Transform_Basin2Map(Vector)
+        tt = [Prop[2], Prop[4].tolist(), 0.0,
+            Prop[1]*Prop[-2] + Prop[3], 0.0, -1*Prop[5].tolist()]
+        #Obtiene los shps con la forma de la o las envolventes de cuenca
+        Map = Map.T
+        mask = Map != -9999.
+        shapes = __fea__.shapes(Map, mask=mask, transform=tt)
+        #Obtiene el poligono de la cuenca completo
+        DicPoly = {}
+        for Sh in shapes:
+            Coord = Sh[0]['coordinates']
+            Value = int(Sh[1])
+            DicPoly.update({str(Value):{}})
+            for cont,co in enumerate(Coord):
+                DicPoly[str(Value)].update({str(cont):np.array(co).T})
+        return DicPoly
 
     #------------------------------------------------------
-    # Trabajo con datos puntuales puntos 
+    # Trabajo con datos puntuales puntos
     #------------------------------------------------------
     def Points_Points2Stream(self,coordXY,ids):
         'Descripcion: toma las coordenadas de puntos XY y las mueve\n'\
@@ -1832,7 +1840,7 @@ class Basin:
         'Ver Tambien\n'\
         '----------\n'\
         'Points_Point2Basin\n'\
-        #Obtiene el cauce 
+        #Obtiene el cauce
         self.GetGeo_Cell_Basics()
         #modifica los puntos
         res_coord,basin_pts,xy_new = cu.basin_stream_point2stream(
@@ -1842,7 +1850,7 @@ class Basin:
             coordXY,
             coordXY.shape[1],
             self.ncells)
-        return xy_new, basin_pts, basin_pts[basin_pts<>0]
+        return xy_new, basin_pts, basin_pts[basin_pts!=0]
     def Points_Points2Basin(self,coordXY,ids):
         'Descripcion: toma las coordenadas de puntos XY y las pone\n'\
         '   en la cuenca, no las mueve hacia los cuaces\n'\
@@ -1860,7 +1868,7 @@ class Basin:
         'Ver Tambien\n'\
         '----------\n'\
         'Points_Point2Stream\n'\
-        #Obtiene el cauce 
+        #Obtiene el cauce
         self.GetGeo_Cell_Basics()
         #modifica los puntos
         res_coord,basin_pts = cu.basin_point2var(
@@ -1869,11 +1877,11 @@ class Basin:
             coordXY,
             coordXY.shape[1],
             self.ncells)
-        return basin_pts,basin_pts[basin_pts<>0]
+        return basin_pts,basin_pts[basin_pts!=0]
     #------------------------------------------------------
     # Caudales de largo plazo y regionalizacion
     #------------------------------------------------------
-    #Caudal de largo plazo 
+    #Caudal de largo plazo
     def GetQ_Balance(self,Precipitation, Tipo_ETR = 1, mu_choud = 1.37):
         'Descripcion: Calcula el caudal medio por balance de largo plazo\n'\
         '   para ello requiere conocer la precipitacion y el metodo de\n'\
@@ -1894,9 +1902,9 @@ class Basin:
         '----------\n'\
         'self.CellQmed : Caudal medio calculado para toda la cuenca.\n'\
         'self.CellETR : ETR calculada para toda la cuenca.\n'\
-        #Calcula las propiedades de la cuenca 
+        #Calcula las propiedades de la cuenca
         self.GetGeo_Cell_Basics()
-        #Determina si la precipitacion es un vector o un escalar 
+        #Determina si la precipitacion es un vector o un escalar
         if type(Precipitation) is int or type(Precipitation) is float:
             precip = np.ones(self.ncells)*Precipitation
         elif type(Precipitation) is np.ndarray:
@@ -1957,7 +1965,7 @@ class Basin:
             #Calcula el caudal maximo
             Qmax.append(list(MedMax+k*DesMax))
         return np.array(Qmax)
-    
+
     def GetQ_Min(self,Qmed,Coef=[0.4168, 0.2], Expo= [1.058, 0.98], Cv = 0.5,
         Tr = [2.33, 5, 10, 25, 50, 100], Dist = 'gumbel'):
         'Descripcion: Calcula el caudal minimo para diferentes\n'\
@@ -1996,9 +2004,9 @@ class Basin:
             #Calcula el caudal maximo
             Qmin.append(list(MedMin+k*DesMin))
         return np.array(Qmin)
-        
+
     #------------------------------------------------------
-    # Guardado shp de cuencas y redes hidricas 
+    # Guardado shp de cuencas y redes hidricas
     #------------------------------------------------------
     def Save_Net2Map(self,ruta,dx=cu.dxp,umbral=None,
         qmed=None,Dict=None,DriverFormat='ESRI Shapefile',
@@ -2024,7 +2032,7 @@ class Basin:
         #varia el umbral en funcion de self
         if umbral == None:
             umbral = self.umbral
-        #division de la cuenca 
+        #division de la cuenca
         acum=cu.basin_acum(self.structure,self.ncells)
         cauce,nod_f,n_nodos=cu.basin_subbasin_nod(self.structure,acum,umbral,self.ncells)
         sub_pert,sub_basin=cu.basin_subbasin_find(self.structure,nod_f,n_nodos,self.ncells)
@@ -2032,7 +2040,7 @@ class Basin:
         sub_horton,nod_hort=cu.basin_subbasin_horton(sub_basins,self.ncells,n_nodos)
         sub_hort=cu.basin_subbasin_find(self.structure,nod_hort,n_nodos,self.ncells)[0]
         cauceHorton=sub_hort*cauce
-        #Obtiene la red en manera vectorial 
+        #Obtiene la red en manera vectorial
         nodos = cu.basin_stream_nod(self.structure,acum,umbral,self.ncells)[1]
         netsize = cu.basin_netxy_find(self.structure,nodos,cauceHorton,self.ncells)
         net=cu.basin_netxy_cut(netsize,self.ncells)
@@ -2081,19 +2089,19 @@ class Basin:
         for i,j in zip(cortes[:-1],cortes[1:]):
             line = osgeo.ogr.Geometry(osgeo.ogr.wkbLineString)
             for x,y in zip(net[1,i+1:j],net[2,i+1:j]):
-                line.AddPoint_2D(float(x),float(y))     
+                line.AddPoint_2D(float(x),float(y))
             feature = osgeo.ogr.Feature(layerDefinition)
             feature.SetGeometry(line)
             feature.SetFID(0)
             feature.SetField('Long[km]',(net[1,i+1:j].size*dx)/1000.0)
             feature.SetField('Horton',int(net[0,i+1]))
-            if qmed is not None:    
+            if qmed is not None:
                 feature.SetField('Qmed[m3s]',float(netQmed[0,i+1]))
-            if NumTramo:    
+            if NumTramo:
                 feature.SetField('Tramo',int(netTramo[0,i+1]))
             if Dict is not None:
                 if type(Dict==dict):
-                    for n,k in zip(netDict,Dict.keys()):                    
+                    for n,k in zip(netDict,Dict.keys()):
                         feature.SetField(k[:10],float(formato % n[0,i+1]))
             #featureFID+=1
             layer.CreateFeature(feature)
@@ -2117,11 +2125,11 @@ class Basin:
         'Retornos\n'\
         '----------\n'\
         'Escribe un archivo vectorial de la cuenca.\n'\
-        #Obtiene el perimetro de la cuenca 
+        #Obtiene el perimetro de la cuenca
         #nperim = cu.basin_perim_find(self.structure,self.ncells)
         #basinPerim=cu.basin_perim_cut(nperim)
 
-        #Parametros geomorfo 
+        #Parametros geomorfo
         if GeoParam:
             self.GetGeo_Parameters()
             DictParam = {}
@@ -2153,7 +2161,7 @@ class Basin:
         feature = osgeo.ogr.Feature(layerDefinition)
         feature.SetGeometry(poly)
         feature.SetFID(0)
-        for p in Param.keys():      
+        for p in Param.keys():
             #feature.SetField(p[:p.index('[')].strip()[:10],float("%.2f" % Param[p]))
             feature.SetField(p,float("%.2f" % Param[p]))
         #Si calcula parametros geomorfo
@@ -2270,14 +2278,14 @@ class Basin:
             meridians_labels = kwargs.get('meridians_labels', [0,0,1,0])
             meridians_offset = kwargs.get('meridians_offset', 0.001)
             m.drawmeridians(meridians,
-                labels=meridians_labels, 
+                labels=meridians_labels,
                 fmt="%.2f",
                 yoffset=meridians_offset)
             Xm,Ym=m(X,Y)
             #plotea el mapa de fondo de arcGIS
             if backMap:
                 m.arcgisimage(server='http://server.arcgisonline.com/ArcGIS', service='World_Topo_Map', xpixels = 1500, verbose = True)
-            #Plotea el contorno de la cuenca y la red 
+            #Plotea el contorno de la cuenca y la red
             xp,yp = m(self.Polygon[0], self.Polygon[1])
             per_color = kwargs.get('per_color','r')
             per_lw = kwargs.get('per_lw',2)
@@ -2332,7 +2340,7 @@ class Basin:
                             patches   = []
                             for shape in m.mapashp:
                                 patches.append(Polygon(np.array(shape), True))
-                            ax.add_collection(PatchCollection(patches, facecolor= shpColor[c], 
+                            ax.add_collection(PatchCollection(patches, facecolor= shpColor[c],
                                 edgecolor=shpColor[c], linewidths=shpWidth[c], zorder=2, alpha = shpAlpha[c]))
             #Guarda
             if ruta is not None:
@@ -2344,8 +2352,8 @@ class Basin:
             else:
                 return m, ax, sx
     #Grafica de plot para montar en paginas web o presentaciones
-    def Plot_basinClean(self, vec, ruta = None, umbral = 0.0, 
-        vmin = 0.0, vmax = None, show_cbar = False, **kwargs):  
+    def Plot_basinClean(self, vec, ruta = None, umbral = 0.0,
+        vmin = 0.0, vmax = None, show_cbar = False, **kwargs):
         'Funcion: Plot_basinClean\n'\
         'Descripcion: Genera un plot del mapa entregado en un lienzo limpio.\n'\
         'Parametros Obligatorios:.\n'\
@@ -2377,12 +2385,12 @@ class Basin:
         cbar_ticksize = kwargs.get('cbar_ticksize', 14)
         interpolation = kwargs.get('None')
         show = kwargs.get('show', True)
-        #Obtiene la matriz 
+        #Obtiene la matriz
         M,p = self.Transform_Basin2Map(vec)
         M[(M == -9999) | (M<umbral)] = np.nan
         #Calcula esquinas: izquierda, derecha, abajo, arriba.
-        Corners = [p[2], 
-        p[2]+p[0]*p[4], 
+        Corners = [p[2],
+        p[2]+p[0]*p[4],
         p[3],
         p[3]+p[1]*p[5]]
         #Crea la figura
@@ -2392,12 +2400,12 @@ class Basin:
         if vmax == None:
             im = pl.imshow(M.T,
                 interpolation=interpolation,
-                cmap= pl.get_cmap(cmap), 
+                cmap= pl.get_cmap(cmap),
                 vmin = vmin)
         else:
             im = pl.imshow(M.T,
                 interpolation=interpolation,
-                cmap= pl.get_cmap(cmap), 
+                cmap= pl.get_cmap(cmap),
                 vmin = vmin,
                 vmax = vmax)
         #Quita ejes
@@ -2413,17 +2421,17 @@ class Basin:
                 cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
         #Guarda transparente y ajustando bordes
         if ruta is not None:
-            pl.savefig(ruta, 
-                bbox_inches = 'tight', 
-                pad_inches = 0, 
+            pl.savefig(ruta,
+                bbox_inches = 'tight',
+                pad_inches = 0,
                 transparent = True)
         else:
             if show:
                 pl.show()
         return Corners, ax
-    #Grafica de variables sobre la red 
-    def Plot_Net(self, vec, vec_c = None,ruta = None, 
-        q_compare = None, show = True, 
+    #Grafica de variables sobre la red
+    def Plot_Net(self, vec, vec_c = None,ruta = None,
+        q_compare = None, show = True,
         vmin = 0, vmax = 1, umbral = 0.1,**kwargs):
         'Descripcion: Hace un plot de lass variables sobre el cauce \n'\
         '\n'\
@@ -2482,15 +2490,15 @@ class Basin:
         #Vector para pintar si no tiene el vec_c usa vec
         if vec_c is None:
             vec_c = np.copy(vec)
-        #Compara o no 
+        #Compara o no
         if q_compare is not None:
-            vec = vec/q_compare.astype(float)       
+            vec = vec/q_compare.astype(float)
         #Figura
         fig = pl.figure(figsize=figsize)
         ax = fig.add_subplot(111)
-        sca = pl.scatter(x[pos],y[pos], 
-            s = vec[pos]*escala,            
-            c = vec_c[pos], 
+        sca = pl.scatter(x[pos],y[pos],
+            s = vec[pos]*escala,
+            c = vec_c[pos],
             lw = 0,
             vmin = vmin,
             vmax = vmax,
@@ -2507,7 +2515,7 @@ class Basin:
                 cbar.set_ticks(cbar_ticks)
             if cbar_ticklabels  is not  None:
                 cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
-        
+
         ax.set_xlim(x[pos].min(),x[pos].max())
         ax.set_ylim(y[pos].min(),y[pos].max())
         #Quita ejes
@@ -2521,19 +2529,19 @@ class Basin:
             ax.tick_params(labelsize = ticksize)
         #Guarda transparente y ajustando bordes
         if ruta is not None:
-            pl.savefig(ruta, 
-                bbox_inches = 'tight', 
-                pad_inches = 0, 
+            pl.savefig(ruta,
+                bbox_inches = 'tight',
+                pad_inches = 0,
                 transparent = transparent,
                 edgecolor = 'none',
                 facecolor = 'none')
         if show:
             pl.show()
         pl.close(fig)
-        #Retorna las 4 coordenadas de las esquinas 
+        #Retorna las 4 coordenadas de las esquinas
         return [x[pos].min(), x[pos].max(), y[pos].min(), y[pos].max()]
-    
-        
+
+
     # Grafica barras de tiempos de concentracion
     def Plot_Tc(self,ruta=None,figsize=(8,6),**kwargs):
         keys=self.Tc.keys()
@@ -2563,7 +2571,7 @@ class Basin:
             box.width, box.height * 0.9])
         ax.set_xlim(-0.4,len(keys)+1-0.8)
         ax.bar(range(len(keys)),self.Tc.values(),color=colores)
-        Texto='%.2f' % Media        
+        Texto='%.2f' % Media
         ax.hlines(Media,-0.4,len(keys)+1-0.8,'k',lw=2,label='$\\mu='+Texto+'$')
         Texto='%.2f' % Mediana
         ax.hlines(Mediana,-0.4,len(keys)+1-0.8,'r',lw=2,label = '$P_{50}='+Texto+'$')
@@ -2585,11 +2593,11 @@ class Basin:
         ===================================================================================
         ARGUMENTO  - DEFAULT               - DESCRIPCIoN                  - TIPO
         ruta       - None                  - Ruta para guardar grafica    - str
-        figsize    - (8,6)                 - Tamano de la figura          - tuple 
+        figsize    - (8,6)                 - Tamano de la figura          - tuple
         axis       - None                  - Axis o entorno para graficar - matplotlib.axes
         show       - True                  - Muestra grafica              - bool
         fontsize   - 16                    - Tamano de letra              - int,float
-        ylabel     - Elevacion $[m.s.n.m]$ - Etiqueta de la ordenada      - str 
+        ylabel     - Elevacion $[m.s.n.m]$ - Etiqueta de la ordenada      - str
         cbar_label - None                  - Etiqueta del colorbar        - str
         =================================================================================== '''
         show = kwargs.get('show',True)
@@ -2618,11 +2626,10 @@ class Basin:
         if show == True:
             pl.show()
         return ax,cb
-    #Plot de histograma de pendientes 
+    #Plot de histograma de pendientes
     def PlotSlopeHist(self,ruta=None,bins=[0,2,0.2],
         Nsize=1000, figsize = (8,6), fig = None, show = True,**kwargs):
-        '''Hace un plot del histograma de distribucion de 
-                pendientes en la cuenca.
+        '''Hace un plot del histograma de distribucion de pendientes en la cuenca.
                 Requiere:
                     - ruta: ruta de guaradado de la imagen,
                     - bins: rango inferior, superior y paso para intervalos.
@@ -2656,13 +2663,13 @@ class Basin:
         if show:
             pl.show()
         return ax
-    
-    #Plot de histograma de tiempos de viajes en la cuenca 
+
+    #Plot de histograma de tiempos de viajes en la cuenca
     def Plot_Travell_Hist(self,ruta=None,Nint=10.0):
         #comparacion histogramas de tiempos de respuestas
         bins=np.arange(0,np.ceil(self.CellTravelTime.max()),
             np.ceil(self.CellTravelTime.max())/Nint)
-        h_lib,b_lib=np.histogram(self.CellTravelTime,bins=bins) 
+        h_lib,b_lib=np.histogram(self.CellTravelTime,bins=bins)
         h_lib=h_lib.astype(float)/h_lib.sum()
         b_lib=(b_lib[:-1]+b_lib[1:])/2.0
         hc_lib=np.cumsum(h_lib)
@@ -2682,7 +2689,7 @@ class Basin:
         if ruta is not None:
             pl.savefig(ruta,bbox_inches='tight')
         pl.show()
-    #Plot de curva hipsometrica 
+    #Plot de curva hipsometrica
     def Plot_Hipsometric(self,ruta=None,ventana=10,normed=False,
         figsize = (8,6)):
         #Suaviza la elevacion en el cuace ppal
@@ -2718,7 +2725,7 @@ class Basin:
         else:
             pl.show()
 class SimuBasin(Basin):
-    
+
     def __init__(self,lat=None,lon=None,DEM=None,DIR=None,rute = None, name='NaN',stream=None,
         umbral=500,useCauceMap = None,
         noData=-999,modelType='cells',SimSed=False,SimSlides=False,dt=60,
@@ -2794,7 +2801,7 @@ class SimuBasin(Basin):
             self.nodata=noData
             self.umbral = umbral
             self.epsg = Global_EPSG
-            #Traza la cuenca 
+            #Traza la cuenca
             self.ncells = cu.basin_find(lat,lon,DIR,
                 cu.ncols,cu.nrows)
             self.structure = cu.basin_cut(self.ncells)
@@ -2802,7 +2809,7 @@ class SimuBasin(Basin):
             self.DEMvec = self.Transform_Map2Basin(DEM,
                 [cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy])
             self.DIRvec = self.Transform_Map2Basin(DIR,
-                [cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy])                  
+                [cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy])
             acum=cu.basin_acum(self.structure,self.ncells)
             cauce,nodos,self.nhills = cu.basin_subbasin_nod(self.structure
                 ,acum,umbral,self.ncells)
@@ -2810,6 +2817,7 @@ class SimuBasin(Basin):
                 nodos,self.nhills,self.ncells)
             self.hills = cu.basin_subbasin_cut(self.nhills)
             models.drena=self.structure
+            print(1)
             #Determina la cantidad de celdas para alojar
             if modelType=='cells':
                 N=self.ncells
@@ -2827,13 +2835,7 @@ class SimuBasin(Basin):
             models.calc_niter = 5
             models.retorno = 0
             models.verbose = 0
-            #Aloja las varaibles de sedimentos
-            models.krus = np.ones((1,N))
-            models.prus = np.ones((1,N))
-            models.crus = np.ones((1,N))
-            models.parliac = np.zeros((3,N))
-            
-            #Define los puntos de control       
+            #Define los puntos de control
             models.control = np.zeros((1,N))
             #Si se da la opcion de puntos de control en toda la red lo hace
             if controlNodos:
@@ -2844,14 +2846,14 @@ class SimuBasin(Basin):
                         self.CellAcum,
                         umbral,
                         self.ncells)
-                    pos = np.where(nodos<>0)[0]
+                    pos = np.where(nodos!=0)[0]
                     x,y = cu.basin_coordxy(self.structure,self.ncells)
                     idsOrd,xy = self.set_Control(np.vstack([x[pos],y[pos]]),nodos[pos])
                 elif modelType == 'hills':
-                    models.control = np.ones((1,self.nhills)) * nodos[nodos<>0]
-            #Puntos de control de humedad sin control por defecto 
+                    models.control = np.ones((1,self.nhills)) * nodos[nodos!=0]
+            #Puntos de control de humedad sin control por defecto
             models.control_h = np.zeros((1,N))
-            #Define las simulaciones que se van a hacer 
+            #Define las simulaciones que se van a hacer
             models.sim_sediments=0
             if SimSed is 'si':
                 models.sim_sediments=1
@@ -2870,18 +2872,18 @@ class SimuBasin(Basin):
             models.separate_rain = 0
             if SeparateRain is 'si':
                 models.separate_rain = 1
-            models.show_storage = 0 
+            models.show_storage = 0
             if ShowStorage is 'si':
                 models.show_storage = 1
             if SimFloods == 'si':
                 models.sim_floods = 1
             models.storage_constant = storageConstant
-            #Determina que la geomorfologia no se ha estimado 
+            #Determina que la geomorfologia no se ha estimado
             self.isSetGeo = False
         # si hay tura lee todo lo de la cuenca
         elif rute is not None:
             self.__Load_SimuBasin(rute, SimSlides)
-        # Obtiene la envolvente de la cuenca 
+        # Obtiene la envolvente de la cuenca
         self.__GetBasinPolygon__()
 
     def __Load_SimuBasin(self,ruta, sim_slides = False):
@@ -2899,12 +2901,12 @@ class SimuBasin(Basin):
         'Retornos\n'\
         '----------\n'\
         'self : La cuenca con sus parametros ya cargada.\n'\
-        #Abre el archivo binario de la cuenca 
+        #Abre el archivo binario de la cuenca
         self.rutaNC = ruta
         gr = netcdf.Dataset(ruta,'a')
         #obtiene las prop de la cuenca
         self.name = gr.nombre
-        self.modelType = gr.modelType.encode()
+        self.modelType = gr.modelType#.encode()
         self.nodata = gr.noData
         self.umbral = gr.umbral
         self.ncells = gr.ncells
@@ -2917,13 +2919,13 @@ class SimuBasin(Basin):
             models.storage_constant = gr.storageConst
         except:
             models.storage_constant = 0.0
-        #Si carga deslizamientos 
+        #Si carga deslizamientos
         if sim_slides:
             models.sim_slides = 1
             models.sl_fs = gr.sl_fs
             models.gullienogullie = gr.sl_gullie
             models.sl_gammaw = gr.sl_gammaw
-        #Nueva metodologia de geoespacial de la cuenca 
+        #Nueva metodologia de geoespacial de la cuenca
         cu.ncols = gr.ncols
         cu.nrows = gr.nrows
         cu.xll = gr.xll
@@ -2937,7 +2939,7 @@ class SimuBasin(Basin):
             N = self.ncells
         elif self.modelType[0] is 'h':
             N = self.nhills
-        #Obtiene las variables base 
+        #Obtiene las variables base
         GrupoBase = gr.groups['base']
         self.structure = GrupoBase.variables['structure'][:]
         self.hills = GrupoBase.variables['hills'][:]
@@ -2948,7 +2950,7 @@ class SimuBasin(Basin):
         self.DIRvec = GrupoGeo.variables['DIR'][:]
         self.DEM = self.Transform_Basin2Map(self.DEMvec)
         self.DIR = self.Transform_Basin2Map(self.DIRvec)
-        #obtiene las propieades del modelo 
+        #obtiene las propieades del modelo
         GrupoSimHid = gr.groups['SimHidro']
         models.h_coef = np.ones((4,N)) * GrupoSimHid.variables['h_coef'][:]
         models.v_coef = np.ones((4,N)) * GrupoSimHid.variables['v_coef'][:]
@@ -2956,15 +2958,15 @@ class SimuBasin(Basin):
         models.v_exp = np.ones((4,N)) * GrupoSimHid.variables['v_exp'][:]
         models.max_capilar = np.ones((1,N)) * GrupoSimHid.variables['h1_max'][:]
         models.max_gravita = np.ones((1,N)) * GrupoSimHid.variables['h3_max'][:]
-        
-        #Propiedades de Sedimentos 
+
+        #Propiedades de Sedimentos
         GrupoSimSed = gr.groups['SimSediments']
         models.krus = np.ones((1,N))*GrupoSimSed.variables['Krus'][:]
         models.prus = np.ones((1,N))*GrupoSimSed.variables['Prus'][:]
         models.crus = np.ones((1,N))*GrupoSimSed.variables['Crus'][:]
         models.parliac = np.ones((3,N))*GrupoSimSed.variables['PArLiAc'][:]
-        
-        #Variable de drena de acuerdo al tipo de modelo 
+
+        #Variable de drena de acuerdo al tipo de modelo
         if self.modelType[0] is 'c':
             models.drena = np.ones((3,N)) *GrupoSimHid.variables['drena'][:]
         elif self.modelType[0] is 'h':
@@ -2980,8 +2982,8 @@ class SimuBasin(Basin):
         models.storage = np.ones((5,N)) * GrupoSimHid.variables['storage'][:]
         models.control = np.ones((1,N)) * GrupoSimHid.variables['control'][:]
         models.control_h = np.ones((1,N)) * GrupoSimHid.variables['control_h'][:]
-        
-        #Propiedades de deslizamientos 
+
+        #Propiedades de deslizamientos
         if sim_slides:
             GrupoSlides = gr.groups['SimSlides']
             models.sl_gammas = np.ones((1,N)) * GrupoSlides.variables['gamma_soil'][:]
@@ -2989,7 +2991,7 @@ class SimuBasin(Basin):
             models.sl_frictionangle = np.ones((1,N)) * GrupoSlides.variables['friction_angle'][:]
             models.sl_radslope = np.ones((1,N)) * GrupoSlides.variables['rad_slope'][:]
             models.sl_zs = np.ones((1,N)) * GrupoSlides.variables['z_soil'][:]
-        #Cierra el archivo 
+        #Cierra el archivo
         gr.close()
         #Determina que por defecto debe estar set la geomorfologia
         self.isSetGeo = True
@@ -2997,7 +2999,7 @@ class SimuBasin(Basin):
     #------------------------------------------------------
     # Subrutinas de lluvia, interpolacion, lectura, escritura, agrega funcion para variar evp en
     # el tiempo
-    #------------------------------------------------------ 
+    #------------------------------------------------------
     def __GetEVP_Serie__(self, index):
         '''Descripcion: Genera una serie que pondera la evp '''
         rng=index
@@ -3085,19 +3087,19 @@ class SimuBasin(Basin):
             y=cu.yll+cu.nrows*cu.dx*j
             d=np.sqrt((coord[0,:]-x)**2+(coord[1,:]-y)**2)
             pos=np.argmin(d)
-            #Actualiza las coordenadas          
-            coord=np.vstack((coord.T,np.array([x,y]))).T            
-            #pone lluvia en ese registro 
+            #Actualiza las coordenadas
+            coord=np.vstack((coord.T,np.array([x,y]))).T
+            #pone lluvia en ese registro
             reg=np.vstack((reg,reg[pos]))
         #Obtiene las coordenadas de cada celda de la cuenca
         x,y = cu.basin_coordxy(self.structure,self.ncells)
-        xy_basin=np.vstack((x,y))   
-        #Obtiene la malla irregular 
+        xy_basin=np.vstack((x,y))
+        #Obtiene la malla irregular
         TIN_mesh=Delaunay(coord.T)
         TIN_mesh=TIN_mesh.vertices.T+1
-        #Obtiene las pertenencias en la cuenca a la malla 
+        #Obtiene las pertenencias en la cuenca a la malla
         #TIN_perte = models.rain_pre_mit(xy_basin,TIN_mesh,coord,self.ncells,
-        #   TIN_mesh.shape[1],coord.shape[1])               
+        #   TIN_mesh.shape[1],coord.shape[1])
         c = 1
         TIN_perte = np.zeros((1,self.ncells))
         for t in TIN_mesh.T:
@@ -3109,27 +3111,27 @@ class SimuBasin(Basin):
             TIN_perte[0][Contiene == True] = c
             c+=1
         #Revisa si todas las celdas quedaron asignadas
-        if len(TIN_perte[TIN_perte == 0]) == 0:         
+        if len(TIN_perte[TIN_perte == 0]) == 0:
             #Selecciona si es por laderas o por celdas
-            if self.modelType[0] is 'h':    
+            if self.modelType[0] is 'h':
                 maskVector = np.copy(self.hills_own)
             elif self.modelType[0] is 'c':
-                maskVector = np.ones(self.ncells)           
+                maskVector = np.ones(self.ncells)
             #Interpola con tin
-            meanRain,posIds = models.rain_mit(xy_basin, 
-                coord, 
-                reg, 
+            meanRain,posIds = models.rain_mit(xy_basin,
+                coord,
+                reg,
                 TIN_mesh,
                 TIN_perte,
                 self.nhills,
-                ruta, 
-                umbral, 
-                maskVector, 
-                self.ncells, 
+                ruta,
+                umbral,
+                maskVector,
+                self.ncells,
                 coord.shape[1],
                 TIN_mesh.shape[1],
-                reg.shape[1])           
-            #Guarda un archivo con informacion de la lluvia 
+                reg.shape[1])
+            #Guarda un archivo con informacion de la lluvia
             f=open(ruta[:-3]+'hdr','w')
             f.write('Numero de celdas: %d \n' % self.ncells)
             f.write('Numero de laderas: %d \n' % self.nhills)
@@ -3140,16 +3142,16 @@ class SimuBasin(Basin):
             if isPandas:
                 dates=registers.index.to_pydatetime()
                 c = 1
-                for d,pos,m in zip(dates,posIds,meanRain):          
+                for d,pos,m in zip(dates,posIds,meanRain):
                     f.write('%d, \t %d, \t %.2f, %s \n' % (c,pos,m,d.strftime('%Y-%m-%d-%H:%M')))
                     c+=1
             f.close()
             return meanRain, posIds
         else:
-            print 'Error: Existen celdas de la cuenca sin asignacion de triangulos, se retornan las coordenadas no asignadas'
+            print('Error: Existen celdas de la cuenca sin asignacion de triangulos, se retornan las coordenadas no asignadas')
             pos = np.where(TIN_perte == 0)[1]
             return xy_basin[0,pos], xy_basin[1,pos]
-            
+
     def rain_interpolate_idw(self,coord,registers,ruta,p=1,umbral=0.0):
         'Descripcion: Interpola la lluvia mediante la metodologia\n'\
         '   del inverso de la distancia ponderado. \n'\
@@ -3186,15 +3188,15 @@ class SimuBasin(Basin):
             reg=registers
         #Obtiene las coordenadas de cada celda de la cuenca
         x,y = cu.basin_coordxy(self.structure,self.ncells)
-        xy_basin=np.vstack((x,y))   
-        #Interpola con idw      
-        if self.modelType[0] is 'h':    
+        xy_basin=np.vstack((x,y))
+        #Interpola con idw
+        if self.modelType[0] is 'h':
             meanRain,posIds = models.rain_idw(xy_basin, coord, reg, p, self.nhills,
                 ruta, umbral, self.hills_own, self.ncells, coord.shape[1],reg.shape[1])
         elif self.modelType[0] is 'c':
             meanRain,posIds = models.rain_idw(xy_basin, coord, reg, p, self.nhills,
                 ruta, umbral, np.ones(self.ncells), self.ncells, coord.shape[1],reg.shape[1])
-        #Guarda un archivo con informacion de la lluvia 
+        #Guarda un archivo con informacion de la lluvia
         f=open(ruta[:-3]+'hdr','w')
         f.write('Numero de celdas: %d \n' % self.ncells)
         f.write('Numero de laderas: %d \n' % self.nhills)
@@ -3210,7 +3212,7 @@ class SimuBasin(Basin):
                 c+=1
         f.close()
         return meanRain,posIds
-    
+
     def rain_radar2basin_from_asc(self,ruta_in,ruta_out,fechaI,fechaF,dt,
         pre_string,post_string,fmt = '%Y%m%d%H%M',conv_factor=1.0/12.0,
         umbral = 0.0):
@@ -3234,7 +3236,7 @@ class SimuBasin(Basin):
         '----------\n'\
         'rain_interpolate_idw: interpola campos mediante la metodologia idw.\n'\
         'rain_radar2basin_from_array: Mete campos de lluvia mediante multiples arrays.\n'\
-        #Edita la ruta de salida 
+        #Edita la ruta de salida
         if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
             ruta_bin = ruta_out[:-3]+'.bin'
             ruta_hdr = ruta_out[:-3]+'.hdr'
@@ -3246,35 +3248,35 @@ class SimuBasin(Basin):
             N = self.ncells
         elif self.modelType[0] is 'h':
             N = self.nhills
-        #Guarda la primera entrada como un mapa de ceros        
+        #Guarda la primera entrada como un mapa de ceros
         models.write_int_basin(ruta_bin,np.zeros((1,N)),1,N,1)
         #Genera la lista de las fechas.
         ListDates,dates = __ListaRadarNames__(ruta_in,
             fechaI,fechaF,
             fmt,post_string,pre_string,dt)
-        #Lee los mapas y los transforma 
+        #Lee los mapas y los transforma
         cont = 1
         meanRain = []
         posIds = []
         for l in ListDates:
             Map,p = read_map_raster(ruta_in + l)
             vec = self.Transform_Map2Basin(Map,p) * conv_factor
-            #Si el mapa tiene mas agua de un umbral 
+            #Si el mapa tiene mas agua de un umbral
             if vec.sum() > umbral:
-                #Actualiza contador, lluvia media y pocisiones 
+                #Actualiza contador, lluvia media y pocisiones
                 cont +=1
                 meanRain.append(vec.mean())
                 posIds.append(cont)
-                #Guarda el vector 
+                #Guarda el vector
                 vec = vec*1000; vec = vec.astype(int)
                 models.write_int_basin(ruta_bin,np.zeros((1,N))+vec,cont,N,1)
             else:
-                #lluvia media y pocisiones 
+                #lluvia media y pocisiones
                 meanRain.append(0.0)
                 posIds.append(1)
         posIds = np.array(posIds)
         meanRain = np.array(meanRain)
-        #Guarda un archivo con informacion de la lluvia 
+        #Guarda un archivo con informacion de la lluvia
         f=open(ruta_hdr[:-3]+'hdr','w')
         f.write('Numero de celdas: %d \n' % self.ncells)
         f.write('Numero de laderas: %d \n' % self.nhills)
@@ -3288,7 +3290,7 @@ class SimuBasin(Basin):
             c+=1
         f.close()
         return np.array(meanRain),np.array(posIds)
-    
+
     def rain_radar2basin_from_array(self,vec=None,ruta_out=None,fecha=None,dt=None,
         status='update',umbral = 0.01, doit = False):
         'Descripcion: Genera campos de lluvia a partir de archivos array\n'\
@@ -3315,7 +3317,7 @@ class SimuBasin(Basin):
         '----------\n'\
         'rain_interpolate_idw: interpola campos mediante la metodologia idw.\n'\
         'rain_radar2basin_from_asc: Mete campos de lluvia mediante multiples arrays.\n'\
-        #Edita la ruta de salida 
+        #Edita la ruta de salida
         if ruta_out  is not  None:
             if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
                 ruta_bin = ruta_out[:-4]+'.bin'
@@ -3330,36 +3332,36 @@ class SimuBasin(Basin):
             N = self.nhills
             try:
                 if vec.shape[0]  == self.ncells:
-                    vec = self.Transform_Basin2Hills(vec,sumORmean=1)       
+                    vec = self.Transform_Basin2Hills(vec,sumORmean=1)
             except:
                 pass
-        # De acerudo al estado actualiza las variables o guarda el 
-        # binario final 
+        # De acerudo al estado actualiza las variables o guarda el
+        # binario final
         actualizo = 1
         if status == 'update':
-            #Entrada 1 es la entrada de campos sin lluvia 
+            #Entrada 1 es la entrada de campos sin lluvia
             if len(self.radarDates) == 0:
                 models.write_int_basin(ruta_bin,np.zeros((1,N)),1,N,1)
             if vec.mean() > umbral or doit:
-                #Actualiza contador, lluvia media y pocisiones 
+                #Actualiza contador, lluvia media y pocisiones
                 self.radarCont +=1
                 self.radarMeanRain.append(vec.mean())
                 self.radarPos.append(self.radarCont)
-                #Guarda el vector 
+                #Guarda el vector
                 vec = vec*1000; vec = vec.astype(int)
                 models.write_int_basin(ruta_bin,np.zeros((1,N))+vec,
                     self.radarCont,N,1)
                 actualizo = 0
             else:
-                #lluvia media y pocisiones 
+                #lluvia media y pocisiones
                 self.radarMeanRain.append(0.0)
                 self.radarPos.append(1)
             self.radarDates.append(fecha)
-        #Si ya no va a agregar nada, no agrega mas campos y genera el .hdr 
+        #Si ya no va a agregar nada, no agrega mas campos y genera el .hdr
         elif status == 'close':
             self.radarMeanRain = np.array(self.radarMeanRain)
             self.radarPos = np.array(self.radarPos)
-            #Guarda un archivo con informacion de la lluvia 
+            #Guarda un archivo con informacion de la lluvia
             f=open(ruta_hdr[:-3]+'hdr','w')
             f.write('Numero de celdas: %d \n' % self.ncells)
             f.write('Numero de laderas: %d \n' % self.nhills)
@@ -3373,7 +3375,7 @@ class SimuBasin(Basin):
                 f.write('%d, \t %d, \t %.2f, %s \n' % (c,pos,m,d.strftime('%Y-%m-%d-%H:%M')))
                 c+=1
             f.close()
-            #Vuelve las variables listas de nuevo 
+            #Vuelve las variables listas de nuevo
             self.radarMeanRain = self.radarMeanRain.tolist()
             self.radarPos = self.radarPos.tolist()
         elif status == 'reset':
@@ -3383,13 +3385,13 @@ class SimuBasin(Basin):
             self.radarMeanRain = []
             self.radarCont = 1
         elif status == 'old':
-            #si es un archivo viejo, lo abre para tomar las variables y continuar en ese punto 
+            #si es un archivo viejo, lo abre para tomar las variables y continuar en ese punto
             f=open(ruta_hdr[:-3]+'hdr','r')
             Lista = f.readlines()
             self.radarCont = int(Lista[3].split()[-1])
             cantidadIds = int(Lista[2].split()[-1])
             f.close()
-            #Abre con numpy para simplificar las cosas 
+            #Abre con numpy para simplificar las cosas
             a = np.loadtxt(ruta_hdr,skiprows=6,dtype='str').T
             if self.radarCont >= 1 and cantidadIds > 1:
                 self.radarPos = [int(i.split(',')[0]) for i in a[1]]
@@ -3397,15 +3399,15 @@ class SimuBasin(Basin):
                 for i in a[3]:
                     d = datetime.datetime.strptime(i,'%Y-%m-%d-%H:%M')
                     self.radarDates.append(d)
-            else:               
+            else:
                 self.radarPos = [int(a[1].split(',')[0])]
                 self.radarMeanRain = [float(a[2].split(',')[0])]
                 self.radarDates = [datetime.datetime.strptime(a[-1], '%Y-%m-%d-%H:%M')]
-        return actualizo 
-        
+        return actualizo
+
     #------------------------------------------------------
-    # Subrutinas para preparar modelo 
-    #------------------------------------------------------ 
+    # Subrutinas para preparar modelo
+    #------------------------------------------------------
     def set_Geomorphology(self,umbrales=[30,500],stream_width=None):
         'Descripcion: calcula las propiedades geomorfologicas necesarias \n'\
         '   para la simulacion. \n'\
@@ -3448,21 +3450,21 @@ class SimuBasin(Basin):
             self.structure,acum,umbrales[1],self.ncells)
         stream_s,stream_l = cu.basin_stream_slope(
             self.structure,elev,hill_long,nodos,n_cauce,self.ncells)
-        stream_s[np.isnan(stream_s)]=self.nodata        
+        stream_s[np.isnan(stream_s)]=self.nodata
         #Obtiene para metros por subn cuencas
         sub_horton,nod_horton = cu.basin_subbasin_horton(self.hills,self.ncells,
             self.hills.shape[1])
         sub_basin_long,max_long,nodo_max_long = cu.basin_subbasin_long(
             self.hills_own,cauce,hill_long,self.hills,
             sub_horton,self.hills.shape[1],self.ncells)
-        #Obtiene las propiedades por laderas de los cauces 
+        #Obtiene las propiedades por laderas de los cauces
         stream_slope,stream_long = cu.basin_subbasin_stream_prop(
             self.hills_own,cauce,hill_long,
             pend,self.hills.shape[1],self.ncells)
-        #opbtiene el ancho si noe s dado lo asume igual a uno 
+        #opbtiene el ancho si noe s dado lo asume igual a uno
         if stream_width is None:
             stream_width=np.ones(self.ncells)
-        #De acuerdo a si el modelo es por laderas o por celdas agrega lass varaibeles 
+        #De acuerdo a si el modelo es por laderas o por celdas agrega lass varaibeles
         if self.modelType[0]=='c':
             #Obtiene el tipo de celdas
             unit_type = cu.basin_stream_type(self.structure,
@@ -3483,17 +3485,16 @@ class SimuBasin(Basin):
             models.nceldas = self.hills.shape[1]
             models.unit_type = np.ones((1,N))*np.ones(N)*3
             models.hill_long = np.ones((1,N))*sub_basin_long
-            models.hill_slope = np.ones((1,N))*self.Transform_Basin2Hills(pend) 
+            models.hill_slope = np.ones((1,N))*self.Transform_Basin2Hills(pend)
             models.stream_long = np.ones((1,N))*stream_long
             models.stream_slope = np.ones((1,N))*stream_slope
-            models.stream_width = np.ones((1,N))*cu.basin_subbasin_map2subbasin(
-                self.hills_own,stream_width,self.nhills,cauce,0,self.ncells)
-            no0min = models.stream_width[models.stream_width<>0].min()
+            models.stream_width = np.ones((1,N))*cu.basin_subbasin_map2subbasin(self.hills_own,stream_width,self.nhills,cauce,0,self.ncells)
+            no0min = models.stream_width[models.stream_width!=0].min()
             models.stream_width[models.stream_width==0] = no0min
             models.elem_area = np.ones((1,N))*np.array([self.hills_own[self.hills_own==i].shape[0] for i in range(1,self.hills.shape[1]+1)])*cu.dxp**2.0
-        #Ajusta variable de que la geomorfologia esta calculada 
+        #Ajusta variable de que la geomorfologia esta calculada
         self.isSetGeo = True
-    
+
     def set_Speed_type(self,types=np.ones(3)):
         'Descripcion: Especifica el tipo de velocidad a usar en cada \n'\
         '   nivel del modelo. \n'\
@@ -3508,13 +3509,13 @@ class SimuBasin(Basin):
         'Retornos\n'\
         '----------\n'\
         'self : Con la variable models.speed_type especificada.\n'\
-        #Especifica la ecuacion de velocidad a usar en cada nivel del modelo        
+        #Especifica la ecuacion de velocidad a usar en cada nivel del modelo
         for c,i in enumerate(types):
             if i==1 or i==2:
                 models.speed_type[c]=i
             else:
-                models.speed_type[c]=1  
-        
+                models.speed_type[c]=1
+
     def set_Floods(self,var,VarName, umbral = 1000, NumCeldas = 6, Default = False):
         'Descripcion: Aloja las variables del sub modelo de inundaciones\n'\
         '\n'\
@@ -3545,10 +3546,10 @@ class SimuBasin(Basin):
         '   wmf.models.flood_d50.\n'\
         '   wmf.models.flood_hand.\n'\
         '   wmf.models.flood_aquien.\n'\
-        #Si el modelo es tipo ladera agrega la variable 
+        #Si el modelo es tipo ladera agrega la variable
         if self.modelType[0] == 'h':
             return 'El modelo por laderas no simula inundaciones.'
-        #Pone el gamma del agua por defecto 
+        #Pone el gamma del agua por defecto
         if Default:
             models.flood_dw = 1000
             models.flood_dsed = 2600
@@ -3558,17 +3559,17 @@ class SimuBasin(Basin):
             models.flood_max_iter = 10
             models.flood_step = 1.0
         #Obtiene el vector que va a alojar en el modelo
-        if VarName <> 'GammaWater' and VarName <> 'GammaSoil' and VarName <> 'VelArea' and VarName <> 'Cmax' and VarName <> 'VelUmbral':
+        if VarName != 'GammaWater' and VarName != 'GammaSoil' and VarName != 'VelArea' and VarName != 'Cmax' and VarName != 'VelUmbral':
             isVec=False
             if type(var) is str:
-                #Si es un string lee el mapa alojado en esa ruta 
+                #Si es un string lee el mapa alojado en esa ruta
                 Map,Pp = read_map_raster(var)
                 Vec = self.Transform_Map2Basin(Map,Pp)
                 isVec=True
             elif type(var) is int or float:
                 Vec = np.ones((1,self.ncells))*var
                 isVec=True
-            elif type(var) is np.ndarray and var.shape[0] == self.ncells:           
+            elif type(var) is np.ndarray and var.shape[0] == self.ncells:
                 Vec = var
                 isVec=True
             #finalmente mete la variable en el modelo
@@ -3578,7 +3579,7 @@ class SimuBasin(Basin):
             elif VarName is 'Stream_D50':
                 models.flood_d50 = np.ones((1,N))*Vec
             elif VarName is 'HAND':
-                self.GetGeo_HAND(umbral = umbral)               
+                self.GetGeo_HAND(umbral = umbral)
                 models.flood_hand = np.ones((1,N))*np.copy(self.CellHAND)
                 models.flood_aquien = np.ones((1,N))*np.copy(self.CellHAND_drainCell)
             elif VarName is 'Slope':
@@ -3586,8 +3587,8 @@ class SimuBasin(Basin):
                 models.flood_slope = np.ones((1,N))*np.sin(np.arctan(self.CellSlope))
             elif VarName is 'Sections':
                 self.GetGeo_Sections(NumCeldas = NumCeldas)
-                models.flood_sections = np.ones((NumCeldas*2+1,N)) * self.Sections 
-                models.flood_sec_cells = np.ones((NumCeldas*2+1,N)) * self.Sections_Cells 
+                models.flood_sections = np.ones((NumCeldas*2+1,N)) * self.Sections
+                models.flood_sec_cells = np.ones((NumCeldas*2+1,N)) * self.Sections_Cells
         elif VarName == 'GammaWater':
             models.flood_dw = var
         elif VarName == 'GammaSoil':
@@ -3600,7 +3601,7 @@ class SimuBasin(Basin):
             models.flood_umbral = var
         elif VarName == 'MaxIter':
             models.flood_max_iter = var
-        
+
     def set_PhysicVariables(self,modelVarName,var,pos,mask=None):
         'Descripcion: Coloca las variables fisicas en el modelo \n'\
         '   Se debe assignarel nombre del tipo de variable, la variable\n'\
@@ -3645,21 +3646,21 @@ class SimuBasin(Basin):
         'rain_interpolate_idw: interpola campos mediante la metodologia idw.\n'\
         'rain_read_bin: Lee binario de registros para ver que tiene.\n'\
         'rain_ncf2bin: Convierte ncf a binario en formato del modelo (para imagenes de radar).\n'\
-        
+
         #Obtiene el vector que va a alojar en el modelo
         isVec=False
         if type(var) is str:
-            #Si es un string lee el mapa alojado en esa ruta 
+            #Si es un string lee el mapa alojado en esa ruta
             Map,Pp = read_map_raster(var)
             Vec = self.Transform_Map2Basin(Map,Pp)
             isVec=True
         elif type(var) is int or float:
             Vec = np.ones((1,self.ncells))*var
             isVec=True
-        elif type(var) is np.ndarray and var.shape[0] == self.ncells:           
+        elif type(var) is np.ndarray and var.shape[0] == self.ncells:
             Vec = var
             isVec=True
-        #Si el modelo es tipo ladera agrega la variable 
+        #Si el modelo es tipo ladera agrega la variable
         if self.modelType[0] is 'h':
             Vec = self.Transform_Basin2Hills(Vec,mask=mask)
         #finalmente mete la variable en el modelo
@@ -3675,7 +3676,7 @@ class SimuBasin(Basin):
             models.max_capilar[0] = Vec
         elif modelVarName is 'gravit':
             models.max_gravita[0] = Vec
-    
+
     def set_Storage(self,var,pos,hour_scale=False):
         'Descripcion: \n'\
         '   Establece el almacenamiento inicial del modelo\n'\
@@ -3705,7 +3706,7 @@ class SimuBasin(Basin):
         'Mirar Tambien\n'\
         '----------\n'\
         'save_storage(slef,storage).\n'\
-        #Determina el tipo de unidades del modelo 
+        #Determina el tipo de unidades del modelo
         if self.modelType[0] is 'c':
             N = self.ncells
         elif self.modelType[0] is 'h':
@@ -3715,7 +3716,7 @@ class SimuBasin(Basin):
         if type(var) is str:
             var_bin,var_hdr = __Add_hdr_bin_2route__(var,storage = True)
             if type(pos) is not str:
-                #Si es un string lee el binario de almacenamiento alojado en esa ruta 
+                #Si es un string lee el binario de almacenamiento alojado en esa ruta
                 Vec,res = models.read_float_basin_ncol(var_bin,pos+1,N,5)
             if type(pos) == str:
                 # Lee las fechas
@@ -3730,20 +3731,20 @@ class SimuBasin(Basin):
                     else:
                         posFecha = Fechas.index(datetime.datetime.strptime(pos[:-3], '%Y-%m-%d-%H'))
                 except:
-                    print 'Error: no se encuentra la fecha especificada en el archivo '+var
+                    print('Error: no se encuentra la fecha especificada en el archivo '+var)
                 Vec,res = models.read_float_basin_ncol(var_bin,posFecha+1,N,5)
             isVec=True
             for p in range(5):
-                models.storage[p] = Vec[p]          
+                models.storage[p] = Vec[p]
         elif type(var) is int or float:
             Vec = np.ones((1,N))*var
             isVec=True
             models.storage[pos] = Vec
-        elif type(var) is np.ndarray and var.shape[0] == N:         
+        elif type(var) is np.ndarray and var.shape[0] == N:
             Vec = var
             isVec=True
             models.storage[pos] = Vec
-            
+
     def set_Control(self,coordXY,ids,tipo = 'Q'):
         'Descripcion: \n'\
         '   Establece los puntos deonde se va a realizar control del caudal\n'\
@@ -3770,28 +3771,28 @@ class SimuBasin(Basin):
             xyNew, basinPts, order = self.Points_Points2Stream(coordXY,ids)
             if self.modelType[0] is 'c':
                 models.control[0] = basinPts
-                IdsConvert = basinPts[basinPts<>0]
+                IdsConvert = basinPts[basinPts!=0]
             elif self.modelType[0] is 'h':
                 unitario = basinPts / basinPts
                 pos = self.hills_own * self.CellCauce * unitario
                 posGrande = self.hills_own * self.CellCauce * basinPts
-                IdsConvert = posGrande[posGrande<>0] / pos[pos<>0]
-                models.control[0][pos[pos<>0].astype(int).tolist()] = IdsConvert            
+                IdsConvert = posGrande[posGrande!=0] / pos[pos!=0]
+                models.control[0][pos[pos!=0].astype(int).tolist()] = IdsConvert
         elif tipo is 'H':
             xyNew = coordXY
             basinPts, order = self.Points_Points2Basin(coordXY,ids)
             if self.modelType[0] == 'c':
                 models.control_h[0] = basinPts
-                IdsConvert = basinPts[basinPts<>0]
+                IdsConvert = basinPts[basinPts!=0]
             elif self.modelType[0] == 'h':
                 unitario = basinPts / basinPts
                 pos = self.hills_own * unitario
                 posGrande = self.hills_own * basinPts
-                IdsConvert = posGrande[posGrande<>0] / pos[pos<>0]
-                models.control_h[0][pos[pos<>0].astype(int).tolist()] = IdsConvert 
+                IdsConvert = posGrande[posGrande!=0] / pos[pos!=0]
+                models.control_h[0][pos[pos!=0].astype(int).tolist()] = IdsConvert
         return IdsConvert,xyNew
-        
-        
+
+
     def set_sediments(self,var,VarName, wi = [0.036, 2.2e-4, 8.6e-7],
         diametro = [0.35, 0.016, 0.001], G = 9.8):
         'Descripcion: Alojas las variables requeridas para la ejecucion\n'\
@@ -3817,15 +3818,15 @@ class SimuBasin(Basin):
         '   wmf.models.parliac.\n'\
         '   wmf.models.wi.\n'\
         '   wmf.models.diametro.\n'\
-                #Determina el tipo de unidades del modelo 
+                #Determina el tipo de unidades del modelo
         if self.modelType[0] is 'c':
             N = self.ncells
         elif self.modelType[0] is 'h':
             N = self.nhills
-                #Se fija que tipo de variable es 
+                #Se fija que tipo de variable es
         isVec=False
         if type(var) is str:
-            #Si es un string lee el mapa alojado en esa ruta 
+            #Si es un string lee el mapa alojado en esa ruta
             Map,Pp = read_map_raster(var)
             Vec = self.Transform_Map2Basin(Map,Pp)
             isVec=True
@@ -3835,10 +3836,10 @@ class SimuBasin(Basin):
         elif type(var) is np.ndarray and var.shape[0] == self.ncells:
             Vec = var
             isVec=True
-        #Si el modelo es tipo ladera agrega la variable 
+        #Si el modelo es tipo ladera agrega la variable
         if self.modelType[0] is 'h':
             Vec = self.Transform_Basin2Hills(Vec,mask=mask)
-        #Inicia las variables 
+        #Inicia las variables
         if VarName == 'Krus':
             models.krus = np.ones((1,N))*Vec
         if VarName == 'Prus':
@@ -3851,7 +3852,7 @@ class SimuBasin(Basin):
         models.wi = wi
         models.diametro = diametro
         models.g = G
-        
+
     def set_Slides(self,var,VarName):
         'Descripcion: Alojas las variables requeridas para la ejecucion\n'\
         '   del modelo de deslizamientos.\n'\
@@ -3876,23 +3877,23 @@ class SimuBasin(Basin):
         '   wmf.models.sl_frictionangle.\n'\
         '   wmf.models.sl_radslope.\n'\
         '   wmf.models.sl_fs.\n'\
-        #Pone el gamma del agua por defecto 
+        #Pone el gamma del agua por defecto
         models.sl_gammaw = 9.8
         #Obtiene el vector que va a alojar en el modelo
-        if VarName <> 'FS':
+        if VarName != 'FS':
             isVec=False
             if type(var) is str:
-                #Si es un string lee el mapa alojado en esa ruta 
+                #Si es un string lee el mapa alojado en esa ruta
                 Map,Pp = read_map_raster(var)
                 Vec = self.Transform_Map2Basin(Map,Pp)
                 isVec=True
             elif type(var) is int or float:
                 Vec = np.ones((1,self.ncells))*var
                 isVec=True
-            elif type(var) is np.ndarray and var.shape[0] == self.ncells:           
+            elif type(var) is np.ndarray and var.shape[0] == self.ncells:
                 Vec = var
                 isVec=True
-        #Si el modelo es tipo ladera agrega la variable 
+        #Si el modelo es tipo ladera agrega la variable
         if self.modelType[0] == 'h':
             return 'El modelo por laderas no simula deslizamientos.'
         #finalmente mete la variable en el modelo
@@ -3911,8 +3912,8 @@ class SimuBasin(Basin):
             models.sl_radslope = np.ones((1,N))*np.arctan(Vec)
             models.sl_radslope[models.sl_radslope == 0] = 0.01
     #------------------------------------------------------
-    # Guardado y Cargado de modelos de cuencas preparados 
-    #------------------------------------------------------ 
+    # Guardado y Cargado de modelos de cuencas preparados
+    #------------------------------------------------------
     def Save_SimuBasin(self,ruta,SimSlides = False,
         ExtraVar = None):
         'Descripcion: guarda una cuenca previamente ejecutada\n'\
@@ -3934,7 +3935,7 @@ class SimuBasin(Basin):
         #Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto
         if self.isSetGeo is False:
             self.set_Geomorphology()
-            print 'Aviso: SE ha estimado la geomorfologia con los umbrales por defecto umbral = [30, 500]'
+            print('Aviso: SE ha estimado la geomorfologia con los umbrales por defecto umbral = [30, 500]')
         #Guarda la cuenca
         if self.modelType[0] is 'c':
             N = self.ncells
@@ -3954,9 +3955,9 @@ class SimuBasin(Basin):
                     'epsg': self.epsg}
         if SimSlides:
             Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
-        #abre el archivo 
+        #abre el archivo
         gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
-        #Grupo base 
+        #Grupo base
         GrupoBase = gr.createGroup('base')
         GrupoSimHid = gr.createGroup('SimHidro')
         GrupoSimSed = gr.createGroup('SimSediments')
@@ -4021,13 +4022,13 @@ class SimuBasin(Basin):
         speed_type[:] = models.speed_type
         storage[:] = models.storage
         #Variables grupo GEomorfologia
-        DimNcell = GrupoGeo.createDimension('ncell',self.ncells)        
+        DimNcell = GrupoGeo.createDimension('ncell',self.ncells)
         VarDEM = GrupoGeo.createVariable('DEM','f4',('ncell',),zlib = True)
         VarDIR = GrupoGeo.createVariable('DIR','i4',('ncell',),zlib = True)
         VarDEM[:] = self.DEMvec
         VarDIR[:] = self.DIRvec
-        
-        #Variables de sedimentos 
+
+        #Variables de sedimentos
         DimNelem = GrupoSimSed.createDimension('Nelem',N)
         DimCol3 = GrupoSimSed.createDimension('col3',3)
         VarKrus = GrupoSimSed.createVariable('Krus','f4',('Nelem'),zlib=True)
@@ -4038,8 +4039,8 @@ class SimuBasin(Basin):
         VarPrus[:]=models.prus
         VarCrus[:]=models.crus
         VarParliac[:]=models.parliac
-            
-        #Variables de deslizamientos 
+
+        #Variables de deslizamientos
         if SimSlides:
             DimNelem = GrupoSimSli.createDimension('Nelem',N)
             frictionAngle = GrupoSimSli.createVariable('friction_angle','f4',('Nelem',),zlib = True)
@@ -4057,16 +4058,16 @@ class SimuBasin(Basin):
             for k in ExtraVar.keys():
                 Var = gr.createVariable(k,ExtraVar[k]['type'],('ncell',),zlib=True)
                 Var[:] = ExtraVar[k]['Data']
-        #asigna las prop a la cuenca 
+        #asigna las prop a la cuenca
         gr.setncatts(Dict)
-        #Cierra el archivo 
+        #Cierra el archivo
         gr.close()
         #Sale del programa
-        return 
-        
+        return
+
         #------------------------------------------------------
         # Ejecucion del modelo
-        #------------------------------------------------------ 
+        #------------------------------------------------------
     def run_shia(self,Calibracion,
         rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
         ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True, EvpVariable = False):
@@ -4119,9 +4120,9 @@ class SimuBasin(Basin):
         '----------\n'\
         'Qsim : Caudal simulado en los puntos de control.\n'\
         'Hsim : Humedad simulada en los puntos de control.\n'\
-                #genera las rutas 
+                #genera las rutas
         rain_ruteBin,rain_ruteHdr = __Add_hdr_bin_2route__(rain_rute)
-        #Obtiene las fechas 
+        #Obtiene las fechas
         Rain = read_mean_rain(rain_ruteHdr, N_intervals, start_point)
         # De acuerdo al tipo de modelo determina la cantidad de elementos
         if self.modelType[0] is 'c':
@@ -4149,7 +4150,7 @@ class SimuBasin(Basin):
             models.save_storage = 0
             ruta_sto_bin = 'no_guardo_nada.StObin'
             ruta_sto_hdr = 'no_guardo_nada.StOhdr'
-        #prepara variable para guardado de velocidad 
+        #prepara variable para guardado de velocidad
         if ruta_speed  is not  None:
             models.save_speed = 1
             ruta_speed_bin, ruta_speed_hdr = __Add_hdr_bin_2route__(ruta_speed,
@@ -4166,7 +4167,7 @@ class SimuBasin(Basin):
             models.save_retorno = 0
             ruta_ret_bin = 'no_guardo_nada.bin'
             ruta_ret_hdr = 'no_guardo_nada.hdr'
-        #Variables de separacion de flujo por tipo de lluvia 
+        #Variables de separacion de flujo por tipo de lluvia
         if ruta_conv  is not  None and ruta_stra  is not  None:
             ruta_binConv,ruta_hdrConv = __Add_hdr_bin_2route__(ruta_conv)
             ruta_binStra,ruta_hdrStra = __Add_hdr_bin_2route__(ruta_stra)
@@ -4177,17 +4178,17 @@ class SimuBasin(Basin):
             ruta_hdrConv = 'none'
             ruta_binStra = 'none'
             ruta_hdrStra = 'none'
-        #Prepara la variable de almacenamiento 
+        #Prepara la variable de almacenamiento
         if StorageLoc is not None:
-            if StorageLoc.shape <> (5, N):
-                print 'Error: almacenamiento debe ser: (5,'+str(N)+'), y es: ('+str(StorageLoc.shape[0])+','+str(StorageLoc.shape[1])+')' 
+            if StorageLoc.shape != (5, N):
+                print('Error: almacenamiento debe ser: (5,'+str(N)+'), y es: ('+str(StorageLoc.shape[0])+','+str(StorageLoc.shape[1])+')')
                 StorageLoc = np.zeros((5,N))*-9999.0
         else:
             StorageLoc = np.zeros((5,N))*-9999.0
-        #Prepara la variable de velocidad horizontal inicial 
+        #Prepara la variable de velocidad horizontal inicial
         if HspeedLoc is not None:
-            if HspeedLoc.shape <> (4, N):
-                print 'Error: velocidad debe ser: (4,'+str(N)+'), y es: ('+str(HspeedLoc.shape[0])+','+str(HspeedLoc.shape[1])+')' 
+            if HspeedLoc.shape != (4, N):
+                print('Error: velocidad debe ser: (4,'+str(N)+'), y es: ('+str(HspeedLoc.shape[0])+','+str(HspeedLoc.shape[1])+')')
                 HspeedLoc = np.zeros((4,N))*-9999.0
         else:
             HspeedLoc = np.zeros((4,N))*-9999.0
@@ -4196,7 +4197,7 @@ class SimuBasin(Basin):
             Rad = self.__GetEVP_Serie__(Rain.index)
         else:
             models.evpserie = np.ones(N_intervals)
-        # Ejecuta el modelo 
+        # Ejecuta el modelo
         Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
             rain_ruteBin,
             rain_ruteHdr,
@@ -4215,7 +4216,7 @@ class SimuBasin(Basin):
             ruta_hdrConv,
             ruta_hdrStra,
             ruta_ret_bin)
-        #Retorno de variables de acuerdo a lo simulado 
+        #Retorno de variables de acuerdo a lo simulado
         Retornos={'Qsim' : Qsim}
         Retornos.update({'Balance' : Balance})
         Retornos.update({'Storage' : Alm})
@@ -4225,6 +4226,7 @@ class SimuBasin(Basin):
             Retornos.update({'Humedad_t2' : St3})
         if models.sim_sediments == 1:
             Retornos.update({'Sediments' : Qsed})
+            #print (Qsed)
         if models.separate_fluxes == 1:
             Retornos.update({'Fluxes' : Qseparated})
         if models.separate_rain == 1:
@@ -4233,33 +4235,33 @@ class SimuBasin(Basin):
             Retornos.update({'Mean_Storage' : np.copy(models.mean_storage)})
         if models.save_storage == 1:
             rutaStorageHdr = __Add_hdr_bin_2route__(ruta_storage)
-            #Caso en el que se registra el alm medio 
-            if models.show_storage == 1:                
+            #Caso en el que se registra el alm medio
+            if models.show_storage == 1:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
                     start_point,self,Mean_Storage = np.copy(models.mean_storage))
-            #Caso en el que no hay alm medio para cada uno de los 
+            #Caso en el que no hay alm medio para cada uno de los
             else:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
                     start_point,self,Mean_Storage=np.zeros((5,N))*-9999)
-        #Area de la seccion 
+        #Area de la seccion
         if models.show_area == 1:
             Retornos.update({'Sec_Area': Area})
-        #Velocidades 
+        #Velocidades
         if models.show_speed == 1:
             Retornos.update({'Speed' : Speed})
         if models.show_mean_speed == 1:
             Retornos.update({'Mean_Speed' : np.copy(models.mean_speed)})
         if models.save_speed == 1:
             rutaSpeedHdr = __Add_hdr_bin_2route__(ruta_speed)
-            #Caso en el que hay velocidad media para todos los tanques 
+            #Caso en el que hay velocidad media para todos los tanques
             if models.show_mean_speed == 1:
                 __Save_speed_hdr__(ruta_speed_hdr,rain_ruteHdr,N_intervals,
                     start_point,self,Mean_Speed = np.copy(models.mean_speed))
-            #Caso en el que no hay alm medio para cada uno de los 
+            #Caso en el que no hay alm medio para cada uno de los
             else:
                 __Save_speed_hdr__(ruta_speed_hdr,rain_ruteHdr,N_intervals,
                     start_point,self)
-        
+
         if models.save_retorno == 1:
             if models.show_mean_retorno == 1:
                 __Save_retorno_hdr__(ruta_ret_hdr, rain_ruteHdr, N_intervals,
@@ -4267,19 +4269,19 @@ class SimuBasin(Basin):
             else:
                 __Save_retorno_hdr__(ruta_ret_hdr, rain_ruteHdr, N_intervals,
                     start_point, self)
-        
-        #Campo de lluvia acumulado para el evento 
+
+        #Campo de lluvia acumulado para el evento
         Retornos.update({'Rain_Acum': models.acum_rain})
-        Retornos.update({'Rain_hietogram': models.mean_rain})   
+        Retornos.update({'Rain_hietogram': models.mean_rain})
         #Retornos en caso de simular deslizamientos
         if models.sim_slides == 1:
             Retornos.update({'Slides_Map': np.copy(models.sl_slideocurrence)})
             Retornos.update({'Slides_NCell_Serie': np.copy(models.sl_slidencelltime)})
             Retornos.update({'Slides_Acum':np.copy(models.sl_slideacumulate)})
-        #Caudal simulado en un dataframe 
+        #Caudal simulado en un dataframe
         if QsimDataFrame:
             #Obtiene ids
-            ids = models.control[models.control<>0]
+            ids = models.control[models.control!=0]
             Qdict = {}
             for i,j in zip(Retornos['Qsim'][1:], ids):
                 Qdict.update({str(j): i})
@@ -4309,14 +4311,14 @@ class SimuBasin(Basin):
                 Qsedi = np.array(Qsedi)
                 QsediDict = pd.DataFrame(Qsedi.T, index=Rain.index, columns=index)
             if models.separate_fluxes == 1 and models.sim_sediments == 0:
-                return Retornos, Qdict, QsepDict 
+                return Retornos, Qdict, QsepDict
             if models.separate_fluxes == 1 and models.sim_sediments == 1:
                 return Retornos, Qdict, QsepDict, QsediDict
             if models.separate_fluxes == 0 and models.sim_sediments == 1:
                 return Retornos, Qdict, QsediDict
             return Retornos, Qdict
         return Retornos
-        
+
     def efficiencia(self, Qobs, Qsim):
         'Descripcion: Calcula diferentes indices de desempeno del modelo\n'\
         '   nash, qpico, rmse, rmseLog, t_pico\n'\
@@ -4328,15 +4330,15 @@ class SimuBasin(Basin):
         'Retornos\n'\
         '----------\n'\
         'DicEff: diccionario con la eficiencia obtenida en cada param.\n'\
-        #Comienza a evaluar cada parametro 
+        #Comienza a evaluar cada parametro
         DictEff = {'Nash': __eval_nash__(Qobs, Qsim)}
         DictEff.update({'Qpico': __eval_q_pico__(Qobs, Qsim)})
         DictEff.update({'Tpico': __eval_t_pico__(Qobs, Qsim, models.dt)})
         DictEff.update({'RmseLog': __eval_rmse_log__(Qobs, Qsim)})
         DictEff.update({'Rmse': __eval_rmse__(Qobs, Qsim)})
         return DictEff
-        
-    def Calib_NSGAII(self, nsga_el, nodo_eval, pop_size = 40, process = 4, 
+
+    def Calib_NSGAII(self, nsga_el, nodo_eval, pop_size = 40, process = 4,
         NGEN = 6, MUTPB = 0.5, CXPB = 0.5):
         'Descripcion: Algoritmo para calibrar de forma automatica el modelo\n'\
         '   hidrologico utilizando DEAP y su funcion de seleccion NSGAII.\n'\
@@ -4364,9 +4366,9 @@ class SimuBasin(Basin):
                 Flag = False
             else:
                 pop_size += 1
-        #Inicia el elemento nsga con los parametros de el 
+        #Inicia el elemento nsga con los parametros de el
         nsga_el.set_nsgaII()
-        #Crea las poblaciones y las ejecuciones 
+        #Crea las poblaciones y las ejecuciones
         pop = nsga_el.toolbox.population(pop_size)
         Ejecs = map(nsga_el.__crea_ejec__, pop)
         #Ejecuta a la poblacion
@@ -4406,14 +4408,14 @@ class SimuBasin(Basin):
                 ind.fitness.values = fit
             #Toma la siguiente generacion
             pop = nsga_el.toolbox.select(pop + offspring, pop_size)
-        #Retorno 
+        #Retorno
         return pop, QsimPar, np.array(fitnesses).T
-    
-    
+
+
 class nsgaii_element:
     def __init__(self, rutaLluvia, Qobs, npasos, inicio, SimuBasinElem ,evp =[0,1], infil = [1,200], perco = [1, 40],
         losses = [0,1],velRun = [0.1, 1], velSub = [0.1, 1], velSup =[0.1, 1],
-        velStream = [0.1, 1], Hu = [0.1, 1], Hg = [0.1, 1], 
+        velStream = [0.1, 1], Hu = [0.1, 1], Hg = [0.1, 1],
         probCruce = np.ones(10)*0.5, probMutacion = np.ones(10)*0.5,
         rangosMutacion = [[0,1], [1,200], [1,40], [0,1], [0.1,1], [0.1, 1], [0.1,1], [0.1,1], [0.1, 1], [0.1,1]],
         MaxMinOptima = (1.0, -1.0), CrowDist = 0.5):
@@ -4454,69 +4456,69 @@ class nsgaii_element:
         self.rangos_mutacion = rangosMutacion
         self.optimiza = MaxMinOptima
         self.crowdist = CrowDist
-        
+
     def __crea_calibracion__(self):
         #Evp
-        if self.evp_range[0] <> self.evp_range[1]:
+        if self.evp_range[0] != self.evp_range[1]:
             evp = np.random.uniform(self.evp_range[0], self.evp_range[1],1)[0]
         else:
             evp = self.evp_range[0]
         #Infiltracion
-        if self.infil_range[0] <> self.infil_range[1]:
+        if self.infil_range[0] != self.infil_range[1]:
             infil = np.random.uniform(self.infil_range[0], self.infil_range[1],1)[0]
         else:
             infil = self.infil_range[0]
         #Percolacion
-        if self.perco_range[0] <> self.perco_range[1]:
+        if self.perco_range[0] != self.perco_range[1]:
             perco = np.random.uniform(self.perco_range[0], self.perco_range[1],1)[0]
         else:
             perco = self.perco_range[0]
         #Perdidas
-        if self.losses_range[0] <> self.losses_range[1]:
+        if self.losses_range[0] != self.losses_range[1]:
             losses = np.random.uniform(self.losses_range[0], self.losses_range[1],1)[0]
         else:
             losses = self.losses_range[0]
         #runoff
-        if self.velRun_range[0] <> self.velRun_range[1]:
+        if self.velRun_range[0] != self.velRun_range[1]:
             velRun = np.random.uniform(self.velRun_range[0], self.velRun_range[1],1)[0]
         else:
             velRun = self.velRun_range[0]
         #Vel subsuperficial
-        if self.velSub_range[0] <> self.velSub_range[1]:
+        if self.velSub_range[0] != self.velSub_range[1]:
             velSub = np.random.uniform(self.velSub_range[0], self.velSub_range[1],1)[0]
         else:
             velSub = self.velSub_range[0]
         #Vel acuifero
-        if self.velSup_range[0] <> self.velSup_range[1]:
+        if self.velSup_range[0] != self.velSup_range[1]:
             velSup = np.random.uniform(self.velSup_range[0], self.velSup_range[1],1)[0]
         else:
             velSup = self.velSup_range[0]
         #Vel cauce
-        if self.velStream_range[0] <> self.velStream_range[1]:
+        if self.velStream_range[0] != self.velStream_range[1]:
             velStream = np.random.uniform(self.velStream_range[0], self.velStream_range[1],1)[0]
         else:
             velStream = self.velStream_range[0]
         #almacenamiento hu
-        if self.hu_range[0] <> self.hu_range[1]:
+        if self.hu_range[0] != self.hu_range[1]:
             hu = np.random.uniform(self.hu_range[0], self.hu_range[1],1)[0]
         else:
             hu = self.hu_range[0]
         #almacenamiento hg
-        if self.hg_range[0] <> self.hg_range[1]:
+        if self.hg_range[0] != self.hg_range[1]:
             hg = np.random.uniform(self.hg_range[0], self.hg_range[1],1)[0]
         else:
             hg = self.hg_range[0]
-        #Retorna una calibracion aleatoria 
+        #Retorna una calibracion aleatoria
         return [evp, infil, perco, losses, velRun, velSub, velSup, velStream, hu, hg]
-    
+
     def __crea_ejec__(self, calibracion):
         return [calibracion, self.ruta_lluvia, self.npasos, self.inicio, self.simelem]
 
     def __evalfunc__(self, Qsim, f1 = __eval_nash__, f2 = __eval_q_pico__):
         E1 = f1(self.Qobs, Qsim)
         E2 = f2(self.Qobs, Qsim)
-        return E1, E2 
-    
+        return E1, E2
+
     def __cruce__(self, indi1, indi2):
         for i,u in zip(range(10), self.prob_cruce):
             p = np.random.uniform(0,1,1)
@@ -4525,7 +4527,7 @@ class nsgaii_element:
                 indi1[i] = b
                 indi2[i] = a
         return indi1, indi2
-        
+
     def __mutacion__(self, indi):
         c = 0
         for i,u in zip(range(10), self.prob_mutacion):
@@ -4534,7 +4536,7 @@ class nsgaii_element:
                 indi[i] = np.random.uniform(self.rangos_mutacion[c][0],self.rangos_mutacion[c][0],1)[0]
             c+=1
         return indi
-    
+
     def set_nsgaII(self):
         self.toolbox = base.Toolbox()
         creator.create("FitnessMin", base.Fitness,
@@ -4549,7 +4551,7 @@ class nsgaii_element:
         self.toolbox.register("mate", self.__cruce__)
         self.toolbox.register("mutate", self.__mutacion__)
         self.toolbox.register("select", tools.selNSGA2)
-    
+
 class Stream:
     #------------------------------------------------------
     # Subrutinas de trazado de corriente y obtencion de parametros
@@ -4599,12 +4601,12 @@ class Stream:
         if os.path.exists(ruta):
              driver.DeleteDataSource(ruta)
         shapeData = driver.CreateDataSource(ruta)
-        layer = shapeData.CreateLayer('layer1', 
+        layer = shapeData.CreateLayer('layer1',
             spatialReference, osgeo.ogr.wkbLineString)
         layerDefinition = layer.GetLayerDefn()
         line = osgeo.ogr.Geometry(osgeo.ogr.wkbLineString)
         for x,y in zip(self.structure[0],self.structure[1]):
-            line.AddPoint_2D(float(x),float(y))     
+            line.AddPoint_2D(float(x),float(y))
         feature = osgeo.ogr.Feature(layerDefinition)
         feature.SetGeometry(line)
         feature.SetFID(0)
@@ -4637,4 +4639,3 @@ class Stream:
             pl.savefig(ruta,bbox_inches='tight')
         pl.show()
     #def Plot_Map(self,ruta=None
-

@@ -21,41 +21,32 @@
  ***************************************************************************/
  comando para cargar todos los iconos: pyrcc4 -o resources.py resources.qrc
 """
-from __future__ import print_function
-from __future__ import absolute_import
-from builtins import zip
-from builtins import map
-from builtins import str
-from builtins import range
-from builtins import object
 
 import os
 import numpy as np
 import glob 
 import datetime as dt 
 
-from qgis.PyQt import QtGui, uic, QtCore
-from qgis.PyQt.QtCore import pyqtSignal, QUrl
-from qgis.PyQt.QtWebKitWidgets import QWebView
-from PyQt5 import QtWidgets
+from PyQt4 import QtGui, uic, QtCore, Qt
+from PyQt4.QtCore import pyqtSignal, QUrl
+from PyQt4.QtWebKit import QWebView
 
-import qgis.core as qgisCore
 from qgis.gui import QgsMessageBar
-from qgis.PyQt.QtWidgets import QFileDialog, QTableWidgetItem, QAbstractItemView
+from PyQt4.QtGui import QFileDialog, QTableWidgetItem, QAbstractItemView
 
 import os.path
 
-from . import HydroSEDPluginUtils as HSutils
-from . import HydroGetCoordinates as HSCoord
-from . import HydroSEDPlots as HSplots
+import HydroSEDPluginUtils as HSutils
+import HydroGetCoordinates as HSCoord
+import HydroSEDPlots as HSplots
 
-from . import GdalTools_utils as GdalTools_utils
+import GdalTools_utils as GdalTools_utils
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'HydroSEDPlugin_dockwidget_base.ui'))
 
 
-class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
+class HydroSEDPluginDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     closingPlugin = pyqtSignal()
 
@@ -129,7 +120,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             ret, layer = self.HSutils.cargar_mapa_vector(OutPath, self.HSutils.TIPO_STYLE_POLILINEA)
             
             self.iface.mapCanvas().refresh() 
-            self.iface.legendInterface().refreshLayerLegend(layer)
+            self.iface.legendInterface().refreshLayerSymbology(layer)
             
             self.iface.messageBar().pushInfo(u'HidroSIG',u'Se ha trazado la corriente de forma exitosa')
         except:
@@ -160,12 +151,12 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         #Carga la divisoria
         ret, layer = self.HSutils.cargar_mapa_vector(OutPathDivisoria, self.HSutils.TIPO_STYLE_POLIGONO, color = (255,0,0), width = 0.6)            
         self.iface.mapCanvas().refresh() 
-        self.iface.legendInterface().refreshLayerLegend(layer)            
+        self.iface.legendInterface().refreshLayerSymbology(layer)            
 
         #Carga la red 
         ret, layer = self.HSutils.cargar_mapa_vector(OutPathRed, self.HSutils.TIPO_STYLE_POLILINEA, width = 0.4)
         self.iface.mapCanvas().refresh() 
-        self.iface.legendInterface().refreshLayerLegend(layer)         
+        self.iface.legendInterface().refreshLayerSymbology(layer)         
 
         #mensaje de exito
         self.iface.messageBar().pushInfo(u'HidroSIG',u'Se ha trazado la cuenca de forma exitosa')        
@@ -176,8 +167,8 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         def setupLineEditButtonOpenBasinFileDialog (lineEditHolder, fileDialogHolder):
             '''Busca un proyecto de cuenca ya guardado anteriormente'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "Cargador de cuencas", "*","Cuenca en NetCDF4(*.nc);;","", 
-                QFileDialog.DontUseNativeDialog)[0])
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "Cargador de cuencas", "*","Cuenca en NetCDF4(*.nc);;", 
+                QtGui.QFileDialog.DontUseNativeDialog))
         
         def clickEventSelectShape2SaveNc():
             self.ruta2network = SelectNetworkshapeDialog (QFileDialog)
@@ -186,7 +177,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         def SelectNetworkshapeDialog (fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''            
-            lineEditHolder = fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar en capa vectorial...", "*", "Shapefiles (*.shp);;")
+            lineEditHolder = fileDialogHolder.getSaveFileName (QtGui.QDialog (), "Guardar en capa vectorial...", "*", "Shapefiles (*.shp);;")
             return lineEditHolder
             #if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
              #   self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
@@ -216,7 +207,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.TableStart()
             #Actualiza tabla de Nc y comboBox 
             self.VarFromNC.clear()
-            for k in list(self.HSutils.DicBasinNc.keys()):
+            for k in self.HSutils.DicBasinNc.keys():
                 self.TabNC.NewEntry(self.HSutils.DicBasinNc[k],k, self.Tabla_Prop_NC)
                 self.VarFromNC.addItem(k)
             #Area, self.EPSG, dxp, self.noData, self.umbral = self.HSutils.Basin_LoadBasin(self.lineEditRutaCuenca.text().strip(),
@@ -234,15 +225,15 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.spinBox_dxPlano.setValue(dxp)
             self.SpinGeoUmbralCanal.setValue(self.umbral)
             #Actualiza comboBox de goemorfo
-            for k in list(self.HSutils.DicBasinWMF.keys()):
+            for k in self.HSutils.DicBasinWMF.keys():
                 self.ComboGeoMaskVar.addItem(k)
             #Actualiza Param de claibracion 
             if Simhidro:
                 self.ParamNamesCombo.clear()
-                for k in list(self.HSutils.DicParameters.keys()):
+                for k in self.HSutils.DicParameters.keys():
                     self.ParamNamesCombo.addItem(k)
             self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'El proyecto de cuenca ha sido cargado con exito',
-                level=qgisCore.Qgis.Info, duration=3)
+                level=QgsMessageBar.INFO, duration=3)
             
         def clickEventBasinLoadDivisory():
             '''Carga la divisoria de la cuenca cargada a WMF'''
@@ -251,7 +242,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #Carga la divisoria
             ret, layer = self.HSutils.cargar_mapa_vector(OutPathDivisoria, self.HSutils.TIPO_STYLE_POLIGONO, color = (255,0,0), width = 0.6)            
             self.iface.mapCanvas().refresh() 
-            self.iface.legendInterface().refreshLayerLegend(layer)      
+            self.iface.legendInterface().refreshLayerSymbology(layer)      
         def clickEventBasinLoadNetwork():
             '''Carga la divisoria de la cuenca cargada a WMF'''
             OutPathNetwork = '/tmp/HydroSED/vector/RedCargada.shp'
@@ -259,7 +250,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #Carga la red 
             ret, layer = self.HSutils.cargar_mapa_vector(OutPathNetwork, self.HSutils.TIPO_STYLE_POLILINEA, width = 0.4)
             self.iface.mapCanvas().refresh() 
-            self.iface.legendInterface().refreshLayerLegend(layer)   
+            self.iface.legendInterface().refreshLayerSymbology(layer)   
         
         def clickEventBasinVarNC2Network():
             '''Convierte un conjunto de variables a una red hidrica de la cuenca'''
@@ -363,12 +354,11 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.TableGeoParameters.clearContents()
             #Calcula los parametros.
             Param,Tc = self.HSutils.Basin_GeoGetParameters()
-            # fix_print_with_import
-            print(Param)
+            print Param
             #Inicia la tabla 
             GeoTableStart()
             #le pone los parametros
-            for d in list(Param.keys()):
+            for d in Param.keys():
                 #Obtiene nombre y unidad
                 cadena = d.split('_')
                 unidad = cadena[-1].split('[')[-1].split(']')[0]
@@ -379,7 +369,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.TableGeoParameters.setItem (self.GeoTableNumItems, 1, QTableWidgetItem(valor))
                 self.TableGeoParameters.setItem (self.GeoTableNumItems, 2, QTableWidgetItem(unidad))
                 self.GeoTableNumItems += 1
-            for d in list(Tc.keys()):
+            for d in Tc.keys():
                 nombre = d
                 valor = '%.3f' % Tc[d]
                 unidad = 'Hrs'
@@ -395,7 +385,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         def setupLineEditButtonSaveFileDialog (fileDialogHolder):
             '''Pone la ruta elegida en el dialogo de texto para guardado'''
-            return fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar parametros en un archivo de excel", "*", "Excel (*.xlsx);;")
+            return fileDialogHolder.getSaveFileName (QtGui.QDialog (), "Guardar parametros en un archivo de excel", "*", "Excel (*.xlsx);;")
         
         def clickEventExportParam2Excel():
             '''Exporta los parametros geomorfologicos a excel'''
@@ -440,11 +430,11 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.HSutils.Basin_GeoGetKubota()                
                 ListaVar.extend(['Kubota_coef','Kubota_exp'])
                 #mensajes de advertencia por si no han sido cargadas las variables. 
-                if 'h1_max' not in list(self.HSutils.DicBasinNc.keys()): 
+                if 'h1_max' not in self.HSutils.DicBasinNc.keys(): 
                     self.iface.messageBar().pushMessage (u'Hydro-SIG:',
                     'Como no se ha cargado h1_max al NC, se estima con h1_max = 100 mm ',
                     level=QgsMessageBar.WARNING, duration=3)    
-                if 'v_coef' not in list(self.HSutils.DicBasinNc.keys()): 
+                if 'v_coef' not in self.HSutils.DicBasinNc.keys(): 
                     self.iface.messageBar().pushMessage (u'Hydro-SIG:',
                     'Como no se ha cargado Ks al NC, se estima con Ks = 0.003 mm/s ',
                     level=QgsMessageBar.WARNING, duration=3)    
@@ -455,7 +445,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 ListaVar.extend(['Runoff_coef'])
                 ListaVar.extend(['Runoff_exp'])
                 #Mensaje de advertencia por si no ha sido cargada la variable. 
-                if 'Manning' not in list(self.HSutils.DicBasinWMF.keys()) and 'Manning' not in list(self.HSutils.DicBasinNc.keys()):
+                if 'Manning' not in self.HSutils.DicBasinWMF.keys() and 'Manning' not in self.HSutils.DicBasinNc.keys():
                     self.iface.messageBar().pushMessage (u'Hydro-SIG:',
                     'Como no se ha cargado Manning al NC, se estima con n_manning = 0.05',
                     level=QgsMessageBar.WARNING, duration=3)
@@ -508,9 +498,9 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         def clickEventUpdateAcumVarMask():
             '''Actuaqliza la lista de variables existentes en las tablas para usar como mascara'''
             self.ComboGeoMaskVar.clear()
-            for i in list(self.HSutils.DicBasinWMF.keys()):
+            for i in self.HSutils.DicBasinWMF.keys():
                 self.ComboGeoMaskVar.addItem(i+'-WMF')
-            for i in list(self.HSutils.DicBasinNc.keys()):
+            for i in self.HSutils.DicBasinNc.keys():
                 self.ComboGeoMaskVar.addItem(i+'-NC')
             self.ComboGeoMaskVar.addItem('sin mascara')
             self.ComboGeoMaskVar.setCurrentIndex(self.ComboGeoMaskVar.findText('sin mascara'))
@@ -518,9 +508,9 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         def clickEventUpdateAcumVar():
             '''Actuaqliza la lista de variables existentes en las tablas para acumular'''
             self.ComboGeoVar2Acum.clear()
-            for i in list(self.HSutils.DicBasinWMF.keys()):
+            for i in self.HSutils.DicBasinWMF.keys():
                 self.ComboGeoVar2Acum.addItem(i+'-WMF')
-            for i in list(self.HSutils.DicBasinNc.keys()):
+            for i in self.HSutils.DicBasinNc.keys():
                 self.ComboGeoVar2Acum.addItem(i+'-NC')        
         
         def clickEventAcumVar():
@@ -586,7 +576,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que solo se busquen formatos aceptados por GDAL'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
                 QtGui.QFileDialog.DontUseNativeDialog))
         def setupLineEditButtonSaveFileDialog (lineEditHolder, fileDialogHolder):
             '''Pone la ruta elegida en el dialogo de texto para guardado'''
@@ -609,7 +599,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             OutPathRed = self.PathOutHydro_Qmed.text().strip()
             ret, layer = self.HSutils.cargar_mapa_vector(OutPathRed, self.HSutils.TIPO_STYLE_POLILINEA, width = 0.4)
             self.iface.mapCanvas().refresh() 
-            self.iface.legendInterface().refreshLayerLegend(layer) 
+            self.iface.legendInterface().refreshLayerSymbology(layer) 
         
         #Funciones para decir donde se van a guardar las variables.
         def clickEventOutQmed():
@@ -710,7 +700,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que solo0 se busquen formatos aceptados por GDAL'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
                 QtGui.QFileDialog.DontUseNativeDialog))
         def clickEventSelectorMapaRaster():
             '''Evento de click: selecciona mapa Raster'''
@@ -740,8 +730,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     Valor = float(self.PathRaster2WMF.text())
                     PathRaster = 'noMapa'
                     PathOrValue = 'Value'
-                    # fix_print_with_import
-                    print(Valor)
+                    print Valor
                 except:
                     self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Debe seleccionar un mapa raster para ser convertido a la cuenca.',
                         level=QgsMessageBar.WARNING, duration=3)
@@ -771,14 +760,14 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         #Llena de datos los combobox 
         ListaMetodos = ['No metodo','moda','media','min','P10','P25','P50','P75','P90','max']
-        list(map(self.ComboMethod4Conversion.addItem,ListaMetodos))
+        map(self.ComboMethod4Conversion.addItem,ListaMetodos)
         #Lista de grupos posibles para una variable 
         #ListaGrupos = ['base','Geomorfo','SimHidro','Hidro']
         ListaGrupos = ['Geomorfo','Hidro']
-        list(map(self.ComboBoxNewWMFVarGroup.addItem, ListaGrupos))
+        map(self.ComboBoxNewWMFVarGroup.addItem, ListaGrupos)
         #Lista de unidades de conversion 
         ListaUnidades = ['Celdas','Laderas','Canales']
-        list(map(self.ComboConversionUnits.addItem, ListaUnidades))
+        map(self.ComboConversionUnits.addItem, ListaUnidades)
         
         def clickEventEvalString():
             '''Funcion que eavlua una expresion escrita'''
@@ -789,7 +778,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             if Var.size == self.HSutils.cuenca.ncells: EsCuenca = True
             #conversion si solo si la nueva variable tiene el ncells de la cuenca
             Agregado = self.ComboConversionUnits.currentText().strip()
-            if EsCuenca and Agregado != 'Celdas':
+            if EsCuenca and Agregado <> 'Celdas':
                 #Revisar si es laderas o canales y metodo
                 Metodo = self.ComboMethod4Conversion.currentText().strip()
                 #Agrega
@@ -851,13 +840,11 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             '''Convierte una variable clickeada a la tabla de NC con una transformacion'''
             selectedItems = self.Tabla_Prop_WMF.currentRow ()
             VarName1 = self.Tabla_Prop_WMF.item(selectedItems,0).text()
-            # fix_print_with_import
-            print(VarName1)
+            print VarName1
             
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             VarName1 = self.Tabla_Prop_NC.item(selectedItems,0).text()
-            # fix_print_with_import
-            print(VarName1)
+            print VarName1
             
         
         self.Button_EditNcVariable.clicked.connect(clickEventEvalString)
@@ -870,17 +857,17 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
       
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Shapefiles (*.shp);;"))
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
             if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
                 self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
         
         def setupLineEditButtonSaveFileDialog (lineEditHolder, fileDialogHolder):
             '''Pone la ruta elegida en el dialogo de texto para guardado'''
-            lineEditHolder.setText (fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar (cargar) binario de lluvia", "*", "RainBin (*.bin);;"))
+            lineEditHolder.setText (fileDialogHolder.getSaveFileName (QtGui.QDialog (), "Guardar (cargar) binario de lluvia", "*", "RainBin (*.bin);;"))
         
         def setupLineEditButtonOpenExcelFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Excel (*.xlsx);;"))
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Excel (*.xlsx);;"))
         
         def setupLineEditButtonOpenRadarFileDialog (lineEditHolder, fileDialogHolder):
             '''Para cambiar la carpeta por defecto donde se buscan las imagenes de radar'''
@@ -1099,7 +1086,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         def setupLineEditButtonOpenExcelCaudalFileDialog (lineEditHolder, fileDialogHolder):
             '''Que solo busque los archivos con esa extension .xlsx'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Excel (*.xlsx);;")) 
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Excel (*.xlsx);;")) 
             
         def setupLineEditButtonOpenBinFileDialog (lineEditHolder, fileDialogHolder):
             '''Que solo busque los archivos con esa extension .bin'''
@@ -1118,9 +1105,8 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #Obtiene el nombre de la param seleccionada
             key = self.ParamNamesCombo.currentText().strip().encode()
             #Itera en el diccionario de param de la cuenca 
-            # fix_print_with_import
-            print(key)
-            if key != '':
+            print key
+            if key <> '':
                 for c,values in enumerate(self.HSutils.DicParameters[key]['var'][:11]):
                     codigo = 'self.Param'+str(c+1)+'.setValue('+str(values)+')'
                     eval(codigo)
@@ -1138,7 +1124,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 'h_coef','h_coef','h_coef', 'Krus','Crus','Prus',
                 'PArLiAc','PArLiAc','PArLiAc','h_exp','h_exp','h_exp','h_exp']
             Ejes = [0,0,0,1,2,3,0,1,2,3,0,0,0,0,1,2,0,1,2,3]
-            for name, i, eje in zip(VarNames, list(range(1,21)), Ejes):
+            for name, i, eje in zip(VarNames, range(1,21), Ejes):
                 Campo = getattr(self, 'ParamVal'+str(i))
                 Campo.setMinimum(-99999)
                 Campo.setValue(0)
@@ -1168,7 +1154,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.HSutils.Sim_SaveParameters(PathNC, ParamName, ListaParam)
             #Actualiza la lista de parametros 
             self.ParamNamesCombo.clear()
-            for k in list(self.HSutils.DicParameters.keys()):
+            for k in self.HSutils.DicParameters.keys():
                 self.ParamNamesCombo.addItem(k)
             #mensaje de exito
             self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'La parametrización: ' + ParamName+' se ha guardado en el proyecto',
@@ -1449,8 +1435,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.dfDataQobs = self.DataQ[id_est][self.f_ini:self.f_fin]
             else:
                 self.dfDataQobs = self.dfDataQsim*np.nan
-            # fix_print_with_import
-            print(self.HSutils.Sim_Rainfall)
+            print self.HSutils.Sim_Rainfall
             self.HSplotsCaudal.Plot_Caudal_Simu(PathFigure,self.dfDataQobs,self.dfDataQsim,self.HSutils.Sim_Rainfall)
             #Set de la ventana que contiene la figura
             self.VistaQobsWeb = QWebView(None)
@@ -1638,11 +1623,9 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.Tabla_Prop_NC.removeRow (selectedItems)
                 self.TabNC.DelEntry(ItemName)
                 self.HSutils.DicBasinNc.pop(ItemName)
-                # fix_print_with_import
-                print(self.HSutils.Nc2Save)
+                print self.HSutils.Nc2Save
                 self.HSutils.Nc2Save.remove(ItemName)
-                # fix_print_with_import
-                print(self.HSutils.Nc2Save)
+                print self.HSutils.Nc2Save
                 #self.HSutils.Nc2Erase.append(ItemName)
                 #Mensaje de exito 
                 self.iface.messageBar().pushInfo (u'Hydro-SIG:', u'La variable '+ItemName + ' ha sido borrada')
@@ -1699,8 +1682,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             selectedItems = self.Tabla_Prop_NC.currentRow ()
             VarName = self.Tabla_Prop_NC.item(selectedItems,0).text()
             #Verifica que la variable ahun no este guardada en el Nc             
-            # fix_print_with_import
-            print(VarName.strip())
+            print VarName.strip()
             if VarName[-1] == '*':
                 # Copia la entrada a WMF y la saca de NC
                 VarName = VarName[:-1]
@@ -1887,19 +1869,19 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.spinBox_dxPlano.valueChanged.connect(set_dxplano)
         
         #Botones de borrado de variables de NC y WMF 
-        self.Tabla_Prop_WMF.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.Tabla_Prop_WMF.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.Tabla_Prop_WMF.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.Tabla_Prop_WMF.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.Button_Eliminar_Desde_WMF.clicked.connect(handleClickEventButton_Eliminar_Desde_WMF)
-        self.Tabla_Prop_NC.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.Tabla_Prop_NC.setSelectionBehavior(QAbstractItemView.SelectRows)        
+        self.Tabla_Prop_NC.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.Tabla_Prop_NC.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
         self.Button_Eliminar_Desde_NC.clicked.connect(handleClickEventButton_Eliminar_Desde_NC)
         #Botones de visualizacion de variables de NC
-        self.Tabla_Prop_NC.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.Tabla_Prop_NC.setSelectionBehavior(QAbstractItemView.SelectRows)        
+        self.Tabla_Prop_NC.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.Tabla_Prop_NC.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
         self.Button_Visualizar_Desde_NC.clicked.connect(handleClickEventButton_Ver_Desde_NC)
         #Botones de visualizacion de variables de WMF
-        self.Tabla_Prop_WMF.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.Tabla_Prop_WMF.setSelectionBehavior(QAbstractItemView.SelectRows)        
+        self.Tabla_Prop_WMF.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.Tabla_Prop_WMF.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)        
         self.Button_Visualizar_Desde_WMF.clicked.connect(handleClickEventButton_Ver_Desde_WMF)
         #Botones movimiento variables NC a WMF y de WMF a NC
         self.Button_NC2WMF.clicked.connect(handleClickEventButton_NC2WMF)
@@ -1910,7 +1892,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.ButtonDraw_histogram_WMF.clicked.connect(DrawClickEvent_histogram_WMF)
         self.ButtonDraw_histogram_NC.clicked.connect(DrawClickEvent_histogram_NC)
  
-class Tabla(object):
+class Tabla():
     
     def __init__(self, NumRows, TabElement):
         self.NumRows = 0

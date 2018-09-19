@@ -24,9 +24,9 @@ __copyright__ = (
 )
 
 import logging
-from qgis.PyQt.QtCore import QObject, pyqtSlot, pyqtSignal
-from qgis.core import QgsProject
-from qgis.gui import QgsMapLayer
+from PyQt4.QtCore import QObject, pyqtSlot, pyqtSignal
+from qgis.core import QgsMapLayerRegistry
+from qgis.gui import QgsMapCanvasLayer
 LOGGER = logging.getLogger('QGIS')
 
 
@@ -37,7 +37,7 @@ class QgisInterface(QObject):
     This class is here for enabling us to run unit tests only,
     so most methods are simply stubs.
     """
-    currentLayerChanged = pyqtSignal(QgsMapLayer)
+    currentLayerChanged = pyqtSignal(QgsMapCanvasLayer)
 
     def __init__(self, canvas):
         """Constructor
@@ -49,11 +49,11 @@ class QgisInterface(QObject):
         # are added.
         LOGGER.debug('Initialising canvas...')
         # noinspection PyArgumentList
-        QgsProject.instance().layersAdded.connect(self.addLayers)
+        QgsMapLayerRegistry.instance().layersAdded.connect(self.addLayers)
         # noinspection PyArgumentList
-        QgsProject.instance().layerWasAdded.connect(self.addLayer)
+        QgsMapLayerRegistry.instance().layerWasAdded.connect(self.addLayer)
         # noinspection PyArgumentList
-        QgsProject.instance().removeAll.connect(self.removeAllLayers)
+        QgsMapLayerRegistry.instance().removeAll.connect(self.removeAllLayers)
 
         # For processing module
         self.destCrs = None
@@ -73,11 +73,11 @@ class QgisInterface(QObject):
         current_layers = self.canvas.layers()
         final_layers = []
         for layer in current_layers:
-            final_layers.append(QgsMapLayer(layer))
+            final_layers.append(QgsMapCanvasLayer(layer))
         for layer in layers:
-            final_layers.append(QgsMapLayer(layer))
+            final_layers.append(QgsMapCanvasLayer(layer))
 
-        self.canvas.setLayers(final_layers)
+        self.canvas.setLayerSet(final_layers)
         #LOGGER.debug('Layer Count After: %s' % len(self.canvas.layers()))
 
     @pyqtSlot('QgsMapLayer')
@@ -97,12 +97,12 @@ class QgisInterface(QObject):
     @pyqtSlot()
     def removeAllLayers(self):
         """Remove layers from the canvas before they get deleted."""
-        self.canvas.setLayers([])
+        self.canvas.setLayerSet([])
 
     def newProject(self):
         """Create new project."""
         # noinspection PyArgumentList
-        QgsProject.instance().removeAllMapLayers()
+        QgsMapLayerRegistry.instance().removeAllMapLayers()
 
     # ---------------- API Mock for QgsInterface follows -------------------
 
@@ -150,7 +150,7 @@ class QgisInterface(QObject):
     def activeLayer(self):
         """Get pointer to the active layer (layer selected in the legend)."""
         # noinspection PyArgumentList
-        layers = QgsProject.instance().mapLayers()
+        layers = QgsMapLayerRegistry.instance().mapLayers()
         for item in layers:
             return layers[item]
 
@@ -178,7 +178,7 @@ class QgisInterface(QObject):
         """
         pass
 
-    def context(self):
+    def mapCanvas(self):
         """Return a pointer to the map canvas."""
         return self.canvas
 
