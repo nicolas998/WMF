@@ -6,7 +6,7 @@ from builtins import range
 from builtins import object
 import os.path
 
-from qgis.core import QgsRasterLayer,  QgsProject, QgsVectorLayer, QgsFillSymbol
+from qgis.core import QgsRasterLayer,  QgsProject, QgsVectorLayer, QgsFillSymbol,QgsRenderContext
 from qgis.PyQt import QtGui, uic
 import netCDF4
 from wmf import wmf
@@ -68,7 +68,7 @@ class controlHS(object):
 
             if tipo_style == self.TIPO_STYLE_POLILINEA:
 
-                symbols = layerMapaVector.renderer().symbols2(QgsRenderContext())
+                symbols = layerMapaVector.renderer().symbols(QgsRenderContext())
                 symbol = symbols[0]
                 symbol.setColor(QtGui.QColor.fromRgb(color[0],color[1],color[2]))
                 symbol.setWidth(width)
@@ -225,7 +225,7 @@ class controlHS(object):
         print(Expo)
         # fix_print_with_import
         print(Pdf2Use)
-		#Hace de acuerdo a una cosa o la otra 
+        #Hace de acuerdo a una cosa o la otra 
         if MaxorMin == 'QMax':
             Qext = self.cuenca.GetQ_Max(Qmed, Coef, Expo, Dist = Pdf2Use)
         elif MaxorMin == 'QMin':

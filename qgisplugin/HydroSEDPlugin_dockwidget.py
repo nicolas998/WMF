@@ -160,12 +160,13 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         #Carga la divisoria
         ret, layer = self.HSutils.cargar_mapa_vector(OutPathDivisoria, self.HSutils.TIPO_STYLE_POLIGONO, color = (255,0,0), width = 0.6)            
         self.iface.mapCanvas().refresh() 
-        self.iface.legendInterface().refreshLayerLegend(layer)            
+        self.iface.layerTreeView().refreshLayerSymbology(layer.id())           
 
         #Carga la red 
         ret, layer = self.HSutils.cargar_mapa_vector(OutPathRed, self.HSutils.TIPO_STYLE_POLILINEA, width = 0.4)
         self.iface.mapCanvas().refresh() 
-        self.iface.legendInterface().refreshLayerLegend(layer)         
+        self.iface.layerTreeView().refreshLayerSymbology(layer.id()) 
+               
 
         #mensaje de exito
         self.iface.messageBar().pushInfo(u'HidroSIG',u'Se ha trazado la cuenca de forma exitosa')        
