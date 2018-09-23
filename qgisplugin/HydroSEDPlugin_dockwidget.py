@@ -186,7 +186,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         def SelectNetworkshapeDialog (fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''            
-            lineEditHolder = fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar en capa vectorial...", "*", "Shapefiles (*.shp);;")
+            lineEditHolder = fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar en capa vectorial...", "*", "Shapefiles (*.shp);;","")
             return lineEditHolder
             #if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
              #   self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
@@ -395,7 +395,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         def setupLineEditButtonSaveFileDialog (fileDialogHolder):
             '''Pone la ruta elegida en el dialogo de texto para guardado'''
-            return fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar parametros en un archivo de excel", "*", "Excel (*.xlsx);;")
+            return fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar parametros en un archivo de excel", "*", "Excel (*.xlsx);;","")
         
         def clickEventExportParam2Excel():
             '''Exporta los parametros geomorfologicos a excel'''
@@ -586,8 +586,9 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que solo se busquen formatos aceptados por GDAL'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
-                QtGui.QFileDialog.DontUseNativeDialog))
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), 'Open File',"", 
+            GdalTools_utils.FileFilter.allRastersFilter (),"",QFileDialog.DontUseNativeDialog)[0])
+                
         def setupLineEditButtonSaveFileDialog (lineEditHolder, fileDialogHolder):
             '''Pone la ruta elegida en el dialogo de texto para guardado'''
             lineEditHolder.setText (fileDialogHolder.getSaveFileName ())
@@ -710,8 +711,8 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que solo0 se busquen formatos aceptados por GDAL'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
-                QtGui.QFileDialog.DontUseNativeDialog))
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),"",
+                QFileDialog.DontUseNativeDialog)[0])
         def clickEventSelectorMapaRaster():
             '''Evento de click: selecciona mapa Raster'''
             setupLineEditButtonOpenRasterFileDialog (self.PathRaster2WMF, QFileDialog)
@@ -870,22 +871,22 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
       
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Shapefiles (*.shp);;"))
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Shapefiles (*.shp);;",""))
             if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
                 self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
         
         def setupLineEditButtonSaveFileDialog (lineEditHolder, fileDialogHolder):
             '''Pone la ruta elegida en el dialogo de texto para guardado'''
-            lineEditHolder.setText (fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar (cargar) binario de lluvia", "*", "RainBin (*.bin);;"))
+            lineEditHolder.setText (fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar (cargar) binario de lluvia", "*", "RainBin (*.bin);;",""))
         
         def setupLineEditButtonOpenExcelFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Excel (*.xlsx);;"))
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Excel (*.xlsx);;",""))
         
         def setupLineEditButtonOpenRadarFileDialog (lineEditHolder, fileDialogHolder):
             '''Para cambiar la carpeta por defecto donde se buscan las imagenes de radar'''
             #Obtiene la ruta donde esta lo de radar
-            OutputFolder = fileDialogHolder.getExistingDirectory(QtGui.QDialog(), "Cargador de Cuencas", "/tmp/", QFileDialog.ShowDirsOnly)
+            OutputFolder = fileDialogHolder.getExistingDirectory(QtWidgets.QDialog(), "Cargador de Cuencas", "/tmp/", QFileDialog.ShowDirsOnly)
             lineEditHolder.setText (OutputFolder)
         
         def clickEventSelectorMapaPuntosPluvio():
@@ -1099,19 +1100,19 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         def setupLineEditButtonOpenExcelCaudalFileDialog (lineEditHolder, fileDialogHolder):
             '''Que solo busque los archivos con esa extension .xlsx'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Excel (*.xlsx);;")) 
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Excel (*.xlsx);;","")) 
             
         def setupLineEditButtonOpenBinFileDialog (lineEditHolder, fileDialogHolder):
             '''Que solo busque los archivos con esa extension .bin'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Binarios (*.bin);;")) 
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Binarios (*.bin);;","")) 
         
         def setupLineEditButtonSaveBinStoFileDialog (lineEditHolder, fileDialogHolder):
             '''Que solo busque los archivos con esa extension .bin'''
-            lineEditHolder.setText (fileDialogHolder.getSaveFileName (QtGui.QDialog (), "Guardar estados almacenamiento", "*", "Binario (*.StObin);;")) 
+            lineEditHolder.setText (fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar estados almacenamiento", "*", "Binario (*.StObin);;","")) 
             
         def setupLineEditButtonOpenBinStoFileDialog (lineEditHolder, fileDialogHolder):
             '''Que solo busque los archivos con esa extension .bin'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "Buscar estados de almacenamiento", "*", "Binarios (*.StObin);;")) 
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "Buscar estados de almacenamiento", "*", "Binarios (*.StObin);;","")) 
         
         def changeEventUpdateScalarParameters():
             '''Actualiza los parametros escalares de las tablas de acuerdo al set seleccionado'''
@@ -1744,14 +1745,14 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), "", "*", "Shapefiles (*.shp);;"))
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Shapefiles (*.shp);;",""))
             if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
                 self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
 
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que solo0 se busquen formatos aceptados por GDAL'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtGui.QDialog (), 'Open File',"", GdalTools_utils.FileFilter.allRastersFilter (),
-                QtGui.QFileDialog.DontUseNativeDialog))
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), 'Open File',"", 
+            GdalTools_utils.FileFilter.allRastersFilter (),"",QFileDialog.DontUseNativeDialog)[0])
 
         def setupLineEditButtonOpenFileDialog (lineEditHolder, fileDialogHolder):
             '''Pone la ruta elegida en el dialogo de texto para cargar'''
@@ -1764,10 +1765,9 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         def clickEventSelectorMapaDEM ():
             '''Evento de click: selecciona mapa DEM'''
             setupLineEditButtonOpenRasterFileDialog (self.lineEditMapaDEM, QFileDialog)
-
+            
         def clickEventSelectorMapaDIR ():
 
-#            setupLineEditButtonOpenFileDialog (self.lineEditMapaDIR, QFileDialog)
             setupLineEditButtonOpenRasterFileDialog (self.lineEditMapaDIR, QFileDialog)
 
         def clickEventVisualizarMapaDEM ():
