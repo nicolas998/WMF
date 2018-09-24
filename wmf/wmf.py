@@ -2775,6 +2775,8 @@ class SimuBasin(Basin):
         'Retornos\n'\
         '----------\n'\
         'self : Con las variables iniciadas.\n'\
+        #Esta variable es para controlar cuando se reinician las variables de sedimentos 
+        self.segunda_cuenca = False
         #Variables de radar
         self.radarDates = []
         self.radarPos = []
@@ -3932,7 +3934,13 @@ class SimuBasin(Basin):
         'Retornos\n'\
         '----------\n'\
         'self : Con las variables iniciadas.\n'\
-        #Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto
+        # Si la cuenca ya ha sido cargada una vez, reinicia las variables de sedimentos 
+        if self.segunda_cuenca:
+            models.krus = np.ones((1,N))
+            models.prus = np.ones((1,N))
+            models.crus = np.ones((1,N))
+            models.parliac = np.ones((3,N))
+        #Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto  
         if self.isSetGeo is False:
             self.set_Geomorphology()
             print('Aviso: SE ha estimado la geomorfologia con los umbrales por defecto umbral = [30, 500]')
@@ -4027,7 +4035,6 @@ class SimuBasin(Basin):
         VarDIR = GrupoGeo.createVariable('DIR','i4',('ncell',),zlib = True)
         VarDEM[:] = self.DEMvec
         VarDIR[:] = self.DIRvec
-
         #Variables de sedimentos
         DimNelem = GrupoSimSed.createDimension('Nelem',N)
         DimCol3 = GrupoSimSed.createDimension('col3',3)
@@ -4063,6 +4070,7 @@ class SimuBasin(Basin):
         #Cierra el archivo
         gr.close()
         #Sale del programa
+        self.segunda_cuenca = True 
         return
 
         #------------------------------------------------------
