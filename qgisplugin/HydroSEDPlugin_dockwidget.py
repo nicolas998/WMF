@@ -1971,7 +1971,11 @@ class Tabla(object):
             TabElement.setItem (pos, 0, QTableWidgetItem (Dic["nombre"]))
         TabElement.setItem (pos, 1, QTableWidgetItem (Dic["tipo"]))
         TabElement.setItem (pos, 2, QTableWidgetItem (str (Dic["shape"])))
-        TabElement.setItem (pos, 3, QTableWidgetItem (Dic["categoria"]))
+        #Intenta con la categoría como string decodificado, o si este ingresa tipo b'string' lo decodifica
+        try:
+            TabElement.setItem (pos, 3, QTableWidgetItem (Dic["categoria"]))
+        except:
+            TabElement.setItem (pos, 3, QTableWidgetItem (Dic["categoria"].decode()))
         self.NumRows += suma
             
     
