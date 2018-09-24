@@ -679,7 +679,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     comando = 'self.SpinBox_C'+str(i)+'.setValue('+StrVal[i-1]+')'
                     eval(comando)
             #Obtiene la funcion de distribucion 
-            Pdf2Use = self.ComboQmaxPDF.currentText().encode()
+            Pdf2Use = self.ComboQmaxPDF.currentText()
             #Ejecuta el calculo de caudal a largo plazo 
             retorno = self.HSutils.hidrologia_extremos_regional(Qmed, CoefExpoList, Pdf2Use, isMaxorMin)
             #Mensajes de exito o error
@@ -801,7 +801,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 SiAgrego = False
             #Si es al nc sobre-escribe una entrada del diccionario
             if self.Radio2NcVar.isChecked():
-                VarDestinoName = self.VarFromNC.currentText().encode()
+                VarDestinoName = self.VarFromNC.currentText()
                 Capa = self.ObjectiveLayer.value()
                 #Solo pasa al NC si el tamano es el de la cuenca
                 if EsCuenca:
@@ -827,7 +827,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             elif self.Radio2WMF.isChecked():
                 #Variable al diccionario
                 VarDestinoName = self.lineEditNewVarName.text().strip()
-                Grupo = self.ComboBoxNewWMFVarGroup.currentText().strip().encode()
+                Grupo = self.ComboBoxNewWMFVarGroup.currentText().strip()
                 self.HSutils.DicBasinWMF.update({VarDestinoName:
                     {'nombre':VarDestinoName,
                     'tipo':Var.dtype.name,
@@ -1118,13 +1118,13 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         def changeEventUpdateScalarParameters():
             '''Actualiza los parametros escalares de las tablas de acuerdo al set seleccionado'''
             #Obtiene el nombre de la param seleccionada
-            key = self.ParamNamesCombo.currentText().strip().encode()
+            key = self.ParamNamesCombo.currentText().strip()
             #Itera en el diccionario de param de la cuenca 
             # fix_print_with_import
             print('key',key)
             print('dict_keys',self.HSutils.DicParameters.keys())
             if key != '':
-                for c,values in enumerate(self.HSutils.DicParameters[key.decode()]['var'][:11]):
+                for c,values in enumerate(self.HSutils.DicParameters[key]['var'][:11]):
                     codigo = 'self.Param'+str(c+1)+'.setValue('+str(values)+')'
                     eval(codigo)
                 #for c,values in enumerate(self.HSutils.DicParameters[key]['var'][11:]):
@@ -1158,7 +1158,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             '''Agrega un nuevo conjunto de parametros en el proyecto de cuenca'''
             #Obtiene los parametros
             PathNC = self.lineEditRutaCuenca.text().strip()
-            ParamName = self.ParamName.text().strip().encode()
+            ParamName = self.ParamName.text().strip()
             #Itera para los parametros escalares y de sedimentos
             ListaParam = []
             for i in range(1,12):
@@ -1971,11 +1971,7 @@ class Tabla(object):
             TabElement.setItem (pos, 0, QTableWidgetItem (Dic["nombre"]))
         TabElement.setItem (pos, 1, QTableWidgetItem (Dic["tipo"]))
         TabElement.setItem (pos, 2, QTableWidgetItem (str (Dic["shape"])))
-        #Intenta con la categoría como string decodificado, o si este ingresa tipo b'string' lo decodifica
-        try:
-            TabElement.setItem (pos, 3, QTableWidgetItem (Dic["categoria"]))
-        except:
-            TabElement.setItem (pos, 3, QTableWidgetItem (Dic["categoria"].decode()))
+        TabElement.setItem (pos, 3, QTableWidgetItem (Dic["categoria"]))
         self.NumRows += suma
             
     
