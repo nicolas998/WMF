@@ -2080,6 +2080,8 @@ class Basin:
             if type(Dict==dict):
                 netDict=[]
                 for k in Dict.keys():
+                    print (k[:10])
+                    print (osgeo.ogr.OFTReal)
                     new_field=osgeo.ogr.FieldDefn(k[:10],osgeo.ogr.OFTReal)
                     layer.CreateField(new_field)
                     netsizeT = cu.basin_netxy_find(self.structure,nodos,cauce*Dict[k],self.ncells)

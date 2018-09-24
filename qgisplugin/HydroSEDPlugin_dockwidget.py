@@ -276,7 +276,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 for i in self.Tabla_Prop_NC.selectedItems()[::4]:
                     self.Vars2Network.append(i.text())
                 #En el segundo click selecciona el archivo y ejecuta 
-                self.ruta2Network = SelectNetworkshapeDialog(QFileDialog)
+                self.ruta2Network = SelectNetworkshapeDialog(QFileDialog)[0]
                 self.Tabla_Prop_NC.setSelectionMode(QAbstractItemView.SingleSelection)
                 self.botonClicked_NC = False
                 #Guardado de las variables en formato red hidrica
@@ -401,7 +401,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         def clickEventExportParam2Excel():
             '''Exporta los parametros geomorfologicos a excel'''
             #Set de la ruta donde se guarda el archivo 
-            PathExcel = setupLineEditButtonSaveFileDialog(QFileDialog)
+            PathExcel = setupLineEditButtonSaveFileDialog(QFileDialog)[0]
             #Funcion que pone param en excel 
             Retorno = self.HSutils.Basin_Geo2Excel(PathExcel)
             #Mensage de exito o error
@@ -872,17 +872,17 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
       
         def setupLineEditButtonOpenShapeFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Shapefiles (*.shp);;",""))
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Shapefiles (*.shp);;","")[0])
             if ((os.path.exists (lineEditHolder.text ().strip ())) and (not (self.iface is None))):
                 self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
         
         def setupLineEditButtonSaveFileDialog (lineEditHolder, fileDialogHolder):
             '''Pone la ruta elegida en el dialogo de texto para guardado'''
-            lineEditHolder.setText (fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar (cargar) binario de lluvia", "*", "RainBin (*.bin);;",""))
+            lineEditHolder.setText (fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar (cargar) binario de lluvia", "*", "RainBin (*.bin);;","")[0])
         
         def setupLineEditButtonOpenExcelFileDialog (lineEditHolder, fileDialogHolder):
             '''Hace que cuando se busquen shapes solo se encuetren formatos vectoriales'''
-            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Excel (*.xlsx);;",""))
+            lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "", "*", "Excel (*.xlsx);;","")[0])
         
         def setupLineEditButtonOpenRadarFileDialog (lineEditHolder, fileDialogHolder):
             '''Para cambiar la carpeta por defecto donde se buscan las imagenes de radar'''

@@ -141,7 +141,7 @@ class controlHS(object):
         # genera el diccionario de las variables a guardar
         DicVar = {}
         for n in names:
-            DicVar.update({n.encode():self.DicBasinNc[n]['var'].data})
+            DicVar.update({n:self.DicBasinNc[n]['var'].data})
         # fix_print_with_import
         print(DicVar)
         #Guarda la red hidrica 
@@ -746,7 +746,7 @@ class controlHS(object):
         #Obtiene los ids de excel 
         idExcel = self.InterpolData.columns.values.tolist()
         #Lee el shp con los puntos y los ids 
-        xy,idShape = wmf.read_map_points(Path2Shp,[Campo2Read.encode()])
+        xy,idShape = wmf.read_map_points(Path2Shp,[Campo2Read])
         idShape = idShape[Campo2Read].astype(int).tolist()
         #Organiza los datos para interpolar
         xyNew = []
