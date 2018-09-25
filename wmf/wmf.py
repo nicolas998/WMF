@@ -3936,12 +3936,7 @@ class SimuBasin(Basin):
         'Retornos\n'\
         '----------\n'\
         'self : Con las variables iniciadas.\n'\
-        # Si la cuenca ya ha sido cargada una vez, reinicia las variables de sedimentos 
-        if self.segunda_cuenca:
-            models.krus = np.ones((1,N))
-            models.prus = np.ones((1,N))
-            models.crus = np.ones((1,N))
-            models.parliac = np.ones((3,N))
+
         #Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto  
         if self.isSetGeo is False:
             self.set_Geomorphology()
@@ -3951,6 +3946,7 @@ class SimuBasin(Basin):
             N = self.ncells
         elif self.modelType[0] is 'h':
             N = self.nhills
+
         Dict = {'nombre':self.name,
                     'modelType':self.modelType,'noData':cu.nodata,'umbral':self.umbral,
                     'ncells':self.ncells,'nhills':self.nhills,
@@ -4044,11 +4040,23 @@ class SimuBasin(Basin):
         VarPrus = GrupoSimSed.createVariable('Prus','f4',('Nelem'),zlib=True)
         VarCrus = GrupoSimSed.createVariable('Crus','f4',('Nelem'),zlib=True)
         VarParliac = GrupoSimSed.createVariable('PArLiAc','f4',('col3','Nelem'),zlib=True)
-        VarKrus[:]=models.krus
-        VarPrus[:]=models.prus
-        VarCrus[:]=models.crus
-        VarParliac[:]=models.parliac
-
+        
+        def __reshape (Variable,dim):
+            try:
+                if Variable==None:
+                    new_var = np.ones((dim,N))
+            except:
+                if len(Variable) != N:
+                    new_var = np.ones((dim,N))
+                else:
+                    new_var = Variable
+            return new_var
+                    
+        VarKrus[:]=__reshape(models.krus,1)
+        VarPrus[:]=__reshape(models.prus,1)
+        VarCrus[:]=__reshape(models.crus,1)
+        VarParliac[:]=__reshape(models.parliac,3)
+ 
         #Variables de deslizamientos
         if SimSlides:
             DimNelem = GrupoSimSli.createDimension('Nelem',N)
