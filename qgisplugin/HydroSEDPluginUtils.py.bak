@@ -1,13 +1,7 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from builtins import zip
-from builtins import str
-from builtins import range
-from builtins import object
 import os.path
 
-from qgis.core import QgsRasterLayer,  QgsProject, QgsVectorLayer, QgsFillSymbol,QgsRenderContext
-from qgis.PyQt import QtGui, uic
+from qgis.core import QgsRasterLayer, QgsMapLayerRegistry, QgsVectorLayer, QgsFillSymbolV2
+from PyQt4 import QtGui, uic
 import netCDF4
 from wmf import wmf
 import numpy as np 
@@ -15,9 +9,9 @@ import datetime as dt
 import scipy.stats as stat
 import pandas as pd
 import osgeo.ogr as ogr
-from . import HydroSEDPlots as HSplots
+import HydroSEDPlots as HSplots
 
-class controlHS(object):
+class controlHS:
     
     TIPO_STYLE_POLIGONO  = 1
     TIPO_STYLE_POLILINEA = 2
@@ -47,9 +41,9 @@ class controlHS(object):
             baseNameMapaRaster   = os.path.basename (pathMapaRaster)
             baseNameMapaRaster = os.path.splitext(baseNameMapaRaster)[0]
             layerMapaRaster = QgsRasterLayer (pathMapaRaster, baseNameMapaRaster)
-            QgsProject.instance ().addMapLayer (layerMapaRaster)
+            QgsMapLayerRegistry.instance ().addMapLayer (layerMapaRaster)
     
-            retornoCargaLayerMapaRaster = layerMapaRaster.isValid()
+            retornoCargaLayerMapaRaster = layerMapaRaster.isValid ()
     
         return retornoCargaLayerMapaRaster
     
@@ -64,11 +58,11 @@ class controlHS(object):
             baseNameMapaVector = os.path.basename(pathMapaVector)
             baseNameMapaVector = os.path.splitext(baseNameMapaVector)[0]
             layerMapaVector = QgsVectorLayer(pathMapaVector, baseNameMapaVector, 'ogr')
-            QgsProject.instance().addMapLayer(layerMapaVector)
+            QgsMapLayerRegistry.instance().addMapLayer(layerMapaVector)
 
             if tipo_style == self.TIPO_STYLE_POLILINEA:
 
-                symbols = layerMapaVector.renderer().symbols(QgsRenderContext())
+                symbols = layerMapaVector.rendererV2().symbols()
                 symbol = symbols[0]
                 symbol.setColor(QtGui.QColor.fromRgb(color[0],color[1],color[2]))
                 symbol.setWidth(width)
@@ -81,8 +75,8 @@ class controlHS(object):
 
             elif tipo_style == self.TIPO_STYLE_POLIGONO:
 
-                Render = layerMapaVector.renderer()
-                mySymbol1 = QgsFillSymbol.createSimple({'color':'blue', 
+                Render = layerMapaVector.rendererV2()
+                mySymbol1 = QgsFillSymbolV2.createSimple({'color':'blue', 
                                                           'color_border':'#%02x%02x%02x' % color,
                                                           'width_border':str(width),
                                                           'style':'no',
@@ -141,9 +135,8 @@ class controlHS(object):
         # genera el diccionario de las variables a guardar
         DicVar = {}
         for n in names:
-            DicVar.update({n:self.DicBasinNc[n]['var'].data})
-        # fix_print_with_import
-        print(DicVar)
+            DicVar.update({n.encode():self.DicBasinNc[n]['var'].data})
+        print DicVar
         #Guarda la red hidrica 
         self.cuenca.Save_Net2Map(pathNetwork, wmf.cu.dxp, 
             umbral = self.cuenca.umbral,
@@ -156,8 +149,7 @@ class controlHS(object):
         DicVar = {}
         for n in names:
             DicVar.update({n.encode():self.DicBasinWMF[n]['var']})
-        # fix_print_with_import
-        print(DicVar)
+        print DicVar
         #Guarda la red hidrica 
         self.cuenca.Save_Net2Map(pathNetwork, wmf.cu.dxp, 
             umbral = self.cuenca.umbral,
@@ -219,13 +211,10 @@ class controlHS(object):
         Expo = [CoefExpoList[i] for i in [1, 3]]
         #Trata de hacerlo
         #try:
-        # fix_print_with_import
-        print(Coef)
-        # fix_print_with_import
-        print(Expo)
-        # fix_print_with_import
-        print(Pdf2Use)
-        #Hace de acuerdo a una cosa o la otra 
+        print Coef
+        print Expo
+        print Pdf2Use
+		#Hace de acuerdo a una cosa o la otra 
         if MaxorMin == 'QMax':
             Qext = self.cuenca.GetQ_Max(Qmed, Coef, Expo, Dist = Pdf2Use)
         elif MaxorMin == 'QMin':
@@ -252,7 +241,7 @@ class controlHS(object):
         #Lectura del archivo 
         g = netCDF4.Dataset(PathNC,'a')
         #Inclusion de nuevas variables
-        for l in list(self.DicBasinNc.keys()):#self.Nc2Save:
+        for l in self.DicBasinNc.keys():#self.Nc2Save:
             #Si la variable no esta guradada la actualiza en el nc
             if self.DicBasinNc[l]['saved'] is False:
                 #Selecciona el grupo del nc en donde va a meter la variable
@@ -260,7 +249,7 @@ class controlHS(object):
                 Group = g.groups[Grupo]
                 #mira si el grupo tiene la dimension ncells en caso de que no, la crea
                 try:
-                    pos = list(Group.dimensions.keys()).index('ncell')
+                    pos = Group.dimensions.keys().index('ncell')
                 except:
                     DimNcell = Group.createDimension('ncell',self.cuenca.ncells)
                 #Obtiene el nombre, tipo y variable a actualizar
@@ -311,11 +300,10 @@ class controlHS(object):
             Basicas.append(True)
         for grupoKey,basicas in zip(ListGrupos, Basicas):  
             #Carga los grupos de variables en donde si se tengan variables
-            if len(list(g.groups[grupoKey].variables.keys()))>0:
-                # fix_print_with_import
-                print(list(g.groups[grupoKey].variables.keys()))
+            if len(g.groups[grupoKey].variables.keys())>0:
+                print g.groups[grupoKey].variables.keys()
                 #itera
-                for k in list(g.groups[grupoKey].variables.keys()):
+                for k in g.groups[grupoKey].variables.keys():
                     #Evalua si tiene la misma cantidad de celdas y puede ser un mapa
                     shape = g.groups[grupoKey].variables[k].shape
                     MapaRaster = False
@@ -336,13 +324,12 @@ class controlHS(object):
         #Carga parametros de calib del modelo 
         if LoadSim:
             #Si tiene param
-            if len(list(g.groups['Parametros'].variables.keys()))>0:
-                for k in list(g.groups['Parametros'].variables.keys()):
+            if len(g.groups['Parametros'].variables.keys())>0:
+                for k in g.groups['Parametros'].variables.keys():
                     self.DicParameters.update({k:{
                         'nombre': k,
                         'var': g.groups['Parametros'].variables[k][:]}})
-        # fix_print_with_import
-        print(self.DicParameters)
+        print self.DicParameters
         #Cierra el archivo netCDF de la cuenca        
         g.close()
         #Cargar la cuenca y sus variables base a WMF 
@@ -369,8 +356,7 @@ class controlHS(object):
         else:
             Variable = np.copy(self.DicBasinNc[VarName]['var'][capa])
             rutaSalida = '/tmp/HydroSED/raster/'+VarName+'_'+str(capa+1)+'.tiff'
-        # fix_print_with_import
-        print(Variable)
+        print Variable
         #Conversion
         self.cuenca.Transform_Basin2Map(Variable,
             ruta = rutaSalida,
@@ -430,11 +416,11 @@ class controlHS(object):
         TcData = pd.DataFrame(TcData.values, TcData.index, columns=['T viaje [hrs]'])
         #perfil
         Perfil = pd.DataFrame(np.vstack([self.cuenca.ppal_stream[1]/1000., self.cuenca.ppal_stream[0][::-1]]).T,
-            index=list(range(self.cuenca.ppal_stream.shape[1])), 
+            index=range(self.cuenca.ppal_stream.shape[1]), 
             columns=['Dist2Out[km]','Elevacion[m]'])
         #Curva hipsometrica
         CurvaHipso = pd.DataFrame(np.vstack([self.cuenca.hipso_basin[0]*wmf.cu.dxp**2/1e6, self.cuenca.hipso_basin[1]]).T,
-            index = list(range(self.cuenca.hipso_basin.shape[1])),
+            index = range(self.cuenca.hipso_basin.shape[1]),
             columns = ['Area[km2]','Elevacion[m]'])
         #Escritor
         W = pd.ExcelWriter(ExcelPath)
@@ -590,12 +576,12 @@ class controlHS(object):
             - Hu: almacenamiento capilar maximo [mm] DicBasinNc['h1_max']
             - ks: conductividad saturada del suelo [mm/s] DicBasinNc['v_coef'][1]'''
         #Busca si los parametros de la cuenca estan definidos, si no los reemplaza con constantes para Hu y ks 
-        if u'h3_max' in list(self.DicBasinNc.keys()): 
+        if u'h3_max' in self.DicBasinNc.keys(): 
             Hg = np.copy(self.DicBasinNc['h3_max']['var'])
             Hg[Hg<=0] = Hg.mean()
         else: 
             Hg = 250    
-        if u'v_coef' in list(self.DicBasinNc.keys()):  
+        if u'v_coef' in self.DicBasinNc.keys():  
             ks = np.copy(self.DicBasinNc['v_coef']['var'][1])
         else: 
             ks = 0.00128 
@@ -607,8 +593,7 @@ class controlHS(object):
         Coef[Coef==0] = np.percentile(Coef, 50)
         #ksh=(Ks*cuSalgar.CellSlope*(12.7**2.0))/(3*(Hg*0.9/1000.0)**2)
         Coef[np.where(np.isinf(Coef))]=np.mean(Coef[np.where(np.isfinite(Coef))])
-        # fix_print_with_import
-        print(Coef)
+        print Coef
         #Actualiza el diccionario 
         self.DicBasinWMF.update({'Kubota_coef':
             {'nombre':'Kubota_coef',
@@ -636,7 +621,7 @@ class controlHS(object):
         self.cuenca.GetGeo_Cell_Basics()
         So = np.copy(self.cuenca.CellSlope)
         #Busca si la variable esta guardada en los diccionarios, si no, la reemplaza con una constante. 
-        if 'Manning' in list(self.DicBasinWMF.keys()) or 'Manning' in list(self.DicBasinNc.keys()):
+        if 'Manning' in self.DicBasinWMF.keys() or 'Manning' in self.DicBasinNc.keys():
             try: 
                 Man = np.copy(self.DicBasinWMF['Manning']['var'])
             except: 
@@ -649,8 +634,7 @@ class controlHS(object):
         Coef = (float(Epsilon)/Man)*(So**2.)
         Coef[np.where(np.isinf(Coef))]=np.mean(Coef[np.where(np.isfinite(Coef))])
         Coef[Coef<=0] = np.percentile(Coef, 50)
-        # fix_print_with_import
-        print(Coef)
+        print Coef
         Expo = (2./3.)*e1*np.ones([self.cuenca.ncells])
         #Pone en los diccionarios 
         self.DicBasinWMF.update({'Runoff_coef':
@@ -746,7 +730,7 @@ class controlHS(object):
         #Obtiene los ids de excel 
         idExcel = self.InterpolData.columns.values.tolist()
         #Lee el shp con los puntos y los ids 
-        xy,idShape = wmf.read_map_points(Path2Shp,[Campo2Read])
+        xy,idShape = wmf.read_map_points(Path2Shp,[Campo2Read.encode()])
         idShape = idShape[Campo2Read].astype(int).tolist()
         #Organiza los datos para interpolar
         xyNew = []
@@ -767,15 +751,13 @@ class controlHS(object):
         '''Obtiene un campo acumulado de precipitacion para el periodo especifico'''
         #Lee el binario y los datos en el intervalo
         Vsum = np.zeros(self.cuenca.ncells)
-        # fix_print_with_import
-        print(path2bin)
+        print path2bin
         for i in range(inicio, fin+1):
             vect,res = wmf.models.read_int_basin(path2bin,i,self.cuenca.ncells)
             if res == 0:
                 vect = vect.astype(float)/1000.
                 Vsum+=vect
-        # fix_print_with_import
-        print('salida')
+        print 'salida'
         #Pasa el acumulado al diccionario de WMF 
         self.DicBasinWMF.update({'Lluvia':
             {'nombre':'Lluvia',
@@ -807,7 +789,7 @@ class controlHS(object):
         if len(ParamName)>0:
             #mira si el grupo ya tiene parametros adentro, si no crea la dimension
             try:
-                pos = list(GrupoParam.dimensions.keys()).index('nparam')
+                pos = GrupoParam.dimensions.keys().index('nparam')
             except:
                 DimNparam = GrupoParam.createDimension('nparam',15)
                 #Crea el sub-grupo con el nombre de los parametros dentro del nc 
@@ -835,8 +817,8 @@ class controlHS(object):
         '''Toma una expresion enviada en string, extrae las variables del diccionario
         y evalua la expresion'''
         #Busca en el diccionario de NC las variables de la expresion
-        Lista = list(self.DicBasinWMF.keys())
-        Lista.extend(list(self.DicBasinNc.keys()))
+        Lista = self.DicBasinWMF.keys()
+        Lista.extend(self.DicBasinNc.keys())
         for k in Lista:
             #Tamano y pos de la letra
             largo = len(k)
@@ -912,10 +894,8 @@ class controlHS(object):
         #Obtiene fechas equivalentes para las fechas a convertir
         DatesRadar = pd.to_datetime(FechasRadar)
         DatesRadar = DatesRadar.ceil(TimeStep)
-        # fix_print_with_import
-        print(DatesRadar[:5])
-        # fix_print_with_import
-        print(DatesRadar[-5:])
+        print DatesRadar[:5]
+        print DatesRadar[-5:]
         #Slice de analisis
         Flag = True
         pos = 0
@@ -923,8 +903,7 @@ class controlHS(object):
             try:
                 Ini = np.where(DatesRadar == self.ConvertDates[pos])[0].tolist()[0]
                 Flag = False
-                # fix_print_with_import
-                print(Ini, pos)
+                print Ini, pos
             except:
                 pos += 1
             if pos>DatesRadar.size: Flag = False
@@ -934,8 +913,7 @@ class controlHS(object):
             try:
                 Fin = np.where(DatesRadar == self.ConvertDates[pos])[0].tolist()[0]
                 Flag = False
-                # fix_print_with_import
-                print(Fin, pos)
+                print Fin, pos
             except:
                 pos -= 1
             if pos>DatesRadar.size: Flag = False
@@ -979,8 +957,7 @@ class controlHS(object):
                 dt = TimeStep,
                 umbral = umbral)
             if verbose:
-                # fix_print_with_import
-                print(date, RainFin.mean(), ListaPos)
+                print date, RainFin.mean(), ListaPos
         #Cierra el binario y cea el encabezado
         self.cuenca.rain_radar2basin_from_array(status = 'close',ruta_out = PathRadarBasin)
         self.cuenca.rain_radar2basin_from_array(status = 'reset')
@@ -996,7 +973,7 @@ class controlHS(object):
         wmf.models.dt = DeltaT
         #SEtea el tipo de velocidad de acuerdo a los exponentes
         for c,i in enumerate(exponentes):
-            if i!=1:
+            if i<>1:
                 wmf.models.speed_type[c] = 2
             else:
                 wmf.models.speed_type[c] = 1

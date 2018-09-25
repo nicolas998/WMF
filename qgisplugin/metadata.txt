@@ -8,7 +8,7 @@
 
 [general]
 name=Hydro-SED
-qgisMinimumVersion=2.0
+qgisMinimumVersion=3.0
 description=Este plugin facilita la ejecucion de modelos hidrologicos implementados desde QGIS.
 version=0.1
 author=Universidad Nacional de Colombia - Sede Medellín

@@ -7,7 +7,6 @@
      (at your option) any later version.
 
 """
-from __future__ import absolute_import
 
 __author__ = 'jctrujil@unal.edu.co'
 __date__ = '2018-05-02'
@@ -15,11 +14,11 @@ __copyright__ = 'Copyright 2018, Universidad Nacional de Colombia - Sede Medell√
 
 import unittest
 
-from qgis.PyQt.QtWidgets import QDockWidget
+from PyQt4.QtGui import QDockWidget
 
 from HydroSEDPlugin_dockwidget import HydroSEDPluginDockWidget
 
-from .utilities import get_qgis_app
+from utilities import get_qgis_app
 
 QGIS_APP = get_qgis_app()
 
