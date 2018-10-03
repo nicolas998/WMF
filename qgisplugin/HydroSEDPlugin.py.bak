@@ -20,21 +20,18 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import absolute_import
-from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
-from qgis.PyQt.QtWidgets import QAction
-from qgis.PyQt.QtGui import QIcon
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
+from PyQt4.QtGui import QAction, QIcon
 # Initialize Qt resources from file resources.py
-from . import resources
-#from . import resources_rc
+import resources
+import resources_rc
 import os
 # Import the code for the DockWidget
-from .HydroSEDPlugin_dockwidget import HydroSEDPluginDockWidget
+from HydroSEDPlugin_dockwidget import HydroSEDPluginDockWidget
 import os.path
 
 
-class HydroSEDPlugin(object):
+class HydroSEDPlugin:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):

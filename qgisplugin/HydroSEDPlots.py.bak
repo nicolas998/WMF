@@ -1,5 +1,3 @@
-from builtins import range
-from builtins import object
 from wmf import wmf 
 import numpy as np
 import plotly.graph_objs as go
@@ -7,7 +5,7 @@ import pandas as pd
 from plotly import tools
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 
-class PlotRainfall(object):
+class PlotRainfall():
 
     def __init__(self, pathRain):
         self.path_rainBin, self.path_rainHdr = wmf.__Add_hdr_bin_2route__(pathRain) 
@@ -198,7 +196,7 @@ class PlotRainfall(object):
                     color='rgb(0, 102, 153)',
                     size = 16),
                 ticktext = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
-                tickvals = list(range(1,13))
+                tickvals = range(1,13)
             ),
             yaxis=dict(
                 title='Precipitacion',
@@ -216,7 +214,7 @@ class PlotRainfall(object):
         fig = dict(data=data, layout=layout)
         plot(fig,filename=pathFigure, auto_open = False)
 
-class PlotCaudal(object):
+class PlotCaudal():
     def __init__(self):
         self.a = 0
         
@@ -404,7 +402,7 @@ class PlotCaudal(object):
         plot(fig,filename=pathFigure, auto_open = False)
             
    
-class PlotGeomorphology(object):
+class PlotGeomorphology():
     
     def __init__(self):
         self.a = 0
@@ -415,7 +413,7 @@ class PlotGeomorphology(object):
         if ncells > 10000:
             pos = np.random.choice(len(var), 10000)
         else:
-            pos = list(range(10000))
+            pos = range(10000)
         #Obtiene la pdf y cdf de la variable    
         var = var[pos]
         p1 = np.percentile(var, 0.1)
@@ -497,9 +495,9 @@ class PlotGeomorphology(object):
     def TiempoConcentracion(self, DicTiempos, pathFigure):
         '''Plot de los tiempos de concentracion de la cuenca'''
         #Los datos
-        Names = [i[0][:7] for i in list(DicTiempos.items())]
-        Texto = [i[0] for i in list(DicTiempos.items())]
-        Times = ['%.3f'%i[1] for i in list(DicTiempos.items())]
+        Names = [i[0][:7] for i in DicTiempos.items()]
+        Texto = [i[0] for i in DicTiempos.items()]
+        Times = ['%.3f'%i[1] for i in DicTiempos.items()]
         #El plot
         data = [go.Bar(
                     x = Names,
@@ -619,7 +617,7 @@ class PlotGeomorphology(object):
         fig = dict(data=data, layout=layout)
         plot(fig,filename=pathFigure, auto_open = False)
     
-class PlotStorage(object):
+class PlotStorage():
     
     def __init__(self):
         self.foo = 1

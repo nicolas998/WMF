@@ -2080,6 +2080,8 @@ class Basin:
             if type(Dict==dict):
                 netDict=[]
                 for k in Dict.keys():
+                    print (k[:10])
+                    print (osgeo.ogr.OFTReal)
                     new_field=osgeo.ogr.FieldDefn(k[:10],osgeo.ogr.OFTReal)
                     layer.CreateField(new_field)
                     netsizeT = cu.basin_netxy_find(self.structure,nodos,cauce*Dict[k],self.ncells)
@@ -2775,6 +2777,8 @@ class SimuBasin(Basin):
         'Retornos\n'\
         '----------\n'\
         'self : Con las variables iniciadas.\n'\
+        #Esta variable es para controlar cuando se reinician las variables de sedimentos 
+        self.segunda_cuenca = False
         #Variables de radar
         self.radarDates = []
         self.radarPos = []
@@ -3932,7 +3936,8 @@ class SimuBasin(Basin):
         'Retornos\n'\
         '----------\n'\
         'self : Con las variables iniciadas.\n'\
-        #Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto
+
+        #Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto  
         if self.isSetGeo is False:
             self.set_Geomorphology()
             print('Aviso: SE ha estimado la geomorfologia con los umbrales por defecto umbral = [30, 500]')
@@ -3941,6 +3946,7 @@ class SimuBasin(Basin):
             N = self.ncells
         elif self.modelType[0] is 'h':
             N = self.nhills
+
         Dict = {'nombre':self.name,
                     'modelType':self.modelType,'noData':cu.nodata,'umbral':self.umbral,
                     'ncells':self.ncells,'nhills':self.nhills,
@@ -4027,7 +4033,6 @@ class SimuBasin(Basin):
         VarDIR = GrupoGeo.createVariable('DIR','i4',('ncell',),zlib = True)
         VarDEM[:] = self.DEMvec
         VarDIR[:] = self.DIRvec
-
         #Variables de sedimentos
         DimNelem = GrupoSimSed.createDimension('Nelem',N)
         DimCol3 = GrupoSimSed.createDimension('col3',3)
@@ -4035,11 +4040,21 @@ class SimuBasin(Basin):
         VarPrus = GrupoSimSed.createVariable('Prus','f4',('Nelem'),zlib=True)
         VarCrus = GrupoSimSed.createVariable('Crus','f4',('Nelem'),zlib=True)
         VarParliac = GrupoSimSed.createVariable('PArLiAc','f4',('col3','Nelem'),zlib=True)
-        VarKrus[:]=models.krus
-        VarPrus[:]=models.prus
-        VarCrus[:]=models.crus
-        VarParliac[:]=models.parliac
-
+        def __reshape (Variable,dim):
+            try:
+                if Variable==None:
+                    new_var = np.ones((dim,N))
+            except:
+                if len(Variable) != N:
+                    new_var = np.ones((dim,N))
+                else:
+                    new_var = Variable
+            return new_var
+                    
+        VarKrus[:]=__reshape(models.krus,1)
+        VarPrus[:]=__reshape(models.prus,1)
+        VarCrus[:]=__reshape(models.crus,1)
+        VarParliac[:]=__reshape(models.parliac,3)
         #Variables de deslizamientos
         if SimSlides:
             DimNelem = GrupoSimSli.createDimension('Nelem',N)
@@ -4063,6 +4078,7 @@ class SimuBasin(Basin):
         #Cierra el archivo
         gr.close()
         #Sale del programa
+        self.segunda_cuenca = True 
         return
 
         #------------------------------------------------------
