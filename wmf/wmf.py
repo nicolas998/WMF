@@ -4040,7 +4040,6 @@ class SimuBasin(Basin):
         VarPrus = GrupoSimSed.createVariable('Prus','f4',('Nelem'),zlib=True)
         VarCrus = GrupoSimSed.createVariable('Crus','f4',('Nelem'),zlib=True)
         VarParliac = GrupoSimSed.createVariable('PArLiAc','f4',('col3','Nelem'),zlib=True)
-        
         def __reshape (Variable,dim):
             try:
                 if Variable==None:
@@ -4056,7 +4055,6 @@ class SimuBasin(Basin):
         VarPrus[:]=__reshape(models.prus,1)
         VarCrus[:]=__reshape(models.crus,1)
         VarParliac[:]=__reshape(models.parliac,3)
- 
         #Variables de deslizamientos
         if SimSlides:
             DimNelem = GrupoSimSli.createDimension('Nelem',N)
