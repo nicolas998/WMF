@@ -726,6 +726,52 @@ def __eval_q_pico__(s_o,s_s):
     dif_qpico=((Qo_max-Qs_max)/Qo_max)*100
     return dif_qpico
 
+#Funciones para vincularse con asynch
+def __asynch_write_rvr__(DicAsynch, ruta):
+    '''Escribe el plano de asynch a partir del diccionario y de una ruta'''
+    # arregla la ruta 
+    if ruta.endswith('.rvr') is not True:
+        ruta = ruta + '.rvr'
+    #Escribe el archivo 
+    f = open(ruta,'w')
+    #Numero de elementos
+    f.write('%d \n\n' % len(DicAsynch))
+    #Itera para escribir la topologia
+    for k in DicAsynch.keys():
+        f.write('%s \n' % k)
+        if DicAsynch[k]['Nparents'] == 0:
+            f.write('%d \n\n' % DicAsynch[k]['Nparents'])
+        if DicAsynch[k]['Nparents'] > 0:
+            f.write('%d %d %d \n\n' % (DicAsynch[k]['Nparents'], 
+                DicAsynch[k]['Parents'][0],DicAsynch[k]['Parents'][0]))
+    f.close()
+
+def __asynch_write_lookup__(DicAsynch, ruta):
+    '''Escribe el plano de asynch con la informacion de lookup'''
+    # arregla la ruta 
+    if ruta.endswith('.lookup') is not True:
+        ruta = ruta + '.lookup'
+    #hace la escritura
+    f = open(ruta, 'w')
+    f.write('Link-ID,Longitude,Latitude,HortonOrder\n')
+    for k in DicAsynch.keys():
+        f.write('%s,%.7f,%.7f,%.1f\n' % (k, DicAsynch[k]['x'],
+            DicAsynch[k]['y'],DicAsynch[k]['order']))
+    f.close()
+        
+def __asynch_write_prm__(DicAsynch, ruta):
+    '''Escribe el plano de asynch con la informacion de prm'''
+    # arregla la ruta 
+    if ruta.endswith('.prm') is not True:
+        ruta = ruta + '.prm'
+    #Escritura 
+    f = open(ruta, 'w')
+    f.write('%d \n\n' % len(DicAsynch))
+    for k in DicAsynch.keys():       
+        f.write('%s \n' % k)
+        f.write('%.5f %.5f %.5f \n\n' % (DicAsynch[k]['Area'], 
+            DicAsynch[k]['Long'],DicAsynch[k]['Slope']))
+    f.close() 
 
 #Funciones para mirar como es un netCDf por dentro
 def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
@@ -1877,22 +1923,14 @@ class Basin:
 	        DicAsynch.update(Dic)
 	    # Funcion para escribir en el formato de asynch 
 	    if ruta is not None:
-	        # arregla la ruta 
-	        if ruta.endswith('.rvr') is not True:
-	            ruta = ruta + '.rvr'
-	        #Escribe el archivo 
-	        f = open(ruta,'w')
-	        #Numero de elementos
-	        f.write('%d \n\n' % len(DicAsynch))
-	        #Itera para escribir la topologia
-	        for k in DicAsynch.keys():
-	            f.write('%s \n' % k)
-	            if DicAsynch[k]['Nparents'] == 0:
-	                f.write('%d \n\n' % DicAsynch[k]['Nparents'])
-	            if DicAsynch[k]['Nparents'] > 0:
-	                f.write('%d %d %d \n\n' % (DicAsynch[k]['Nparents'], 
-	                    DicAsynch[k]['Parents'][0],DicAsynch[k]['Parents'][0]))
-	        f.close()
+	        #Arregla la ruta 
+	        if ruta.endswith('.rvr')
+	        #Escribe los archivos de asynch
+	        __asynch_write_rvr__(DicAsynch, ruta)
+	        if lookup:
+	            __asynch_write_lookup__(DicAsynch, ruta)
+	        if prm:
+	            __asynch_write_prm__(DicAsynch, ruta)
 	    #Retorno 
 	    return DicAsynch
 		
