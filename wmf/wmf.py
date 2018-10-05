@@ -1819,6 +1819,84 @@ class Basin:
                 DicPoly[str(Value)].update({str(cont):np.array(co).T})
         return DicPoly
 
+    def Transform_Basin2Asnych(self, ruta = None, lookup = False, prm = False):
+	    '''Tranfrom_Basin2Asynch: Convierte la topologia de la cuenca de WMF
+	    en el formato .rvr requerido por ASYNCH
+	    Parametros:
+	        - Toma de forma predefinida la estructura de la cuenca de hills
+	            y a partir de esta obtiene la estructura de ASYNCH.
+	        - [ruta]: ruta donde se guarda el archivo .rvr con la topologia
+	        - [lookup]: Tabla de asynch con ID, Lat, Lon, Orden
+	        - [prm]: Tabla de asynch con parametros: ID, Area, Pend, Long
+	    Resultados:
+	        - self.asynch_rvr: diccionario con la forma de asynch en la cuenca.
+	        - Archivo plano de texto con el archivo .rvr (si se da la ruta)
+	    '''
+	    self.GetGeo_Cell_Basics()
+	    if lookup:
+	        x,y = cu.basin_coordxy(self.structure, self.ncells)
+	        self.GetGeo_StreamOrder()
+	    if prm:
+	        LongCauce = self.CellCauce*self.CellLong
+	    #Variables para transformar 
+	    Con = self.hills.data[1]
+	    Ids = np.arange(self.nhills, 0, -1)
+	    #Definicion de diccionarios para transformar
+	    DicAsynch = {}
+	    # Funciona esta forma de transformar, pero creo que deben haber una forma mas rapida de hacerlo     
+	    for c,i in enumerate(Ids):
+	        #Busca si hay quien le drene 
+	        pos = np.where(Con == i)
+	        #Si los encuentra pone el formato 
+	        Dic = {str(i): {'Nparents': len(pos[0]),
+	            'Parents': Ids[pos],
+	            'WMFpos': c+1}}
+	        #Encuentra posiciones
+	        pos = np.where(cu.hills_own == c+1)[0]    
+	        #Lookup Table 
+	        if lookup:
+	            #Saca coord y el orden de horton
+	            xhill = np.median(x[pos])
+	            yhill = np.median(y[pos])
+	            horton = self.CellHorton_Hill[pos].max()
+	            #Actualzia la tabla
+	            Dic[str(i)].update({'x': xhill, 
+	                'y': yhill,
+	                'order': horton})
+	        #Tabla de propiedades prm 
+	        if prm:
+	            #Calcula parametros
+	            Area = pos.size * cu.dxp**2. / 1e6
+	            Long = LongCauce[pos].sum() / 1000.
+	            Slope = np.median(self.CellSlope[pos])
+	            #Actualiza el diccionario 
+	            Dic[str(i)].update({'Area': Area,
+	                'Long': Long, 
+	                'Slope': Slope})
+	        #Diccionario con toda la estructura
+	        DicAsynch.update(Dic)
+	    # Funcion para escribir en el formato de asynch 
+	    if ruta is not None:
+	        # arregla la ruta 
+	        if ruta.endswith('.rvr') is not True:
+	            ruta = ruta + '.rvr'
+	        #Escribe el archivo 
+	        f = open(ruta,'w')
+	        #Numero de elementos
+	        f.write('%d \n\n' % len(DicAsynch))
+	        #Itera para escribir la topologia
+	        for k in DicAsynch.keys():
+	            f.write('%s \n' % k)
+	            if DicAsynch[k]['Nparents'] == 0:
+	                f.write('%d \n\n' % DicAsynch[k]['Nparents'])
+	            if DicAsynch[k]['Nparents'] > 0:
+	                f.write('%d %d %d \n\n' % (DicAsynch[k]['Nparents'], 
+	                    DicAsynch[k]['Parents'][0],DicAsynch[k]['Parents'][0]))
+	        f.close()
+	    #Retorno 
+	    return DicAsynch
+		
+    
     #------------------------------------------------------
     # Trabajo con datos puntuales puntos
     #------------------------------------------------------
