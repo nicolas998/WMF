@@ -730,8 +730,9 @@ def __eval_q_pico__(s_o,s_s):
 def __asynch_write_rvr__(DicAsynch, ruta):
     '''Escribe el plano de asynch a partir del diccionario y de una ruta'''
     # arregla la ruta 
-    if ruta.endswith('.rvr') is not True:
-        ruta = ruta + '.rvr'
+    path, ext = os.path.splitext(ruta) 
+    if ext != '.rvr':
+        ruta = path + '.rvr'
     #Escribe el archivo 
     f = open(ruta,'w')
     #Numero de elementos
@@ -749,8 +750,9 @@ def __asynch_write_rvr__(DicAsynch, ruta):
 def __asynch_write_lookup__(DicAsynch, ruta):
     '''Escribe el plano de asynch con la informacion de lookup'''
     # arregla la ruta 
-    if ruta.endswith('.lookup') is not True:
-        ruta = ruta + '.lookup'
+    path, ext = os.path.splitext(ruta) 
+    if ext != '.lookup':
+        ruta = path + '.lookup'
     #hace la escritura
     f = open(ruta, 'w')
     f.write('Link-ID,Longitude,Latitude,HortonOrder\n')
@@ -762,8 +764,9 @@ def __asynch_write_lookup__(DicAsynch, ruta):
 def __asynch_write_prm__(DicAsynch, ruta):
     '''Escribe el plano de asynch con la informacion de prm'''
     # arregla la ruta 
-    if ruta.endswith('.prm') is not True:
-        ruta = ruta + '.prm'
+    path, ext = os.path.splitext(ruta) 
+    if ext != '.prm':
+        ruta = path + '.prm'
     #Escritura 
     f = open(ruta, 'w')
     f.write('%d \n\n' % len(DicAsynch))
@@ -1923,8 +1926,6 @@ class Basin:
 	        DicAsynch.update(Dic)
 	    # Funcion para escribir en el formato de asynch 
 	    if ruta is not None:
-	        #Arregla la ruta 
-	        if ruta.endswith('.rvr')
 	        #Escribe los archivos de asynch
 	        __asynch_write_rvr__(DicAsynch, ruta)
 	        if lookup:
@@ -1934,7 +1935,6 @@ class Basin:
 	    #Retorno 
 	    return DicAsynch
 		
-    
     #------------------------------------------------------
     # Trabajo con datos puntuales puntos
     #------------------------------------------------------
