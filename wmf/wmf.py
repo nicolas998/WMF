@@ -1901,7 +1901,7 @@ class Basin:
 	            'Parents': Ids[pos],
 	            'WMFpos': c+1}}
 	        #Encuentra posiciones
-	        pos = np.where(cu.hills_own == c+1)[0]    
+	        pos = np.where(self.hills_own == c+1)[0]    
 	        #Lookup Table 
 	        if lookup:
 	            #Saca coord y el orden de horton
