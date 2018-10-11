@@ -1868,73 +1868,83 @@ class Basin:
                 DicPoly[str(Value)].update({str(cont):np.array(co).T})
         return DicPoly
 
-    def Transform_Basin2Asnych(self, ruta = None, lookup = False, prm = False):
-	    '''Tranfrom_Basin2Asynch: Convierte la topologia de la cuenca de WMF
-	    en el formato .rvr requerido por ASYNCH
-	    Parametros:
-	        - Toma de forma predefinida la estructura de la cuenca de hills
-	            y a partir de esta obtiene la estructura de ASYNCH.
-	        - [ruta]: ruta donde se guarda el archivo .rvr con la topologia
-	        - [lookup]: Tabla de asynch con ID, Lat, Lon, Orden
-	        - [prm]: Tabla de asynch con parametros: ID, Area, Pend, Long
-	    Resultados:
-	        - self.asynch_rvr: diccionario con la forma de asynch en la cuenca.
-	        - Archivo plano de texto con el archivo .rvr (si se da la ruta)
-	    '''
-	    self.GetGeo_Cell_Basics()
-	    if lookup:
-	        x,y = cu.basin_coordxy(self.structure, self.ncells)
-	        self.GetGeo_StreamOrder()
-	    if prm:
-	        LongCauce = self.CellCauce*self.CellLong
-	    #Variables para transformar 
-	    Con = self.hills.data[1]
-	    Ids = np.arange(self.nhills, 0, -1)
-	    #Definicion de diccionarios para transformar
-	    DicAsynch = {}
-	    # Funciona esta forma de transformar, pero creo que deben haber una forma mas rapida de hacerlo     
-	    for c,i in enumerate(Ids):
-	        #Busca si hay quien le drene 
-	        pos = np.where(Con == i)
-	        #Si los encuentra pone el formato 
-	        Dic = {str(i): {'Nparents': len(pos[0]),
-	            'Parents': Ids[pos],
-	            'WMFpos': c+1}}
-	        #Encuentra posiciones
-	        pos = np.where(self.hills_own == c+1)[0]    
-	        #Lookup Table 
-	        if lookup:
-	            #Saca coord y el orden de horton
-	            xhill = np.median(x[pos])
-	            yhill = np.median(y[pos])
-	            horton = self.CellHorton_Hill[pos].max()
-	            #Actualzia la tabla
-	            Dic[str(i)].update({'x': xhill, 
-	                'y': yhill,
-	                'order': horton})
-	        #Tabla de propiedades prm 
-	        if prm:
-	            #Calcula parametros
-	            Area = pos.size * cu.dxp**2. / 1e6
-	            Long = LongCauce[pos].sum() / 1000.
-	            Slope = np.median(self.CellSlope[pos])
-	            #Actualiza el diccionario 
-	            Dic[str(i)].update({'Area': Area,
-	                'Long': Long, 
-	                'Slope': Slope})
-	        #Diccionario con toda la estructura
-	        DicAsynch.update(Dic)
-	    # Funcion para escribir en el formato de asynch 
-	    if ruta is not None:
-	        #Escribe los archivos de asynch
-	        __asynch_write_rvr__(DicAsynch, ruta)
-	        if lookup:
-	            __asynch_write_lookup__(DicAsynch, ruta)
-	        if prm:
-	            __asynch_write_prm__(DicAsynch, ruta)
-	    #Retorno 
-	    return DicAsynch
-		
+    def Transform_Basin2Asnych(self, ruta = None, lookup = False, prm = False, writeMsgLinkFile = False):
+        '''Tranfrom_Basin2Asynch: Convierte la topologia de la cuenca de WMF
+        en el formato .rvr requerido por ASYNCH
+        Parametros:
+            - Toma de forma predefinida la estructura de la cuenca de hills
+                y a partir de esta obtiene la estructura de ASYNCH.
+            - [ruta]: ruta donde se guarda el archivo .rvr con la topologia
+            - [lookup]: Tabla de asynch con ID, Lat, Lon, Orden
+            - [prm]: Tabla de asynch con parametros: ID, Area, Pend, Long
+            - writeMsgLinkFile: Escribe un archivo msg con toda la estructura de los datos
+        Resultados:
+            - self.asynch_rvr: diccionario con la forma de asynch en la cuenca.
+            - Archivo plano de texto con el archivo .rvr (si se da la ruta)
+        '''
+        self.GetGeo_Cell_Basics()
+        if lookup:
+            x,y = cu.basin_coordxy(self.structure, self.ncells)
+            self.GetGeo_StreamOrder()
+        if prm:
+            LongCauce = self.CellCauce*self.CellLong
+        #Variables para transformar 
+        Con = self.hills.data[1]
+        Ids = np.arange(self.nhills, 0, -1)
+        #Definicion de diccionarios para transformar
+        DicAsynch = {}
+        # Funciona esta forma de transformar, pero creo que deben haber una forma mas rapida de hacerlo     
+        for c,i in enumerate(Ids):
+            #Busca si hay quien le drene 
+            pos = np.where(Con == i)
+            #Si los encuentra pone el formato 
+            Dic = {str(i): {'Nparents': len(pos[0]),
+                'Parents': Ids[pos].tolist(),
+                'WMFpos': c+1}}
+            #Encuentra posiciones
+            pos = np.where(self.hills_own == c+1)[0]    
+            #Lookup Table 
+            if lookup:
+                #Saca coord y el orden de horton
+                xhill = np.median(x[pos])
+                yhill = np.median(y[pos])
+                horton = self.CellHorton_Hill[pos].max()
+                #Actualzia la tabla
+                Dic[str(i)].update({'x': xhill, 
+                    'y': yhill,
+                    'order': horton})
+            #Tabla de propiedades prm 
+            if prm:
+                #Calcula parametros
+                Area = pos.size * cu.dxp**2. / 1e6
+                Long = LongCauce[pos].sum() / 1000.
+                Slope = np.median(self.CellSlope[pos])
+                #Actualiza el diccionario 
+                Dic[str(i)].update({'Area': Area,
+                    'Long': Long, 
+                    'Slope': Slope})
+            #Diccionario con toda la estructura
+            DicAsynch.update(Dic)
+        DataFrame = pd.DataFrame(DicAsynch).T
+        # Funcion para escribir en el formato de asynch 
+        if ruta is not None:
+            #Escribe los archivos de asynch
+            __asynch_write_rvr__(DicAsynch, ruta)
+            if lookup:
+                __asynch_write_lookup__(DicAsynch, ruta)
+            if prm:
+                __asynch_write_prm__(DicAsynch, ruta)
+        if writeMsgLinkFile:
+            #Arregla la extension 
+            name, ext = os.path.splitext(ruta)
+            extension = '.msg'
+            if ext != extension:
+                path = name + extension
+            #Escribe 
+            DataFrame.to_msgpack(path)
+        #Retorno 
+        return DataFrame
+        
     #------------------------------------------------------
     # Trabajo con datos puntuales puntos
     #------------------------------------------------------
