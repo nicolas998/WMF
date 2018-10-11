@@ -250,7 +250,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -294,7 +294,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-388</y>
               <width>445</width>
               <height>1018</height>
              </rect>
@@ -1051,7 +1051,7 @@
                        <number>0</number>
                       </property>
                       <property name="minimum">
-                       <double>10.000000000000000</double>
+                       <double>1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>100000.000000000000000</double>
@@ -1390,7 +1390,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-550</y>
+              <y>0</y>
               <width>445</width>
               <height>1518</height>
              </rect>
@@ -2448,7 +2448,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-490</y>
+              <y>0</y>
               <width>445</width>
               <height>1918</height>
              </rect>
