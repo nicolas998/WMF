@@ -736,15 +736,17 @@ def __asynch_write_rvr__(DicAsynch, ruta):
     #Escribe el archivo 
     f = open(ruta,'w')
     #Numero de elementos
-    f.write('%d \n\n' % len(DicAsynch))
+    f.write('%d\n\n' % len(DicAsynch))
     #Itera para escribir la topologia
     for k in DicAsynch.keys():
-        f.write('%s \n' % k)
+        f.write('%s\n' % k)
         if DicAsynch[k]['Nparents'] == 0:
-            f.write('%d \n\n' % DicAsynch[k]['Nparents'])
+            f.write('%d\n\n' % DicAsynch[k]['Nparents'])
         if DicAsynch[k]['Nparents'] > 0:
-            f.write('%d %d %d \n\n' % (DicAsynch[k]['Nparents'], 
-                DicAsynch[k]['Parents'][0],DicAsynch[k]['Parents'][0]))
+            f.write('%d' % DicAsynch[k]['Nparents'])
+            for i in range(DicAsynch[k]['Nparents']):
+                f.write(' %d' % DicAsynch[k]['Parents'][i])
+            f.write('\n\n')
     f.close()
 
 def __asynch_write_lookup__(DicAsynch, ruta):
@@ -769,10 +771,10 @@ def __asynch_write_prm__(DicAsynch, ruta):
         ruta = path + '.prm'
     #Escritura 
     f = open(ruta, 'w')
-    f.write('%d \n\n' % len(DicAsynch))
+    f.write('%d\n\n' % len(DicAsynch))
     for k in DicAsynch.keys():       
-        f.write('%s \n' % k)
-        f.write('%.5f %.5f %.5f \n\n' % (DicAsynch[k]['Area'], 
+        f.write('%s\n' % k)
+        f.write('%.5f %.5f %.5f\n\n' % (DicAsynch[k]['Area'], 
             DicAsynch[k]['Long'],DicAsynch[k]['Slope']))
     f.close() 
 
