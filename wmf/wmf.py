@@ -550,7 +550,7 @@ def read_rain_struct(ruta):
 	return D
 
 def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
-	Mean_Storage):
+	Mean_Storage,WhereStored):
 	#Lee fechas para el intervalo de tiempo
 	S = read_mean_rain(rute_rain,Nintervals,FirstInt)
 	#Escribe el encabezado del archivo 
@@ -560,13 +560,13 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
 	f.write('Numero de registros: %d \n' % Nintervals)
 	f.write('Tipo Modelo: %s \n' % cuenca.modelType)
 	f.write('IDfecha, Tanque 1, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
-	c = 1
+	#c = 1
 	#Si no hay almacenamiento medio lo coloca en -9999 
 	#Escribe registros medios y fechas de los almacenamientos 
-	for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
+	for d,sto,c in zip(S.index.to_pydatetime(),Mean_Storage.T, WhereStored):
 		f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' % 
 			(c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
-		c+=1
+	#	c+=1
 	f.close()
 
 def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
@@ -4010,7 +4010,7 @@ class SimuBasin(Basin):
 	def run_shia(self,Calibracion,
 		rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
 		ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5,
-              QsimDataFrame = True, EvpVariable = False):
+              QsimDataFrame = True, EvpVariable = False, WheretoStore = None):
 		'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
 		'	Antes de su ejecucion se deben tener listas todas las . \n'\
 		'	variables requeridas . \n'\
@@ -4055,6 +4055,8 @@ class SimuBasin(Basin):
 		'QsimDataFrame: Retorna un data frame con los caudales simulados indicando su id de acuerdo con el\n'\
 		'	que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
                 'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
+                'WheretoStore: (None) Array de numpy o lista  indicando con numeros ascendentes\n'\
+                '(dif. de 0) las posiciones donde guardar condiciones dentro del periodo de ejecucion\n'\
 		'\n'\
 		'Retornos\n'\
 		'----------\n'\
@@ -4137,6 +4139,14 @@ class SimuBasin(Basin):
                     Rad = self.__GetEVP_Serie__(Rain.index)
                 else:
                     models.evpserie = np.ones(N_intervals)
+                #Set del vector de guardado de condiciones del modelo
+                if WheretoStore is None:
+                    models.guarda_cond = np.array(range(N_intervals))+1
+                else:
+                    #rng=pd.date_range(Rain.index[0],periods=N_intervals,freq=pd.infer_freq(Rain.index))
+                    #SerieToStore=pd.Series(WheretoStore,index=rng)
+                    #models.guarda_cond = np.copy(SerieToStore.values)
+                    models.guarda_cond = np.copy(WheretoStore.values)
                 # Ejecuta el modelo 
 		Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
 			rain_ruteBin,
@@ -4177,7 +4187,8 @@ class SimuBasin(Basin):
 			#Caso en el que se registra el alm medio 
 			if models.show_storage == 1:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-					start_point,self,Mean_Storage = np.copy(models.mean_storage))
+					start_point,self,Mean_Storage =np.copy(models.mean_storage),
+                                        WhereStored=models.guarda_cond)
 			#Caso en el que no hay alm medio para cada uno de los 
 			else:
 				__Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
