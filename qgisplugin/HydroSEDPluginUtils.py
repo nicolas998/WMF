@@ -1070,7 +1070,14 @@ class controlHS(object):
             self.cuenca.set_Storage(Valor, Tanque -1)
             return Valor.mean(), Valor
         
-        
+    def Sim_Series2Excel(self,ExcelPath,dataframe):
+        '''Guarda los dataframes a un excel.'''
+        W = pd.ExcelWriter(ExcelPath)
+        #Escribe 
+        dataframe.to_excel(W)
+        #Cierra el archivo 
+        W.close()
+        return 0     
         
         
         

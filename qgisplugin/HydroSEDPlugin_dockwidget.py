@@ -1115,6 +1115,10 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             '''Que solo busque los archivos con esa extension .bin'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), "Buscar estados de almacenamiento", "*", "Binarios (*.StObin);;","")[0]) 
         
+        def setupLineEditButtonSaveFileDialog (fileDialogHolder):
+            '''Pone la ruta elegida en el dialogo de texto para guardado'''
+            return fileDialogHolder.getSaveFileName (QtWidgets.QDialog (), "Guardar parametros en un archivo de excel", "*", "Excel (*.xlsx);;","")
+        
         def changeEventUpdateScalarParameters():
             '''Actualiza los parametros escalares de las tablas de acuerdo al set seleccionado'''
             #Obtiene el nombre de la param seleccionada
@@ -1488,19 +1492,20 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.dfDataQobs = self.DataQ[id_est][self.f_ini:self.f_fin]
             else:
                 self.dfDataQobs = self.dfDataQsim*np.nan
+                
+        def clickEventExportQsim2Excel():           
+             #llama el df de caudal observado 
+            Path2Save = setupLineEditButtonSaveFileDialog(QFileDialog)[0]
+            dfDataQsim = self.HSutils.Sim_Streamflow
+            Retorno = self.HSutils.Sim_Series2Excel(Path2Save,dfDataQsim)
+            #Mensage de exito o error
+            if Retorno == 0:
+                self.iface.messageBar().pushInfo(u'HidroSIG',u'Se han exportado correctamente los caudales simulados')
+            else:
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los caudales simulados',
+                    level=QgsMessageBar.WARNING, duration=5)
             
-            #Obtiene la serie de caudales 
-            self.HSplotsCaudal.Plot_CDC_caudal(PathFigure1,self.dfDataQobs,self.dfDataQsim)
-            #Set de la ventana que contiene la figura
-            self.VistaQobsWeb = QWebView(None)
-            self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure1))
-            self.VistaQobsWeb.setWindowTitle('Curvas de duracion de Caudales')
-            self.VistaQobsWeb.setMinimumWidth(400)
-            self.VistaQobsWeb.setMaximumWidth(500)
-            self.VistaQobsWeb.setMinimumHeight(400)
-            self.VistaQobsWeb.setMaximumHeight(400)
-            self.VistaQobsWeb.show()
-            
+                        
         def clickEventViewSerieSedimentos():
             #Fechas de inicio y fin de simulacion
             self.f_ini = self.Simulacion_DateTimeStart.dateTime().toPyDateTime()
@@ -1565,7 +1570,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.ButtonSim_ViewStreamflow.clicked.connect(clickEventViewSerieQobsQsim)
         self.ButtonSim_ViewCDC.clicked.connect(clickEventViewCDCQobsQsim)
         self.ButtonSim_ViewSediments.clicked.connect(clickEventViewSerieSedimentos)
-        
+        self.Sim2Excel_Streamflow.clicked.connect(clickEventExportQsim2Excel)
   
     def setupUIInputsOutputs (self):
         
