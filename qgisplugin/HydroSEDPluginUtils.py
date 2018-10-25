@@ -1079,8 +1079,48 @@ class controlHS(object):
         W.close()
         return 0     
         
+    def Convert2CDC (self,serie):
+        '''Toma una serie y arroja como salidas la serie organizada y el porcentaje de 
+           excedencia de cada valor'''
+        serie = np.sort(serie)
+        porcen_s=[]
+        for i in range(len(serie)):
+            porcen_s.append((len(serie[serie>serie[i]]))/float(len(serie))*100)
+        return np.array(serie),np.array(porcen_s)
         
-        
+    def Convert_Df2CDC(self,df):
+        '''Toma un dataframe que tenga como index fechas, y como columnas id de estaciones
+            arroja como salida un dataframe con la series organizadas y los respectivos
+            porcentajes de excelencia de cada valor'''
+        ids = np.array(df.keys())
+        tupla = []
+        Data = []
+        for ID in ids:
+            tupla.append((str(ID),'Q_sort'))
+            tupla.append((str(ID),'P_exc'))
+            Data.extend([self.Convert2CDC(df[ID].values)[0],self.Convert2CDC(df[ID].values)[1]])
+        Data = np.array(Data)
+        index = pd.MultiIndex.from_tuples(tupla, names=['Tramo','CDC'])
+        dfCDC = pd.DataFrame(Data.T,index = np.arange(len(df.index)),columns = index)
+        return dfCDC
+            
+    def CDC_Series2Excel(self,ExcelPath,df_sim=None,df_obs=None):
+        '''Guarda los dataframes a un excel.'''
+        W = pd.ExcelWriter(ExcelPath,engine='xlsxwriter')
+        #Escribe 
+        if df_sim is not None:
+            df_sim.to_excel(W,sheet_name='CDC_simulados')
+        if df_obs is not None:
+            df_obs.to_excel(W,sheet_name='CDC_observados')
+        #Cierra el archivo 
+        W.close()
+        return 0        
+            
+
+
+    
+            
+            
             
             
             

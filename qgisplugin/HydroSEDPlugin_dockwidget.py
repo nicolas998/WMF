@@ -1493,6 +1493,18 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             else:
                 self.dfDataQobs = self.dfDataQsim*np.nan
                 
+            self.HSplotsCaudal.Plot_CDC_caudal(PathFigure1,self.dfDataQobs,self.dfDataQsim)
+            #Set de la ventana que contiene la figura
+            self.VistaQobsWeb = QWebView(None)
+            self.VistaQobsWeb.load(QUrl.fromLocalFile(PathFigure1))
+            self.VistaQobsWeb.setWindowTitle('Curvas de duracion de Caudales')
+            self.VistaQobsWeb.setMinimumWidth(400)
+            self.VistaQobsWeb.setMaximumWidth(500)
+            self.VistaQobsWeb.setMinimumHeight(400)
+            self.VistaQobsWeb.setMaximumHeight(400)
+            self.VistaQobsWeb.show()
+            
+                
         def clickEventExportQsim2Excel():           
              #llama el df de caudal observado 
             Path2Save = setupLineEditButtonSaveFileDialog(QFileDialog)[0]
@@ -1503,6 +1515,40 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.iface.messageBar().pushInfo(u'HidroSIG',u'Se han exportado correctamente los caudales simulados')
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los caudales simulados',
+                    level=QgsMessageBar.WARNING, duration=5)
+                    
+        def clickEventExportCDC2Excel():           
+            #llama el df de caudal observado 
+            self.f_ini = self.Simulacion_DateTimeStart.dateTime().toPyDateTime()
+            self.f_fin = self.Simulacion_DateTimeEnd.dateTime().toPyDateTime()
+            Path2Save = setupLineEditButtonSaveFileDialog(QFileDialog)[0]
+            dfDataQsim=self.HSutils.Sim_Streamflow
+            
+            if self.checkBox_Simu_Qs_2.isChecked():
+                #Obtiene la serie de caudales 
+                self.PathQobs = self.PathinSimu_Qobs.text().strip()
+                #llama el df de caudal observado 
+                self.DataQ = self.HSutils.Sim_GetQobsInfo(self.PathQobs)[1]
+                #Crea el dataframe 
+                self.dfDataQobs = self.DataQ[self.f_ini:self.f_fin] 
+            else:
+                self.dfDataQobs = None          
+            if self.dfDataQobs is not None:
+                dfCDC_obs = self.HSutils.Convert_Df2CDC(self.dfDataQobs)
+            else:
+                dfCDC_obs = None
+                
+            if dfDataQsim is not None:
+                dfCDC_sim = self.HSutils.Convert_Df2CDC(dfDataQsim)
+            else:
+                dfCDC_sim = None
+            
+            Retorno = self.HSutils.CDC_Series2Excel(Path2Save,dfCDC_sim,dfCDC_obs)
+            #Mensage de exito o error
+            if Retorno == 0:
+                self.iface.messageBar().pushInfo(u'HidroSIG',u'Se han exportado correctamente los datos de las CDC')
+            else:
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los datos de las CDC',
                     level=QgsMessageBar.WARNING, duration=5)
             
                         
@@ -1571,6 +1617,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.ButtonSim_ViewCDC.clicked.connect(clickEventViewCDCQobsQsim)
         self.ButtonSim_ViewSediments.clicked.connect(clickEventViewSerieSedimentos)
         self.Sim2Excel_Streamflow.clicked.connect(clickEventExportQsim2Excel)
+        self.Sim2Excel_CDC.clicked.connect(clickEventExportCDC2Excel)
   
     def setupUIInputsOutputs (self):
         
