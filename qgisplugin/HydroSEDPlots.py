@@ -313,14 +313,15 @@ class PlotCaudal(object):
         plot(fig,filename=pathFigure, auto_open = False)
 
     def Plot_CDC_caudal(self,pathFigure,dfQobs,dfQsim):
-        
         Qs=np.sort(np.array(dfQsim.values))
         Qo=np.sort(np.array(dfQobs.values))
         porcen_s=[]
         porcen_o=[]
+        
         for i in range(len(Qo)):
-            porcen_s.append((len(Qs[Qs>Qs[i]]))/float(len(Qs))*100)
             porcen_o.append((len(Qo[Qo>Qo[i]]))/float(len(Qo))*100)
+        for i in range(len(Qs)):
+            porcen_s.append((len(Qs[Qs>Qs[i]]))/float(len(Qs))*100)
             
         trace_high = go.Scatter(
                 x=porcen_s,
@@ -349,7 +350,104 @@ class PlotCaudal(object):
         )
         fig = dict(data=data, layout=layout)
         #Guarda el html
-        plot(fig,filename=pathFigure, auto_open = False)    
+        plot(fig,filename=pathFigure, auto_open = False)
+        
+    def Plot_Anual_Caudal(self,pathFigure,dfQobs,dfQsim):        
+        
+        media_obs = dfQobs.groupby(dfQobs.index.month).mean()
+        media_sim = dfQsim.groupby(dfQsim.index.month).mean()
+        desv_obs = dfQobs.groupby(dfQobs.index.month).std()
+        desv_sim = dfQsim.groupby(dfQsim.index.month).std()
+
+        '''Hace el plot de la media mensual multi-anual de las series de Caudales'''
+       
+        #Hace la figura
+        trace1 = go.Scatter(
+            x = np.arange(1,13,1),
+            y = media_obs,
+            name = 'Media_obs',
+            line = {'width':5,
+                'color':('red')},    
+        )
+        
+        trace2 = go.Scatter(
+            x = np.arange(1,13,1),
+            y = media_obs + desv_obs,
+            name = 'mo + s',
+            line = dict(color = ('rgb(255, 153, 128)'),
+                width = 3),
+        )
+        
+        trace3 = go.Scatter(
+            x = np.arange(1,13,1),
+            y = media_obs - desv_obs,
+            name = 'mo - s',
+            fill='tonexty',
+            line = dict( width=3,
+                 color = ('rgb(255, 153, 128)')),
+        )
+        
+        trace4 = go.Scatter(
+            x = np.arange(1,13,1),
+            y = media_sim,
+            name = 'Media_sim',
+            line = {'width':5,
+                'color':('blue')},    
+        )
+        
+        trace5 = go.Scatter(
+            x = np.arange(1,13,1),
+            y = media_sim + desv_sim,
+            name = 'ms + s',
+            line = dict(color = ('rgb(204, 255, 255)'),
+                width = 3),
+        )
+        
+        trace6 = go.Scatter(
+            x = np.arange(1,13,1),
+            y = media_sim - desv_sim,
+            name = 'ms - s',
+            fill='tonexty',
+            line = dict( width=3,
+                 color = ('rgb(204, 255, 255)')),
+        )
+        
+        data = [trace2, trace3, trace1,trace4,trace5,trace6]
+        layout = dict(
+            width=800,
+            height=400,
+            showlegend = False,
+            margin=dict(
+                l=50,
+                r=50,
+                b=50,
+                t=50,
+                pad=4
+            ),
+            xaxis=dict(
+                dtick=1,
+                tickfont=dict(
+                    color='rgb(0, 102, 153)',
+                    size = 16),
+                ticktext = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+                tickvals = list(range(1,13))
+            ),
+            yaxis=dict(
+                title='Caudal [m^3/s]',
+                titlefont=dict(
+                    color='rgb(0, 102, 153)',
+                    size = 15
+                ),
+                tickangle=-90,
+                tickfont=dict(
+                    color='rgb(0, 102, 153)',
+                    size = 16,            
+                ),
+            ),
+        )
+        fig = dict(data=data, layout=layout)
+        plot(fig,filename=pathFigure, auto_open = False)
+                
         
     def Plot_Series_Sedimentos(self,pathFigure,dfArenas,dfLimos,dfArcillas,dfSed_total,dfDataQobs):   
              

@@ -5145,7 +5145,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-1396</y>
+              <y>-1375</y>
               <width>436</width>
               <height>2518</height>
              </rect>
@@ -7167,7 +7167,7 @@
                        <item row="3" column="3">
                         <widget class="QPushButton" name="Sim2Excel_Ciclo">
                          <property name="enabled">
-                          <bool>false</bool>
+                          <bool>true</bool>
                          </property>
                          <property name="minimumSize">
                           <size>
@@ -7231,7 +7231,7 @@
                        <item row="5" column="3">
                         <widget class="QPushButton" name="Sim2Excel_Storage">
                          <property name="enabled">
-                          <bool>false</bool>
+                          <bool>true</bool>
                          </property>
                          <property name="minimumSize">
                           <size>
