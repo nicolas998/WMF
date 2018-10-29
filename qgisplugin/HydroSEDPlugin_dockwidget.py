@@ -32,7 +32,8 @@ from builtins import object
 import os
 import numpy as np
 import glob 
-import datetime as dt 
+import datetime as dt
+import pandas as pd  
 
 from qgis.PyQt import QtGui, uic, QtCore
 from qgis.PyQt.QtCore import pyqtSignal, QUrl
@@ -1661,9 +1662,24 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los datos de los ciclos anuales',
                     level=QgsMessageBar.WARNING, duration=5)
+                    
+        def click_SimStorageSeries2Excel():
+            '''Exporta a excel las condiciones medias de almacenamiento de la cuenca'''
+            #Obtiene el path de los datos
+            Path2Save = setupLineEditButtonSaveFileDialog(QFileDialog)[0]
+            Path = self.Where2SaveStates.text().strip()
+            PathBin, PathHdr = HSutils.wmf.__Add_hdr_bin_2route__(Path, storage = True)
+            #lee los datos 
+            Data = pd.read_csv(PathHdr, skiprows=4, index_col=6, parse_dates=True)
+            Retorno = self.HSutils.Sim_Series2Excel(Path2Save,Data)
+            #Mensage de exito o error
+            if Retorno == 0:
+                self.iface.messageBar().pushInfo(u'HidroSIG',u'Se han exportado correctamente los almacenamientos')
+            else:
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los almacenamientos',
+                    level=QgsMessageBar.WARNING, duration=5)
             
-                            
-                                                            
+                               
         self.ButtonSimCalib2Nc.clicked.connect(clickEventAddNewParamSet)    
         self.tabPanelDockOpciones.currentChanged.connect(clickEventUpdateParamMapValues)
         self.ParamNamesCombo.currentIndexChanged.connect(changeEventUpdateScalarParameters) 
@@ -1690,6 +1706,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.ButtonSim_ViewStreamCiclo.clicked.connect(clickEventViewAnualQobsQsim)
         self.Sim2Excel_Ciclo.clicked.connect(clickEventExportAnualCaudal2Excel)
         self.Sim2Excel_Sediments.clicked.connect(clickEventExportQsimSed2Excel)
+        self.Sim2Excel_Storage.clicked.connect(click_SimStorageSeries2Excel)
   
   
     def setupUIInputsOutputs (self):
