@@ -1626,7 +1626,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             Path2Save = setupLineEditButtonSaveFileDialog(QFileDialog)[0]
             dfDataQsim=self.HSutils.Sim_Streamflow
             
-            if self.checkBox_Simu_Qs_2.isChecked():
+            if self.checkBox_Simu_Qs_4.isChecked():
                 #Obtiene la serie de caudales 
                 self.PathQobs = self.PathinSimu_Qobs.text().strip()
                 #llama el df de caudal observado 
@@ -1634,9 +1634,16 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 #Crea el dataframe 
                 self.dfDataQobs = self.DataQ[self.f_ini:self.f_fin] 
             else:
-                self.dfDataQobs = None          
+                self.dfDataQobs = None     
             
-            Retorno = self.HSutils.CDC_Series2Excel(Path2Save,dfCDC_sim,dfCDC_obs)
+            df_media_sim = self.HSutils.Convert_DfAnualCaudales(dfDataQsim)
+            
+            if self.dfDataQobs is not None:  
+                df_media_obs = self.HSutils.Convert_DfAnualCaudales(self.dfDataQobs)
+            else:
+                df_media_obs = None
+            
+            Retorno = self.HSutils.MediaMensual_Q2Excel(Path2Save,df_media_sim,df_media_obs)
             #Mensage de exito o error
             if Retorno == 0:
                 self.iface.messageBar().pushInfo(u'HidroSIG',u'Se han exportado correctamente los datos de las CDC')
@@ -1670,6 +1677,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.Sim2Excel_Streamflow.clicked.connect(clickEventExportQsim2Excel)
         self.Sim2Excel_CDC.clicked.connect(clickEventExportCDC2Excel)
         self.ButtonSim_ViewStreamCiclo.clicked.connect(clickEventViewAnualQobsQsim)
+        self.Sim2Excel_Ciclo.clicked.connect(clickEventExportAnualCaudal2Excel)
   
   
   

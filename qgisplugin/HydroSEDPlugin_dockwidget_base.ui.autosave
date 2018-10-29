@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>495</width>
+    <width>486</width>
     <height>937</height>
    </rect>
   </property>
@@ -271,7 +271,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>4</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -5145,7 +5145,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-1375</y>
+              <y>-1487</y>
               <width>436</width>
               <height>2518</height>
              </rect>

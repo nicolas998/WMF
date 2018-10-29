@@ -1102,7 +1102,25 @@ class controlHS(object):
         Data = np.array(Data)
         index = pd.MultiIndex.from_tuples(tupla, names=['Tramo','CDC'])
         dfCDC = pd.DataFrame(Data.T,index = np.arange(len(df.index)),columns = index)
-        return dfCDC
+        return dfCDC        
+        
+    def Convert_DfAnualCaudales(self,df):
+        '''Toma un dataframe que tenga como index fechas, y como columnas id de estaciones
+            arroja como salida un dataframe con las medias mensuales multianuales por cada tramo'''
+        ids = np.array(df.keys())
+        tupla = []
+        Data = []
+        media= df.groupby(df.index.month).mean()
+        desv = df.groupby(df.index.month).std()
+        
+        for ID in ids:
+            tupla.append((str(ID),'Media'))
+            tupla.append((str(ID),'Desv_Estandar'))
+            Data.extend([media[ID],desv[ID]])
+        Data = np.array(Data)
+        index = pd.MultiIndex.from_tuples(tupla, names=['Tramo','Media_Mensual'])
+        dfAnual = pd.DataFrame(Data.T,index = np.arange(1,13),columns = index)
+        return dfAnual
             
     def CDC_Series2Excel(self,ExcelPath,df_sim=None,df_obs=None):
         '''Guarda los dataframes a un excel.'''
@@ -1112,6 +1130,18 @@ class controlHS(object):
             df_sim.to_excel(W,sheet_name='CDC_simulados')
         if df_obs is not None:
             df_obs.to_excel(W,sheet_name='CDC_observados')
+        #Cierra el archivo 
+        W.close()
+        return 0 
+        
+    def MediaMensual_Q2Excel(self,ExcelPath,df_sim=None,df_obs=None):
+        '''Guarda los dataframes a un excel.'''
+        W = pd.ExcelWriter(ExcelPath,engine='xlsxwriter')
+        #Escribe 
+        if df_sim is not None:
+            df_sim.to_excel(W,sheet_name='Media_Mensual_Qsim')
+        if df_obs is not None:
+            df_obs.to_excel(W,sheet_name='Media_Mensual_Qobs')
         #Cierra el archivo 
         W.close()
         return 0        
