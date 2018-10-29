@@ -1578,7 +1578,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             
                 
         def clickEventExportQsim2Excel():           
-             #llama el df de caudal observado 
+            
             Path2Save = setupLineEditButtonSaveFileDialog(QFileDialog)[0]
             dfDataQsim = self.HSutils.Sim_Streamflow
             Retorno = self.HSutils.Sim_Series2Excel(Path2Save,dfDataQsim)
@@ -1587,6 +1587,17 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.iface.messageBar().pushInfo(u'HidroSIG',u'Se han exportado correctamente los caudales simulados')
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los caudales simulados',
+                    level=QgsMessageBar.WARNING, duration=5)
+                    
+        def clickEventExportQsimSed2Excel():
+            Path2Save = setupLineEditButtonSaveFileDialog(QFileDialog)[0]
+            dfDataQsim = self.HSutils.Sim_Sediments
+            Retorno = self.HSutils.Sim_Series2Excel(Path2Save,dfDataQsim)
+            #Mensage de exito o error
+            if Retorno == 0:
+                self.iface.messageBar().pushInfo(u'HidroSIG',u'Se han exportado correctamente los caudales sólidos simulados')
+            else:
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los caudales sólidos simulados',
                     level=QgsMessageBar.WARNING, duration=5)
                     
         def clickEventExportCDC2Excel():           
@@ -1646,9 +1657,9 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             Retorno = self.HSutils.MediaMensual_Q2Excel(Path2Save,df_media_sim,df_media_obs)
             #Mensage de exito o error
             if Retorno == 0:
-                self.iface.messageBar().pushInfo(u'HidroSIG',u'Se han exportado correctamente los datos de las CDC')
+                self.iface.messageBar().pushInfo(u'HidroSIG',u'Se han exportado correctamente los datos de los ciclos anuales')
             else:
-                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los datos de las CDC',
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los datos de los ciclos anuales',
                     level=QgsMessageBar.WARNING, duration=5)
             
                             
@@ -1678,7 +1689,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.Sim2Excel_CDC.clicked.connect(clickEventExportCDC2Excel)
         self.ButtonSim_ViewStreamCiclo.clicked.connect(clickEventViewAnualQobsQsim)
         self.Sim2Excel_Ciclo.clicked.connect(clickEventExportAnualCaudal2Excel)
-  
+        self.Sim2Excel_Sediments.clicked.connect(clickEventExportQsimSed2Excel)
   
   
     def setupUIInputsOutputs (self):
