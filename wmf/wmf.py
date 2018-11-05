@@ -1920,6 +1920,8 @@ class Basin:
                 #Calcula parametros
                 Area = pos.size * cu.dxp**2. / 1e6
                 Long = LongCauce[pos].sum() / 1000.
+                if Long == 0:
+                    Long = cu.dxp**2. / 1000.
                 Slope = np.median(self.CellSlope[pos])
                 #Actualiza el diccionario 
                 Dic[str(i)].update({'Area': Area,
