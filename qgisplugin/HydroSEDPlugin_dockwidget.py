@@ -150,15 +150,16 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         OutPathDivisoria = self.PathOutputDivisoria.text()
         OutPathRed = self.PathOutputRed.text()
         OutPathNC = self.PathOutputNETCDF.text()
+        OutPathAsynch = self.PathOutputASYNCH.text()
         #Traza la cuenca
         self.HSutils.trazador_cuenca(x,y, self.spinBox_dxPlano.value(),
-            self.spinBoxUmbralRed.value(),OutPathDivisoria, OutPathRed, OutPathNC, self.lineEditMapaDEM,
-            self.lineEditMapaDIR)
+            self.spinBoxUmbralRed.value(),OutPathDivisoria, OutPathRed, OutPathNC, 
+            OutPathAsynch, self.lineEditMapaDEM, self.lineEditMapaDIR)
         #Establece a la cuenca trazada como el proyecto actual.
         if len(OutPathNC)>2:
             self.lineEditRutaCuenca.setText(OutPathNC)
             self.ButtonLoadBasinProyect.setEnabled(True)
-                
+        
         #Carga la divisoria
         ret, layer = self.HSutils.cargar_mapa_vector(OutPathDivisoria, self.HSutils.TIPO_STYLE_POLIGONO, color = (255,0,0), width = 0.6)            
         self.iface.mapCanvas().refresh() 
@@ -1894,7 +1895,7 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.iface.addVectorLayer (lineEditHolder.text ().strip (), os.path.basename (lineEditHolder.text ()).strip (), "ogr")
 
         def setupLineEditButtonOpenRasterFileDialog (lineEditHolder, fileDialogHolder):
-            '''Hace que solo0 se busquen formatos aceptados por GDAL'''
+            '''Hace que solo se busquen formatos aceptados por GDAL'''
             lineEditHolder.setText (fileDialogHolder.getOpenFileName (QtWidgets.QDialog (), 'Open File',"", 
             GdalTools_utils.FileFilter.allRastersFilter (),"",QFileDialog.DontUseNativeDialog)[0])
 
@@ -1991,6 +1992,10 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #Hace set del path para el nc
             setupLineEditButtonSaveFileDialog(self.PathOutputNETCDF, QFileDialog)
 
+        def clickEventSelectorOutput_AsynchRVR():
+            #hace el path para el rvr
+            setupLineEditButtonSaveFileDialog(self.PathOutputASYNCH, QFileDialog)
+            
         def clickEventSelectorOutputCuencaShapefileTrazadorCuencas ():
             setupLineEditButtonSaveFileDialog (self.lineEditOutputCuencaShapefileTrazadorCuencas, QFileDialog)
 
@@ -2014,6 +2019,8 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         #Botones para ruta de red y de nc.
         self.BotonPathRed.clicked.connect(clickEventSelectorInputRedShapefileTrazadorCuencas)
         self.BotonPathNC.clicked.connect(clickEventSelectorInputNC_ShapefileTrazadorCuencas)
+        #Botones para la ruta del .rvr de asynch
+        self.BotonPathASYNCH.clicked.connect(clickEventSelectorOutput_AsynchRVR)
 
         #Botones para agarrar coordenadqas de trazado
         self.BotonCoord_corriente.clicked.connect(self.handleClickCoordCorrientes)

@@ -122,8 +122,16 @@ class controlHS(object):
         #Guarda la corriente.
         if path is not None:
             self.stream.Save_Stream2Map(path)
+    
+    def __pathAsynch2paths__(self, path):
+        filename, ext = os.path.splitext(path)
+        path_rvr = filename + '.rvr'
+        path_prm = filename + '.prm'
+        path_lookup = filename + '.lookup'
+        return path_rvr, path_prm, path_lookup
         
-    def trazador_cuenca(self,x,y, dxp,umbral,PathDiv, PathRed, PathNC,PathDEM, PathDIR,TopoNodes = False, LastStream = True):
+    def trazador_cuenca(self,x,y, dxp,umbral,PathDiv, PathRed, PathNC,
+        PathAsynch,PathDEM, PathDIR,TopoNodes = False, LastStream = True):
         # Traza la cuenca con y sin la ultima corriente.
         if LastStream:
             self.cuenca = wmf.SimuBasin(x, y, self.DEM, self.DIR, stream=self.stream,  umbral = umbral)
@@ -135,6 +143,11 @@ class controlHS(object):
         # Guarda el nc de la cuenca 
         if len(PathNC)>2:
             self.cuenca.Save_SimuBasin(PathNC)
+        if len(PathAsynch)>2:
+            path_rvr, path_prm, path_lookup = self.__pathAsynch2paths__(PathAsynch)
+            self.cuenca.Transform_Basin2Asynch(path_rvr, 
+                path_prm,
+                path_lookup)
     
     def BasinNc2Network(self,pathNetwork, names):
         '''Guarda una red hidrica con las variables seleccionadas del diccionario NC'''

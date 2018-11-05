@@ -1869,8 +1869,8 @@ class Basin:
             for cont,co in enumerate(Coord):
                 DicPoly[str(Value)].update({str(cont):np.array(co).T})
         return DicPoly
-
-    def Transform_Basin2Asnych(self, ruta = None, lookup = False, prm = False, writeMsgLinkFile = False):
+        
+    def Transform_Basin2Asynch(self, ruta = None, lookup = False, prm = False, writeMsgLinkFile = False):
         '''Tranfrom_Basin2Asynch: Convierte la topologia de la cuenca de WMF
         en el formato .rvr requerido por ASYNCH
         Parametros:
@@ -1891,7 +1891,10 @@ class Basin:
         if prm:
             LongCauce = self.CellCauce*self.CellLong
         #Variables para transformar 
-        Con = self.hills.data[1]
+        try:
+            Con = self.hills.data[1]
+        except:
+            Con = self.hills[1]
         Ids = np.arange(self.nhills, 0, -1)
         #Definicion de diccionarios para transformar
         DicAsynch = {}
