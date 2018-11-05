@@ -774,8 +774,8 @@ def __asynch_write_prm__(DicAsynch, ruta):
     f.write('%d\n\n' % len(DicAsynch))
     for k in DicAsynch.keys():       
         f.write('%s\n' % k)
-        f.write('%.5f %.5f %.5f\n\n' % (DicAsynch[k]['Area'], 
-            DicAsynch[k]['Long'],DicAsynch[k]['Slope']))
+        f.write('%.5f %.5f %.5f\n\n' % (DicAsynch[k]['Area_up'], 
+            DicAsynch[k]['Long'],DicAsynch[k]['Area_hill']))
     f.close() 
 
 #Funciones para mirar como es un netCDf por dentro
@@ -1885,6 +1885,7 @@ class Basin:
             - Archivo plano de texto con el archivo .rvr (si se da la ruta)
         '''
         self.GetGeo_Cell_Basics()
+        AreaAcum = self.CellAcum * cu.dxp**2. / 1e6
         if lookup:
             x,y = cu.basin_coordxy(self.structure, self.ncells)
             self.GetGeo_StreamOrder()
@@ -1925,11 +1926,10 @@ class Basin:
                 Long = LongCauce[pos].sum() / 1000.
                 if Long == 0:
                     Long = cu.dxp**2. / 1000.
-                Slope = np.median(self.CellSlope[pos])
                 #Actualiza el diccionario 
-                Dic[str(i)].update({'Area': Area,
+                Dic[str(i)].update({'Area_hill': Area,
                     'Long': Long, 
-                    'Slope': Slope})
+                    'Area_up': AreaAcum[pos].max()})
             #Diccionario con toda la estructura
             DicAsynch.update(Dic)
         DataFrame = pd.DataFrame(DicAsynch).T
