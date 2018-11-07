@@ -726,6 +726,57 @@ def __eval_q_pico__(s_o,s_s):
     dif_qpico=((Qo_max-Qs_max)/Qo_max)*100
     return dif_qpico
 
+#Funciones para vincularse con asynch
+def __asynch_write_rvr__(DicAsynch, ruta):
+    '''Escribe el plano de asynch a partir del diccionario y de una ruta'''
+    # arregla la ruta 
+    path, ext = os.path.splitext(ruta) 
+    if ext != '.rvr':
+        ruta = path + '.rvr'
+    #Escribe el archivo 
+    f = open(ruta,'w')
+    #Numero de elementos
+    f.write('%d\n\n' % len(DicAsynch))
+    #Itera para escribir la topologia
+    for k in DicAsynch.keys():
+        f.write('%s\n' % k)
+        if DicAsynch[k]['Nparents'] == 0:
+            f.write('%d\n\n' % DicAsynch[k]['Nparents'])
+        if DicAsynch[k]['Nparents'] > 0:
+            f.write('%d' % DicAsynch[k]['Nparents'])
+            for i in range(DicAsynch[k]['Nparents']):
+                f.write(' %d' % DicAsynch[k]['Parents'][i])
+            f.write('\n\n')
+    f.close()
+
+def __asynch_write_lookup__(DicAsynch, ruta):
+    '''Escribe el plano de asynch con la informacion de lookup'''
+    # arregla la ruta 
+    path, ext = os.path.splitext(ruta) 
+    if ext != '.lookup':
+        ruta = path + '.lookup'
+    #hace la escritura
+    f = open(ruta, 'w')
+    f.write('Link-ID,Longitude,Latitude,HortonOrder\n')
+    for k in DicAsynch.keys():
+        f.write('%s,%.7f,%.7f,%.1f\n' % (k, DicAsynch[k]['x'],
+            DicAsynch[k]['y'],DicAsynch[k]['order']))
+    f.close()
+        
+def __asynch_write_prm__(DicAsynch, ruta):
+    '''Escribe el plano de asynch con la informacion de prm'''
+    # arregla la ruta 
+    path, ext = os.path.splitext(ruta) 
+    if ext != '.prm':
+        ruta = path + '.prm'
+    #Escritura 
+    f = open(ruta, 'w')
+    f.write('%d\n\n' % len(DicAsynch))
+    for k in DicAsynch.keys():       
+        f.write('%s\n' % k)
+        f.write('%.5f %.5f %.5f\n\n' % (DicAsynch[k]['Area'], 
+            DicAsynch[k]['Long'],DicAsynch[k]['Slope']))
+    f.close() 
 
 #Funciones para mirar como es un netCDf por dentro
 def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
@@ -1819,6 +1870,85 @@ class Basin:
                 DicPoly[str(Value)].update({str(cont):np.array(co).T})
         return DicPoly
 
+    def Transform_Basin2Asnych(self, ruta = None, lookup = False, prm = False, writeMsgLinkFile = False):
+        '''Tranfrom_Basin2Asynch: Convierte la topologia de la cuenca de WMF
+        en el formato .rvr requerido por ASYNCH
+        Parametros:
+            - Toma de forma predefinida la estructura de la cuenca de hills
+                y a partir de esta obtiene la estructura de ASYNCH.
+            - [ruta]: ruta donde se guarda el archivo .rvr con la topologia
+            - [lookup]: Tabla de asynch con ID, Lat, Lon, Orden
+            - [prm]: Tabla de asynch con parametros: ID, Area, Pend, Long
+            - writeMsgLinkFile: Escribe un archivo msg con toda la estructura de los datos
+        Resultados:
+            - self.asynch_rvr: diccionario con la forma de asynch en la cuenca.
+            - Archivo plano de texto con el archivo .rvr (si se da la ruta)
+        '''
+        self.GetGeo_Cell_Basics()
+        if lookup:
+            x,y = cu.basin_coordxy(self.structure, self.ncells)
+            self.GetGeo_StreamOrder()
+        if prm:
+            LongCauce = self.CellCauce*self.CellLong
+        #Variables para transformar 
+        Con = self.hills.data[1]
+        Ids = np.arange(self.nhills, 0, -1)
+        #Definicion de diccionarios para transformar
+        DicAsynch = {}
+        # Funciona esta forma de transformar, pero creo que deben haber una forma mas rapida de hacerlo     
+        for c,i in enumerate(Ids):
+            #Busca si hay quien le drene 
+            pos = np.where(Con == i)
+            #Si los encuentra pone el formato 
+            Dic = {str(i): {'Nparents': len(pos[0]),
+                'Parents': Ids[pos].tolist(),
+                'WMFpos': c+1}}
+            #Encuentra posiciones
+            pos = np.where(self.hills_own == c+1)[0]    
+            #Lookup Table 
+            if lookup:
+                #Saca coord y el orden de horton
+                xhill = np.median(x[pos])
+                yhill = np.median(y[pos])
+                horton = self.CellHorton_Hill[pos].max()
+                #Actualzia la tabla
+                Dic[str(i)].update({'x': xhill, 
+                    'y': yhill,
+                    'order': horton})
+            #Tabla de propiedades prm 
+            if prm:
+                #Calcula parametros
+                Area = pos.size * cu.dxp**2. / 1e6
+                Long = LongCauce[pos].sum() / 1000.
+                if Long == 0:
+                    Long = cu.dxp**2. / 1000.
+                Slope = np.median(self.CellSlope[pos])
+                #Actualiza el diccionario 
+                Dic[str(i)].update({'Area': Area,
+                    'Long': Long, 
+                    'Slope': Slope})
+            #Diccionario con toda la estructura
+            DicAsynch.update(Dic)
+        DataFrame = pd.DataFrame(DicAsynch).T
+        # Funcion para escribir en el formato de asynch 
+        if ruta is not None:
+            #Escribe los archivos de asynch
+            __asynch_write_rvr__(DicAsynch, ruta)
+            if lookup:
+                __asynch_write_lookup__(DicAsynch, ruta)
+            if prm:
+                __asynch_write_prm__(DicAsynch, ruta)
+        if writeMsgLinkFile:
+            #Arregla la extension 
+            name, ext = os.path.splitext(ruta)
+            extension = '.msg'
+            if ext != extension:
+                path = name + extension
+            #Escribe 
+            DataFrame.to_msgpack(path)
+        #Retorno 
+        return DataFrame
+        
     #------------------------------------------------------
     # Trabajo con datos puntuales puntos
     #------------------------------------------------------
