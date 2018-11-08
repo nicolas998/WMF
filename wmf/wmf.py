@@ -945,21 +945,6 @@ class Basin:
         #Cierra el archivo
         gr.close()
 
-    def Load_BasinVar(self, varName):
-        'Descripcion: Lee una variable especifica del netCDf de la cuenca\n'\
-        '\n'\
-        'Parametros\n'\
-        '----------\n'\
-        'varName: nombre de la variable guardada\n'\
-        'Retornos\n'\
-        '----------\n'\
-        'var : Retorna la variable como un numpy array.\n'\
-        #Lectura del netCDf y lectura de variable
-        gr = netcdf.Dataset(self.rutaNC,'a')
-        Var = gr.variables[varName][:]
-        gr.close()
-        return Var
-
     #Guardado de de la cuenca en nc
     def Save_Basin2nc(self,ruta,qmed=None,q233=None,q5=None,
         ExtraVar=None):
@@ -1017,6 +1002,53 @@ class Basin:
         gr.close()
         #Sale del programa
         return
+    
+    #Variable loader and vision
+    def Load_BasinVar(self, GroupName = None, VarName = None,
+        ShowVars = True):
+        '''This function shows the variables of the netCDF of the basin
+        and loads the variable if a name is given.
+        
+        Parameters:
+            - GroupName(None): shows list of groups and varaibles.
+                - if the group name is specified shows variables of that group
+                - if both GroupName and VarName, returns the variable
+            - VarName(None): shows the variables of the group.
+                - if given, loads the variable from the netCDF.
+        Optional:
+            - ShowVars(True): Show the three of the bars in the basin'''
+        #Loads netCDF 
+        g = netcdf.Dataset(self.rutaNC)
+        # No group name case
+        if GroupName is None:
+            print('Variable Groups in the basin file: (varName, shape, meanValue, min, max)\n')
+            for k in g.groups.keys():
+                print(k)
+                if ShowVars:   
+                    for k2 in g.groups[k].variables.keys():
+                        print('\t'+k2+'\t', g.groups[k].variables[k2].shape, 
+                            '\t %.2f' % g.groups[k].variables[k2][:].mean(),
+                            '\t %.2f' % g.groups[k].variables[k2][:].min(),
+                            '\t %.2f' % g.groups[k].variables[k2][:].max())
+        #Given Group no name of variable 
+        else:
+            if VarName is None:
+                try:
+                    print('Variables into %s: \n' % GroupName)
+                    for k in g.groups[GroupName].variables.keys():
+                        print('\t'+k+'\t', g.groups[GroupName].variables[k].shape,
+                            '\t %.2f' % g.groups[GroupName].variables[k][:].mean(),
+                            '\t %.2f' % g.groups[GroupName].variables[k][:].min(),
+                            '\t %.2f' % g.groups[GroupName].variables[k][:].max())
+                except:
+                    print('Error: %s is not in the group list' % GroupName)
+            else:
+                try:
+                    return g.groups[GroupName].variables[VarName][:]
+                except:
+                    print('Error: %s is not in group %s' % (VarName, GroupName))
+        g.close()
+    
     #Parametros Geomorfologicos
     def GetGeo_Parameters(self,rutaParamASC=None,plotTc=False,
         rutaTcPlot = None, figsize=(8,5), GetPerim=True):
