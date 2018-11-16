@@ -570,7 +570,8 @@ def read_storage_struct(ruta):
     return Data
 
 def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
-    Mean_Storage):
+    Mean_Storage, WhereItSave):
+    '''Function to save the header file of the model storage'''
     #Lee fechas para el intervalo de tiempo
     S = read_mean_rain(rute_rain,Nintervals,FirstInt)
     #Escribe el encabezado del archivo
@@ -580,13 +581,11 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     f.write('Numero de registros: %d \n' % Nintervals)
     f.write('Tipo Modelo: %s \n' % cuenca.modelType)
     f.write('IDfecha, Tanque 1, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
-    c = 1
     #Si no hay almacenamiento medio lo coloca en -9999
     #Escribe registros medios y fechas de los almacenamientos
-    for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
+    for c,d,sto in zip(WhereItSave,S.index.to_pydatetime(),Mean_Storage.T):
         f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' %
             (c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
-        c+=1
     f.close()
 
 def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
@@ -3911,6 +3910,24 @@ class SimuBasin(Basin):
             isVec=True
             models.storage[pos] = Vec
 
+    def set_StorageDates(self, SimuDates, SelectedDates, Nintervals):
+        '''Function to set the variable that determines at which dates
+        store the results from the model.
+        Parameters:
+            - SimuDates: pandas index dates corresponding to the simulation period.
+            - SelectedDates: List with the dates in the format: yyyy-mm-dd HH:MM.
+            - Nintervals: Number of simulated intervals in the model.'''
+        #SEt the null variable to indicate where to save
+        Guarda = np.zeros(Nintervals)
+        cont = 1
+        for sd in SelectedDates:
+            pos = np.where(SimuDates == sd)[0][0]
+            Guarda[pos] = cont
+            cont+=1
+        #Assing the variable to wmf
+        models.guarda_cond = np.copy(Guarda)
+        return Guarda
+
     def set_Control(self,coordXY,ids,tipo = 'Q'):
         'Descripcion: \n'\
         '   Establece los puntos deonde se va a realizar control del caudal\n'\
@@ -4248,7 +4265,8 @@ class SimuBasin(Basin):
         #------------------------------------------------------
     def run_shia(self,Calibracion,
         rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
-        ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True, EvpVariable = False):
+        ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True, 
+        EvpVariable = False, Dates2Save = None):
         'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
         '   Antes de su ejecucion se deben tener listas todas las . \n'\
         '   variables requeridas . \n'\
@@ -4292,7 +4310,8 @@ class SimuBasin(Basin):
         '               cu.set_Storage(j,c)\n'\
         'QsimDataFrame: Retorna un data frame con los caudales simulados indicando su id de acuerdo con el\n'\
         '   que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
-                'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
+        'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
+        'Dates2Save: list with the dates to save in the format: [Y-m-d H:M, ...]\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -4324,6 +4343,12 @@ class SimuBasin(Basin):
             models.save_storage = 1
             ruta_sto_bin, ruta_sto_hdr = __Add_hdr_bin_2route__(ruta_storage,
                 storage = True)
+            #Check if is going to save model states at certain dates 
+            if Dates2Save is not None:
+                WhereItSaves = self.set_StorageDates(Rain.index, Dates2Save, N_intervals)
+            else:
+                print('Warning: model will save states in all time steps this may require a lot of space')
+                WhereItSaves = np.arange(1,N_intervals+1)
         else:
             models.save_storage = 0
             ruta_sto_bin = 'no_guardo_nada.StObin'
@@ -4416,11 +4441,13 @@ class SimuBasin(Basin):
             #Caso en el que se registra el alm medio
             if models.show_storage == 1:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-                    start_point,self,Mean_Storage = np.copy(models.mean_storage))
+                    start_point,self,Mean_Storage = np.copy(models.mean_storage),
+                    WhereItSaves)
             #Caso en el que no hay alm medio para cada uno de los
             else:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-                    start_point,self,Mean_Storage=np.zeros((5,N))*-9999)
+                    start_point,self,Mean_Storage=np.zeros((5,N))*-9999,
+                    WhereItSaves)
         #Area de la seccion
         if models.show_area == 1:
             Retornos.update({'Sec_Area': Area})

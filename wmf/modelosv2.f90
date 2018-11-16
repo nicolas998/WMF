@@ -369,7 +369,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
             guarda_cond = 0
         else    
             !Si esta aojada, pero no coincide con la cantidad de registros, tampoco guarda nada
-            if (sizeof(guarda_cond) .ne. N_reg) then 
+            if (sizeof(guarda_cond) .lt. N_reg) then 
                 deallocate(guarda_cond)
                 allocate(guarda_cond(N_reg))
                 guarda_cond = 0
