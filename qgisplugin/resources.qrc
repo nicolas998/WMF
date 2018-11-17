@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/plugins/HydroSEDPlugin">
+    <file>icons/reload.png</file>
+    <file>icons/histograma.ico</file>
     <file>icons/toRaster.ico</file>
     <file>icons/save.svg</file>
     <file>icons/toexcel.png</file>

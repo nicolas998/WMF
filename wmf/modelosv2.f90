@@ -362,20 +362,20 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 
     !Prepara en caso de que se vayan a guardar condiciones, este cambio busca 
     !que se guarden condiciones de forma especifica 
-    !if (save_storage .eq. 1) then 
+    if (save_storage .eq. 1) then 
         !Verifica si no esta alojada la vairable, en caso de que no no guarda condiciones
-     !   if (allocated(guarda_cond) .eqv. .false.) then 
-      !      allocate(guarda_cond(N_reg))
-       !     guarda_cond = 0
-        !else    
+        if (allocated(guarda_cond) .eqv. .false.) then 
+            allocate(guarda_cond(N_reg))
+            guarda_cond = 0
+        else    
             !Si esta aojada, pero no coincide con la cantidad de registros, tampoco guarda nada
-         !   if (sizeof(guarda_cond) .ne. N_reg) then 
-          !      deallocate(guarda_cond)
-           !     allocate(guarda_cond(N_reg))
-           !     guarda_cond = 0
-           ! endif    
-        !endif
-    !endif 
+            if (sizeof(guarda_cond) .lt. N_reg) then 
+                deallocate(guarda_cond)
+                allocate(guarda_cond(N_reg))
+                guarda_cond = 0
+            endif    
+        endif
+    endif 
 
 	!--------------------------------------------------------------------------
     !EJECUCION DEL MODELO 
@@ -723,9 +723,11 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
         Mean_Rain(1,tiempo)=rain_sum/N_cel
                 
         !Guarda campo de estados del modelo 
-        if (guarda_cond(tiempo) .gt. 0 .and. save_storage .eq. 1) then
-            call write_float_basin(ruta_storage,StoOut,guarda_cond(tiempo),N_cel,5)
-        endif
+        if (save_storage .eq. 1) then
+			if (guarda_cond(tiempo) .gt. 0) then
+				call write_float_basin(ruta_storage,StoOut,guarda_cond(tiempo),N_cel,5)
+			endif
+		endif
         !Guarda campo de velocidades del modelo
         if (save_speed .eq. 1) then
             call write_float_basin(ruta_speed,hspeed,tiempo,N_cel,4)

@@ -64,6 +64,12 @@
                 <height>16777215</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>Seleccionar la ruta en la que se encuentra el .nc con el proyecto de cuenca. </string>
+              </property>
+              <property name="whatsThis">
+               <string>Seleccionar la ruta en la que se encuentra el .nc con el proyecto de cuenca. </string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -77,6 +83,9 @@
              <widget class="QPushButton" name="ButtonLoadBasinProyect">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Carga el proyecto cuenca a WMF, de manera que puede ser usada para operar con ella.</string>
               </property>
               <property name="whatsThis">
                <string>Carga el proyecto cuenca a WMF, de manera que puede ser usada para operar con ella.</string>
@@ -105,6 +114,12 @@
             </item>
             <item>
              <widget class="QCheckBox" name="checkBox_simBasin">
+              <property name="toolTip">
+               <string>Se cargan las variables de simulación hidrológica al cargar el proyecto de cuenca</string>
+              </property>
+              <property name="whatsThis">
+               <string>Se cargan las variables de simulación hidrológica al cargar el proyecto de cuenca</string>
+              </property>
               <property name="text">
                <string>Simulación</string>
               </property>
@@ -114,6 +129,12 @@
              <widget class="QCheckBox" name="checkBox_simSed">
               <property name="enabled">
                <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>Se cargan las variables de simulación de sedimentos al cargar el proyecto de cuenca.</string>
+              </property>
+              <property name="whatsThis">
+               <string>Se cargan las variables de simulación de sedimentos al cargar el proyecto de cuenca.</string>
               </property>
               <property name="text">
                <string>Sedimentos</string>
@@ -198,7 +219,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carga el MDE en el layout de mapas de Qgis.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>Carga el shp de la divisoria del proyecto de cuenca.</string>
               </property>
               <property name="whatsThis">
                <string>Carga el shp de la divisoria del proyecto de cuenca.</string>
@@ -220,7 +241,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carga el MDE en el layout de mapas de Qgis.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>Carga la red hídrica del proyecto cuenca cargado.</string>
               </property>
               <property name="whatsThis">
                <string>Carga la red hídrica del proyecto cuenca cargado.</string>
@@ -250,7 +271,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>4</number>
          </property>
          <widget class="QWidget" name="tabConfiguracion">
           <attribute name="icon">
@@ -294,7 +315,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-520</y>
+              <y>0</y>
               <width>446</width>
               <height>1018</height>
              </rect>
@@ -711,6 +732,12 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Código EPSG del sistema coordenado del DEM y DIR que han sido cargados.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Código EPSG del sistema coordenado del DEM y DIR que han sido cargados.</string>
+                      </property>
                       <property name="readOnly">
                        <bool>true</bool>
                       </property>
@@ -756,6 +783,12 @@
                         <width>85</width>
                         <height>16777215</height>
                        </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Valor asociado a los datos nulos del DEM y DIR que han sido cargados a la cuenca.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Valor asociado a los datos nulos del DEM y DIR que han sido cargados a la cuenca.</string>
                       </property>
                       <property name="readOnly">
                        <bool>true</bool>
@@ -950,6 +983,12 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="PathCorriente_out">
+                      <property name="toolTip">
+                       <string>Ruta donde se va a guardar el archivo .shp con la corriente trazada.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta donde se va a guardar el archivo .shp con la corriente trazada.</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
@@ -1051,7 +1090,7 @@
                        <number>0</number>
                       </property>
                       <property name="minimum">
-                       <double>10.000000000000000</double>
+                       <double>1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>100000.000000000000000</double>
@@ -1160,6 +1199,12 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Ejecutar el trazado de la cuenca </string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ejecutar el trazado de la cuenca </string>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
@@ -1194,6 +1239,12 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="PathOutputDivisoria">
+                      <property name="toolTip">
+                       <string>Ruta para guardar el .shp con la divisoria de la cuenca.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta para guardar el .shp con la divisoria de la cuenca.</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
@@ -1242,10 +1293,10 @@
                     <item>
                      <widget class="QLineEdit" name="PathOutputRed">
                       <property name="toolTip">
-                       <string>Seleccionar la ruta para para guardar el .shp con la red hídrica</string>
+                       <string>Ruta para para guardar el .shp con la red hídrica</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Seleccionar la ruta para para guardar el .shp con la red hídrica</string>
+                       <string>Ruta para para guardar el .shp con la red hídrica</string>
                       </property>
                       <property name="readOnly">
                        <bool>false</bool>
@@ -1265,6 +1316,12 @@
                         <width>30</width>
                         <height>16777215</height>
                        </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Seleccionar la ruta para guardar el .shp con la red hidrológica </string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la ruta para guardar el .shp con la red hidrológica </string>
                       </property>
                       <property name="text">
                        <string/>
@@ -1295,10 +1352,10 @@
                     <item>
                      <widget class="QLineEdit" name="PathOutputNETCDF">
                       <property name="toolTip">
-                       <string>Seleccionar la ruta para guardar el .nc con el proyecto de cuenca</string>
+                       <string>Ruta para guardar el .nc con el proyecto de cuenca</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Seleccionar la ruta para guardar el .nc con el proyecto de cuenca</string>
+                       <string>Ruta para guardar el .nc con el proyecto de cuenca</string>
                       </property>
                       <property name="readOnly">
                        <bool>false</bool>
@@ -1318,6 +1375,15 @@
                         <width>30</width>
                         <height>16777215</height>
                        </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Seleccionar la ruta en la que será guardado el proyecto de cuenca.</string>
+                      </property>
+                      <property name="statusTip">
+                       <string/>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la ruta en la que será guardado el proyecto de cuenca.</string>
                       </property>
                       <property name="text">
                        <string/>
@@ -1854,10 +1920,10 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Envar variables del NC al WMF (Si no han sido guardadas en el NC)</string>
+                       <string>Enviar variables del NC al WMF (Si no han sido guardadas en el NC)</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Envar variables del NC al WMF (Si no han sido guardadas en el NC)</string>
+                       <string>Enviar variables del NC al WMF (Si no han sido guardadas en el NC)</string>
                       </property>
                       <property name="text">
                        <string/>
@@ -1947,6 +2013,9 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Actualizar variables del Nc.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Actualizar variables del Nc.</string>
                       </property>
@@ -2008,6 +2077,9 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Capa a ver (o editar) de la variable Nc.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Capa a ver (o editar) de la variable Nc.</string>
                       </property>
@@ -2064,6 +2136,9 @@
                         <width>50</width>
                         <height>16777215</height>
                        </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Visualizar una variable del Nc</string>
                       </property>
                       <property name="whatsThis">
                        <string>Visualizar una variable del Nc</string>
@@ -2221,6 +2296,12 @@
                           <height>16777215</height>
                          </size>
                         </property>
+                        <property name="toolTip">
+                         <string>Convertir una variable existente por medio de la expresión</string>
+                        </property>
+                        <property name="whatsThis">
+                         <string>Convertir una variable existente por medio de la expresión</string>
+                        </property>
                         <property name="text">
                          <string/>
                         </property>
@@ -2272,6 +2353,12 @@
                           <width>20</width>
                           <height>16777215</height>
                          </size>
+                        </property>
+                        <property name="toolTip">
+                         <string>Crear una nueva variable a partir de la expresión</string>
+                        </property>
+                        <property name="whatsThis">
+                         <string>Crear una nueva variable a partir de la expresión</string>
                         </property>
                         <property name="text">
                          <string/>
@@ -2681,6 +2768,9 @@
                      <layout class="QHBoxLayout" name="horizontalLayout">
                       <item>
                        <widget class="QDoubleSpinBox" name="RunoffE1">
+                        <property name="toolTip">
+                         <string>Exponente e1 para calculo de coef de escorrentia (0.64, 0.53, 0.315)</string>
+                        </property>
                         <property name="whatsThis">
                          <string>Exponente e1 para calculo de coef de escorrentia (0.64, 0.53, 0.315)</string>
                         </property>
@@ -2697,6 +2787,9 @@
                       </item>
                       <item>
                        <widget class="QDoubleSpinBox" name="RunoffEpsi">
+                        <property name="toolTip">
+                         <string>Coeficiente Epsilon cálculo runoff (0.5, 0.44, 0.38)</string>
+                        </property>
                         <property name="whatsThis">
                          <string>Coeficiente Epsilon cálculo runoff (0.5, 0.44, 0.38)</string>
                         </property>
@@ -2811,6 +2904,12 @@
                         <height>0</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Seleccionar la variable para usar como mascara.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la variable para usar como mascara.</string>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -2867,6 +2966,12 @@
                         <height>0</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Seleccionar la variable para acumular.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Seleccionar la variable para acumular.</string>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -2894,6 +2999,12 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Nombre que tendrá la variable a acumular.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Nombre que tendrá la variable a acumular.</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
@@ -2914,6 +3025,12 @@
                     </item>
                     <item>
                      <widget class="QDoubleSpinBox" name="UmbralAcum">
+                      <property name="toolTip">
+                       <string>Umbral para fijar en la máscara a utilizar.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Umbral para fijar en la máscara a utilizar.</string>
+                      </property>
                       <property name="minimum">
                        <double>-999999.000000000000000</double>
                       </property>
@@ -3400,7 +3517,10 @@
                     <item>
                      <widget class="QLineEdit" name="PathInHydro_Rain">
                       <property name="toolTip">
-                       <string>Nombre del mapa con precipitacion media cargado en WMF o NC</string>
+                       <string>valor de la precipitación media multianual sobre la cuenca.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>valor de la precipitación media multianual sobre la cuenca.</string>
                       </property>
                       <property name="readOnly">
                        <bool>false</bool>
@@ -3546,6 +3666,12 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="ShowResultQmed">
+                      <property name="toolTip">
+                       <string>Valor del caudal medio a la salida de la cuenca.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Valor del caudal medio a la salida de la cuenca. </string>
+                      </property>
                       <property name="readOnly">
                        <bool>true</bool>
                       </property>
@@ -3651,6 +3777,12 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="PathInHydro_Interpol_Pluvios">
+                      <property name="toolTip">
+                       <string>Ruta del .shp en el que se encuentran las oordenadas de las estaciones de precipitación. </string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta del .shp en el que se encuentran las oordenadas de las estaciones de precipitación. </string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
@@ -3715,6 +3847,12 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="PathInHydro_Interpol_Serie">
+                      <property name="toolTip">
+                       <string>Ruta en la que se encuentra el excel con los datos de precipitación</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta en la que se encuentra el excel con los datos de precipitación</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
@@ -3886,10 +4024,10 @@
                     <item>
                      <widget class="QDoubleSpinBox" name="Interpol_SpinBox_delta">
                       <property name="toolTip">
-                       <string>Delta de tiempo para el campo que interpolado</string>
+                       <string>Delta de tiempo para el campo interpolado a generar.</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Delta de tiempo para el campo que interpolado</string>
+                       <string>Delta de tiempo para el campo interpolado a generar.</string>
                       </property>
                       <property name="minimum">
                        <double>5.000000000000000</double>
@@ -4102,7 +4240,7 @@
                        </size>
                       </property>
                       <property name="whatsThis">
-                       <string>Entrada del binario de lluvia a visualizar.</string>
+                       <string>Entrada incial del binario de lluvia a visualizar.</string>
                       </property>
                       <property name="decimals">
                        <number>0</number>
@@ -4127,7 +4265,7 @@
                        </size>
                       </property>
                       <property name="whatsThis">
-                       <string>Entrada del binario de lluvia a visualizar.</string>
+                       <string>Entrada final del binario de lluvia a visualizar.</string>
                       </property>
                       <property name="decimals">
                        <number>0</number>
@@ -4550,6 +4688,15 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="PathInHydro_Radar">
+                      <property name="toolTip">
+                       <string>Ruta de la carpeta en la que se encuentran todos los archivos .nc de lluvia de radar.</string>
+                      </property>
+                      <property name="statusTip">
+                       <string/>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Ruta de la carpeta en la que se encuentran todos los archivos .nc de lluvia de radar.</string>
+                      </property>
                       <property name="readOnly">
                        <bool>false</bool>
                       </property>
@@ -4567,10 +4714,10 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Establecer archivo de excel a utilizar.</string>
+                       <string>Establecer la ruta en la que se encuentran los .nc de lluvia de radar. </string>
                       </property>
                       <property name="whatsThis">
-                       <string>Establecer archivo de excel a utilizar.</string>
+                       <string>Establecer la ruta en la que se encuentran los .nc de lluvia de radar. </string>
                       </property>
                       <property name="text">
                        <string/>
@@ -4594,6 +4741,12 @@
                     </item>
                     <item>
                      <widget class="QDateTimeEdit" name="Interpol_DateTimeStart_Radar">
+                      <property name="toolTip">
+                       <string>Fecha inicial del campo de lluvia de radar a generar. </string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Fecha inicial del campo de lluvia de radar a generar. </string>
+                      </property>
                       <property name="date">
                        <date>
                         <year>2015</year>
@@ -4622,6 +4775,12 @@
                     </item>
                     <item>
                      <widget class="QDateTimeEdit" name="Interpol_DateTimeEnd_Radar">
+                      <property name="toolTip">
+                       <string>Fecha final del campo de lluvia de radar a generar.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Fecha final del campo de lluvia de radar a generar.</string>
+                      </property>
                       <property name="date">
                        <date>
                         <year>2015</year>
@@ -4650,6 +4809,12 @@
                     </item>
                     <item>
                      <widget class="QDoubleSpinBox" name="Interpol_SpinBox_delta_Radar">
+                      <property name="toolTip">
+                       <string>Delta de tiempo para el campo de lluvia de radar a generar</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Delta de tiempo para el campo de lluvia de radar a generar</string>
+                      </property>
                       <property name="minimum">
                        <double>5.000000000000000</double>
                       </property>
@@ -4703,8 +4868,11 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="PathOutHydro_Radar">
+                      <property name="toolTip">
+                       <string>Ruta de guardado del binario de lluvia de radar</string>
+                      </property>
                       <property name="whatsThis">
-                       <string>Ruta de guardado</string>
+                       <string>Ruta de guardado del binario de lluvia de radar</string>
                       </property>
                       <property name="readOnly">
                        <bool>false</bool>
@@ -4713,6 +4881,9 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="Button_HidroSaveRadar">
+                      <property name="toolTip">
+                       <string>Establecer ruta de guardado del binario de lluvia.</string>
+                      </property>
                       <property name="whatsThis">
                        <string>Establecer ruta de guardado del binario de lluvia.</string>
                       </property>
@@ -4728,10 +4899,10 @@
                     <item>
                      <widget class="QPushButton" name="Button_Ejec_HidroRadar">
                       <property name="toolTip">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Ejecuta la generación del campo de lluvia de radar para la cuenca. </string>
                       </property>
                       <property name="whatsThis">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Ejecuta la generación del campo de lluvia de radar para la cuenca. </string>
                       </property>
                       <property name="text">
                        <string/>
@@ -4775,10 +4946,10 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Grafica el ciclo anual de la lluvia media sobre la cuenca a partir del campo generado. </string>
                       </property>
                       <property name="whatsThis">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Grafica el ciclo anual de la lluvia media sobre la cuenca a partir del campo generado. </string>
                       </property>
                       <property name="text">
                        <string>Ciclo Anual</string>
@@ -4794,7 +4965,7 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Grafica el histograma de la lluvia media sobre la cuenca a partir del campo generado.</string>
                       </property>
                       <property name="whatsThis">
                        <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
@@ -4819,10 +4990,10 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Grafica la serie de precipitación media sobre la cuenca a partir del campo generado</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Ejecuta la interpolación para la cuenca con los parámetros dados.</string>
+                       <string>Grafica la serie de precipitación media sobre la cuenca a partir del campo generado</string>
                       </property>
                       <property name="text">
                        <string>Serie</string>
@@ -4854,8 +5025,11 @@
                         <height>0</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Entrada inicial del binario de lluvia a visualizar.</string>
+                      </property>
                       <property name="whatsThis">
-                       <string>Entrada del binario de lluvia a visualizar.</string>
+                       <string>Entrada inicial del binario de lluvia a visualizar.</string>
                       </property>
                       <property name="decimals">
                        <number>0</number>
@@ -4879,8 +5053,11 @@
                         <height>0</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Entrada final del binario de lluvia a visualizar.</string>
+                      </property>
                       <property name="whatsThis">
-                       <string>Entrada del binario de lluvia a visualizar.</string>
+                       <string>Entrada final del binario de lluvia a visualizar.</string>
                       </property>
                       <property name="decimals">
                        <number>0</number>
@@ -4907,8 +5084,11 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Visualiza una entrada o acumulado del binario de lluvia interpolado.</string>
+                      </property>
                       <property name="whatsThis">
-                       <string>Visualiza una entrada del binario de lluvia interpolado.</string>
+                       <string>Visualiza una entrada o acumulado del binario de lluvia interpolado.</string>
                       </property>
                       <property name="text">
                        <string/>
@@ -4965,7 +5145,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-1375</y>
               <width>436</width>
               <height>2518</height>
              </rect>
@@ -6353,7 +6533,10 @@
                     <item row="4" column="0">
                      <widget class="QCheckBox" name="checkBox_Simu_MeanStorage">
                       <property name="toolTip">
-                       <string>Activa la simulación de Deslizamientos en el modelo </string>
+                       <string>Se seleccion para que el modelo guarde los estados medios de almacenamiento</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Se seleccion para que el modelo guarde los estados medios de almacenamiento</string>
                       </property>
                       <property name="text">
                        <string>Estados medios</string>
@@ -6407,13 +6590,13 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Definir el nombre de la parametrización actual</string>
+                       <string>Ruta en la que se guardarán los almacenamientos</string>
                       </property>
                       <property name="statusTip">
                        <string/>
                       </property>
                       <property name="whatsThis">
-                       <string>Definir el nombre de la parametrización actual.</string>
+                       <string>Ruta en la que se guardarán los almacenamientos</string>
                       </property>
                       <property name="readOnly">
                        <bool>false</bool>
@@ -6471,6 +6654,9 @@
                       <property name="toolTip">
                        <string>Ejecutar la simulación</string>
                       </property>
+                      <property name="whatsThis">
+                       <string>Ejecutar la simulación</string>
+                      </property>
                       <property name="layoutDirection">
                        <enum>Qt::LeftToRight</enum>
                       </property>
@@ -6490,6 +6676,12 @@
                       </item>
                       <item>
                        <widget class="QLineEdit" name="DtShowFrame">
+                        <property name="toolTip">
+                         <string>Delta de tiempo en el que será ejecutada la simulación.</string>
+                        </property>
+                        <property name="whatsThis">
+                         <string>Delta de tiempo en el que será ejecutada la simulación.</string>
+                        </property>
                         <property name="readOnly">
                          <bool>true</bool>
                         </property>
@@ -6575,10 +6767,10 @@
                           </size>
                          </property>
                          <property name="toolTip">
-                          <string>Graficar las series de caudales</string>
+                          <string>Graficar las series de caudales sólidos.</string>
                          </property>
                          <property name="whatsThis">
-                          <string>Graficar las series de caudales</string>
+                          <string>Graficar las series de caudales sólidos</string>
                          </property>
                          <property name="text">
                           <string>Serie sedimentos</string>
@@ -6625,6 +6817,12 @@
                        </item>
                        <item row="1" column="1">
                         <widget class="QSpinBox" name="spinBox">
+                         <property name="toolTip">
+                          <string>Seleccionar el tramo en el que se quiere visualizar la serie de caudales simulados.</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Seleccionar el tramo en el que se quiere visualizar la serie de caudales simulados.</string>
+                         </property>
                          <property name="maximum">
                           <number>100000</number>
                          </property>
@@ -6676,10 +6874,10 @@
                           </size>
                          </property>
                          <property name="toolTip">
-                          <string>Graficar las series de caudales</string>
+                          <string>Graficar las curvas de duración de caudales</string>
                          </property>
                          <property name="whatsThis">
-                          <string>Graficar las series de caudales</string>
+                          <string>Graficar las curvas de duración de caudales</string>
                          </property>
                          <property name="text">
                           <string>Curva duración</string>
@@ -6700,6 +6898,12 @@
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="toolTip">
+                          <string>Seleccionar para visualizar la serie de caudales observados</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Seleccionar para visualizar la serie de caudales observados</string>
+                         </property>
                          <property name="text">
                           <string>Observado</string>
                          </property>
@@ -6713,6 +6917,12 @@
                        </item>
                        <item row="2" column="1">
                         <widget class="QSpinBox" name="spinBox_2">
+                         <property name="toolTip">
+                          <string>Seleccionar el tramo en el que se quiere visualizar la CDC. </string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Seleccionar el tramo en el que se quiere visualizar la CDC. </string>
+                         </property>
                          <property name="maximum">
                           <number>100000</number>
                          </property>
@@ -6725,6 +6935,12 @@
                            <width>118</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Seleccionar para visualizar la curva de duración de caudales observados</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Seleccionar para visualizar la curva de duración de caudales observados</string>
                          </property>
                          <property name="text">
                           <string>Observado</string>
@@ -6745,6 +6961,12 @@
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="toolTip">
+                          <string>Seleccionar para visualizar la serie de caudales sólidos observados</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Seleccionar para visualizar la serie de caudales sólidos observados</string>
+                         </property>
                          <property name="text">
                           <string>Observado</string>
                          </property>
@@ -6758,6 +6980,9 @@
                        </item>
                        <item row="3" column="1">
                         <widget class="QSpinBox" name="spinBox_4">
+                         <property name="toolTip">
+                          <string/>
+                         </property>
                          <property name="maximum">
                           <number>100000</number>
                          </property>
@@ -6797,10 +7022,10 @@
                           </size>
                          </property>
                          <property name="toolTip">
-                          <string>Graficar las series de caudales</string>
+                          <string>Graficar el ciclo anual de caudales medios.</string>
                          </property>
                          <property name="whatsThis">
-                          <string>Graficar las series de caudales</string>
+                          <string>Graficar el ciclo anual de caudales medios.</string>
                          </property>
                          <property name="text">
                           <string>Ciclo anual</string>
@@ -6878,7 +7103,7 @@
                        <item row="1" column="3">
                         <widget class="QPushButton" name="Sim2Excel_Streamflow">
                          <property name="enabled">
-                          <bool>false</bool>
+                          <bool>true</bool>
                          </property>
                          <property name="minimumSize">
                           <size>
@@ -6910,7 +7135,7 @@
                        <item row="2" column="3">
                         <widget class="QPushButton" name="Sim2Excel_CDC">
                          <property name="enabled">
-                          <bool>false</bool>
+                          <bool>true</bool>
                          </property>
                          <property name="minimumSize">
                           <size>
@@ -6925,10 +7150,10 @@
                           </size>
                          </property>
                          <property name="toolTip">
-                          <string>Exportar series de caudales a Excel </string>
+                          <string>Exportar CDC a Excel </string>
                          </property>
                          <property name="whatsThis">
-                          <string>Exportar series de caudales a Excel </string>
+                          <string>Exportar CDC a Excel </string>
                          </property>
                          <property name="text">
                           <string/>
@@ -6942,7 +7167,7 @@
                        <item row="3" column="3">
                         <widget class="QPushButton" name="Sim2Excel_Ciclo">
                          <property name="enabled">
-                          <bool>false</bool>
+                          <bool>true</bool>
                          </property>
                          <property name="minimumSize">
                           <size>
@@ -6974,7 +7199,7 @@
                        <item row="4" column="3">
                         <widget class="QPushButton" name="Sim2Excel_Sediments">
                          <property name="enabled">
-                          <bool>false</bool>
+                          <bool>true</bool>
                          </property>
                          <property name="minimumSize">
                           <size>
@@ -6989,10 +7214,10 @@
                           </size>
                          </property>
                          <property name="toolTip">
-                          <string>Exportar series de caudales a Excel </string>
+                          <string>Exportar series de caudales sólidos a Excel </string>
                          </property>
                          <property name="whatsThis">
-                          <string>Exportar series de caudales a Excel </string>
+                          <string>Exportar series de caudales sólidos a Excel </string>
                          </property>
                          <property name="text">
                           <string/>
@@ -7006,7 +7231,7 @@
                        <item row="5" column="3">
                         <widget class="QPushButton" name="Sim2Excel_Storage">
                          <property name="enabled">
-                          <bool>false</bool>
+                          <bool>true</bool>
                          </property>
                          <property name="minimumSize">
                           <size>
@@ -7037,6 +7262,12 @@
                        </item>
                        <item row="4" column="1">
                         <widget class="QSpinBox" name="spinBox_3">
+                         <property name="toolTip">
+                          <string>Seleccionar el tramo en el que se quiere visualizar la serie de caudales sólidos simulados.</string>
+                         </property>
+                         <property name="whatsThis">
+                          <string>Seleccionar el tramo en el que se quiere visualizar la serie de caudales sólidos simulados.</string>
+                         </property>
                          <property name="maximum">
                           <number>100000</number>
                          </property>
@@ -7250,7 +7481,7 @@
                   <x>0</x>
                   <y>880</y>
                   <width>401</width>
-                  <height>371</height>
+                  <height>391</height>
                  </rect>
                 </property>
                 <property name="title">
@@ -7262,7 +7493,7 @@
                    <x>0</x>
                    <y>30</y>
                    <width>401</width>
-                   <height>341</height>
+                   <height>351</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_23">
@@ -8101,6 +8332,12 @@
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="toolTip">
+                       <string>Establecer el archivo .StObin con los estados de almacenamiento.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Establecer el archivo .StObin con los estados de almacenamiento.</string>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
@@ -8124,10 +8361,10 @@
                     <item>
                      <widget class="QDateTimeEdit" name="StateDate">
                       <property name="toolTip">
-                       <string>Seleccionar la fecha de inicio para correr la simulación</string>
+                       <string>Selección de la fecha en la que se seleccionan los estados de almacenamiento</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Seleccionar la fecha de inicio para correr la simulación</string>
+                       <string>Selección de la fecha en la que se seleccionan los estados de almacenamiento</string>
                       </property>
                       <property name="date">
                        <date>
@@ -8173,10 +8410,10 @@
                        </size>
                       </property>
                       <property name="toolTip">
-                       <string>Visualiza una entrada o acumulado del binario de lluvia interpolado.</string>
+                       <string>Visualizar una entrada del archivo de estados de almacenamiento.</string>
                       </property>
                       <property name="whatsThis">
-                       <string>Visualiza una entrada o acumulado del binario de lluvia interpolado.</string>
+                       <string>Visualizar una entrada del archivo de estados de almacenamiento.</string>
                       </property>
                       <property name="text">
                        <string/>
@@ -8189,6 +8426,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="ButtonSimSetStates">
+                      <property name="toolTip">
+                       <string>Establecer los estados de almacenamiento para la simulación.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>Establecer los estados de almacenamiento para la simulación.</string>
+                      </property>
                       <property name="text">
                        <string>Establecer</string>
                       </property>
