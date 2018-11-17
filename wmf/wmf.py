@@ -2472,7 +2472,7 @@ class Basin:
                         vmin=vmin,vmax=vmax)
                 cbar_label_size = kwargs.get('cbar_label_size',16)
                 if colorbar:
-                    cbar = pl.colorbar(cs,orientation='horizontal',pad=0.05)
+                    cbar = pl.colorbar(cs,orientation='horizontal',pad=0.09,fraction=0.046)
                     if colorbarLabel is not None:
                         cbar.set_label(colorbarLabel, size = cbar_label_size)
                     if cbar_ticks is not None:
