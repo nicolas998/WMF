@@ -2707,16 +2707,17 @@ class Basin:
 
     # Grafica barras de tiempos de concentracion
     def Plot_Tc(self,ruta=None,figsize=(8,6),**kwargs):
-        keys=self.Tc.keys()
-        keys[2]=u'Carr Espana'
-        Media=np.array(self.Tc.values()).mean()
-        Desv=np.array(self.Tc.values()).std()
-        Mediana=np.percentile(self.Tc.values(),50)
+        keys, values = list(self.Tc.keys()),list(self.Tc.values())
+        keys, values = (list(t) for t in zip(*sorted(zip(keys, values))))
+        keys[1] = u'Carr Espana'
+        Media=np.array(values).mean()
+        Desv=np.array(values).std()
+        Mediana=np.percentile(values,50)
         rango=[Media-Desv,Media+Desv]
         color1 = kwargs.get('color1','b')
         color2 = kwargs.get('color2','r')
         colores=[]
-        for t in self.Tc.values():
+        for t in values:
             if t>rango[0] and t<rango[1]:
                 colores.append(color1)
             else:
@@ -2733,7 +2734,7 @@ class Basin:
         ax.set_position([box.x0, box.y0 + box.height * 0.18,
             box.width, box.height * 0.9])
         ax.set_xlim(-0.4,len(keys)+1-0.8)
-        ax.bar(range(len(keys)),self.Tc.values(),color=colores)
+        ax.bar(range(len(keys)),values,color=colores)
         Texto='%.2f' % Media
         ax.hlines(Media,-0.4,len(keys)+1-0.8,'k',lw=2,label='$\\mu='+Texto+'$')
         Texto='%.2f' % Mediana
@@ -2745,7 +2746,10 @@ class Basin:
         ylabel = kwargs.get('ylabel',u'Tiempo de concentracion $T_c[hrs]$')
         ax.set_ylabel(ylabel,size=14)
         ax.grid(True)
-        ax.legend(loc='upper_right',ncol='3',fontsize='medium')
+        try:
+            ax.legend(loc='upper right',ncol=3,fontsize='medium')
+        except:
+            ax.legend(loc='upper_right',ncol='3',fontsize='medium')
         if ruta is not None:
             pl.savefig(ruta,bbox_inches='tight')
         if show == True:
@@ -4442,12 +4446,12 @@ class SimuBasin(Basin):
             if models.show_storage == 1:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
                     start_point,self,Mean_Storage = np.copy(models.mean_storage),
-                    WhereItSaves)
+                    WhereItSaves = WhereItSaves)
             #Caso en el que no hay alm medio para cada uno de los
             else:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
                     start_point,self,Mean_Storage=np.zeros((5,N))*-9999,
-                    WhereItSaves)
+                    WhereItSaves = WhereItSaves)
         #Area de la seccion
         if models.show_area == 1:
             Retornos.update({'Sec_Area': Area})
