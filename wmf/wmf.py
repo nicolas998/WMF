@@ -728,11 +728,11 @@ def __eval_q_pico__(s_o,s_s):
 #Funciones para vincularse con asynch
 def __asynch_write_rvr__(DicAsynch, ruta):
     '''Escribe el plano de asynch a partir del diccionario y de una ruta'''
-    # arregla la ruta 
-    path, ext = os.path.splitext(ruta) 
+    # arregla la ruta
+    path, ext = os.path.splitext(ruta)
     if ext != '.rvr':
         ruta = path + '.rvr'
-    #Escribe el archivo 
+    #Escribe el archivo
     f = open(ruta,'w')
     #Numero de elementos
     f.write('%d\n\n' % len(DicAsynch))
@@ -750,8 +750,8 @@ def __asynch_write_rvr__(DicAsynch, ruta):
 
 def __asynch_write_lookup__(DicAsynch, ruta):
     '''Escribe el plano de asynch con la informacion de lookup'''
-    # arregla la ruta 
-    path, ext = os.path.splitext(ruta) 
+    # arregla la ruta
+    path, ext = os.path.splitext(ruta)
     if ext != '.lookup':
         ruta = path + '.lookup'
     #hace la escritura
@@ -761,21 +761,21 @@ def __asynch_write_lookup__(DicAsynch, ruta):
         f.write('%s,%.7f,%.7f,%.1f\n' % (k, DicAsynch[k]['x'],
             DicAsynch[k]['y'],DicAsynch[k]['order']))
     f.close()
-        
+
 def __asynch_write_prm__(DicAsynch, ruta):
     '''Escribe el plano de asynch con la informacion de prm'''
-    # arregla la ruta 
-    path, ext = os.path.splitext(ruta) 
+    # arregla la ruta
+    path, ext = os.path.splitext(ruta)
     if ext != '.prm':
         ruta = path + '.prm'
-    #Escritura 
+    #Escritura
     f = open(ruta, 'w')
     f.write('%d\n\n' % len(DicAsynch))
-    for k in DicAsynch.keys():       
+    for k in DicAsynch.keys():
         f.write('%s\n' % k)
-        f.write('%.5f %.5f %.5f\n\n' % (DicAsynch[k]['Area'], 
+        f.write('%.5f %.5f %.5f\n\n' % (DicAsynch[k]['Area'],
             DicAsynch[k]['Long'],DicAsynch[k]['Slope']))
-    f.close() 
+    f.close()
 
 #Funciones para mirar como es un netCDf por dentro
 def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
@@ -910,7 +910,7 @@ class Basin:
         else:
             self.__Load_BasinNc(ruta)
             #Genera el poligono de la cuenca
-            
+
         self.__GetBasinPolygon__()
     #Cargador de cuenca
     def __Load_BasinNc(self,ruta,Var2Search=None):
@@ -1001,13 +1001,13 @@ class Basin:
         gr.close()
         #Sale del programa
         return
-    
+
     #Variable loader and vision
     def Load_BasinVar(self, GroupName = None, VarName = None,
         ShowVars = True):
         '''This function shows the variables of the netCDF of the basin
         and loads the variable if a name is given.
-        
+
         Parameters:
             - GroupName(None): shows list of groups and varaibles.
                 - if the group name is specified shows variables of that group
@@ -1016,20 +1016,20 @@ class Basin:
                 - if given, loads the variable from the netCDF.
         Optional:
             - ShowVars(True): Show the three of the bars in the basin'''
-        #Loads netCDF 
+        #Loads netCDF
         g = netcdf.Dataset(self.rutaNC)
         # No group name case
         if GroupName is None:
             print('Variable Groups in the basin file: (varName, shape, meanValue, min, max)\n')
             for k in g.groups.keys():
                 print(k)
-                if ShowVars:   
+                if ShowVars:
                     for k2 in g.groups[k].variables.keys():
-                        print('\t'+k2+'\t', g.groups[k].variables[k2].shape, 
+                        print('\t'+k2+'\t', g.groups[k].variables[k2].shape,
                             '\t %.2f' % g.groups[k].variables[k2][:].mean(),
                             '\t %.2f' % g.groups[k].variables[k2][:].min(),
                             '\t %.2f' % g.groups[k].variables[k2][:].max())
-        #Given Group no name of variable 
+        #Given Group no name of variable
         else:
             if VarName is None:
                 try:
@@ -1047,7 +1047,7 @@ class Basin:
                 except:
                     print('Error: %s is not in group %s' % (VarName, GroupName))
         g.close()
-    
+
     #Parametros Geomorfologicos
     def GetGeo_Parameters(self,rutaParamASC=None,plotTc=False,
         rutaTcPlot = None, figsize=(8,5), GetPerim=True):
@@ -1168,7 +1168,7 @@ class Basin:
                 #Obtiene el poligono de la cuenca completo
                 Shtemp = []
                 flag = True
-                
+
                 while flag:
                         try:
                                 Shtemp.append(next(shapes))
@@ -1921,32 +1921,32 @@ class Basin:
             self.GetGeo_StreamOrder()
         if prm:
             LongCauce = self.CellCauce*self.CellLong
-        #Variables para transformar 
+        #Variables para transformar
         Con = self.hills.data[1]
         Ids = np.arange(self.nhills, 0, -1)
         #Definicion de diccionarios para transformar
         DicAsynch = {}
-        # Funciona esta forma de transformar, pero creo que deben haber una forma mas rapida de hacerlo     
+        # Funciona esta forma de transformar, pero creo que deben haber una forma mas rapida de hacerlo
         for c,i in enumerate(Ids):
-            #Busca si hay quien le drene 
+            #Busca si hay quien le drene
             pos = np.where(Con == i)
-            #Si los encuentra pone el formato 
+            #Si los encuentra pone el formato
             Dic = {str(i): {'Nparents': len(pos[0]),
                 'Parents': Ids[pos].tolist(),
                 'WMFpos': c+1}}
             #Encuentra posiciones
-            pos = np.where(self.hills_own == c+1)[0]    
-            #Lookup Table 
+            pos = np.where(self.hills_own == c+1)[0]
+            #Lookup Table
             if lookup:
                 #Saca coord y el orden de horton
                 xhill = np.median(x[pos])
                 yhill = np.median(y[pos])
                 horton = self.CellHorton_Hill[pos].max()
                 #Actualzia la tabla
-                Dic[str(i)].update({'x': xhill, 
+                Dic[str(i)].update({'x': xhill,
                     'y': yhill,
                     'order': horton})
-            #Tabla de propiedades prm 
+            #Tabla de propiedades prm
             if prm:
                 #Calcula parametros
                 Area = pos.size * cu.dxp**2. / 1e6
@@ -1954,14 +1954,14 @@ class Basin:
                 if Long == 0:
                     Long = cu.dxp**2. / 1000.
                 Slope = np.median(self.CellSlope[pos])
-                #Actualiza el diccionario 
+                #Actualiza el diccionario
                 Dic[str(i)].update({'Area': Area,
-                    'Long': Long, 
+                    'Long': Long,
                     'Slope': Slope})
             #Diccionario con toda la estructura
             DicAsynch.update(Dic)
         DataFrame = pd.DataFrame(DicAsynch).T
-        # Funcion para escribir en el formato de asynch 
+        # Funcion para escribir en el formato de asynch
         if ruta is not None:
             #Escribe los archivos de asynch
             __asynch_write_rvr__(DicAsynch, ruta)
@@ -1970,16 +1970,16 @@ class Basin:
             if prm:
                 __asynch_write_prm__(DicAsynch, ruta)
         if writeMsgLinkFile:
-            #Arregla la extension 
+            #Arregla la extension
             name, ext = os.path.splitext(ruta)
             extension = '.msg'
             if ext != extension:
                 path = name + extension
-            #Escribe 
+            #Escribe
             DataFrame.to_msgpack(path)
-        #Retorno 
+        #Retorno
         return DataFrame
-        
+
     #------------------------------------------------------
     # Trabajo con datos puntuales puntos
     #------------------------------------------------------
@@ -2938,7 +2938,7 @@ class SimuBasin(Basin):
         'Retornos\n'\
         '----------\n'\
         'self : Con las variables iniciadas.\n'\
-        #Esta variable es para controlar cuando se reinician las variables de sedimentos 
+        #Esta variable es para controlar cuando se reinician las variables de sedimentos
         self.segunda_cuenca = False
         #Variables de radar
         self.radarDates = []
@@ -4116,7 +4116,7 @@ class SimuBasin(Basin):
         '----------\n'\
         'self : Con las variables iniciadas.\n'\
 
-        #Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto  
+        #Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto
         if self.isSetGeo is False:
             self.set_Geomorphology()
             print('Aviso: SE ha estimado la geomorfologia con los umbrales por defecto umbral = [30, 500]')
@@ -4229,7 +4229,7 @@ class SimuBasin(Basin):
                 else:
                     new_var = Variable
             return new_var
-                    
+
         VarKrus[:]=__reshape(models.krus,1)
         VarPrus[:]=__reshape(models.prus,1)
         VarCrus[:]=__reshape(models.crus,1)
@@ -4257,7 +4257,7 @@ class SimuBasin(Basin):
         #Cierra el archivo
         gr.close()
         #Sale del programa
-        self.segunda_cuenca = True 
+        self.segunda_cuenca = True
         return
 
         #------------------------------------------------------
@@ -4265,7 +4265,7 @@ class SimuBasin(Basin):
         #------------------------------------------------------
     def run_shia(self,Calibracion,
         rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
-        ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True, 
+        ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True,
         EvpVariable = False, Dates2Save = None):
         'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
         '   Antes de su ejecucion se deben tener listas todas las . \n'\
@@ -4343,7 +4343,7 @@ class SimuBasin(Basin):
             models.save_storage = 1
             ruta_sto_bin, ruta_sto_hdr = __Add_hdr_bin_2route__(ruta_storage,
                 storage = True)
-            #Check if is going to save model states at certain dates 
+            #Check if is going to save model states at certain dates
             if Dates2Save is not None:
                 WhereItSaves = self.set_StorageDates(Rain.index, Dates2Save, N_intervals)
             else:
@@ -4441,13 +4441,11 @@ class SimuBasin(Basin):
             #Caso en el que se registra el alm medio
             if models.show_storage == 1:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-                    start_point,self,Mean_Storage = np.copy(models.mean_storage),
-                    WhereItSaves)
+                    start_point,self,Mean_Storage = np.copy(models.mean_storage),WhereItSaves)
             #Caso en el que no hay alm medio para cada uno de los
             else:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-                    start_point,self,Mean_Storage=np.zeros((5,N))*-9999,
-                    WhereItSaves)
+                    start_point,self,Mean_Storage=np.zeros((5,N))*-9999,WhereItSaves)
         #Area de la seccion
         if models.show_area == 1:
             Retornos.update({'Sec_Area': Area})
