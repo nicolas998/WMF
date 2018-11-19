@@ -15,6 +15,8 @@
 #!along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #Algo
 
+import pandas as pd 
+import numpy as np
 import plotly.graph_objs as go
 from plotly import tools
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
@@ -99,6 +101,88 @@ def Plot_Streamflow(StreamDic, Rainfall = None, colors = ColorsDefault,
             title="Caudal [m3/s]",
             overlaying ='y',
             side='right')
+        )
+
+    fig = dict(data=data, layout=layout)
+    iplot(fig)
+
+
+def Plot_DurationCurve(StreamDic, Rainfall = None, colors = ColorsDefault,
+    Pinf = 0.2, Psup = 99.8, Nint = 50, **kwargs):
+    '''Function to plot streamflow data with dates axis and 
+    rainfall
+    Parameters:
+        - Dates: pandas index dates format.
+        - StreamDic: Dictionary with the data and plot properties:
+            ej: {'Q1':{data:np.array(data), 
+                'color': 'rgb(30,114,36)', 
+                'lw': 4, 'ls': '--'}}
+    Optional:
+        - Pinf: Inferior percentile (0.2)
+        - Psup: Superior percentile (99.8)
+        - Nint: Total intervals (50)
+        - Rainfall: Dictionary with rainfall data with the same 
+            structure as StreamDic.'''
+    
+    #Obtains the excedance probability and 
+    def GetExcedProb(X):
+        Qexc = []
+        for p in np.linspace(Pinf,Psup,Nint):
+            Qexc.append(np.percentile(X, p))
+        return Qexc, np.linspace(Pinf,Psup,Nint)[::-1]/100.
+    
+    #Data definition
+    cont = 0
+    data = []
+    for k in StreamDic.keys():
+        #Set del trace
+        try:
+            setColor = StreamDic[k]['color']
+        except:            
+            setColor = np.random.choice(list(ColorsDefault.keys()),1)
+            setColor = ColorsDefault[setColor[0]]
+        try:
+            setWeight = StreamDic[k]['lw']
+        except:
+            setWeight = kwargs.get('lw',4)
+        try:
+            setLineStyle = StreamDic[k]['ls']
+        except:
+            setLineStyle = kwargs.get('ls',None)
+        #Values and P(x>X)
+        Qexc, P = GetExcedProb(StreamDic[k]['data'])
+        #Traces definitions
+        trace = go.Scatter(
+            x=P,
+            y=Qexc,
+            name = k,
+            line = dict(color = setColor,
+                width = setWeight,
+                dash = setLineStyle),
+            opacity = 1.0)
+        #Update data
+        data.append(trace)
+    
+    #Layout definition
+    layout = dict(showlegend = False,
+        xaxis = dict(
+            title='P(x>X)',
+            tickfont=dict(
+                color='rgb(0, 102, 153)',
+                size = 16),
+            titlefont=dict(
+                color='rgb(0, 102, 153)',
+                size = 20),
+            ),
+        yaxis=dict(
+            title="Streamflow [m3/s]",
+            tickfont=dict(
+                color='rgb(0, 102, 153)',
+                size = 16),
+            titlefont=dict(
+                color='rgb(0, 102, 153)',
+                size = 20),
+            ),
         )
 
     fig = dict(data=data, layout=layout)
