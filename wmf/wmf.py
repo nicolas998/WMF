@@ -4441,11 +4441,11 @@ class SimuBasin(Basin):
             #Caso en el que se registra el alm medio
             if models.show_storage == 1:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-                    start_point,self,Mean_Storage = np.copy(models.mean_storage),WhereItSaves)
+                    start_point,self,np.copy(models.mean_storage),WhereItSaves)
             #Caso en el que no hay alm medio para cada uno de los
             else:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-                    start_point,self,Mean_Storage=np.zeros((5,N))*-9999,WhereItSaves)
+                    start_point,self,np.zeros((5,N))*-9999,WhereItSaves)
         #Area de la seccion
         if models.show_area == 1:
             Retornos.update({'Sec_Area': Area})
