@@ -287,7 +287,7 @@ class PlotCaudal(object):
         trace_inv = go.Scatter(
                         x=dfQsim.index,
                         y=rain_mean.values,
-                        name = "Q Observado",
+                        name = "Lluvia",
                         line = dict(color = 'blue'),
                         opacity = 0.8,
                         yaxis='y2',
