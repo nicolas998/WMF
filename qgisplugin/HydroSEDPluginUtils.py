@@ -1148,7 +1148,7 @@ class controlHS(object):
         
     def EvalIndicadores(self,Qobs,Qsim):
         DictIndicadores = self.cuenca.efficiencia(Qobs,Qsim)
-        Unidades = ["[Adim]","[%]","[s]","[m3/s]","log[m3/s]"]
+        Unidades = ["[Adim]","[%]","[s]","log[m3/s]","[m3/s]"]
         return DictIndicadores,Unidades  
             
 
