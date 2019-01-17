@@ -7418,26 +7418,6 @@
                       </spacer>
                      </item>
                      <item>
-                      <widget class="QPushButton" name="ButtonSimu_Indicadores2Excel">
-                       <property name="enabled">
-                        <bool>false</bool>
-                       </property>
-                       <property name="toolTip">
-                        <string>Exportar los indicadores básicos de desempeño de la simulación a Excel</string>
-                       </property>
-                       <property name="whatsThis">
-                        <string>Exportar los indicadores básicos de desempeño de la simulación a Excel</string>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="icon">
-                        <iconset>
-                         <normaloff>:/plugins/HydroSEDPlugin/icons/toexcel.png</normaloff>:/plugins/HydroSEDPlugin/icons/toexcel.png</iconset>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
                       <widget class="QPushButton" name="ButtonSimu_Indicadores">
                        <property name="toolTip">
                         <string>Calcula los indicadores básicos de desempeño de la simulación</string>
