@@ -1144,7 +1144,12 @@ class controlHS(object):
             df_obs.to_excel(W,sheet_name='Media_Mensual_Qobs')
         #Cierra el archivo 
         W.close()
-        return 0        
+        return 0   
+        
+    def EvalIndicadores(self,Qobs,Qsim):
+        DictIndicadores = self.cuenca.efficiencia(Qobs,Qsim)
+        Unidades = ["[Adim]","[%]","[s]","[m3/s]","log[m3/s]"]
+        return DictIndicadores,Unidades  
             
 
 
