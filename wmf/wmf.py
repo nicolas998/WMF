@@ -774,8 +774,8 @@ def __asynch_write_prm__(DicAsynch, ruta):
     f.write('%d\n\n' % len(DicAsynch))
     for k in DicAsynch.keys():       
         f.write('%s\n' % k)
-        f.write('%.5f %.5f %.5f\n\n' % (DicAsynch[k]['Area'], 
-            DicAsynch[k]['Long'],DicAsynch[k]['Slope']))
+        f.write('%.5f %.5f %.5f\n\n' % (DicAsynch[k]['Acum'], 
+            DicAsynch[k]['Long'],DicAsynch[k]['Area']))
     f.close() 
 
 #Funciones para mirar como es un netCDf por dentro
@@ -1904,7 +1904,8 @@ class Basin:
                 'Parents': Ids[pos].tolist(),
                 'WMFpos': c+1}}
             #Encuentra posiciones
-            pos = np.where(self.hills_own == c+1)[0]    
+            #pos = np.where(self.hills_own == c+1)[0]
+            pos = np.where(self.hills_own == i)[0]    
             #Lookup Table 
             if lookup:
                 #Saca coord y el orden de horton
@@ -1919,12 +1920,15 @@ class Basin:
             if prm:
                 #Calcula parametros
                 Area = pos.size * cu.dxp**2. / 1e6
+                Acum = self.CellAcum[self.hills_own == i].max()*cu.dxp**2/1e6
                 Long = LongCauce[pos].sum() / 1000.
+                if Long == 0: Long = cu.dxp/1000.
                 Slope = np.median(self.CellSlope[pos])
                 #Actualiza el diccionario 
                 Dic[str(i)].update({'Area': Area,
                     'Long': Long, 
-                    'Slope': Slope})
+                    'Slope': Slope,
+                    'Acum': Acum})
             #Diccionario con toda la estructura
             DicAsynch.update(Dic)
         DataFrame = pd.DataFrame(DicAsynch).T
