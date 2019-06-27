@@ -20,8 +20,6 @@ from cu import *
 from models import *
 import numpy as np
 import pylab as pl
-import osgeo.ogr, osgeo.osr
-import gdal
 from scipy.spatial import Delaunay
 from scipy.stats import norm
 import os
@@ -29,6 +27,12 @@ import pandas as pd
 import datetime as datetime
 from multiprocessing import Pool
 import matplotlib.path as mplPath
+
+try:
+    import osgeo.ogr, osgeo.osr
+    import gdal
+except:
+    print('no se importa osgeo ni gdal, no es posible hacer plots de mapas ni lecturas de mapas hacia las cuencas')
 try:
     import netcdf as netcdf
 except:
