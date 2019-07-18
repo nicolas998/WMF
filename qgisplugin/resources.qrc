@@ -1,0 +1,20 @@
+<RCC>
+  <qresource prefix="/plugins/HydroSEDPlugin">
+    <file>icons/reload.png</file>
+    <file>icons/histograma.ico</file>
+    <file>icons/toRaster.ico</file>
+    <file>icons/save.svg</file>
+    <file>icons/toexcel.png</file>
+    <file>icons/RedHidrica.ico</file>
+    <file>icons/play.png</file>
+    <file>icons/coordCapture.png</file>
+    <file>icons/config.png</file>
+    <file>icons/folder.png</file>
+    <file>icons/cuenca.ico</file>
+    <file>icon.png</file>
+    <file>icons/icono-borrar.png</file>
+    <file>icons/icono-flecha-abajo.png</file>
+    <file>icons/icono-flecha-arriba.png</file>
+    <file>icons/icono-ver.png</file>
+  </qresource>
+</RCC>

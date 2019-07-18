@@ -369,7 +369,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
             guarda_cond = 0
         else    
             !Si esta aojada, pero no coincide con la cantidad de registros, tampoco guarda nada
-            if (sizeof(guarda_cond) .ne. N_reg) then 
+            if (sizeof(guarda_cond) .lt. N_reg) then 
                 deallocate(guarda_cond)
                 allocate(guarda_cond(N_reg))
                 guarda_cond = 0
@@ -724,8 +724,10 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
                 
         !Guarda campo de estados del modelo 
         if (save_storage .eq. 1) then
-            call write_float_basin(ruta_storage,StoOut,tiempo,N_cel,5)
-        endif
+			if (guarda_cond(tiempo) .gt. 0) then
+				call write_float_basin(ruta_storage,StoOut,guarda_cond(tiempo),N_cel,5)
+			endif
+		endif
         !Guarda campo de velocidades del modelo
         if (save_speed .eq. 1) then
             call write_float_basin(ruta_speed,hspeed,tiempo,N_cel,4)
@@ -841,9 +843,12 @@ subroutine write_float_basin(ruta,vect,record,N_cel,N_col)
     !Escritura     
     estado='old'
     if (record.eq.1) estado='replace'
-    open(10,file=ruta,form='unformatted',status=estado,access='direct',RECL=4*N_col*N_cel)
-		write(10,rec=record) vect
-    close(10)
+    !Solo guarda condiciones si el record de guardado es mayor a cero
+    if (record.gt.0) then 
+        open(10,file=ruta,form='unformatted',status=estado,access='direct',RECL=4*N_col*N_cel)
+		    write(10,rec=record) vect
+        close(10)
+    endif 
 end subroutine
 !Lee los datos flotantes de un binario de cuenca en los records ordenados
 subroutine write_int_basin(ruta,vect,record,N_cel,N_col) 
