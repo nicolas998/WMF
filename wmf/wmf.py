@@ -1504,12 +1504,12 @@ class Basin:
         #Obtiene mapa de cauces
         self.GetGeo_Cell_Basics()
         #Obtiene vector de direcciones
-        directions = self.Transform_Map2Basin(self.DIR,
-            [cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy ,0.0])
+        directions = self.DIRvec
+        DEM,prop = self.Transform_Basin2Map(self.DEMvec)
         #Obtiene las secciones
         self.Sections, self.Sections_Cells = cu.basin_stream_sections(self.structure,
-            self.CellCauce, directions, self.DEM, NumCeldas,
-            self.ncells, cu.ncols, cu.nrows)
+            self.CellCauce, directions, DEM, NumCeldas,
+            self.ncells, prop[0], prop[1])
 
     #------------------------------------------------------
     # Subrutinas para el calculo de extremos mediante hidrografa unitaria sintetica
