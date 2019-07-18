@@ -1678,6 +1678,52 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             else:
                 self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'No ha sido posible exportar los almacenamientos',
                     level=QgsMessageBar.WARNING, duration=5)
+                    
+                    
+        def IndicadoresTableStart():
+            '''Inicia la tabla donde monta los indicadores de desempeño de la cuenca'''
+            self.IndTableNumRows = 5 #wmf calcula 5 indicadores de desempeño
+            self.IndTableNumItems = 0
+            self.IndTableHeader = ["Indicador", "Valor", "Unidades"]
+            self.TableSimu_Indicadores.setRowCount(self.IndTableNumRows)
+            self.TableSimu_Indicadores.setColumnCount(len(self.IndTableHeader))
+            self.TableSimu_Indicadores.setHorizontalHeaderLabels(self.IndTableHeader)
+        
+        def clickEventGetIndicadores():
+            '''Calcula los indicadores de eficiencia de la simulación hidrológica.'''
+            #Reinicia la tabla para que no se llene de cosas
+            self.IndTableNumItems = 0
+            self.TableSimu_Indicadores.clear()
+            self.TableSimu_Indicadores.clearContents()
+            #Lllama la serie de caudal simulado
+            dfDataQsim=self.HSutils.Sim_Streamflow
+            id_tramo = str(self.SpinTramoIndicadores.value())
+            QsimSerie = dfDataQsim[id_tramo].values 
+            #Obtiene la serie de caudal observado
+            if self.PathinSimu_Qobs.text().strip() == "":
+                self.iface.messageBar().pushMessage (u'Hydro-SIG:', u'Debe seleccionar el caudal observado para calcular los indicadores',
+                    level=QgsMessageBar.WARNING, duration=5)
+            else: 
+                id_est = int(self.comboBox_Selec_Qobs.currentText().encode())                       
+                PathQobs = self.PathinSimu_Qobs.text().strip()
+                DataQ = self.HSutils.Sim_GetQobsInfo(PathQobs)[1]
+                QobsSerie = DataQ[id_est][self.f_ini:self.f_fin].values
+            #Calcula los indicadores de eficiencia. 
+            indicadores,unidades = self.HSutils.EvalIndicadores(QobsSerie,QsimSerie)
+            #Inicia la tabla 
+            IndicadoresTableStart()
+            #le pone los parametros
+            for pos,key in enumerate(list(indicadores.keys())):
+                #Obtiene nombre y unidad
+                unidad = unidades[pos]
+                nombre = key
+                valor = '%.3f' % indicadores[key]
+                #Actualiza la tabla
+                self.TableSimu_Indicadores.setItem (self.IndTableNumItems, 0, QTableWidgetItem(nombre))
+                self.TableSimu_Indicadores.setItem (self.IndTableNumItems, 1, QTableWidgetItem(valor))
+                self.TableSimu_Indicadores.setItem (self.IndTableNumItems, 2, QTableWidgetItem(unidad))
+                self.IndTableNumItems += 1
+
             
                                
         self.ButtonSimCalib2Nc.clicked.connect(clickEventAddNewParamSet)    
@@ -1707,7 +1753,8 @@ class HydroSEDPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.Sim2Excel_Ciclo.clicked.connect(clickEventExportAnualCaudal2Excel)
         self.Sim2Excel_Sediments.clicked.connect(clickEventExportQsimSed2Excel)
         self.Sim2Excel_Storage.clicked.connect(click_SimStorageSeries2Excel)
-  
+        
+        self.ButtonSimu_Indicadores.clicked.connect(clickEventGetIndicadores)
   
     def setupUIInputsOutputs (self):
         
