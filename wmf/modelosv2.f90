@@ -78,6 +78,7 @@ integer sim_floods !Simula (1) o no (0) inundaciones
 integer save_storage !Guarda (1) o no (0) almacenamiento de los tanques en cada intervalo.
 integer save_speed !Guarda (1) o no (0) las velocidades en cada intervalo
 integer save_retorno !Guarda (1) o no (0) el flujo de retorno en cada intervalo de tiempo
+integer save_vfluxes !Guarda o no los flujos verticales simulados por el modelo.
 integer show_storage !(1)Calcula el alm medio en la cuenca para cada tanque y lo muestra en la salida. (0) no lo hace.
 integer show_speed !(1) muestra la velocidad en los puntos de control de caudales. (0) no lo hace.
 integer show_mean_speed !(1) muestra la velocidad promedio en cada uno de los 4 tanques. (0) no lo hace
@@ -89,6 +90,7 @@ integer speed_type(3) !Tipo de velocidad para tanque 1, 2 y 3: 1: lineal, 2: Cin
 integer, allocatable :: control(:,:) !Celdas de la cuenca que tienen puntos de control
 integer, allocatable :: control_h(:,:) !Celdas de la cuenca que son puntos de control de humedad
 integer, allocatable :: guarda_cond(:) !Intervalos de tiempo en que se hace guardado de condiciones
+integer, allocatable :: guarda_vfluxes(:) !Intervalos de tiempo en que se hace guardado de los vfluxes
 integer calc_niter !Cantidad de iteraciones para la ecuacion de solucion numerica (defecto 5)
 
 !Variables de resultados globales (siempre van a estar ahi)
@@ -103,6 +105,8 @@ real, allocatable :: Storage_stra(:,:) !Almacenamiento solo lluvia stratiforme
 real, allocatable :: mean_storage(:,:) !Almacenamiento promedio en cada intervalo para toda la cuenca. (5,n_reg)
 real, allocatable :: mean_speed(:,:) !Velocidad promedio en los 4 tanques que vierten de forma hztal. (4,n_reg)
 real, allocatable :: mean_retorno(:) !Promedio de la cantidad de milimetro retornados en un intervalo de tiempo (n_reg)
+real, allocatable :: mean_vfluxes(:,:) !Promedio de los flujos pasados en la vertical (4,n_reg)
+real, allocatable :: vfluxes(:,:) !Flujo vertical simulado por el modelo para cada uno de los tanques (4,n_reg)
 
 !variables de sedimentos Par aalojar volumens y demas
 real sed_factor !factor para calibrar el modelo de sedimentos
@@ -182,7 +186,7 @@ contains
 
 subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N_reg,Q,&
 	& Qsed, Qseparated, Hum, St1, St3, balance, speed, AreaControl, StoOut, ruta_storage, ruta_speed, &
-	& ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain, ruta_retorno)
+	& ruta_vfluxes, ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain, ruta_retorno)
     
     !--------------------------------------------------------------------------
     !DECLARACION DE VARIABLES
@@ -193,7 +197,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
     character*500, intent(in) :: ruta_bin, ruta_hdr
     character*500, intent(in), optional :: ruta_storage
     character*500, intent(in), optional :: ruta_binConv, ruta_hdrConv, ruta_binStra, ruta_hdrStra
-    character*500, intent(in), optional :: ruta_speed, ruta_retorno
+    character*500, intent(in), optional :: ruta_speed, ruta_retorno, ruta_vfluxes
     real, intent(in), optional :: StoIn(5, N_cel)
     real, intent(in), optional :: HspeedIn(4, N_cel)
     
@@ -376,6 +380,31 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
             endif    
         endif
     endif 
+    
+    !Prepara el modelo para guardar vertical fluxes
+    if (save_vfluxes .eq. 1) then
+		!Aloja la variable de loe Vfluxes para hacer guardado en el tiempo
+		if (allocated(vfluxes)) then
+			deallocate(vfluxes)
+		endif
+		allocate(vfluxes(4,N_cel))
+		!Verifica si esta o no alojada la variable del guardado en el tiempo
+		if (allocated(guarda_vfluxes) .eqv. .false.) then
+			allocate(guarda_vfluxes(N_reg))
+			guarda_vfluxes = 0
+		else
+			!Si esta aojada, pero no coincide con la cantidad de registros, tampoco guarda nada
+			if (sizeof(guarda_vfluxes) .lt. N_reg) then 
+				deallocate(guarda_vfluxes)
+				allocate(guarda_vfluxes(N_reg))
+				guarda_vfluxes = 0
+			endif    
+		endif
+		!Set de la varible del promedio de los fluxes de cada tanque
+		if (allocated(mean_vfluxes)) deallocate(mean_vfluxes)
+		allocate(mean_vfluxes(4,N_reg))
+		mean_vfluxes = 0.0
+    endif
 
 	!--------------------------------------------------------------------------
     !EJECUCION DEL MODELO 
@@ -449,6 +478,14 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				StoOut(2,celda) = StoOut(2,celda) + Ret ![mm]
 				StoOut(3,celda) = StoOut(3,celda) - Ret ![mm]
 				Retorned(1,celda) = Retorned(1,celda) + Ret
+				vflux(1) = vflux(1) + Ret
+				vflux(2) = vflux(2) - Ret
+			endif
+			!Record vertical flux for save it.
+			if (save_vfluxes .eq. 1) then 
+				do i = 1,4
+					vfluxes(i,celda) = vflux(i) 
+				enddo
 			endif
 			!---------------------------------------
 			!SEP_LLUVIA
@@ -728,6 +765,17 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				call write_float_basin(ruta_storage,StoOut,guarda_cond(tiempo),N_cel,5)
 			endif
 		endif
+		
+		!Guarda los flujos verticales del modelo 
+		if (save_vfluxes .eq. 1) then
+			!Calculate the mean _vflux
+			mean_vfluxes(:,tiempo) = sum(vfluxes,dim=2) / N_cel
+			!Saves the fluxes
+			if (guarda_vfluxes(tiempo) .gt. 0) then
+				call write_float_basin(ruta_vfluxes,StoOut,guarda_vfluxes(tiempo),N_cel,4)
+			endif
+		endif
+		
         !Guarda campo de velocidades del modelo
         if (save_speed .eq. 1) then
             call write_float_basin(ruta_speed,hspeed,tiempo,N_cel,4)
