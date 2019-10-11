@@ -605,7 +605,7 @@ def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     f.write('IDfecha, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
     c = 1
     #Si no hay almacenamiento medio lo coloca en -9999
-    if Mean_Speed == None:
+    if Mean_Speed is None:
         Mean_Speed = np.ones((5,Nintervals))*-9999
     #Escribe registros medios y fechas de los almacenamientos
     for c,d,sto in zip(WhereItSave,S.index.to_pydatetime(),Mean_Speed.T):
@@ -627,7 +627,7 @@ def __Save_retorno_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     f.write('IDfecha, Retorno[mm], Fecha \n')
     c = 1
     #Si no hay almacenamiento medio lo coloca en -9999
-    if Mean_retorno == None:
+    if Mean_retorno is None:
         Mean_retorno = np.ones(Nintervals)*-9999
     #Escribe registros medios y fechas de los almacenamientos
     for d,sto in zip(S.index.to_pydatetime(),Mean_retorno):
@@ -3936,6 +3936,24 @@ class SimuBasin(Basin):
         models.guarda_cond = np.copy(Guarda)
         return Guarda
 
+    def set_vFluxesDates(self, SimuDates, SelectedDates, Nintervals):
+        '''Function to set the variable that determines at which dates
+        store the results from the model.
+        Parameters:
+            - SimuDates: pandas index dates corresponding to the simulation period.
+            - SelectedDates: List with the dates in the format: yyyy-mm-dd HH:MM.
+            - Nintervals: Number of simulated intervals in the model.'''
+        #SEt the null variable to indicate where to save
+        Guarda = np.zeros(Nintervals)
+        cont = 1
+        for sd in SelectedDates:
+            pos = np.where(SimuDates == sd)[0][0]
+            Guarda[pos] = cont
+            cont+=1
+        #Assing the variable to wmf
+        models.guarda_vfluxes = np.copy(Guarda)
+        return Guarda
+
     def set_Control(self,coordXY,ids,tipo = 'Q'):
         'Descripcion: \n'\
         '   Establece los puntos deonde se va a realizar control del caudal\n'\
@@ -4369,7 +4387,7 @@ class SimuBasin(Basin):
             ruta_vflux_bin, ruta_vflux_hdr = __Add_hdr_bin_2route__(ruta_vfluxes)
             #Check if is going to save model states at certain dates
             if FluxesDates2Save is not None:
-                FluxesWhereItSaves = self.set_StorageDates(Rain.index, FluxesDates2Save, N_intervals)
+                FluxesWhereItSaves = self.set_vFluxesDates(Rain.index, FluxesDates2Save, N_intervals)
             else:
                 print('Warning: model will save states in all time steps this may require a lot of space')
                 FluxesWhereItSaves = np.arange(1,N_intervals+1)
@@ -4475,7 +4493,7 @@ class SimuBasin(Basin):
         #Escribe el encabezado de los binarios con los datos de los vertical fluxes
         if models.save_vfluxes == 1:
             __Save_speed_hdr__(ruta_vflux_hdr,rain_ruteHdr,N_intervals,
-				start_point,self,models.mean_vfluxes,FluxesWhereItSaves)
+                start_point,self,models.mean_vfluxes,FluxesWhereItSaves)
         #Area de la seccion
         if models.show_area == 1:
             Retornos.update({'Sec_Area': Area})

@@ -478,8 +478,8 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				StoOut(2,celda) = StoOut(2,celda) + Ret ![mm]
 				StoOut(3,celda) = StoOut(3,celda) - Ret ![mm]
 				Retorned(1,celda) = Retorned(1,celda) + Ret
-				vflux(1) = vflux(1) + Ret
-				vflux(2) = vflux(2) - Ret
+				!vflux(1) = vflux(1) + Ret
+				!vflux(2) = vflux(2) - Ret
 			endif
 			!Record vertical flux for save it.
 			if (save_vfluxes .eq. 1) then 
@@ -772,7 +772,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 			mean_vfluxes(:,tiempo) = sum(vfluxes,dim=2) / N_cel
 			!Saves the fluxes
 			if (guarda_vfluxes(tiempo) .gt. 0) then
-				call write_float_basin(ruta_vfluxes,StoOut,guarda_vfluxes(tiempo),N_cel,4)
+				call write_float_basin(ruta_vfluxes,vfluxes,guarda_vfluxes(tiempo),N_cel,4)
 			endif
 		endif
 		
