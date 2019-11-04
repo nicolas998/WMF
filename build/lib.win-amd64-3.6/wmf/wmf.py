@@ -1926,7 +1926,7 @@ class Basin:
         if prm:
             LongCauce = self.CellCauce*self.CellLong
         #Variables para transformar
-        Con = self.hills #.data[1]
+        Con = self.hills.data[1]
         Ids = np.arange(self.nhills, 0, -1)
         #Definicion de diccionarios para transformar
         DicAsynch = {}
