@@ -4731,7 +4731,7 @@ class Stream:
     # Subrutinas de trazado de corriente y obtencion de parametros
     #------------------------------------------------------
     #Inicia la cuenca
-    def __init__(self,lat,lon,DEM,DIR,name='NaN'):
+    def __init__(self,lat,lon,DEM,DIR,epsg, name='NaN'):
         'Descripcion: Traza un cauce e inicia la variable de este \n'\
         '\n'\
         'Parametros\n'\
@@ -4739,6 +4739,10 @@ class Stream:
         'self : Inicia las variables vacias.\n'\
         'lat : Coordenada en X del punto mas alto del cauce.\n'\
         'lon : Coordenada en Y del punto mas alto del cauce.\n'\
+        'DEM : Elevation map.\n'\
+        'DIR : D8 direction map.\n'\
+        'epsg : EPSG reference code.\n'\
+        'name : name that the streamflow will have.\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -4749,11 +4753,11 @@ class Stream:
         self.ncells = cu.stream_find(lat,lon,self.DEM,
             self.DIR,cu.ncols,cu.nrows)
         self.structure = cu.stream_cut(self.ncells)
+        self.epsg = epsg
     #------------------------------------------------------
     # Guardado shp de cauce
     #------------------------------------------------------
-    def Save_Stream2Map(self,ruta,DriverFormat='ESRI Shapefile',
-        EPSG=4326):
+    def Save_Stream2Map(self,ruta,DriverFormat='ESRI Shapefile'):
         'Descripcion: Guarda el cauce trazado en un mapa \n'\
         '\n'\
         'Parametros\n'\
@@ -4770,7 +4774,7 @@ class Stream:
         if ruta.endswith('.shp')==False:
             ruta=ruta+'.shp'
         spatialReference = osgeo.osr.SpatialReference()
-        spatialReference.ImportFromEPSG(EPSG)
+        spatialReference.ImportFromEPSG(int(self.epsg))
         driver = osgeo.ogr.GetDriverByName(DriverFormat)
         if os.path.exists(ruta):
              driver.DeleteDataSource(ruta)
