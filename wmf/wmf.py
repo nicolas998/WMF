@@ -27,6 +27,12 @@ import pandas as pd
 import datetime as datetime
 from multiprocessing import Pool
 import matplotlib.path as mplPath
+
+try:
+    import osgeo.ogr, osgeo.osr
+    import gdal
+except:
+    print('no se importa osgeo ni gdal, no es posible hacer plots de mapas ni lecturas de mapas hacia las cuencas')
 try:
     import gdal
 except:
@@ -576,7 +582,8 @@ def read_storage_struct(ruta):
     return Data
 
 def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
-    Mean_Storage):
+    Mean_Storage, WhereItSave):
+    '''Function to save the header file of the model storage'''
     #Lee fechas para el intervalo de tiempo
     S = read_mean_rain(rute_rain,Nintervals,FirstInt)
     #Escribe el encabezado del archivo
@@ -586,13 +593,11 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     f.write('Numero de registros: %d \n' % Nintervals)
     f.write('Tipo Modelo: %s \n' % cuenca.modelType)
     f.write('IDfecha, Tanque 1, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
-    c = 1
     #Si no hay almacenamiento medio lo coloca en -9999
     #Escribe registros medios y fechas de los almacenamientos
-    for d,sto in zip(S.index.to_pydatetime(),Mean_Storage.T):
+    for c,d,sto in zip(WhereItSave,S.index.to_pydatetime(),Mean_Storage.T):
         f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' %
             (c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
-        c+=1
     f.close()
 
 def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
@@ -735,11 +740,11 @@ def __eval_q_pico__(s_o,s_s):
 #Funciones para vincularse con asynch
 def __asynch_write_rvr__(DicAsynch, ruta):
     '''Escribe el plano de asynch a partir del diccionario y de una ruta'''
-    # arregla la ruta 
-    path, ext = os.path.splitext(ruta) 
+    # arregla la ruta
+    path, ext = os.path.splitext(ruta)
     if ext != '.rvr':
         ruta = path + '.rvr'
-    #Escribe el archivo 
+    #Escribe el archivo
     f = open(ruta,'w')
     #Numero de elementos
     f.write('%d\n\n' % len(DicAsynch))
@@ -757,7 +762,7 @@ def __asynch_write_rvr__(DicAsynch, ruta):
 
 def __asynch_write_lookup__(DicAsynch, ruta):
     '''Escribe el plano de asynch con la informacion de lookup'''
-    # arregla la ruta 
+    # arregla la ruta
     path, ext = os.path.splitext(ruta)
     if ext != '.lookup':
         ruta = path + '.lookup'
@@ -775,7 +780,7 @@ def __asynch_write_prm__(DicAsynch, ruta, extraNames = None, extraFormats = None
     path, ext = os.path.splitext(ruta)
     if ext != '.prm':
         ruta = path + '.prm'
-    #Escritura 
+    #Escritura
     f = open(ruta, 'w')
     f.write('%d\n\n' % len(DicAsynch))
     for k in DicAsynch.keys():
@@ -928,7 +933,7 @@ class Basin:
         else:
             self.__Load_BasinNc(ruta)
             #Genera el poligono de la cuenca
-            
+
         self.__GetBasinPolygon__()
     #Cargador de cuenca
     def __Load_BasinNc(self,ruta,Var2Search=None):
@@ -961,21 +966,6 @@ class Basin:
         self.structure = gr.variables['structure'][:]
         #Cierra el archivo
         gr.close()
-
-    def Load_BasinVar(self, varName):
-        'Descripcion: Lee una variable especifica del netCDf de la cuenca\n'\
-        '\n'\
-        'Parametros\n'\
-        '----------\n'\
-        'varName: nombre de la variable guardada\n'\
-        'Retornos\n'\
-        '----------\n'\
-        'var : Retorna la variable como un numpy array.\n'\
-        #Lectura del netCDf y lectura de variable
-        gr = netcdf.Dataset(self.rutaNC,'a')
-        Var = gr.variables[varName][:]
-        gr.close()
-        return Var
 
     #Guardado de de la cuenca en nc
     def Save_Basin2nc(self,ruta,qmed=None,q233=None,q5=None,
@@ -1034,6 +1024,53 @@ class Basin:
         gr.close()
         #Sale del programa
         return
+
+    #Variable loader and vision
+    def Load_BasinVar(self, GroupName = None, VarName = None,
+        ShowVars = True):
+        '''This function shows the variables of the netCDF of the basin
+        and loads the variable if a name is given.
+
+        Parameters:
+            - GroupName(None): shows list of groups and varaibles.
+                - if the group name is specified shows variables of that group
+                - if both GroupName and VarName, returns the variable
+            - VarName(None): shows the variables of the group.
+                - if given, loads the variable from the netCDF.
+        Optional:
+            - ShowVars(True): Show the three of the bars in the basin'''
+        #Loads netCDF
+        g = netcdf.Dataset(self.rutaNC)
+        # No group name case
+        if GroupName is None:
+            print('Variable Groups in the basin file: (varName, shape, meanValue, min, max)\n')
+            for k in g.groups.keys():
+                print(k)
+                if ShowVars:
+                    for k2 in g.groups[k].variables.keys():
+                        print('\t'+k2+'\t', g.groups[k].variables[k2].shape,
+                            '\t %.2f' % g.groups[k].variables[k2][:].mean(),
+                            '\t %.2f' % g.groups[k].variables[k2][:].min(),
+                            '\t %.2f' % g.groups[k].variables[k2][:].max())
+        #Given Group no name of variable
+        else:
+            if VarName is None:
+                try:
+                    print('Variables into %s: \n' % GroupName)
+                    for k in g.groups[GroupName].variables.keys():
+                        print('\t'+k+'\t', g.groups[GroupName].variables[k].shape,
+                            '\t %.2f' % g.groups[GroupName].variables[k][:].mean(),
+                            '\t %.2f' % g.groups[GroupName].variables[k][:].min(),
+                            '\t %.2f' % g.groups[GroupName].variables[k][:].max())
+                except:
+                    print('Error: %s is not in the group list' % GroupName)
+            else:
+                try:
+                    return g.groups[GroupName].variables[VarName][:]
+                except:
+                    print('Error: %s is not in group %s' % (VarName, GroupName))
+        g.close()
+
     #Parametros Geomorfologicos
     def GetGeo_Parameters(self,rutaParamASC=None,plotTc=False,
         rutaTcPlot = None, figsize=(8,5), GetPerim=True):
@@ -1154,7 +1191,7 @@ class Basin:
                 #Obtiene el poligono de la cuenca completo
                 Shtemp = []
                 flag = True
-                
+
                 while flag:
                         try:
                                 Shtemp.append(next(shapes))
@@ -1489,8 +1526,8 @@ class Basin:
         directions = self.Transform_Map2Basin(self.DIR[0],self.DIR[1])
         #Obtiene las secciones
         self.Sections, self.Sections_Cells = cu.basin_stream_sections(self.structure,
-            self.CellCauce, directions, self.DEM, NumCeldas,
-            self.ncells, cu.ncols, cu.nrows)
+            self.CellCauce, directions, DEM, NumCeldas,
+            self.ncells, prop[0], prop[1])
 
     #------------------------------------------------------
     # Subrutinas para el calculo de extremos mediante hidrografa unitaria sintetica
@@ -1914,18 +1951,16 @@ class Basin:
         Ids = np.arange(self.nhills, 0, -1)
         #Definicion de diccionarios para transformar
         DicAsynch = {}
-        # Funciona esta forma de transformar, pero creo que deben haber una forma mas rapida de hacerlo     
+        # Funciona esta forma de transformar, pero creo que deben haber una forma mas rapida de hacerlo
         for c,i in enumerate(Ids):
-            #Busca si hay quien le drene 
+            #Busca si hay quien le drene
             pos = np.where(Con == i)
-            #Si los encuentra pone el formato 
+            #Si los encuentra pone el formato
             Dic = {str(i): {'Nparents': len(pos[0]),
                 'Parents': Ids[pos].tolist(),
                 'WMFpos': c+1}}
             #Encuentra posiciones
-            #pos = np.where(self.hills_own == c+1)[0]
             pos = np.where(self.hills_own == i)[0]
-            #Lookup Table 
             if lookup:
                 #Saca coord y el orden de horton
                 xhill = np.median(x[pos])
@@ -1935,7 +1970,7 @@ class Basin:
                 Dic[str(i)].update({'x': xhill,
                     'y': yhill,
                     'order': horton})
-            #Tabla de propiedades prm 
+            #Tabla de propiedades prm
             if prm:
                 #Calcula parametros
                 Area = pos.size * cu.dxp**2. / 1e6
@@ -1943,7 +1978,7 @@ class Basin:
                 Long = LongCauce[pos].sum() / 1000.
                 if Long == 0: Long = cu.dxp/1000.
                 Slope = np.median(self.CellSlope[pos])
-                #Actualiza el diccionario 
+                #Actualiza el diccionario
                 Dic[str(i)].update({'Area': Area,
                     'Long': Long,
                     'Slope': Slope,
@@ -1957,7 +1992,7 @@ class Basin:
             #Diccionario con toda la estructura
             DicAsynch.update(Dic)
         DataFrame = pd.DataFrame(DicAsynch).T
-        # Funcion para escribir en el formato de asynch 
+        # Funcion para escribir en el formato de asynch
         if ruta is not None:
             #Escribe los archivos de asynch
             __asynch_write_rvr__(DicAsynch, ruta)
@@ -1967,14 +2002,14 @@ class Basin:
                 __asynch_write_prm__(DicAsynch, ruta, extraNames = Names2Prm,
                     extraFormats = Format2Prm)
         if writeMsgLinkFile:
-            #Arregla la extension 
+            #Arregla la extension
             name, ext = os.path.splitext(ruta)
             extension = '.msg'
             if ext != extension:
                 path = name + extension
-            #Escribe 
+            #Escribe
             DataFrame.to_msgpack(path)
-        #Retorno 
+        #Retorno
         return DataFrame
 
     #------------------------------------------------------
@@ -2469,7 +2504,7 @@ class Basin:
                         vmin=vmin,vmax=vmax)
                 cbar_label_size = kwargs.get('cbar_label_size',16)
                 if colorbar:
-                    cbar = m.colorbar(cs,location='bottom',pad="5%")
+                    cbar = pl.colorbar(cs,orientation='horizontal',pad=0.09,fraction=0.046)
                     if colorbarLabel is not None:
                         cbar.set_label(colorbarLabel, size = cbar_label_size)
                     if cbar_ticks is not None:
@@ -2704,16 +2739,17 @@ class Basin:
 
     # Grafica barras de tiempos de concentracion
     def Plot_Tc(self,ruta=None,figsize=(8,6),**kwargs):
-        keys=self.Tc.keys()
-        keys[2]=u'Carr Espana'
-        Media=np.array(self.Tc.values()).mean()
-        Desv=np.array(self.Tc.values()).std()
-        Mediana=np.percentile(self.Tc.values(),50)
+        keys, values = list(self.Tc.keys()),list(self.Tc.values())
+        keys, values = (list(t) for t in zip(*sorted(zip(keys, values))))
+        keys[1] = u'Carr Espana'
+        Media=np.array(values).mean()
+        Desv=np.array(values).std()
+        Mediana=np.percentile(values,50)
         rango=[Media-Desv,Media+Desv]
         color1 = kwargs.get('color1','b')
         color2 = kwargs.get('color2','r')
         colores=[]
-        for t in self.Tc.values():
+        for t in values:
             if t>rango[0] and t<rango[1]:
                 colores.append(color1)
             else:
@@ -2730,7 +2766,7 @@ class Basin:
         ax.set_position([box.x0, box.y0 + box.height * 0.18,
             box.width, box.height * 0.9])
         ax.set_xlim(-0.4,len(keys)+1-0.8)
-        ax.bar(range(len(keys)),self.Tc.values(),color=colores)
+        ax.bar(range(len(keys)),values,color=colores)
         Texto='%.2f' % Media
         ax.hlines(Media,-0.4,len(keys)+1-0.8,'k',lw=2,label='$\\mu='+Texto+'$')
         Texto='%.2f' % Mediana
@@ -2742,7 +2778,10 @@ class Basin:
         ylabel = kwargs.get('ylabel',u'Tiempo de concentracion $T_c[hrs]$')
         ax.set_ylabel(ylabel,size=14)
         ax.grid(True)
-        ax.legend(loc='upper_right',ncol='3',fontsize='medium')
+        try:
+            ax.legend(loc='upper right',ncol=3,fontsize='medium')
+        except:
+            ax.legend(loc='upper_right',ncol='3',fontsize='medium')
         if ruta is not None:
             pl.savefig(ruta,bbox_inches='tight')
         if show == True:
@@ -2935,7 +2974,7 @@ class SimuBasin(Basin):
         'Retornos\n'\
         '----------\n'\
         'self : Con las variables iniciadas.\n'\
-        #Esta variable es para controlar cuando se reinician las variables de sedimentos 
+        #Esta variable es para controlar cuando se reinician las variables de sedimentos
         self.segunda_cuenca = False
         #Variables de radar
         self.radarDates = []
@@ -3907,6 +3946,24 @@ class SimuBasin(Basin):
             isVec=True
             models.storage[pos] = Vec
 
+    def set_StorageDates(self, SimuDates, SelectedDates, Nintervals):
+        '''Function to set the variable that determines at which dates
+        store the results from the model.
+        Parameters:
+            - SimuDates: pandas index dates corresponding to the simulation period.
+            - SelectedDates: List with the dates in the format: yyyy-mm-dd HH:MM.
+            - Nintervals: Number of simulated intervals in the model.'''
+        #SEt the null variable to indicate where to save
+        Guarda = np.zeros(Nintervals)
+        cont = 1
+        for sd in SelectedDates:
+            pos = np.where(SimuDates == sd)[0][0]
+            Guarda[pos] = cont
+            cont+=1
+        #Assing the variable to wmf
+        models.guarda_cond = np.copy(Guarda)
+        return Guarda
+
     def set_Control(self,coordXY,ids,tipo = 'Q'):
         'Descripcion: \n'\
         '   Establece los puntos deonde se va a realizar control del caudal\n'\
@@ -4095,7 +4152,7 @@ class SimuBasin(Basin):
         '----------\n'\
         'self : Con las variables iniciadas.\n'\
 
-        #Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto  
+        #Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto
         if self.isSetGeo is False:
             self.set_Geomorphology()
             print('Aviso: SE ha estimado la geomorfologia con los umbrales por defecto umbral = [30, 500]')
@@ -4208,7 +4265,7 @@ class SimuBasin(Basin):
                 else:
                     new_var = Variable
             return new_var
-                    
+
         VarKrus[:]=__reshape(models.krus,1)
         VarPrus[:]=__reshape(models.prus,1)
         VarCrus[:]=__reshape(models.crus,1)
@@ -4236,7 +4293,7 @@ class SimuBasin(Basin):
         #Cierra el archivo
         gr.close()
         #Sale del programa
-        self.segunda_cuenca = True 
+        self.segunda_cuenca = True
         return
 
         #------------------------------------------------------
@@ -4244,7 +4301,8 @@ class SimuBasin(Basin):
         #------------------------------------------------------
     def run_shia(self,Calibracion,
         rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
-        ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True, EvpVariable = False):
+        ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True,
+        EvpVariable = False, Dates2Save = None):
         'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
         '   Antes de su ejecucion se deben tener listas todas las . \n'\
         '   variables requeridas . \n'\
@@ -4288,7 +4346,8 @@ class SimuBasin(Basin):
         '               cu.set_Storage(j,c)\n'\
         'QsimDataFrame: Retorna un data frame con los caudales simulados indicando su id de acuerdo con el\n'\
         '   que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
-                'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
+        'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
+        'Dates2Save: list with the dates to save in the format: [Y-m-d H:M, ...]\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -4320,6 +4379,12 @@ class SimuBasin(Basin):
             models.save_storage = 1
             ruta_sto_bin, ruta_sto_hdr = __Add_hdr_bin_2route__(ruta_storage,
                 storage = True)
+            #Check if is going to save model states at certain dates
+            if Dates2Save is not None:
+                WhereItSaves = self.set_StorageDates(Rain.index, Dates2Save, N_intervals)
+            else:
+                print('Warning: model will save states in all time steps this may require a lot of space')
+                WhereItSaves = np.arange(1,N_intervals+1)
         else:
             models.save_storage = 0
             ruta_sto_bin = 'no_guardo_nada.StObin'
@@ -4412,11 +4477,11 @@ class SimuBasin(Basin):
             #Caso en el que se registra el alm medio
             if models.show_storage == 1:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-                    start_point,self,Mean_Storage = np.copy(models.mean_storage))
+                    start_point,self,np.copy(models.mean_storage),WhereItSaves)
             #Caso en el que no hay alm medio para cada uno de los
             else:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-                    start_point,self,Mean_Storage=np.zeros((5,N))*-9999)
+                    start_point,self,np.zeros((5,N))*-9999,WhereItSaves)
         #Area de la seccion
         if models.show_area == 1:
             Retornos.update({'Sec_Area': Area})

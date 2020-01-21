@@ -1070,10 +1070,92 @@ class controlHS(object):
             self.cuenca.set_Storage(Valor, Tanque -1)
             return Valor.mean(), Valor
         
+    def Sim_Series2Excel(self,ExcelPath,dataframe):
+        '''Guarda los dataframes a un excel.'''
+        W = pd.ExcelWriter(ExcelPath)
+        #Escribe 
+        dataframe.to_excel(W)
+        #Cierra el archivo 
+        W.close()
+        return 0     
         
+    def Convert2CDC (self,serie):
+        '''Toma una serie y arroja como salidas la serie organizada y el porcentaje de 
+           excedencia de cada valor'''
+        serie = np.sort(serie)
+        porcen_s=[]
+        for i in range(len(serie)):
+            porcen_s.append((len(serie[serie>serie[i]]))/float(len(serie))*100)
+        return np.array(serie),np.array(porcen_s)
         
+    def Convert_Df2CDC(self,df):
+        '''Toma un dataframe que tenga como index fechas, y como columnas id de estaciones
+            arroja como salida un dataframe con la series organizadas y los respectivos
+            porcentajes de excelencia de cada valor'''
+        ids = np.array(df.keys())
+        tupla = []
+        Data = []
+        for ID in ids:
+            tupla.append((str(ID),'Q_sort'))
+            tupla.append((str(ID),'P_exc'))
+            Data.extend([self.Convert2CDC(df[ID].values)[0],self.Convert2CDC(df[ID].values)[1]])
+        Data = np.array(Data)
+        index = pd.MultiIndex.from_tuples(tupla, names=['Tramo','CDC'])
+        dfCDC = pd.DataFrame(Data.T,index = np.arange(len(df.index)),columns = index)
+        return dfCDC        
         
+    def Convert_DfAnualCaudales(self,df):
+        '''Toma un dataframe que tenga como index fechas, y como columnas id de estaciones
+            arroja como salida un dataframe con las medias mensuales multianuales por cada tramo'''
+        ids = np.array(df.keys())
+        tupla = []
+        Data = []
+        media= df.groupby(df.index.month).mean()
+        desv = df.groupby(df.index.month).std()
         
+        for ID in ids:
+            tupla.append((str(ID),'Media'))
+            tupla.append((str(ID),'Desv_Estandar'))
+            Data.extend([media[ID],desv[ID]])
+        Data = np.array(Data)
+        index = pd.MultiIndex.from_tuples(tupla, names=['Tramo','Media_Mensual'])
+        dfAnual = pd.DataFrame(Data.T,index = np.arange(1,13),columns = index)
+        return dfAnual
+            
+    def CDC_Series2Excel(self,ExcelPath,df_sim=None,df_obs=None):
+        '''Guarda los dataframes a un excel.'''
+        W = pd.ExcelWriter(ExcelPath,engine='xlsxwriter')
+        #Escribe 
+        if df_sim is not None:
+            df_sim.to_excel(W,sheet_name='CDC_simulados')
+        if df_obs is not None:
+            df_obs.to_excel(W,sheet_name='CDC_observados')
+        #Cierra el archivo 
+        W.close()
+        return 0 
+        
+    def MediaMensual_Q2Excel(self,ExcelPath,df_sim=None,df_obs=None):
+        '''Guarda los dataframes a un excel.'''
+        W = pd.ExcelWriter(ExcelPath,engine='xlsxwriter')
+        #Escribe 
+        if df_sim is not None:
+            df_sim.to_excel(W,sheet_name='Media_Mensual_Qsim')
+        if df_obs is not None:
+            df_obs.to_excel(W,sheet_name='Media_Mensual_Qobs')
+        #Cierra el archivo 
+        W.close()
+        return 0   
+        
+    def EvalIndicadores(self,Qobs,Qsim):
+        DictIndicadores = self.cuenca.efficiencia(Qobs,Qsim)
+        Unidades = ["[Adim]","[%]","[s]","log[m3/s]","[m3/s]"]
+        return DictIndicadores,Unidades  
+            
+
+
+    
+            
+            
             
             
             
