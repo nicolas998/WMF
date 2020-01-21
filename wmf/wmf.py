@@ -34,6 +34,14 @@ try:
 except:
     print('no se importa osgeo ni gdal, no es posible hacer plots de mapas ni lecturas de mapas hacia las cuencas')
 try:
+    import gdal
+except:
+    print('no se logra importar gdal, se limitan las funciones con mapas raster')
+try:
+    import osgeo.ogr, osgeo.osr
+except:
+    print('no se logra importar osgeo, se limitan las funciones con mapas vector.')
+try:
     import netcdf as netcdf
 except:
     try:
@@ -766,9 +774,9 @@ def __asynch_write_lookup__(DicAsynch, ruta):
             DicAsynch[k]['y'],DicAsynch[k]['order']))
     f.close()
 
-def __asynch_write_prm__(DicAsynch, ruta):
+def __asynch_write_prm__(DicAsynch, ruta, extraNames = None, extraFormats = None):
     '''Escribe el plano de asynch con la informacion de prm'''
-    # arregla la ruta
+    # arregla la ruta 
     path, ext = os.path.splitext(ruta)
     if ext != '.prm':
         ruta = path + '.prm'
@@ -777,8 +785,19 @@ def __asynch_write_prm__(DicAsynch, ruta):
     f.write('%d\n\n' % len(DicAsynch))
     for k in DicAsynch.keys():
         f.write('%s\n' % k)
-        f.write('%.5f %.5f %.5f\n\n' % (DicAsynch[k]['Area'],
-            DicAsynch[k]['Long'],DicAsynch[k]['Slope']))
+        f.write('%.5f %.5f %.5f ' % (DicAsynch[k]['Acum'],
+            DicAsynch[k]['Long'],DicAsynch[k]['Area']))
+        if extraNames is not None:
+            c = 0
+            for k2 in extraNames:
+                try:
+                    fo = extraFormats[c]
+                except:
+                    fo = '%.5f '
+                f.write(fo % DicAsynch[k][k2])
+                f.write(' ')
+                c += 1
+        f.write('\n\n')
     f.close()
 
 #Funciones para mirar como es un netCDf por dentro
@@ -1504,8 +1523,7 @@ class Basin:
         #Obtiene mapa de cauces
         self.GetGeo_Cell_Basics()
         #Obtiene vector de direcciones
-        directions = self.DIRvec
-        DEM,prop = self.Transform_Basin2Map(self.DEMvec)
+        directions = self.Transform_Map2Basin(self.DIR[0],self.DIR[1])
         #Obtiene las secciones
         self.Sections, self.Sections_Cells = cu.basin_stream_sections(self.structure,
             self.CellCauce, directions, DEM, NumCeldas,
@@ -1905,7 +1923,9 @@ class Basin:
                 DicPoly[str(Value)].update({str(cont):np.array(co).T})
         return DicPoly
 
-    def Transform_Basin2Asnych(self, ruta = None, lookup = False, prm = False, writeMsgLinkFile = False):
+    def Transform_Basin2Asnych(self, ruta = None, lookup = False, prm = False,
+        writeMsgLinkFile = False, DicVars = None, Names2Prm = None,
+        Format2Prm = None):
         '''Tranfrom_Basin2Asynch: Convierte la topologia de la cuenca de WMF
         en el formato .rvr requerido por ASYNCH
         Parametros:
@@ -1915,6 +1935,7 @@ class Basin:
             - [lookup]: Tabla de asynch con ID, Lat, Lon, Orden
             - [prm]: Tabla de asynch con parametros: ID, Area, Pend, Long
             - writeMsgLinkFile: Escribe un archivo msg con toda la estructura de los datos
+            - DicVars: Dictionary with additional variables to pass into the prm.
         Resultados:
             - self.asynch_rvr: diccionario con la forma de asynch en la cuenca.
             - Archivo plano de texto con el archivo .rvr (si se da la ruta)
@@ -1925,8 +1946,8 @@ class Basin:
             self.GetGeo_StreamOrder()
         if prm:
             LongCauce = self.CellCauce*self.CellLong
-        #Variables para transformar
-        Con = self.hills.data[1]
+        #Variables para transformar 
+        Con = self.hills[1]
         Ids = np.arange(self.nhills, 0, -1)
         #Definicion de diccionarios para transformar
         DicAsynch = {}
@@ -1939,8 +1960,7 @@ class Basin:
                 'Parents': Ids[pos].tolist(),
                 'WMFpos': c+1}}
             #Encuentra posiciones
-            pos = np.where(self.hills_own == c+1)[0]
-            #Lookup Table
+            pos = np.where(self.hills_own == i)[0]
             if lookup:
                 #Saca coord y el orden de horton
                 xhill = np.median(x[pos])
@@ -1954,14 +1974,21 @@ class Basin:
             if prm:
                 #Calcula parametros
                 Area = pos.size * cu.dxp**2. / 1e6
+                Acum = self.CellAcum[self.hills_own == i].max()*cu.dxp**2/1e6
                 Long = LongCauce[pos].sum() / 1000.
-                if Long == 0:
-                    Long = cu.dxp**2. / 1000.
+                if Long == 0: Long = cu.dxp/1000.
                 Slope = np.median(self.CellSlope[pos])
                 #Actualiza el diccionario
                 Dic[str(i)].update({'Area': Area,
                     'Long': Long,
-                    'Slope': Slope})
+                    'Slope': Slope,
+                    'Acum': Acum})
+            #DicVariables 
+            if DicVars is not None:
+                for k in DicVars.keys():
+                    Dic[str(i)].update(
+                        {k: np.median(DicVars[k][pos])}
+                    )
             #Diccionario con toda la estructura
             DicAsynch.update(Dic)
         DataFrame = pd.DataFrame(DicAsynch).T
@@ -1972,7 +1999,8 @@ class Basin:
             if lookup:
                 __asynch_write_lookup__(DicAsynch, ruta)
             if prm:
-                __asynch_write_prm__(DicAsynch, ruta)
+                __asynch_write_prm__(DicAsynch, ruta, extraNames = Names2Prm,
+                    extraFormats = Format2Prm)
         if writeMsgLinkFile:
             #Arregla la extension
             name, ext = os.path.splitext(ruta)
