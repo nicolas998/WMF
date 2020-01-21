@@ -1260,7 +1260,7 @@ subroutine basin_point2var(basin_f,id_coord,xy_coord,res_coord,basin_pts,ncoord,
     enddo
 end subroutine
 subroutine basin_extract_var_by_point(basin_f,var,xy_coord,kernel,var_values,ncoord,nceldas) !Entrega el valor de una var de la cuenca a partir de puntos
-	!Variables de entrada
+!Variables de entrada
     integer, intent(in) :: nceldas,ncoord,kernel
     integer, intent(in) :: basin_f(3,nceldas)
     real, intent(in) :: xy_coord(2,ncoord),var(nceldas)
@@ -1269,41 +1269,49 @@ subroutine basin_extract_var_by_point(basin_f,var,xy_coord,kernel,var_values,nco
     !f2py intent(in) :: nceldas,ncoord,basin_f,xy_coord,kernel,var
     !f2py intent(out) :: var_values
     !Variables locales
-	integer i,x_col,y_fil,posit,c,f,cont,posit_temp,k
-	real x,y,valor
-	!Si se da un kernel malo se corrige y se avisa
-	if (kernel .lt. 3) then
-		k=3
-		print *, 'Alerta: Kernel dado inferior a 3, kernel adoptado igual a 3'
-	else
-		k=kernel
-	endif
-	k=floor(k/2.0)
-	!Busca en cada uno de los puntos 
-	var_values=-9999.0	
-	do i=1,ncoord
-		x=(xy_coord(1,i)-xll)/dx
-		x_col=ceiling(x)
-		y=nrows-(xy_coord(2,i)-yll)/dx
-		y_fil=ceiling(y)
-		!Entrega la posicion dentro del vector
-		call find_xy_in_basin(basin_f,x_col,y_fil,posit,nceldas)
-		!solo evalua si el punto esta dentro de la cuenca
-		if (posit .ne. 0) then
-			cont=0
-			valor=0
-			do c=-k,k
-				do f=-k,k
-					call find_xy_in_basin(basin_f,x_col+c,y_fil+f,posit_temp,nceldas)
-					if (posit .ne. 0) then
-						cont=cont+1
-						valor=valor+var(posit_temp)
-					endif
-				enddo
-			enddo
-			var_values(i)=valor/cont
-		endif
-	enddo
+    integer i,x_col,y_fil,posit,c,f,cont,posit_temp,k
+    real x,y,valor
+    !Si se da un kernel malo se corrige y se avisa
+    if (kernel .lt. 3 .and. kernel .gt. -1) then
+        k=3
+        print *, 'Alerta: Kernel dado inferior a 3, kernel adoptado igual a 3'
+    else if (kernel .le. -1) then 
+        k=-1
+    else
+        k=kernel
+    endif
+    k=floor(k/2.0)
+    !Busca en cada uno de los puntos 
+    var_values=-9999.0
+    do i=1,ncoord
+        x=(xy_coord(1,i)-xll)/dx
+        x_col=ceiling(x)
+        y=nrows-(xy_coord(2,i)-yll)/dx
+        y_fil=ceiling(y)
+        !Entrega la posicion dentro del vector
+        call find_xy_in_basin(basin_f,x_col,y_fil,posit,nceldas)
+        !solo evalua si el punto esta dentro de la cuenca
+        if (posit .ne. 0) then
+            !Caso de no kernel toma el valor de la celda encontrada
+            if (k .eq. -1) then
+                var_values(i) = var(posit)
+            !Caso cuando el kernel existe y es positivo
+            else
+                cont=0
+                valor=0
+                do c=-k,k
+                    do f=-k,k
+                        call find_xy_in_basin(basin_f,x_col+c,y_fil+f,posit_temp,nceldas)
+                        if (posit .ne. 0) then
+                            cont=cont+1
+                            valor=valor+var(posit_temp)
+                        endif
+                    enddo
+                enddo
+                var_values(i)=valor/cont
+            end if
+        endif
+    enddo
 end subroutine
 !subroutine basin_var2smooth(basin_f,var,varOut,nc,nf,nceldas,kernel=3)!Suaviza una variable tomando un tamano de kernel variable (kernel cuadrado)
 !	!Variables de entrada
