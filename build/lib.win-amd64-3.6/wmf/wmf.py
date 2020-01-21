@@ -34,14 +34,6 @@ try:
 except:
     print('no se importa osgeo ni gdal, no es posible hacer plots de mapas ni lecturas de mapas hacia las cuencas')
 try:
-    import gdal
-except:
-    print('no se logra importar gdal, se limitan las funciones con mapas raster')
-try:
-    import osgeo.ogr, osgeo.osr
-except:
-    print('no se logra importar osgeo, se limitan las funciones con mapas vector.')
-try:
     import netcdf as netcdf
 except:
     try:
@@ -601,7 +593,7 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     f.close()
 
 def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
-    Mean_Speed = None, WhereItSave = None):
+    Mean_Speed = None):
     #Lee fechas para el intervalo de tiempo
     S = read_mean_rain(rute_rain,Nintervals,FirstInt)
     #Escribe el encabezado del archivo
@@ -613,10 +605,10 @@ def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     f.write('IDfecha, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
     c = 1
     #Si no hay almacenamiento medio lo coloca en -9999
-    if Mean_Speed is None:
+    if Mean_Speed == None:
         Mean_Speed = np.ones((5,Nintervals))*-9999
     #Escribe registros medios y fechas de los almacenamientos
-    for c,d,sto in zip(WhereItSave,S.index.to_pydatetime(),Mean_Speed.T):
+    for d,sto in zip(S.index.to_pydatetime(),Mean_Speed.T):
         f.write('%d, \t %.2f, \t %.4f, \t %.2f, \t %.2f, %s \n' %
             (c,sto[0],sto[1],sto[2],sto[3],d.strftime('%Y-%m-%d-%H:%M')))
         c+=1
@@ -635,7 +627,7 @@ def __Save_retorno_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     f.write('IDfecha, Retorno[mm], Fecha \n')
     c = 1
     #Si no hay almacenamiento medio lo coloca en -9999
-    if Mean_retorno is None:
+    if Mean_retorno == None:
         Mean_retorno = np.ones(Nintervals)*-9999
     #Escribe registros medios y fechas de los almacenamientos
     for d,sto in zip(S.index.to_pydatetime(),Mean_retorno):
@@ -774,9 +766,9 @@ def __asynch_write_lookup__(DicAsynch, ruta):
             DicAsynch[k]['y'],DicAsynch[k]['order']))
     f.close()
 
-def __asynch_write_prm__(DicAsynch, ruta, extraNames = None, extraFormats = None):
+def __asynch_write_prm__(DicAsynch, ruta):
     '''Escribe el plano de asynch con la informacion de prm'''
-    # arregla la ruta 
+    # arregla la ruta
     path, ext = os.path.splitext(ruta)
     if ext != '.prm':
         ruta = path + '.prm'
@@ -785,19 +777,8 @@ def __asynch_write_prm__(DicAsynch, ruta, extraNames = None, extraFormats = None
     f.write('%d\n\n' % len(DicAsynch))
     for k in DicAsynch.keys():
         f.write('%s\n' % k)
-        f.write('%.5f %.5f %.5f ' % (DicAsynch[k]['Acum'],
-            DicAsynch[k]['Long'],DicAsynch[k]['Area']))
-        if extraNames is not None:
-            c = 0
-            for k2 in extraNames:
-                try:
-                    fo = extraFormats[c]
-                except:
-                    fo = '%.5f '
-                f.write(fo % DicAsynch[k][k2])
-                f.write(' ')
-                c += 1
-        f.write('\n\n')
+        f.write('%.5f %.5f %.5f\n\n' % (DicAsynch[k]['Area'],
+            DicAsynch[k]['Long'],DicAsynch[k]['Slope']))
     f.close()
 
 #Funciones para mirar como es un netCDf por dentro
@@ -1523,7 +1504,8 @@ class Basin:
         #Obtiene mapa de cauces
         self.GetGeo_Cell_Basics()
         #Obtiene vector de direcciones
-        directions = self.Transform_Map2Basin(self.DIR[0],self.DIR[1])
+        directions = self.DIRvec
+        DEM,prop = self.Transform_Basin2Map(self.DEMvec)
         #Obtiene las secciones
         self.Sections, self.Sections_Cells = cu.basin_stream_sections(self.structure,
             self.CellCauce, directions, DEM, NumCeldas,
@@ -1923,9 +1905,7 @@ class Basin:
                 DicPoly[str(Value)].update({str(cont):np.array(co).T})
         return DicPoly
 
-    def Transform_Basin2Asnych(self, ruta = None, lookup = False, prm = False,
-        writeMsgLinkFile = False, DicVars = None, Names2Prm = None,
-        Format2Prm = None):
+    def Transform_Basin2Asnych(self, ruta = None, lookup = False, prm = False, writeMsgLinkFile = False):
         '''Tranfrom_Basin2Asynch: Convierte la topologia de la cuenca de WMF
         en el formato .rvr requerido por ASYNCH
         Parametros:
@@ -1935,7 +1915,6 @@ class Basin:
             - [lookup]: Tabla de asynch con ID, Lat, Lon, Orden
             - [prm]: Tabla de asynch con parametros: ID, Area, Pend, Long
             - writeMsgLinkFile: Escribe un archivo msg con toda la estructura de los datos
-            - DicVars: Dictionary with additional variables to pass into the prm.
         Resultados:
             - self.asynch_rvr: diccionario con la forma de asynch en la cuenca.
             - Archivo plano de texto con el archivo .rvr (si se da la ruta)
@@ -1946,8 +1925,8 @@ class Basin:
             self.GetGeo_StreamOrder()
         if prm:
             LongCauce = self.CellCauce*self.CellLong
-        #Variables para transformar 
-        Con = self.hills[1]
+        #Variables para transformar
+        Con = self.hills.data[1]
         Ids = np.arange(self.nhills, 0, -1)
         #Definicion de diccionarios para transformar
         DicAsynch = {}
@@ -1960,7 +1939,8 @@ class Basin:
                 'Parents': Ids[pos].tolist(),
                 'WMFpos': c+1}}
             #Encuentra posiciones
-            pos = np.where(self.hills_own == i)[0]
+            pos = np.where(self.hills_own == c+1)[0]
+            #Lookup Table
             if lookup:
                 #Saca coord y el orden de horton
                 xhill = np.median(x[pos])
@@ -1974,21 +1954,14 @@ class Basin:
             if prm:
                 #Calcula parametros
                 Area = pos.size * cu.dxp**2. / 1e6
-                Acum = self.CellAcum[self.hills_own == i].max()*cu.dxp**2/1e6
                 Long = LongCauce[pos].sum() / 1000.
-                if Long == 0: Long = cu.dxp/1000.
+                if Long == 0:
+                    Long = cu.dxp**2. / 1000.
                 Slope = np.median(self.CellSlope[pos])
                 #Actualiza el diccionario
                 Dic[str(i)].update({'Area': Area,
                     'Long': Long,
-                    'Slope': Slope,
-                    'Acum': Acum})
-            #DicVariables 
-            if DicVars is not None:
-                for k in DicVars.keys():
-                    Dic[str(i)].update(
-                        {k: np.median(DicVars[k][pos])}
-                    )
+                    'Slope': Slope})
             #Diccionario con toda la estructura
             DicAsynch.update(Dic)
         DataFrame = pd.DataFrame(DicAsynch).T
@@ -1999,8 +1972,7 @@ class Basin:
             if lookup:
                 __asynch_write_lookup__(DicAsynch, ruta)
             if prm:
-                __asynch_write_prm__(DicAsynch, ruta, extraNames = Names2Prm,
-                    extraFormats = Format2Prm)
+                __asynch_write_prm__(DicAsynch, ruta)
         if writeMsgLinkFile:
             #Arregla la extension
             name, ext = os.path.splitext(ruta)
@@ -3964,24 +3936,6 @@ class SimuBasin(Basin):
         models.guarda_cond = np.copy(Guarda)
         return Guarda
 
-    def set_vFluxesDates(self, SimuDates, SelectedDates, Nintervals):
-        '''Function to set the variable that determines at which dates
-        store the results from the model.
-        Parameters:
-            - SimuDates: pandas index dates corresponding to the simulation period.
-            - SelectedDates: List with the dates in the format: yyyy-mm-dd HH:MM.
-            - Nintervals: Number of simulated intervals in the model.'''
-        #SEt the null variable to indicate where to save
-        Guarda = np.zeros(Nintervals)
-        cont = 1
-        for sd in SelectedDates:
-            pos = np.where(SimuDates == sd)[0][0]
-            Guarda[pos] = cont
-            cont+=1
-        #Assing the variable to wmf
-        models.guarda_vfluxes = np.copy(Guarda)
-        return Guarda
-
     def set_Control(self,coordXY,ids,tipo = 'Q'):
         'Descripcion: \n'\
         '   Establece los puntos deonde se va a realizar control del caudal\n'\
@@ -4319,8 +4273,8 @@ class SimuBasin(Basin):
         #------------------------------------------------------
     def run_shia(self,Calibracion,
         rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
-        ruta_conv = None, ruta_stra = None, ruta_vfluxes = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True,
-        EvpVariable = False, Dates2Save = None, FluxesDates2Save = None):
+        ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True,
+        EvpVariable = False, Dates2Save = None):
         'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
         '   Antes de su ejecucion se deben tener listas todas las . \n'\
         '   variables requeridas . \n'\
@@ -4353,7 +4307,6 @@ class SimuBasin(Basin):
         'ruta_conv : Ruta al binario y hdr indicando las nubes que son convectivas.\n'\
         'ruta_stra : Ruta al binario y hdr indicando las nubes que son estratiformes.\n'\
         'ruta_retorno : Ruta al binario y hdr en donde escribe la serie con los milimetros retornados al tanque runoff.\n'\
-        'ruta_vfluxes : Ruta al binario y hdr en donde se escribe la serie de vflux del modelo.\n'\
         'kinematicN: Cantidad de iteraciones para la solucion de la onda cinematica.\n'\
         '   De forma continua: 5 iteraciones, recomendado para cuando el modelo se\n'\
         '       ejecuta en forma continua Ej: cu.run_shia(Calib, rain_rute, 100)\n'\
@@ -4367,7 +4320,6 @@ class SimuBasin(Basin):
         '   que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
         'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
         'Dates2Save: list with the dates to save in the format: [Y-m-d H:M, ...]\n'\
-        'FluxesDates2Save: list with the dates to vflux save in the format: [Y-m-d H:M, ...]\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -4409,20 +4361,6 @@ class SimuBasin(Basin):
             models.save_storage = 0
             ruta_sto_bin = 'no_guardo_nada.StObin'
             ruta_sto_hdr = 'no_guardo_nada.StOhdr'
-        #Prepara variables para guardar fluxes
-        if ruta_vfluxes is not None:
-            models.save_vfluxes = 1
-            ruta_vflux_bin, ruta_vflux_hdr = __Add_hdr_bin_2route__(ruta_vfluxes)
-            #Check if is going to save model states at certain dates
-            if FluxesDates2Save is not None:
-                FluxesWhereItSaves = self.set_vFluxesDates(Rain.index, FluxesDates2Save, N_intervals)
-            else:
-                print('Warning: model will save states in all time steps this may require a lot of space')
-                FluxesWhereItSaves = np.arange(1,N_intervals+1)
-        else:
-            models.save_vfluxes = 0
-            ruta_vflux_bin = 'no_guardo_nada.bin'
-            ruta_vflux_hdr = 'no_guardo_nada.hdr'
         #prepara variable para guardado de velocidad
         if ruta_speed  is not  None:
             models.save_speed = 1
@@ -4484,7 +4422,6 @@ class SimuBasin(Basin):
             N,
             ruta_sto_bin,
             ruta_speed_bin,
-            ruta_vflux_bin,
             ruta_binConv,
             ruta_binStra,
             ruta_hdrConv,
@@ -4507,7 +4444,6 @@ class SimuBasin(Basin):
             Retornos.update({'Rain_sep' : Qsep_byrain})
         if models.show_storage == 1:
             Retornos.update({'Mean_Storage' : np.copy(models.mean_storage)})
-        #Escribe los encabezados de los binarios de almacenamiento si se han escrito
         if models.save_storage == 1:
             rutaStorageHdr = __Add_hdr_bin_2route__(ruta_storage)
             #Caso en el que se registra el alm medio
@@ -4518,10 +4454,6 @@ class SimuBasin(Basin):
             else:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
                     start_point,self,np.zeros((5,N))*-9999,WhereItSaves)
-        #Escribe el encabezado de los binarios con los datos de los vertical fluxes
-        if models.save_vfluxes == 1:
-            __Save_speed_hdr__(ruta_vflux_hdr,rain_ruteHdr,N_intervals,
-                start_point,self,models.mean_vfluxes,FluxesWhereItSaves)
         #Area de la seccion
         if models.show_area == 1:
             Retornos.update({'Sec_Area': Area})
