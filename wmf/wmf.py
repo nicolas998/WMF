@@ -702,11 +702,7 @@ def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],    c1=5.54,k=0.5,fhi=0.95
 def PotCritica(S,D,te = 0.056):
 	'Funcion: PotCritica\n'\
 	'Descripcion: Calcula la potencia critica en funcion del D50 y de la pendiente.\n'\
-	'geomorfologica (Velez, 2001).\n'\
-	'Parametros Opcionales:.\n'\
-	'       -isDEMorDIR: Pasa las propiedades de los mapas al modulo cuencas \n'\
-	'               escrito en fortran \n'\
-	'Retorno:.\n'\
+    #Function starts
 	ti = te * (D*1600*9.8)
 	return ti *(8.2* (((ti/(1000*9.8*S))/D)**(1.0/6.0)) * np.sqrt(ti/1000.0))/9800.0
 
