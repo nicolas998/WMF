@@ -2206,7 +2206,7 @@ class Basin:
     #------------------------------------------------------
     def Save_Net2Map(self,ruta,dx=cu.dxp,umbral=None,
         qmed=None,Dict=None,DriverFormat='ESRI Shapefile',
-        EPSG=4326, NumTramo = True, formato = '%.2f'):
+        NumTramo = True, formato = '%.2f'):
         'Descripcion: Guarda la red hidrica simulada de la cuenca en .shp \n'\
         '   Puede contener un diccionario con propiedades de la red hidrica. \n'\
         '\n'\
@@ -2219,7 +2219,6 @@ class Basin:
         'qmed : caudal medio calculado por alguna metodologia.\n'\
         'Dict : Diccionario con parametros de la red hidrica que se quieren imprimir.\n'\
         'DriverFormat : nombre del tipo de archivo vectorial de salida (ver OsGeo).\n'\
-        'EPSG : Codigo de proyeccion utilizada para los datos, defecto WGS84.\n'\
         'NumTramo: Poner o no el numero de tramo en cada elemento de la red.\n'\
         '\n'\
         'Retornos\n'\
@@ -2254,7 +2253,7 @@ class Basin:
         cortes.insert(0,0)
         #Escribe el shp de la red hidrica
         spatialReference = osgeo.osr.SpatialReference()
-        spatialReference.ImportFromEPSG(EPSG)
+        spatialReference.ImportFromEPSG(self.epsg)
         driver = osgeo.ogr.GetDriverByName(DriverFormat)
         if os.path.exists(ruta):
              driver.DeleteDataSource(ruta)
@@ -2307,7 +2306,7 @@ class Basin:
             feature.Destroy()
         shapeData.Destroy()
     def Save_Basin2Map(self,ruta,dx=30.0,Param={},
-        DriverFormat='ESRI Shapefile',EPSG=4326, GeoParam = False):
+        DriverFormat='ESRI Shapefile', GeoParam = False):
         'Descripcion: Guarda un archivo vectorial de la cuenca en .shp \n'\
         '   Puede contener un diccionario con propiedades. \n'\
         '\n'\
@@ -2317,7 +2316,6 @@ class Basin:
         'ruta : Lugar y nombre donde se va a guardar la cuenca.\n'\
         'dx : Longitud de las celdas planas.\n'\
         'DriverFormat : nombre del tipo de archivo vectorial de salida (ver OsGeo).\n'\
-        'EPSG : Codigo de proyeccion utilizada para los datos, defecto WGS84.\n'\
         'GeoParam: (False) determina si calcular de una los parametros geomorfo o no.\n'\
         '\n'\
         'Retornos\n'\
@@ -2335,7 +2333,7 @@ class Basin:
                 DictParam.update({k[:8]: self.GeoParameters[k]})
         #Genera el shapefile
         spatialReference = osgeo.osr.SpatialReference()
-        spatialReference.ImportFromEPSG(EPSG)
+        spatialReference.ImportFromEPSG(self.epsg)
         driver = osgeo.ogr.GetDriverByName(DriverFormat)
         if os.path.exists(ruta):
              driver.DeleteDataSource(ruta)
@@ -2929,7 +2927,7 @@ class Basin:
 class SimuBasin(Basin):
 
     def __init__(self,lat=None,lon=None,DEM=None,DIR=None,rute = None, name='NaN',stream=None,
-        umbral=500,useCauceMap = None,
+        umbral=500,useCauceMap = None,epsg = None,
         noData=-999,modelType='cells',SimSed=False,SimSlides=False,dt=60,
         SaveStorage='no',SaveSpeed='no',retorno = 0,
         SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no', SimFloods = 'no',
@@ -3004,7 +3002,10 @@ class SimuBasin(Basin):
             self.modelType=modelType
             self.nodata=noData
             self.umbral = umbral
-            self.epsg = Global_EPSG
+            if epsg is None:
+                self.epsg = int(Global_EPSG)
+            else:
+                self.epsg = int(epsg)
             #Traza la cuenca
             self.ncells = cu.basin_find(lat,lon,DIR,
                 cu.ncols,cu.nrows)
@@ -3021,7 +3022,6 @@ class SimuBasin(Basin):
                 nodos,self.nhills,self.ncells)
             self.hills = cu.basin_subbasin_cut(self.nhills)
             models.drena=self.structure
-            print(1)
             #Determina la cantidad de celdas para alojar
             if modelType=='cells':
                 N=self.ncells
@@ -4839,7 +4839,7 @@ class Stream:
     # Subrutinas de trazado de corriente y obtencion de parametros
     #------------------------------------------------------
     #Inicia la cuenca
-    def __init__(self,lat,lon,DEM,DIR,name='NaN'):
+    def __init__(self,lat,lon,DEM,DIR,epsg, name='NaN'):
         'Descripcion: Traza un cauce e inicia la variable de este \n'\
         '\n'\
         'Parametros\n'\
@@ -4847,6 +4847,10 @@ class Stream:
         'self : Inicia las variables vacias.\n'\
         'lat : Coordenada en X del punto mas alto del cauce.\n'\
         'lon : Coordenada en Y del punto mas alto del cauce.\n'\
+        'DEM : Elevation map.\n'\
+        'DIR : D8 direction map.\n'\
+        'epsg : EPSG reference code.\n'\
+        'name : name that the streamflow will have.\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -4857,11 +4861,11 @@ class Stream:
         self.ncells = cu.stream_find(lat,lon,self.DEM,
             self.DIR,cu.ncols,cu.nrows)
         self.structure = cu.stream_cut(self.ncells)
+        self.epsg = epsg
     #------------------------------------------------------
     # Guardado shp de cauce
     #------------------------------------------------------
-    def Save_Stream2Map(self,ruta,DriverFormat='ESRI Shapefile',
-        EPSG=4326):
+    def Save_Stream2Map(self,ruta,DriverFormat='ESRI Shapefile'):
         'Descripcion: Guarda el cauce trazado en un mapa \n'\
         '\n'\
         'Parametros\n'\
@@ -4878,7 +4882,7 @@ class Stream:
         if ruta.endswith('.shp')==False:
             ruta=ruta+'.shp'
         spatialReference = osgeo.osr.SpatialReference()
-        spatialReference.ImportFromEPSG(EPSG)
+        spatialReference.ImportFromEPSG(int(self.epsg))
         driver = osgeo.ogr.GetDriverByName(DriverFormat)
         if os.path.exists(ruta):
              driver.DeleteDataSource(ruta)
