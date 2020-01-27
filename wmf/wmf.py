@@ -32,7 +32,7 @@ import cartopy.crs as ccrs
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import matplotlib.ticker as mticker
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-	   
+       
 
 try:
     import osgeo.ogr, osgeo.osr
@@ -406,10 +406,10 @@ def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
     dataset.SetProjection(proj.ExportToWkt())
     #Coloca el nodata
     band = dataset.GetRasterBand(1)
-    if ArrayProp[-1] == None:
+    if ArrayProp[-1] is None:
         band.SetNoDataValue(wmf.cu.nodata.astype(int).max())
     else:
-        band.SetNoDataValue(-9999)
+        band.SetNoDataValue(int(ArrayProp[-1]))
     #Guarda el mapa
     dataset.GetRasterBand(1).WriteArray(Array.T)
     dataset.FlushCache()
@@ -706,11 +706,11 @@ def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],    c1=5.54,k=0.5,fhi=0.95
         return B,w1,w2,w3
 
 def PotCritica(S,D,te = 0.056):
-	'Funcion: PotCritica\n'\
-	'Descripcion: Calcula la potencia critica en funcion del D50 y de la pendiente.\n'\
-	#definition
-	ti = te * (D*1600*9.8)
-	return ti *(8.2* (((ti/(1000*9.8*S))/D)**(1.0/6.0)) * np.sqrt(ti/1000.0))/9800.0
+    'Funcion: PotCritica\n'\
+    'Descripcion: Calcula la potencia critica en funcion del D50 y de la pendiente.\n'\
+    #definition
+    ti = te * (D*1600*9.8)
+    return ti *(8.2* (((ti/(1000*9.8*S))/D)**(1.0/6.0)) * np.sqrt(ti/1000.0))/9800.0
 
 def __eval_nash__(s_o,s_s):
     med_s_o=np.nansum(s_o)/np.sum(np.isfinite(s_o))
@@ -3728,7 +3728,7 @@ class SimuBasin(Basin):
             models.unit_type = np.ones((1,self.ncells))*unit_type
             models.hill_long = np.ones((1,self.ncells))*hill_long
             models.hill_slope = np.ones((1,self.ncells))*pend
-            models.stream_long = np.ones((1,self.ncells))*np.percentile(hill_long, 40)
+            models.stream_long = np.ones((1,self.ncells))*hill_long
             models.stream_slope = np.ones((1,self.ncells))*pend
             models.stream_width = np.ones((1,self.ncells))*stream_width
             models.elem_area = np.ones((1,self.ncells))*cu.dxp**2.0

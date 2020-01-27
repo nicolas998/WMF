@@ -262,7 +262,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 	Acum_rain = 0
 	!Establece variable de conversion
 	m3_mmHill=elem_area(1,:)/1000.0
-	m3_mmRivers=(stream_long(1,:)*stream_width(1,:))/1000.0
+	m3_mmRivers=elem_area(1,:)/1000.0 !(stream_long(1,:)*stream_width(1,:))/1000.0
 	Q=0.0
 	!Inicia variables para realizar el balance en la cuenca
 	if (StoIn(1,1) .gt. 0) then
@@ -476,24 +476,25 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				vflux(i+1)=min(vflux(i),vspeed(i+1,celda)) ![mm]
 				StoOut(i+1,celda)=StoOut(i+1,celda)+vflux(i)-vflux(i+1) ![mm]
 			enddo
-			!Flujo de retorno del tanque 3 al tanque 2.
-			if (retorno_gr .gt. 0) then
-				Ret = max(0.0 , StoOut(3,celda)-H(2,celda))
-				StoOut(2,celda) = StoOut(2,celda) + Ret ![mm]
-				StoOut(3,celda) = StoOut(3,celda) - Ret ![mm]
-				Retorned(1,celda) = Retorned(1,celda) + Ret
-				vflux(1) = vflux(1) + Ret
-				vflux(2) = vflux(2) - Ret
-			endif
 			!Fujo de retorno del tanque 4 al tanque 3.
 			if (retorno_aq .gt. 0) then
 				Ret_aq = max(0.0 , StoOut(4,celda)-H(3,celda))
 				StoOut(3,celda) = StoOut(3,celda) + Ret_aq ![mm]
 				StoOut(4,celda) = StoOut(4,celda) - Ret_aq ![mm]
 				!Retorned(1,celda) = Retorned(1,celda) + Ret
-				vflux(2) = vflux(2) + Ret_aq
-				vflux(3) = vflux(3) - Ret_aq
+				!vflux(3) = vflux(3) - Ret_aq
+				!vflux(4) = vflux(3) - Ret_aq
 			endif
+			!Flujo de retorno del tanque 3 al tanque 2.
+			if (retorno_gr .gt. 0) then
+				Ret = max(0.0 , StoOut(3,celda)-H(2,celda))
+				StoOut(2,celda) = StoOut(2,celda) + Ret ![mm]
+				StoOut(3,celda) = StoOut(3,celda) - Ret ![mm]
+				Retorned(1,celda) = Retorned(1,celda) + Ret
+				!vflux(2) = vflux(2) - Ret
+				!vflux(3) = vflux(3) - Ret
+			endif
+
 			!Record vertical flux for save it.
 			if (save_vfluxes .eq. 1) then 
 				do i = 1,4
