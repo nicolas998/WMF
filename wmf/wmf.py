@@ -3080,6 +3080,7 @@ class SimuBasin(Basin):
             models.h_exp = np.ones((4,N))
             models.max_capilar = np.ones((1,N))
             models.max_gravita = np.ones((1,N))
+            models.max_aquifer = np.ones((1,N))
             models.storage = np.zeros((5,N))
             models.dt = dt
             models.calc_niter = 5
@@ -3208,6 +3209,8 @@ class SimuBasin(Basin):
         models.v_exp = np.ones((4,N)) * GrupoSimHid.variables['v_exp'][:]
         models.max_capilar = np.ones((1,N)) * GrupoSimHid.variables['h1_max'][:]
         models.max_gravita = np.ones((1,N)) * GrupoSimHid.variables['h3_max'][:]
+        #Pending to be activated
+        #models.max_aquifer = np.ones((1,N)) * GrupoSimHid.variables['h4_max'][:]
 
         #Propiedades de Sedimentos
         GrupoSimSed = gr.groups['SimSediments']
@@ -4276,6 +4279,8 @@ class SimuBasin(Basin):
         VarV_exp = GrupoSimHid.createVariable('v_exp','f4',('col4','Nelem'),zlib=True)
         Var_H1max = GrupoSimHid.createVariable('h1_max','f4',('Nelem',),zlib = True)
         Var_H3max = GrupoSimHid.createVariable('h3_max','f4',('Nelem',),zlib = True)
+        #ACtivation pending
+        #Var_H4max = GrupoSimHid.createVariable('h4_max','f4',('Nelem',),zlib = True)
         Control = GrupoSimHid.createVariable('control','i4',('Nelem',),zlib = True)
         ControlH = GrupoSimHid.createVariable('control_h','i4',('Nelem',),zlib = True)
         if self.modelType[0] is 'c':
@@ -4297,6 +4302,8 @@ class SimuBasin(Basin):
         VarV_exp[:] = models.v_exp
         Var_H1max[:] = models.max_capilar
         Var_H3max[:] = models.max_gravita
+        #Pending activation
+        #Var_H4max[:] = models.max_aquifer
         Control[:] = models.control
         ControlH[:] = models.control_h
         drena[:] = models.drena
@@ -4388,6 +4395,7 @@ class SimuBasin(Basin):
         '   - Vel Cauce.\n'\
         '   - Max Capilar.\n'\
         '   - Max Gravitacional.\n'\
+        '   - Max Aquifer.\n'\
         'rain_rute : Ruta donde se encuentra el archivo binario de lluvia:.\n'\
         '   generado por rain_interpolate_* o por rain_radar2basin.\n'\
         'N_intervals : Numero de intervalos de tiempo.\n'\

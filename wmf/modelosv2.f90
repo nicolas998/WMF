@@ -195,7 +195,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
     !--------------------------------------------------------------------------
 	!Variables de entrada
     integer, intent(in) :: N_cel,N_reg,N_cont,N_contH
-    real, intent(in) :: calib(10)
+    real, intent(in) :: calib(11)
     character*500, intent(in) :: ruta_bin, ruta_hdr
     character*500, intent(in), optional :: ruta_storage
     character*500, intent(in), optional :: ruta_binConv, ruta_hdrConv, ruta_binStra, ruta_hdrStra
@@ -234,6 +234,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 	real hflux_c(4) !Flujo horizontal para separacion por tipo lluvia
 	real hflux_s(4) !Flujo horizontal para separacion por tipo lluvia
 	real Ret !Retorno del tanque 3 al 2 [mm]
+	real Ret_aq !Retorno del tanque 4 al 3 [mm]
 	real Evp_loss !Salida por evaporcion del sistema [mm]
 	real QfluxesOut(3) !Caudal que sale separado por flujos en la opcion "separate_fluxes"
 	!Variables de velocidad vertical y horizontal
@@ -241,7 +242,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 	real hspeed(4,N_cel) !Velocidad horizontal [cm/h] o [m/s]
 	real section_area !Area de la seccion resuleta en ladera o en el canal 
 	!Variables Max storage en tanques 1 y 3
-	real H(2,N_cel)
+	real H(3,N_cel)
 	!Variables sub-modelo de sedimentos
 	real Area_coef(nceldas) !Coeficiente para el calculo del lateral en cada celda del tanque 2 para calcuo de sedimentos
     real Vsal_sed(3) !Volumen de salida de cada fraccion de sedimentos [m3/seg]
@@ -297,6 +298,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 	!Calcula parametros estaticos en el tiempo
 	H(1,:)=Max_capilar(1,:)*Calib(9)
 	H(2,:)=Max_gravita(1,:)*Calib(10)
+	H(3,:)=Max_aquifer(1,:)*Calib(11)
 	
 	!--------------------------------------------------------------------------
     !PREPARACION OPCIONAL DEL MODELO 
@@ -482,6 +484,15 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				Retorned(1,celda) = Retorned(1,celda) + Ret
 				vflux(1) = vflux(1) + Ret
 				vflux(2) = vflux(2) - Ret
+			endif
+			!Fujo de retorno del tanque 4 al tanque 3.
+			if (retorno_aq .gt. 0) then
+				Ret_aq = max(0.0 , StoOut(4,celda)-H(3,celda))
+				StoOut(3,celda) = StoOut(3,celda) + Ret_aq ![mm]
+				StoOut(4,celda) = StoOut(4,celda) - Ret_aq ![mm]
+				!Retorned(1,celda) = Retorned(1,celda) + Ret
+				vflux(2) = vflux(2) + Ret_aq
+				vflux(3) = vflux(3) - Ret_aq
 			endif
 			!Record vertical flux for save it.
 			if (save_vfluxes .eq. 1) then 
