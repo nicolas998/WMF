@@ -65,9 +65,11 @@ real, allocatable :: h_coef(:,:) !Coeficientes de velocidades horizontales [L] [
 real, allocatable :: h_exp(:,:)  !Exponentes de velocidades horizontales, aplica en casos no lineales
 real, allocatable :: Max_capilar(:,:) !Maximo almacenamiento capilar [L] [1,Nceldas]
 real, allocatable :: Max_gravita(:,:) !Maximo almacenamiento gravitacional [L] [1,Nceldas]
+real, allocatable :: Max_aquifer(:,:) !Maximum storage at the aquifer [L] [1, Nceldas]
 real, allocatable :: Retorned(:,:) !Matriz que indica cuando en una ejecucion se dio retorno del tanque 3 al tanque 2
 real, allocatable :: EvpSerie(:) !Serie de evaporacion mediante la cual el modelo pondera el almacenamiento capilar.
-real retorno !Si es cero no se tiene en cuenta el retorno, si es 1 si.
+real retorno_gr ! Si es cero no se tiene en cuenta el retorno, si es 1 si.
+real retorno_aq ! Flag to tell the model to include or not to include the maximum storage of this tank.
 
 !Variables de control y configuracion del modelo 
 real dt !Delta del tiempo de modelacion
@@ -300,7 +302,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
     !PREPARACION OPCIONAL DEL MODELO 
     !--------------------------------------------------------------------------
 	!Si hay retorno aloja la matriz donde guarda cuando ocurren los retornos
-	if (retorno .eq. 1) then 
+	if (retorno_gr .eq. 1) then 
 		if (allocated(Retorned)) deallocate(Retorned)
 		allocate(Retorned(1,N_cel))
 		Retorned = 0.0
@@ -473,13 +475,13 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				StoOut(i+1,celda)=StoOut(i+1,celda)+vflux(i)-vflux(i+1) ![mm]
 			enddo
 			!Flujo de retorno del tanque 3 al tanque 2.
-			if (retorno .gt. 0) then
-				Ret = max(0.0 , StoOut(3,celda)+vflux(3)-vflux(4)-H(2,celda))
+			if (retorno_gr .gt. 0) then
+				Ret = max(0.0 , StoOut(3,celda)-H(2,celda))
 				StoOut(2,celda) = StoOut(2,celda) + Ret ![mm]
 				StoOut(3,celda) = StoOut(3,celda) - Ret ![mm]
 				Retorned(1,celda) = Retorned(1,celda) + Ret
-				!vflux(1) = vflux(1) + Ret
-				!vflux(2) = vflux(2) - Ret
+				vflux(1) = vflux(1) + Ret
+				vflux(2) = vflux(2) - Ret
 			endif
 			!Record vertical flux for save it.
 			if (save_vfluxes .eq. 1) then 
@@ -501,7 +503,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				enddo
 				!Actualiza si hay retorno 
 				!if (Ret .ne. 0.0) then 
-				if (retorno .gt. 0) then
+				if (retorno_gr .gt. 0) then
 					Storage_conv(2,celda) = Storage_conv(2,celda) + Ret*Co ![mm]
 					Storage_conv(3,celda) = Storage_conv(3,celda) - Ret*Co ![mm]
 					Storage_stra(2,celda) = Storage_stra(2,celda) + Ret*St ![mm]
@@ -798,7 +800,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
         
         !Genera el promedio de retornos producidos en la cuenca
         if (show_mean_retorno .eq. 1) then 
-            mean_retorno(tiempo) = sum(Retorned)
+            mean_retorno(tiempo) = sum(Retorned) / N_cel
         endif
         
         !Actualiza Retorno si tiene que hacerlo
