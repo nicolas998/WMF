@@ -15,7 +15,7 @@
 #!along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #Algo
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 from cu import *
 from models import *
 import numpy as np
@@ -27,6 +27,16 @@ import pandas as pd
 import datetime as datetime
 from multiprocessing import Pool
 import matplotlib.path as mplPath
+import cartopy.crs as ccrs
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+import matplotlib.ticker as mticker
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+       
+try:
+    import osgeo.ogr, osgeo.osr
+    import gdal
+except:
+    print('no se importa osgeo ni gdal, no es posible hacer plots de mapas ni lecturas de mapas hacia las cuencas')
 try:
     import gdal
 except:
@@ -394,10 +404,10 @@ def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
     dataset.SetProjection(proj.ExportToWkt())
     #Coloca el nodata
     band = dataset.GetRasterBand(1)
-    if ArrayProp[-1] == None:
+    if ArrayProp[-1] is None:
         band.SetNoDataValue(wmf.cu.nodata.astype(int).max())
     else:
-        band.SetNoDataValue(-9999)
+        band.SetNoDataValue(int(ArrayProp[-1]))
     #Guarda el mapa
     dataset.GetRasterBand(1).WriteArray(Array.T)
     dataset.FlushCache()
@@ -695,6 +705,9 @@ def OCG_param(alfa=[0.75,0.2],sigma=[0.0,0.225,0.225],    c1=5.54,k=0.5,fhi=0.95
         return B,w1,w2,w3
 
 def PotCritica(S,D,te = 0.056):
+    'Funcion: PotCritica\n'\
+    'Descripcion: Calcula la potencia critica en funcion del D50 y de la pendiente.\n'\
+    #definition
     ti = te * (D*1600*9.8)
     return ti *(8.2* (((ti/(1000*9.8*S))/D)**(1.0/6.0)) * np.sqrt(ti/1000.0))/9800.0
 
@@ -2335,6 +2348,46 @@ class Basin:
     #------------------------------------------------------
     # Graficas de la cuenca
     #------------------------------------------------------
+    def graficar_cuenca(self, vector_cuenca, ax = None, 
+        figsize = (10, 10), ruta_guardar = None, dpi = 100, 
+        cmap = 'viridis', fontsize = 28, titulo = '', 
+        titulo_colorbar = '', ubicacion_colorbar = 'bottom', 
+        norm  = None, levels = None, etiquetas_colorbar = None, 
+        centrar_etiquetas_colorbar = False, color_perimetro = 'r', separaciones_colorbar = None):
+        #Define the aces if not given
+        if ax == None:
+            fig = pl.figure(figsize = figsize)
+            ax = fig.add_subplot(1, 1, 1, projection = ccrs.PlateCarree())
+        
+        mapa, prop = self.Transform_Basin2Map(vector_cuenca)
+        celdas_x, celdas_y, coordenada_x_abajo_izquierda, coordenada_y_abajo_izquierda, delta_x, delta_y, nodata = prop
+        mapa[mapa == nodata] = np.nan
+        longitudes = coordenada_x_abajo_izquierda + delta_x * np.arange(celdas_x)
+        latitudes = coordenada_y_abajo_izquierda + delta_y * np.arange(celdas_y)
+        longitudes, latitudes = np.meshgrid(longitudes, latitudes)
+        
+        t = ax.set_title(titulo, fontsize = fontsize)
+        t.set_y(1.05)
+        
+        if norm != None:
+            cmap = matplotlib.colors.ListedColormap(cmap(np.arange(256))[::len(norm)])
+            norm = matplotlib.colors.BoundaryNorm(norm, cmap.N)
+        
+        cs = ax.contourf(longitudes, latitudes, mapa.T[::-1], transform = ccrs.PlateCarree(), cmap = cmap, levels = levels, norm = norm)
+        ax.plot(self.Polygon[0], self.Polygon[1], color = color_perimetro)
+        rango_longitudes = abs(longitudes.min() - longitudes.min())
+        rango_latitudes = abs(latitudes.max() - latitudes.min())
+        lon_formatter = LongitudeFormatter(zero_direction_label=True, number_format = '.2f')
+        lat_formatter = LatitudeFormatter(number_format = '.2f')
+        ax.xaxis.set_major_formatter(lon_formatter)
+        ax.yaxis.set_major_formatter(lat_formatter)
+        
+        gl = ax.gridlines(crs = ccrs.PlateCarree(), draw_labels = True, linewidth = 1, color='k', alpha=0.5, linestyle='--')
+        gl.xlabels_top = True
+        gl.xlabels_bottom = False
+        gl.ylabels_left = True
+        gl.ylabels_right = False
+    
     def Plot_basin(self,vec=None,Min=None,
             Max=None,ruta=None,figsize=(10,7),
             ZeroAsNaN ='no',extra_lat=0.0,extra_long=0.0,lines_spaces='Default',
@@ -2992,10 +3045,11 @@ class SimuBasin(Basin):
             models.h_exp = np.ones((4,N))
             models.max_capilar = np.ones((1,N))
             models.max_gravita = np.ones((1,N))
+            models.max_aquifer = np.ones((1,N))
             models.storage = np.zeros((5,N))
             models.dt = dt
             models.calc_niter = 5
-            models.retorno = 0
+            models.retorno_gr = 0
             models.verbose = 0
             #Define los puntos de control
             models.control = np.zeros((1,N))
@@ -3076,7 +3130,7 @@ class SimuBasin(Basin):
         self.epsg = gr.epsg
         models.dt = gr.dt
         models.dxp = gr.dxp
-        models.retorno = gr.retorno
+        models.retorno_gr = gr.retorno
         try:
             models.storage_constant = gr.storageConst
         except:
@@ -3120,6 +3174,8 @@ class SimuBasin(Basin):
         models.v_exp = np.ones((4,N)) * GrupoSimHid.variables['v_exp'][:]
         models.max_capilar = np.ones((1,N)) * GrupoSimHid.variables['h1_max'][:]
         models.max_gravita = np.ones((1,N)) * GrupoSimHid.variables['h3_max'][:]
+        #Pending to be activated
+        #models.max_aquifer = np.ones((1,N)) * GrupoSimHid.variables['h4_max'][:]
 
         #Propiedades de Sedimentos
         GrupoSimSed = gr.groups['SimSediments']
@@ -3637,7 +3693,7 @@ class SimuBasin(Basin):
             models.unit_type = np.ones((1,self.ncells))*unit_type
             models.hill_long = np.ones((1,self.ncells))*hill_long
             models.hill_slope = np.ones((1,self.ncells))*pend
-            models.stream_long = np.ones((1,self.ncells))*np.percentile(hill_long, 40)
+            models.stream_long = np.ones((1,self.ncells))*hill_long
             models.stream_slope = np.ones((1,self.ncells))*pend
             models.stream_width = np.ones((1,self.ncells))*stream_width
             models.elem_area = np.ones((1,self.ncells))*cu.dxp**2.0
@@ -4108,7 +4164,7 @@ class SimuBasin(Basin):
         Dict = {'nombre':self.name,
                     'modelType':self.modelType,'noData':cu.nodata,'umbral':self.umbral,
                     'ncells':self.ncells,'nhills':self.nhills,
-                    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno,
+                    'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno_gr,
                     'storageConst' :models.storage_constant,
                     'ncols':cu.ncols,
                     'nrows':cu.nrows,
@@ -4152,6 +4208,8 @@ class SimuBasin(Basin):
         VarV_exp = GrupoSimHid.createVariable('v_exp','f4',('col4','Nelem'),zlib=True)
         Var_H1max = GrupoSimHid.createVariable('h1_max','f4',('Nelem',),zlib = True)
         Var_H3max = GrupoSimHid.createVariable('h3_max','f4',('Nelem',),zlib = True)
+        #ACtivation pending
+        #Var_H4max = GrupoSimHid.createVariable('h4_max','f4',('Nelem',),zlib = True)
         Control = GrupoSimHid.createVariable('control','i4',('Nelem',),zlib = True)
         ControlH = GrupoSimHid.createVariable('control_h','i4',('Nelem',),zlib = True)
         if self.modelType[0] is 'c':
@@ -4173,6 +4231,8 @@ class SimuBasin(Basin):
         VarV_exp[:] = models.v_exp
         Var_H1max[:] = models.max_capilar
         Var_H3max[:] = models.max_gravita
+        #Pending activation
+        #Var_H4max[:] = models.max_aquifer
         Control[:] = models.control
         ControlH[:] = models.control_h
         drena[:] = models.drena
@@ -4264,6 +4324,7 @@ class SimuBasin(Basin):
         '   - Vel Cauce.\n'\
         '   - Max Capilar.\n'\
         '   - Max Gravitacional.\n'\
+        '   - Max Aquifer.\n'\
         'rain_rute : Ruta donde se encuentra el archivo binario de lluvia:.\n'\
         '   generado por rain_interpolate_* o por rain_radar2basin.\n'\
         'N_intervals : Numero de intervalos de tiempo.\n'\
@@ -4340,6 +4401,7 @@ class SimuBasin(Basin):
         #Prepara variables para el almacenamiento de retorno
         if ruta_retorno is not None:
             models.save_retorno = 1
+            models.retorno_gr = 1
             ruta_ret_bin, ruta_ret_hdr = __Add_hdr_bin_2route__(ruta_retorno)
         else:
             models.save_retorno = 0
