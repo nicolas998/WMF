@@ -27,11 +27,14 @@ import pandas as pd
 import datetime as datetime
 from multiprocessing import Pool
 import matplotlib.path as mplPath
-import cartopy.crs as ccrs
-from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+try:
+    import cartopy.crs as ccrs
+    from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+except:
+    print('no cartopy')
 import matplotlib.ticker as mticker
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-       
+
 try:
     import osgeo.ogr, osgeo.osr
     import gdal
