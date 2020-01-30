@@ -364,9 +364,10 @@ def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
     #Formato de condiciones del mapa
     x_pixels = Array.shape[0]  # number of pixels in x
     y_pixels = Array.shape[1]  # number of pixels in y
-    PIXEL_SIZE = ArrayProp[4]  # size of the pixel...
+    PIXEL_SIZE_x = ArrayProp[4]  # size of the pixel... 
+    PIXEL_SIZE_y = ArrayProp[5]  # size of the pixel...
     x_min = ArrayProp[2]
-    y_max = ArrayProp[3] + ArrayProp[4] * ArrayProp[1] # x_min & y_max are like the "top left" corner.
+    y_max = ArrayProp[3] + ArrayProp[5] * ArrayProp[1] # x_min & y_max are like the "top left" corner.
     driver = gdal.GetDriverByName(Format)
     #Para encontrar el formato de GDAL
     NP2GDAL_CONVERSION = {
@@ -392,11 +393,11 @@ def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
     #coloca la referencia espacial
     dataset.SetGeoTransform((
         x_min,    # 0
-        PIXEL_SIZE,  # 1
+        PIXEL_SIZE_x,  # 1
         0,                      # 2
         y_max,    # 3
         0,                      # 4
-        -PIXEL_SIZE))
+        -PIXEL_SIZE_y))
     #coloca la proyeccion a partir de un EPSG
     proj = osgeo.osr.SpatialReference()
     texto = 'EPSG:' + str(EPSG)
