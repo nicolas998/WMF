@@ -1296,8 +1296,7 @@ class Basin:
         '----------\n'\
         'isochrones : Mapa de viaje de cada celda a la salida [hrs].\n'\
         #Calcula la velocidad adecuada para que el tiempo coincida
-        acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
-            self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
+        acum,longCeld,S0,Elev=cu.basin_basics(self.structure,self.DEMvec,self.DIRvec,self.ncells)
         rangos=[50,25,1]
         for i in range(Niter):
             times=[]
