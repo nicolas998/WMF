@@ -1465,6 +1465,7 @@ class Basin:
         '----------\n'\
         'HAND : Elevacion sobre la red de drenaje cercana [mts].\n'\
         'HDND : Distancia horizontal a la red de drenaje cercana [mts].\n'\
+        'rDUNE : Reduced dissipation per unit length (R. Loritz 2019) https://www.hydrol-earth-syst-sci.net/23/3807/2019/.\n'\
         #obtiene los parametros basicos por celdas
         acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
             self.DEMvec,self.DIRvec,self.ncells)
@@ -1480,6 +1481,9 @@ class Basin:
         self.CellHAND_class=handC
         self.CellHDND=hdnd
         self.CellHAND_drainCell=hand_destiny
+        #Obtiene el rDUNE
+        self.CellDUNE = hand / hdnd
+        self.CellrDUNE = -1 * np.log(self.CellDUNE)
 
     def GetGeo_Sections(self, NumCeldas = 6):
         'Descripcion: Obtiene secciones transversales a traves de todos.\n'\
