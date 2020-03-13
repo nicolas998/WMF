@@ -1489,7 +1489,7 @@ class Basin:
         slope[slope == 0] = 0.0001
         return np.log((acum*cu.dxp) / np.tan(slope))
 
-    def GetGeo_HAND(self,umbral=1000):
+    def GetGeo_HAND_and_rDUNE(self,umbral=1000):
         'Descripcion: Calcula Height Above the Nearest Drainage (HAND) \n'\
         '   y Horizontal Distance to the Nearest Drainage (HDND) (Renno, 2008). \n'\
         '\n'\
@@ -1519,7 +1519,12 @@ class Basin:
         self.CellHDND=hdnd
         self.CellHAND_drainCell=hand_destiny
         #Obtiene el rDUNE
-        self.CellDUNE = hand / hdnd
+        a = np.copy(self.CellHAND)
+        b = np.copy(self.CellHDND)
+        a[b == 0] = 1
+        a[a <= 0] = 0.1
+        b[b == 0] = 1
+        self.CellDUNE = a / b
         self.CellrDUNE = -1 * np.log(self.CellDUNE)
 
     def GetGeo_Sections(self, NumCeldas = 6):
@@ -2432,7 +2437,7 @@ class Basin:
     
     def plot_basin(self, vector_cuenca = None, ax = None, 
         figsize = (10, 10), ruta_guardar = None, dpi = 100, 
-        cmap = 'viridis', title_size = 24, titulo = '', 
+        cmap = pl.get_cmap('viridis'), title_size = 24, titulo = '', 
         titulo_colorbar = '', norm  = None, levels = None,color_perimetro = 'r',
         shape_path = None, shape_color = 'blue', shape_width = 0.5,
         cbar_title = '', cbar_loc = [0.4, 0.8, 0.4, 0.03], cbar_ticks = None, cbar_ticklabels = None,
