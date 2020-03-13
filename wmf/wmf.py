@@ -28,11 +28,13 @@ import datetime as datetime
 from multiprocessing import Pool
 import matplotlib.path as mplPath
 
-import cartopy.crs as ccrs
-from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+try:
+    import cartopy.crs as ccrs
+    from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+except:
+    print('no cartopy')
 import matplotlib.ticker as mticker
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-       
 
 try:
     import osgeo.ogr, osgeo.osr
@@ -366,9 +368,10 @@ def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
     #Formato de condiciones del mapa
     x_pixels = Array.shape[0]  # number of pixels in x
     y_pixels = Array.shape[1]  # number of pixels in y
-    PIXEL_SIZE = ArrayProp[4]  # size of the pixel...
+    PIXEL_SIZE_x = ArrayProp[4]  # size of the pixel... 
+    PIXEL_SIZE_y = ArrayProp[5]  # size of the pixel...
     x_min = ArrayProp[2]
-    y_max = ArrayProp[3] + ArrayProp[4] * ArrayProp[1] # x_min & y_max are like the "top left" corner.
+    y_max = ArrayProp[3] + ArrayProp[5] * ArrayProp[1] # x_min & y_max are like the "top left" corner.
     driver = gdal.GetDriverByName(Format)
     #Para encontrar el formato de GDAL
     NP2GDAL_CONVERSION = {
@@ -394,11 +397,11 @@ def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
     #coloca la referencia espacial
     dataset.SetGeoTransform((
         x_min,    # 0
-        PIXEL_SIZE,  # 1
+        PIXEL_SIZE_x,  # 1
         0,                      # 2
         y_max,    # 3
         0,                      # 4
-        -PIXEL_SIZE))
+        -PIXEL_SIZE_y))
     #coloca la proyeccion a partir de un EPSG
     proj = osgeo.osr.SpatialReference()
     texto = 'EPSG:' + str(EPSG)
@@ -588,7 +591,7 @@ def read_storage_struct(ruta):
     return Data
 
 def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
-    Mean_Storage, WhereItSave):
+    Mean_Storage, WhereToStore):
     '''Function to save the header file of the model storage'''
     #Lee fechas para el intervalo de tiempo
     S = read_mean_rain(rute_rain,Nintervals,FirstInt)
@@ -601,7 +604,7 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
     f.write('IDfecha, Tanque 1, Tanque 2, Tanque 3, Tanque 4, Tanque 5, Fecha \n')
     #Si no hay almacenamiento medio lo coloca en -9999
     #Escribe registros medios y fechas de los almacenamientos
-    for c,d,sto in zip(WhereItSave,S.index.to_pydatetime(),Mean_Storage.T):
+    for d,sto,c in zip(S.index.to_pydatetime(),Mean_Storage.T, WhereToStore):
         f.write('%d, \t %.2f, \t %.4f, \t %.4f, \t %.2f, \t %.2f, %s \n' %
             (c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
     f.close()
@@ -1325,8 +1328,7 @@ class Basin:
         '----------\n'\
         'isochrones : Mapa de viaje de cada celda a la salida [hrs].\n'\
         #Calcula la velocidad adecuada para que el tiempo coincida
-        acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
-            self.DEM,self.DIR,cu.ncols,cu.nrows,self.ncells)
+        acum,longCeld,S0,Elev=cu.basin_basics(self.structure,self.DEMvec,self.DIRvec,self.ncells)
         rangos=[50,25,1]
         for i in range(Niter):
             times=[]
@@ -1497,6 +1499,7 @@ class Basin:
         '----------\n'\
         'HAND : Elevacion sobre la red de drenaje cercana [mts].\n'\
         'HDND : Distancia horizontal a la red de drenaje cercana [mts].\n'\
+        'rDUNE : Reduced dissipation per unit length (R. Loritz 2019) https://www.hydrol-earth-syst-sci.net/23/3807/2019/.\n'\
         #obtiene los parametros basicos por celdas
         acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
             self.DEMvec,self.DIRvec,self.ncells)
@@ -1512,6 +1515,9 @@ class Basin:
         self.CellHAND_class=handC
         self.CellHDND=hdnd
         self.CellHAND_drainCell=hand_destiny
+        #Obtiene el rDUNE
+        self.CellDUNE = hand / hdnd
+        self.CellrDUNE = -1 * np.log(self.CellDUNE)
 
     def GetGeo_Sections(self, NumCeldas = 6):
         'Descripcion: Obtiene secciones transversales a traves de todos.\n'\
@@ -4375,8 +4381,8 @@ class SimuBasin(Basin):
         #------------------------------------------------------
     def run_shia(self,Calibracion,
         rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
-        ruta_conv = None, ruta_stra = None, ruta_vfluxes = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True,
-        EvpVariable = False, Dates2Save = None, FluxesDates2Save = None):
+        ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True, 
+        EvpVariable = 'sun', EvpSerie = None, WheretoStore = None, ruta_vfluxes = NoneFluxesDates2Save = None):
         'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
         '   Antes de su ejecucion se deben tener listas todas las . \n'\
         '   variables requeridas . \n'\
@@ -4423,8 +4429,10 @@ class SimuBasin(Basin):
         'QsimDataFrame: Retorna un data frame con los caudales simulados indicando su id de acuerdo con el\n'\
         '   que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
         'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
-        'Dates2Save: list with the dates to save in the format: [Y-m-d H:M, ...]\n'\
-        'FluxesDates2Save: list with the dates to vflux save in the format: [Y-m-d H:M, ...]\n'\
+        'EvpVariable: sun: depend on the sun position (works better for tropical watersheds)\n'\
+        '   serie: is a time serie of the mean potential evaporation for the watershed.\n'\
+        'EvpSerie: default None, however, it could be a ndarray (N_intervals) with the potential evaporation\n'\
+        'WheretoStore: (None) Array de numpy o lista  indicando con numeros ascendentes\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -4472,7 +4480,7 @@ class SimuBasin(Basin):
             ruta_vflux_bin, ruta_vflux_hdr = __Add_hdr_bin_2route__(ruta_vfluxes)
             #Check if is going to save model states at certain dates
             if FluxesDates2Save is not None:
-                FluxesWhereItSaves = self.set_vFluxesDates(Rain.index, FluxesDates2Save, N_intervals)
+                  FluxesWhereItSaves = self.set_vFluxesDates(Rain.index, FluxesDates2Save, N_intervals)
             else:
                 print('Warning: model will save states in all time steps this may require a lot of space')
                 FluxesWhereItSaves = np.arange(1,N_intervals+1)
@@ -4528,6 +4536,16 @@ class SimuBasin(Basin):
             Rad = self.__GetEVP_Serie__(Rain.index)
         else:
             models.evpserie = np.ones(N_intervals)
+        #Set del vector de guardado de condiciones del modelo 
+        if WheretoStore is None:
+            models.guarda_cond = np.array(range(N_intervals))+1
+        else:
+            ToStore = pd.DataFrame(np.zeros(N_intervals),index=Rain.index)
+            if type(WheretoStore) == list:
+                WheretoStore = pd.to_datetime(WheretoStore)
+            for c,i in enumerate(WheretoStore):
+                ToStore.loc[i] = c+1
+            models.guarda_cond = np.copy(ToStore.values.T.astype(int)[0])
         # Ejecuta el modelo
         Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
             rain_ruteBin,
@@ -4571,11 +4589,14 @@ class SimuBasin(Basin):
             #Caso en el que se registra el alm medio
             if models.show_storage == 1:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-                    start_point,self,np.copy(models.mean_storage),WhereItSaves)
+                    start_point,self,
+                    Mean_Storage =np.copy(models.mean_storage),
+                    WhereToStore = models.guarda_cond)
             #Caso en el que no hay alm medio para cada uno de los
             else:
                 __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
-                    start_point,self,np.zeros((5,N))*-9999,WhereItSaves)
+                    start_point,self,Mean_Storage=np.zeros((5,N))*-9999,
+                    WhereToStore = models.guarda_cond)
         #Escribe el encabezado de los binarios con los datos de los vertical fluxes
         if models.save_vfluxes == 1:
             __Save_speed_hdr__(ruta_vflux_hdr,rain_ruteHdr,N_intervals,
