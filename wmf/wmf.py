@@ -31,6 +31,9 @@ import matplotlib.path as mplPath
 try:
     import cartopy.crs as ccrs
     from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+    import cartopy.io.shapereader as shpreader
+    from cartopy.io.shapereader import Reader
+    from cartopy.feature import ShapelyFeature
 except:
     print('no cartopy')
 import matplotlib.ticker as mticker
@@ -2427,7 +2430,52 @@ class Basin:
         gl.ylabels_left = True
         gl.ylabels_right = False
     
-    def Plot_basin(self,vec=None,Min=None,
+    def plot_basin(self, vector_cuenca = None, ax = None, 
+        figsize = (10, 10), ruta_guardar = None, dpi = 100, 
+        cmap = 'viridis', title_size = 24, titulo = '', 
+        titulo_colorbar = '', norm  = None, levels = None,color_perimetro = 'r',
+        shape_path = None, shape_color = 'blue', shape_width = 0.5,
+        cbar_title = '', cbar_loc = [0.4, 0.8, 0.4, 0.03], cbar_ticks = None, cbar_ticklabels = None,
+        cbar_ticksize = 16, cbar_orientation = 'horizontal'):
+        
+        #Pretty colorbar
+        if norm != None:
+            cmap = matplotlib.colors.ListedColormap(cmap(np.arange(256))[::len(norm)])
+            norm = matplotlib.colors.BoundaryNorm(norm, cmap.N)
+        #Get the projection from the watershed project.
+        proj = ccrs.epsg(self.epsg)
+        #Define the aces if not given
+        if ax == None:
+            fig = pl.figure(figsize = figsize)
+            ax = fig.add_subplot(1, 1, 1, projection = proj) 
+        
+        #title
+        t = ax.set_title(titulo, fontsize = title_size)
+        t.set_y(1.05)
+        #If there is a raster map to plot
+        if vector_cuenca is not None:
+            mapa, prop = self.Transform_Basin2Map(vector_cuenca)
+            celdas_x, celdas_y, coordenada_x_abajo_izquierda, coordenada_y_abajo_izquierda, delta_x, delta_y, nodata = prop
+            mapa[mapa == nodata] = np.nan
+            longitudes = coordenada_x_abajo_izquierda + delta_x * np.arange(celdas_x)
+            latitudes = coordenada_y_abajo_izquierda + delta_y * np.arange(celdas_y)
+            longitudes, latitudes = np.meshgrid(longitudes, latitudes)
+            cs = ax.contourf(longitudes, latitudes, mapa.T[::-1], transform = proj, cmap = cmap, levels = levels, norm = norm)
+            cax = fig.add_axes(cbar_loc)
+            cbar = pl.colorbar(cs, cax = cax, orientation=cbar_orientation)
+            cbar.ax.tick_params(labelsize = cbar_ticksize)
+            cbar.ax.set_title(cbar_title, size = 16)
+        #Watershed divisory
+        ax.plot(self.Polygon[0], self.Polygon[1], color = color_perimetro)
+        ax.outline_patch.set_visible(False)
+        #Qny shape to show.
+        if shape_path is not None:
+            shape_feature = ShapelyFeature(Reader(shape_path).geometries(),
+                                    proj, edgecolor='blue', )
+            ax.add_feature(shape_feature, facecolor=shape_color,linewidth=shape_width)
+    
+    
+    def __Plot_basin_deprecated(self,vec=None,Min=None,
             Max=None,ruta=None,figsize=(10,7),
             ZeroAsNaN ='no',extra_lat=0.0,extra_long=0.0,lines_spaces='Default',
             xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
