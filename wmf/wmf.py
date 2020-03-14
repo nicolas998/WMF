@@ -2438,7 +2438,8 @@ class Basin:
     def plot_basin(self, vector_cuenca = None, ax = None, 
         figsize = (10, 10), ruta_guardar = None, dpi = 100, 
         cmap = pl.get_cmap('viridis'), title_size = 24, titulo = '', 
-        titulo_colorbar = '', norm  = None, levels = None,color_perimetro = 'r',
+        titulo_colorbar = '', norm  = None, levels = None, vmin = None, vmax = None,
+        color_perimetro = 'r',
         shape_path = None, shape_color = 'blue', shape_width = 0.5,
         cbar_title = '', cbar_loc = [0.4, 0.8, 0.4, 0.03], cbar_ticks = None, cbar_ticklabels = None,
         cbar_ticksize = 16, cbar_orientation = 'horizontal'):
@@ -2465,11 +2466,14 @@ class Basin:
             longitudes = coordenada_x_abajo_izquierda + delta_x * np.arange(celdas_x)
             latitudes = coordenada_y_abajo_izquierda + delta_y * np.arange(celdas_y)
             longitudes, latitudes = np.meshgrid(longitudes, latitudes)
-            cs = ax.contourf(longitudes, latitudes, mapa.T[::-1], transform = proj, cmap = cmap, levels = levels, norm = norm)
+            cs = ax.contourf(longitudes, latitudes, mapa.T[::-1], transform = proj, cmap = cmap, 
+                levels = levels, norm = norm, vmin = vmin, vmax = vmax)
             cax = fig.add_axes(cbar_loc)
             cbar = pl.colorbar(cs, cax = cax, orientation=cbar_orientation)
             cbar.ax.tick_params(labelsize = cbar_ticksize)
             cbar.ax.set_title(cbar_title, size = 16)
+            if cbar_ticks is not None:
+                cbar.set_ticks(cbar_ticks)
         #Watershed divisory
         ax.plot(self.Polygon[0], self.Polygon[1], color = color_perimetro)
         ax.outline_patch.set_visible(False)
