@@ -573,7 +573,9 @@ def read_mean_rain(ruta,Nintervals=None,FirstInt=0):
     Dates = Dates[FirstInt:FirstInt+Nintervals]
     Rain = Rain[FirstInt:FirstInt+Nintervals]
     #Regresa el resultado de la funcion
-    return pd.Series(Rain,index = pd.to_datetime(Dates))
+    Rain = pd.Series(Rain,index = pd.to_datetime(Dates))
+    Rain.index.freq = pd.infer_freq(Rain.index)
+    return Rain
 
 def read_rain_struct(ruta):
     D = pd.read_csv(ruta,skiprows=5,
@@ -3318,7 +3320,10 @@ class SimuBasin(Basin):
     #------------------------------------------------------
     def __GetEVP_Serie__(self, index):
         '''Descripcion: Genera una serie que pondera la evp '''
-        rng=index
+        if index.freq != 'H':
+            rng = pd.date_range(index[0], index[-1], freq = '1H')
+        else:
+            rng = index
         rad=np.zeros(rng.size)
         for pos,time in enumerate(rng):
             Hora=time
@@ -3362,8 +3367,8 @@ class SimuBasin(Basin):
         rad[rad<0]=0
         #Serie
         rad=pd.Series(rad,index=rng)
+        rad = rad.resample(index.freqstr).sum()
         models.evpserie = np.copy(rad.values)
-        return rad
 
     def rain_interpolate_mit(self,coord,registers,ruta, umbral = 0.01):
         'Descripcion: Interpola la lluvia mediante una malla\n'\
