@@ -4444,7 +4444,8 @@ class SimuBasin(Basin):
     def run_shia(self,Calibracion,
         rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
         ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True, 
-        EvpVariable = 'sun', EvpSerie = None, WheretoStore = None, ruta_vfluxes = None, FluxesDates2Save = None):
+        EvpVariable = 'sun', EvpSerie = None, WheretoStore = None, ruta_vfluxes = None, 
+        Dates2Save = None, FluxesDates2Save = None):
         'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
         '   Antes de su ejecucion se deben tener listas todas las . \n'\
         '   variables requeridas . \n'\
