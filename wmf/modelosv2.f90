@@ -81,6 +81,7 @@ integer save_storage !Guarda (1) o no (0) almacenamiento de los tanques en cada 
 integer save_speed !Guarda (1) o no (0) las velocidades en cada intervalo
 integer save_retorno !Guarda (1) o no (0) el flujo de retorno en cada intervalo de tiempo
 integer save_vfluxes !Guarda o no los flujos verticales simulados por el modelo.
+integer save_rc !Guarda o no la variable requerida para calcular el RC al final del evento
 integer show_storage !(1)Calcula el alm medio en la cuenca para cada tanque y lo muestra en la salida. (0) no lo hace.
 integer show_speed !(1) muestra la velocidad en los puntos de control de caudales. (0) no lo hace.
 integer show_mean_speed !(1) muestra la velocidad promedio en cada uno de los 4 tanques. (0) no lo hace
@@ -109,6 +110,7 @@ real, allocatable :: mean_speed(:,:) !Velocidad promedio en los 4 tanques que vi
 real, allocatable :: mean_retorno(:) !Promedio de la cantidad de milimetro retornados en un intervalo de tiempo (n_reg)
 real, allocatable :: mean_vfluxes(:,:) !Promedio de los flujos pasados en la vertical (4,n_reg)
 real, allocatable :: vfluxes(:,:) !Flujo vertical simulado por el modelo para cada uno de los tanques (4,n_reg)
+real, allocatable :: rc_coef(:,:) !Cumulative variable to externally compute the RC coef of the event (2,n_cells)
 
 !variables de sedimentos Par aalojar volumens y demas
 real sed_factor !factor para calibrar el modelo de sedimentos
@@ -188,7 +190,8 @@ contains
 
 subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N_reg,Q,&
 	& Qsed, Qseparated, Hum, St1, St3, balance, speed, AreaControl, StoOut, ruta_storage, ruta_speed, &
-	& ruta_vfluxes, ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain, ruta_retorno)
+	& ruta_vfluxes, ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain, ruta_retorno, &
+    & ruta_rc)
     
     !--------------------------------------------------------------------------
     !DECLARACION DE VARIABLES
@@ -199,7 +202,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
     character*500, intent(in) :: ruta_bin, ruta_hdr
     character*500, intent(in), optional :: ruta_storage
     character*500, intent(in), optional :: ruta_binConv, ruta_hdrConv, ruta_binStra, ruta_hdrStra
-    character*500, intent(in), optional :: ruta_speed, ruta_retorno, ruta_vfluxes
+    character*500, intent(in), optional :: ruta_speed, ruta_retorno, ruta_vfluxes, ruta_rc
     real, intent(in), optional :: StoIn(5, N_cel)
     real, intent(in), optional :: HspeedIn(4, N_cel)
     
@@ -410,6 +413,19 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 		mean_vfluxes = 0.0
     endif
 
+    !Set the model to store the variables required to compute the rc coef at the
+    !end of the event
+    if (save_rc .eq. 1) then 
+        !Set the variable 
+        if (allocated(rc_coef)) then
+            deallocate(rc_coef)
+        endif
+        allocate(rc_coef(2,N_cel))
+        !set the variable equals to 0
+        rc_coef = 0
+    endif
+
+
 	!--------------------------------------------------------------------------
     !EJECUCION DEL MODELO 
     !--------------------------------------------------------------------------
@@ -487,12 +503,12 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 			endif
 			!Flujo de retorno del tanque 3 al tanque 2.
 			if (retorno_gr .gt. 0) then
-				Ret = max(0.0 , StoOut(3,celda)-H(2,celda))
+			    Ret = max(0.0 , StoOut(3,celda)-H(2,celda))
 				StoOut(2,celda) = StoOut(2,celda) + Ret ![mm]
 				StoOut(3,celda) = StoOut(3,celda) - Ret ![mm]
 				Retorned(1,celda) = Retorned(1,celda) + Ret
-				!vflux(2) = vflux(2) - Ret
-				!vflux(3) = vflux(3) - Ret
+				vflux(2) = vflux(2) + Ret
+				vflux(3) = vflux(3) - Ret
 			endif
 
 			!Record vertical flux for save it.
@@ -501,6 +517,13 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 					vfluxes(i,celda) = vflux(i) 
 				enddo
 			endif
+
+            !Compute RC coefficient for the cell
+            if (save_rc .eq. 1) then
+                rc_coef(1,celda) = rc_coef(1,celda) + vflux(2) - vflux(3) 
+                rc_coef(2,celda) = rc_coef(2,celda) + Rain(celda)
+            endif
+
 			!---------------------------------------
 			!SEP_LLUVIA
 			!Flujos separados por tipo de lluvia 
@@ -789,7 +812,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				call write_float_basin(ruta_vfluxes,vfluxes,guarda_vfluxes(tiempo),N_cel,4)
 			endif
 		endif
-		
+
         !Guarda campo de velocidades del modelo
         if (save_speed .eq. 1) then
             call write_float_basin(ruta_speed,hspeed,tiempo,N_cel,4)
@@ -835,6 +858,13 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
     !---------------------------------------------------------------------
     !Termina de iterar tiempos
     enddo
+    
+    !Saves the values to compute the total Rc at the end of the event 
+    if (save_rc .eq. 1) then 
+        where(rc_coef(1,:) > rc_coef(2,:)) rc_coef(1,:) = rc_coef(2,:)
+        !rc_coef(3,:) = rc_coef(1,:) / rc_coef(2,:)
+        call write_float_basin(ruta_rc,rc_coef,1,N_cel,2)
+    endif
 
 end subroutine
 

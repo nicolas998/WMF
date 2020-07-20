@@ -4445,7 +4445,7 @@ class SimuBasin(Basin):
         rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
         ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True, 
         EvpVariable = 'sun', EvpSerie = None, WheretoStore = None, ruta_vfluxes = None, 
-        Dates2Save = None, FluxesDates2Save = None):
+        Dates2Save = None, FluxesDates2Save = None, ruta_rc = None):
         'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
         '   Antes de su ejecucion se deben tener listas todas las . \n'\
         '   variables requeridas . \n'\
@@ -4480,6 +4480,7 @@ class SimuBasin(Basin):
         'ruta_stra : Ruta al binario y hdr indicando las nubes que son estratiformes.\n'\
         'ruta_retorno : Ruta al binario y hdr en donde escribe la serie con los milimetros retornados al tanque runoff.\n'\
         'ruta_vfluxes : Ruta al binario y hdr en donde se escribe la serie de vflux del modelo.\n'\
+        'ruta_rc : Ruta donde se guarda el binario con el acumulado de flujo escorrentia (1) y el total de lluvia (2).\n'\
         'kinematicN: Cantidad de iteraciones para la solucion de la onda cinematica.\n'\
         '   De forma continua: 5 iteraciones, recomendado para cuando el modelo se\n'\
         '       ejecuta en forma continua Ej: cu.run_shia(Calib, rain_rute, 100)\n'\
@@ -4609,6 +4610,11 @@ class SimuBasin(Basin):
             for c,i in enumerate(WheretoStore):
                 ToStore.loc[i] = c+1
             models.guarda_cond = np.copy(ToStore.values.T.astype(int)[0])
+        # Set de las variables para guardar RC coef 
+        if ruta_rc is not None:
+            models.save_rc = 1
+        else:
+            models.save_rc = 0
         # Ejecuta el modelo
         Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
             rain_ruteBin,
@@ -4628,7 +4634,8 @@ class SimuBasin(Basin):
             ruta_binStra,
             ruta_hdrConv,
             ruta_hdrStra,
-            ruta_ret_bin)
+            ruta_ret_bin,
+            ruta_rc)
         #Retorno de variables de acuerdo a lo simulado
         Retornos={'Qsim' : Qsim}
         Retornos.update({'Balance' : Balance})
