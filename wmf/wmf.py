@@ -2451,7 +2451,10 @@ class Basin:
             cmap = matplotlib.colors.ListedColormap(cmap(np.arange(256))[::len(norm)])
             norm = matplotlib.colors.BoundaryNorm(norm, cmap.N)
         #Get the projection from the watershed project.
-        proj = ccrs.epsg(self.epsg)
+        try:
+            proj = ccrs.epsg(self.epsg)
+        except:
+            proj = ccrs.PlateCarree()
         #Define the aces if not given
         if ax == None:
             fig = pl.figure(figsize = figsize)
