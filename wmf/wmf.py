@@ -2437,7 +2437,7 @@ class Basin:
         gl.ylabels_left = True
         gl.ylabels_right = False
     
-    def plot_basin(self, vector_cuenca = None, ax = None, 
+    def plot_basin(self, vector_cuenca = None, ax = None,fig=None, 
         figsize = (10, 10), ruta_guardar = None, dpi = 100, 
         cmap = pl.get_cmap('viridis'), title_size = 24, titulo = '', 
         titulo_colorbar = '', norm  = None, levels = None, vmin = None, vmax = None,
@@ -2445,7 +2445,7 @@ class Basin:
         shape_path = None, shape_color = 'blue', shape_width = 0.5,
         cbar_title = '', cbar_loc = [0.4, 0.8, 0.4, 0.03], cbar_ticks = None, cbar_ticklabels = None,
         cbar_ticksize = 16, cbar_orientation = 'horizontal'):
-        
+
         #Pretty colorbar
         if norm != None:
             cmap = matplotlib.colors.ListedColormap(cmap(np.arange(256))[::len(norm)])
@@ -2458,8 +2458,8 @@ class Basin:
         #Define the aces if not given
         if ax == None:
             fig = pl.figure(figsize = figsize)
-            ax = fig.add_subplot(1, 1, 1, projection = proj) 
-        
+            ax = fig.add_subplot(1, 1, 1, projection = proj)
+
         #title
         t = ax.set_title(titulo, fontsize = title_size)
         t.set_y(1.05)
@@ -2471,7 +2471,7 @@ class Basin:
             longitudes = coordenada_x_abajo_izquierda + delta_x * np.arange(celdas_x)
             latitudes = coordenada_y_abajo_izquierda + delta_y * np.arange(celdas_y)
             longitudes, latitudes = np.meshgrid(longitudes, latitudes)
-            cs = ax.contourf(longitudes, latitudes, mapa.T[::-1], transform = proj, cmap = cmap, 
+            cs = ax.contourf(longitudes, latitudes, mapa.T[::-1], transform = proj, cmap = cmap,
                 levels = levels, norm = norm, vmin = vmin, vmax = vmax)
             cax = fig.add_axes(cbar_loc)
             cbar = pl.colorbar(cs, cax = cax, orientation=cbar_orientation)
@@ -2484,9 +2484,13 @@ class Basin:
         ax.outline_patch.set_visible(False)
         #Qny shape to show.
         if shape_path is not None:
-            shape_feature = ShapelyFeature(Reader(shape_path).geometries(),
-                                    proj, edgecolor='blue', )
-            ax.add_feature(shape_feature, facecolor=shape_color,linewidth=shape_width)
+            #Using the add_geometry
+            ax.add_geometries(Reader(shape_path).geometries(),proj,
+                              edgecolor=shape_color,
+                              lw=shape_width,
+                              facecolor ='none')
+
+        return ax,longitudes, latitudes
     
     
     def __Plot_basin_deprecated(self,vec=None,Min=None,
