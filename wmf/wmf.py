@@ -2479,6 +2479,8 @@ class Basin:
             cbar.ax.set_title(cbar_title, size = 16)
             if cbar_ticks is not None:
                 cbar.set_ticks(cbar_ticks)
+            if cbar_ticklabels is not None:
+                cbar.set_ticklabels(cbar_ticklabels)
         #Watershed divisory
         ax.plot(self.Polygon[0], self.Polygon[1], color = color_perimetro)
         ax.outline_patch.set_visible(False)
@@ -2490,7 +2492,7 @@ class Basin:
                               lw=shape_width,
                               facecolor ='none')
 
-        return ax,longitudes, latitudes
+        return ax,cbar,longitudes, latitudes
     
     
     def __Plot_basin_deprecated(self,vec=None,Min=None,
