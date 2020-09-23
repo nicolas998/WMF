@@ -1865,7 +1865,7 @@ class Basin:
             map_ncols, map_nrows, self.ncells)
         # Si exporta el mapa lo guarda si no simplemente devuelve la matriz
         if ruta is not None:
-            Save_Array2Raster(M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.nodata],
+            Save_Array2Raster(M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.dy,cu.nodata],
                 ruta = ruta, EPSG = EPSG, Format = DriverFormat)
         return M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.dy,cu.nodata]
 
