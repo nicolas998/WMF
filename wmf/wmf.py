@@ -2438,13 +2438,16 @@ class Basin:
         gl.ylabels_right = False
     
     def plot_basin(self, vector_cuenca = None, ax = None,fig=None, 
+        scat_df = None, scat_x = None, scat_y = None, scat_color = None, scat_size = None,
+        scat_cmap = None,scat_order=4,scat_w = 4,scat_vmin=None, scat_vmax=None,
+        scat_cm_loc = [0.2, 0.1, 0.4, 0.03],scat_cm_orientation = 'horizontal',
         figsize = (10, 10), ruta_guardar = None, dpi = 100, 
         cmap = pl.get_cmap('viridis'), title_size = 24, titulo = '', 
         titulo_colorbar = '', norm  = None, levels = None, vmin = None, vmax = None,
         color_perimetro = 'r',
         shape_path = None, shape_color = 'blue', shape_width = 0.5,
         cbar_title = '', cbar_loc = [0.4, 0.8, 0.4, 0.03], cbar_ticks = None, cbar_ticklabels = None,
-        cbar_ticksize = 16, cbar_orientation = 'horizontal'):
+        cbar_ticksize = 16, cbar_orientation = 'horizontal',cbar_title_size = 16):
 
         #Pretty colorbar
         if norm != None:
@@ -2476,11 +2479,27 @@ class Basin:
             cax = fig.add_axes(cbar_loc)
             cbar = pl.colorbar(cs, cax = cax, orientation=cbar_orientation)
             cbar.ax.tick_params(labelsize = cbar_ticksize)
-            cbar.ax.set_title(cbar_title, size = 16)
+            cbar.ax.set_title(cbar_title, size = cbar_title_size)
             if cbar_ticks is not None:
                 cbar.set_ticks(cbar_ticks)
             if cbar_ticklabels is not None:
                 cbar.set_ticklabels(cbar_ticklabels)
+        else:
+            cbar = None; longitudes = None; latitudes = None
+        #If there is a dataFrame with data to plot as scatter
+        if scat_df is not None:
+            scat_elem = ax.scatter(scat_df[scat_x],scat_df[scat_y], c =scat_df[scat_color], cmap = scat_cmap,
+                    vmin = scat_vmin, 
+                    vmax = scat_vmax,
+                    s = scat_size, 
+                    zorder = scat_order,
+                    lw = scat_w, 
+                    edgecolor = 'k', 
+                    transform = proj)
+            cax = fig.add_axes(scat_cm_loc)
+            sc_cbar = pl.colorbar(scat_elem, cax = cax, orientation = scat_cm_orientation)
+        else:
+            sc_bar = None
         #Watershed divisory
         ax.plot(self.Polygon[0], self.Polygon[1], color = color_perimetro)
         ax.outline_patch.set_visible(False)
@@ -2488,11 +2507,11 @@ class Basin:
         if shape_path is not None:
             #Using the add_geometry
             ax.add_geometries(Reader(shape_path).geometries(),proj,
-                              edgecolor=shape_color,
-                              lw=shape_width,
-                              facecolor ='none')
+                            edgecolor=shape_color,
+                            lw=shape_width,
+                            facecolor ='none')
 
-        return ax,cbar,longitudes, latitudes
+        return ax,cbar,longitudes, latitudes, sc_cbar
     
     
     def __Plot_basin_deprecated(self,vec=None,Min=None,
