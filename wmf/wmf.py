@@ -60,12 +60,11 @@ except:
     except:
         print('No netcdf en esta maquina, se desabilita la funcion SimuBasin.save_SimuBasin')
         pass
-try:
-    from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid, cm
+try:    
     from matplotlib.patches import Polygon
     from matplotlib.collections import PatchCollection
 except:
-    print('No se logra importar basemap, por lo tanto no funciona Plot_basin')
+    print('Unable to import Polygon and PatchCollection from matplotlib')
     pass
 try:
     from deap import base, creator
@@ -2512,182 +2511,7 @@ class Basin:
                             facecolor ='none')
 
         return ax,cbar,longitudes, latitudes, sc_cbar
-    
-    
-    def __Plot_basin_deprecated(self,vec=None,Min=None,
-            Max=None,ruta=None,figsize=(10,7),
-            ZeroAsNaN ='no',extra_lat=0.0,extra_long=0.0,lines_spaces='Default',
-            xy=None,xycolor='b',colorTable=None,alpha=1.0,vmin=None,vmax=None,
-            colorbar=True, colorbarLabel = None,axis=None,rutaShp=None,shpWidth = 0.7,
-            shpColor = 'r',axloc = 111, fig = None, EPSG = 4326,backMap = False,
-            **kwargs):
-            #Plotea en la terminal como mapa un vector de la cuenca
-            'Funcion: Plot_basin\n'\
-            'Descripcion: Genera un plot del mapa entregado.\n'\
-            'del mismo en forma de mapa \n'\
-            'Parametros Obligatorios:.\n'\
-            '   -basin: Vector con la forma de la cuenca.\n'\
-            '   -vec: Vector con los valores a plotear.\n'\
-            'Parametros Opcionales:.\n'\
-            '   -Min: Valor minimo del plot, determina el rango de colores.\n'\
-            '   -Max: Valor maximo del plot, determina el rango de colores.\n'\
-            '   -ruta: Ruta en la cual se guarda la grafica.\n'\
-            '   -colorbar: Muestra o no la barra de colores, defecto: True.\n'\
-            '   -figsize: tamano de la ventana donde se muestra la cuenca.\n'\
-            '   -ZeroAsNaN: Convierte los valores de cero en NaN.\n'\
-            '   -rutaShp: Ruta a un vectorial que se quiera mostrar en el mapa.\n'\
-            '   -shpWidth: Ancho de las lineas del shp cargado.\n'\
-            '   -shpColor: Color de las lineas del shp cargado.\n'\
-            '   -backMap: Pone de fondo un mapa tipo arcGIS.\n'\
-            'Otros argumentos:.\n'\
-            '   -axis = Entorno de grafica que contiene elementos de las figuras.\n'\
-            '   -parallels = Grafica Paralelos, list-like.\n'\
-            '   -parallels_labels = Etiquetas de los paralelos, list-like.\n'\
-            '       labels = [left,right,top,bottom].\n'\
-            '       Ejemplo:\n'\
-            '       m.drawparallels(parallels,labels=[False,True,True,False]).\n'\
-            '   -parallels_offset: desplazamiento de las coordenadas en X.\n'\
-            '   -meridians = Grafica Meridianos, list-like.\n'\
-            '   -meridians_labels = Etiquetas de los meridianos, list-like.\n'\
-            '   -meridians_offset: desplazamiento de las coordeandas en Y.\n'\
-            '   -per_color = Color del perimetro.\n'\
-            '   -per_lw = Ancho de linea del perimetro.\n'\
-            '   -colorbarLabel = Titulo del colorbar.\n'\
-            '   -xy_edgecolor = Color de la linea exterior del scatter .\n'\
-            '   -xy_lw = Ancho de linea del Scatter .\n'\
-            '   -xy_s = Tamano del scatter.\n'\
-            '   -xy_colorbar: Coloca o no barra de colores del scatter enviado (False).\n'\
-            '   -show = boolean, si es True muestra la grafica.\n'\
-            '   -cbar_ticks: (None) ubicacion de los ticks del cbar.\n'\
-            '   -cbar_ticklabels: (None) Labels a poner sobre los ticks.\n'\
-            '   -cbar_ticksize: (14) Tamano de los ticks.\n'\
-            '   -ShpIsPolygon: Indica si ese shp cargado es poligono (True) o no (False).\n'\
-            '   -shpAlpha: transparencia del shp (0.5).\n'\
-            'Retorno:.\n'\
-            '   -Actualizacion del binario .int\n'\
-            '   -m = Para continuar graficando encima del entorno creado en Basemap\n'\
-            '       Ejemplo:.\n'\
-            '       m = Plot_basin(**args).\n'\
-            '       m.scatter(coordenada_x,coordenada_y).\n'
-            #Prop de la barra de colores
-            cbar_ticklabels = kwargs.get('cbar_ticklabels', None)
-            cbar_ticks = kwargs.get('cbar_ticks', None)
-            cbar_ticksize = kwargs.get('cbar_ticksize', 14)
-            show = kwargs.get('show', True)
-            ShpIsPolygon = kwargs.get('ShpIsPolygon',None)
-            shpAlpha = kwargs.get('shpAlpha',0.5)
-            xy_colorbar = kwargs.get('xy_colorbar', False)
-            if lines_spaces == 'Default':
-                lines_spaces = cu.dx*cu.ncols*0.05
-            #El mapa
-            Mcols,Mrows=cu.basin_2map_find(self.structure,self.ncells)
-            Map,mxll,myll=cu.basin_2map(self.structure,self.structure[0]
-                ,Mcols,Mrows,self.ncells)
-            longs=np.array([mxll+0.5*cu.dx+i*cu.dx for i in range(Mcols)])
-            lats=np.array([myll+0.5*cu.dy+i*cu.dy for i in range(Mrows)])
-            X,Y=np.meshgrid(longs,lats)
-            Y=Y[::-1]
-            show = kwargs.get('show',True)
-            if fig is None:
-                fig = pl.figure(figsize = figsize)
-            if axis == None:
-                ax = fig.add_subplot(axloc)
-            else:
-                show = False
-            m = Basemap(projection='merc',
-                llcrnrlat=lats.min()-extra_lat,
-                urcrnrlat=lats.max()+extra_lat,
-                llcrnrlon=longs.min()-extra_long,
-                urcrnrlon=longs.max()+extra_long,
-                resolution='c',
-                epsg = EPSG)
-            parallels = kwargs.get('parallels',np.arange(lats.min(),
-                lats.max(),lines_spaces))
-            parallels_labels = kwargs.get('parallels_labels',[1,0,0,0])
-            parallel_offset = kwargs.get('parallels_offset', 0.001)
-            m.drawparallels(parallels,
-                labels = parallels_labels,
-                fmt="%.2f",
-                rotation='vertical',
-                xoffset=parallel_offset)
-            meridians = kwargs.get('meridians', np.arange(longs.min(),
-                longs.max(),lines_spaces))
-            meridians_labels = kwargs.get('meridians_labels', [0,0,1,0])
-            meridians_offset = kwargs.get('meridians_offset', 0.001)
-            m.drawmeridians(meridians,
-                labels=meridians_labels,
-                fmt="%.2f",
-                yoffset=meridians_offset)
-            Xm,Ym=m(X,Y)
-            #plotea el mapa de fondo de arcGIS
-            if backMap:
-                m.arcgisimage(server='http://server.arcgisonline.com/ArcGIS', service='World_Topo_Map', xpixels = 1500, verbose = True)
-            #Plotea el contorno de la cuenca y la red
-            xp,yp = m(self.Polygon[0], self.Polygon[1])
-            per_color = kwargs.get('per_color','r')
-            per_lw = kwargs.get('per_lw',2)
-            m.plot(xp, yp, color=per_color,lw=per_lw)
-            #hay una variable la monta
-            if vec is not None:
-                if vmin is None:
-                    vmin = vec.min()
-                if vmax is None:
-                    vmax = vec.max()
-                MapVec,mxll,myll=cu.basin_2map(self.structure,vec,Mcols,Mrows,
-                    self.ncells)
-                MapVec[MapVec==cu.nodata]=np.nan
-                if ZeroAsNaN is 'si':
-                    MapVec[MapVec == 0] = np.nan
-                if colorTable is not None:
-                    cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,cmap=colorTable,
-                        vmin=vmin,vmax=vmax)
-                else:
-                    cs = m.contourf(Xm, Ym, MapVec.T, 25, alpha=alpha,
-                        vmin=vmin,vmax=vmax)
-                cbar_label_size = kwargs.get('cbar_label_size',16)
-                if colorbar:
-                    cbar = pl.colorbar(cs,orientation='horizontal',pad=0.09,fraction=0.046)
-                    if colorbarLabel is not None:
-                        cbar.set_label(colorbarLabel, size = cbar_label_size)
-                    if cbar_ticks is not None:
-                        cbar.set_ticks(cbar_ticks)
-                    if cbar_ticklabels is not None:
-                        cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
-                        cbar.ax.set_xticklabels(cbar_ticklabels, size = cbar_ticksize,)
-            #Si hay coordenadas de algo las plotea
-            xy_edgecolor = kwargs.get('xy_edgecolor','black')
-            xy_lw = kwargs.get('xy_lw',30)
-            xy_s = kwargs.get('xy_s',0.5)
-            if xy is not None:
-                xc,yc=m(xy[0],xy[1])
-                sx = m.scatter(xc,yc,c=xycolor,
-                    s=xy_s,
-                    linewidth=xy_lw,
-                    edgecolor=xy_edgecolor)
-                if xy_colorbar:
-                    pl.colorbar(sx)
-            #Si hay una ruta a un shp lo plotea
-            if rutaShp is not None:
-                if type(rutaShp) == str:
-                    m.readshapefile(rutaShp, 'mapashp', linewidth = shpWidth, color = shpColor)
-                elif type(rutaShp) == list:
-                    for c,shape in enumerate(rutaShp):
-                        m.readshapefile(shape, 'mapashp', linewidth = shpWidth[c], color = shpColor[c])
-                        if ShpIsPolygon[c]:
-                            patches   = []
-                            for shape in m.mapashp:
-                                patches.append(Polygon(np.array(shape), True))
-                            ax.add_collection(PatchCollection(patches, facecolor= shpColor[c],
-                                edgecolor=shpColor[c], linewidths=shpWidth[c], zorder=2, alpha = shpAlpha[c]))
-            #Guarda
-            if ruta is not None:
-                pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
-            if show is True:
-                pl.show()
-            if xy is None:
-                return m,ax
-            else:
-                return m, ax, sx
+
     #Grafica de plot para montar en paginas web o presentaciones
     def Plot_basinClean(self, vec, ruta = None, umbral = 0.0,
         vmin = 0.0, vmax = None, show_cbar = False, **kwargs):
