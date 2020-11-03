@@ -1113,6 +1113,36 @@
       flag = 1
       call f2pysetdata(d,allocated(d))
       end subroutine f2py_models_getdims_vfluxes
+      subroutine f2py_models_getdims_rc_coef(r,s,f2pysetdata,flag)
+      use models, only: d => rc_coef
+
+      integer flag
+      external f2pysetdata
+      logical ns
+      integer r,i
+      integer(8) s(*)
+      ns = .FALSE.
+      if (allocated(d)) then
+         do i=1,r
+            if ((size(d,i).ne.s(i)).and.(s(i).ge.0)) then
+               ns = .TRUE.
+            end if
+         end do
+         if (ns) then
+            deallocate(d)
+         end if
+      end if
+      if ((.not.allocated(d)).and.(s(1).ge.1)) then
+       allocate(d(s(1),s(2)))
+      end if
+      if (allocated(d)) then
+         do i=1,r
+            s(i) = size(d,i)
+         end do
+      end if
+      flag = 1
+      call f2pysetdata(d,allocated(d))
+      end subroutine f2py_models_getdims_rc_coef
       subroutine f2py_models_getdims_volero(r,s,f2pysetdata,flag)
       use models, only: d => volero
 
@@ -2379,6 +2409,7 @@
       use models, only : save_speed
       use models, only : save_retorno
       use models, only : save_vfluxes
+      use models, only : save_rc
       use models, only : show_storage
       use models, only : show_speed
       use models, only : show_mean_speed
@@ -2405,6 +2436,7 @@
       use models, only : mean_retorno
       use models, only : mean_vfluxes
       use models, only : vfluxes
+      use models, only : rc_coef
       use models, only : sed_factor
       use models, only : wi
       use models, only : qskr
@@ -2543,6 +2575,7 @@
       external f2py_models_getdims_mean_retorno
       external f2py_models_getdims_mean_vfluxes
       external f2py_models_getdims_vfluxes
+      external f2py_models_getdims_rc_coef
       external f2py_models_getdims_volero
       external f2py_models_getdims_voldepo
       external f2py_models_getdims_vs
@@ -2595,45 +2628,46 @@
      &y_models_getdims_max_gravita,f2py_models_getdims_max_aquifer,f2py_&
      &models_getdims_retorned,f2py_models_getdims_evpserie,retorno_gr,re&
      &torno_aq,dt,rain_first_point,sim_sediments,sim_slides,sim_floods,s&
-     &ave_storage,save_speed,save_retorno,save_vfluxes,show_storage,show&
-     &_speed,show_mean_speed,show_mean_retorno,show_area,separate_fluxes&
-     &,separate_rain,speed_type,f2py_models_getdims_control,f2py_models_&
-     &getdims_control_h,f2py_models_getdims_guarda_cond,f2py_models_getd&
-     &ims_guarda_vfluxes,calc_niter,f2py_models_getdims_storage,storage_&
-     &constant,f2py_models_getdims_speed_map,f2py_models_getdims_mean_ra&
-     &in,f2py_models_getdims_acum_rain,f2py_models_getdims_fluxes,f2py_m&
-     &odels_getdims_storage_conv,f2py_models_getdims_storage_stra,f2py_m&
-     &odels_getdims_mean_storage,f2py_models_getdims_mean_speed,f2py_mod&
-     &els_getdims_mean_retorno,f2py_models_getdims_mean_vfluxes,f2py_mod&
-     &els_getdims_vfluxes,sed_factor,wi,qskr,g,diametro,qlin_sed,ero,ero&
-     &t,dep,dept,f2py_models_getdims_volero,f2py_models_getdims_voldepo,&
-     &f2py_models_getdims_vs,f2py_models_getdims_vd,f2py_models_getdims_&
-     &vsc,f2py_models_getdims_vdc,f2py_models_getdims_krus,f2py_models_g&
-     &etdims_crus,f2py_models_getdims_prus,f2py_models_getdims_parliac,s&
-     &l_gullienogullie,sl_fs,f2py_models_getdims_sl_riskvector,f2py_mode&
-     &ls_getdims_sl_slideocurrence,f2py_models_getdims_sl_slideacumulate&
-     &,f2py_models_getdims_sl_slidencelltime,f2py_models_getdims_sl_zcri&
-     &t,f2py_models_getdims_sl_zmin,f2py_models_getdims_sl_zmax,f2py_mod&
-     &els_getdims_sl_bo,f2py_models_getdims_sl_zs,sl_gammaw,f2py_models_&
-     &getdims_sl_gammas,f2py_models_getdims_sl_cohesion,f2py_models_getd&
-     &ims_sl_frictionangle,f2py_models_getdims_sl_radslope,f2py_models_g&
-     &etdims_flood_q,f2py_models_getdims_flood_qsed,f2py_models_getdims_&
-     &flood_h,f2py_models_getdims_flood_flood,f2py_models_getdims_flood_&
-     &speed,f2py_models_getdims_flood_ufr,flood_rdf,f2py_models_getdims_&
-     &flood_cr,f2py_models_getdims_flood_eval,flood_area,flood_diff,floo&
-     &d_sec_tam,flood_av,f2py_models_getdims_flood_w,f2py_models_getdims&
-     &_flood_d50,f2py_models_getdims_flood_aquien,f2py_models_getdims_fl&
-     &ood_hand,f2py_models_getdims_flood_loc_hand,f2py_models_getdims_fl&
-     &ood_sections,f2py_models_getdims_flood_sec_cells,flood_cmax,f2py_m&
-     &odels_getdims_flood_slope,flood_dw,flood_dsed,flood_umbral,flood_m&
-     &ax_iter,flood_step,flood_hmax,f2py_models_getdims_flood_profundida&
-     &d,shia_v1,read_float_basin,read_float_basin_ncol,read_int_basin,wr&
-     &ite_float_basin,write_int_basin,rain_read_ascii_table,rain_read_as&
-     &cii_table_separate,rain_pre_mit,rain_mit,rain_idw,calc_speed,sed_a&
-     &llocate,sed_hillslope,sed_channel,slide_allocate,slide_ocurrence,s&
-     &lide_hill2gullie,flood_allocate,flood_params,flood_find_hdiff,floo&
-     &d_debris_flow,flood_debris_flow2,basin_subbasin_map2subbasin,f2pyw&
-     &rap_models_qsortc,f2pywrap_models_partition)
+     &ave_storage,save_speed,save_retorno,save_vfluxes,save_rc,show_stor&
+     &age,show_speed,show_mean_speed,show_mean_retorno,show_area,separat&
+     &e_fluxes,separate_rain,speed_type,f2py_models_getdims_control,f2py&
+     &_models_getdims_control_h,f2py_models_getdims_guarda_cond,f2py_mod&
+     &els_getdims_guarda_vfluxes,calc_niter,f2py_models_getdims_storage,&
+     &storage_constant,f2py_models_getdims_speed_map,f2py_models_getdims&
+     &_mean_rain,f2py_models_getdims_acum_rain,f2py_models_getdims_fluxe&
+     &s,f2py_models_getdims_storage_conv,f2py_models_getdims_storage_str&
+     &a,f2py_models_getdims_mean_storage,f2py_models_getdims_mean_speed,&
+     &f2py_models_getdims_mean_retorno,f2py_models_getdims_mean_vfluxes,&
+     &f2py_models_getdims_vfluxes,f2py_models_getdims_rc_coef,sed_factor&
+     &,wi,qskr,g,diametro,qlin_sed,ero,erot,dep,dept,f2py_models_getdims&
+     &_volero,f2py_models_getdims_voldepo,f2py_models_getdims_vs,f2py_mo&
+     &dels_getdims_vd,f2py_models_getdims_vsc,f2py_models_getdims_vdc,f2&
+     &py_models_getdims_krus,f2py_models_getdims_crus,f2py_models_getdim&
+     &s_prus,f2py_models_getdims_parliac,sl_gullienogullie,sl_fs,f2py_mo&
+     &dels_getdims_sl_riskvector,f2py_models_getdims_sl_slideocurrence,f&
+     &2py_models_getdims_sl_slideacumulate,f2py_models_getdims_sl_sliden&
+     &celltime,f2py_models_getdims_sl_zcrit,f2py_models_getdims_sl_zmin,&
+     &f2py_models_getdims_sl_zmax,f2py_models_getdims_sl_bo,f2py_models_&
+     &getdims_sl_zs,sl_gammaw,f2py_models_getdims_sl_gammas,f2py_models_&
+     &getdims_sl_cohesion,f2py_models_getdims_sl_frictionangle,f2py_mode&
+     &ls_getdims_sl_radslope,f2py_models_getdims_flood_q,f2py_models_get&
+     &dims_flood_qsed,f2py_models_getdims_flood_h,f2py_models_getdims_fl&
+     &ood_flood,f2py_models_getdims_flood_speed,f2py_models_getdims_floo&
+     &d_ufr,flood_rdf,f2py_models_getdims_flood_cr,f2py_models_getdims_f&
+     &lood_eval,flood_area,flood_diff,flood_sec_tam,flood_av,f2py_models&
+     &_getdims_flood_w,f2py_models_getdims_flood_d50,f2py_models_getdims&
+     &_flood_aquien,f2py_models_getdims_flood_hand,f2py_models_getdims_f&
+     &lood_loc_hand,f2py_models_getdims_flood_sections,f2py_models_getdi&
+     &ms_flood_sec_cells,flood_cmax,f2py_models_getdims_flood_slope,floo&
+     &d_dw,flood_dsed,flood_umbral,flood_max_iter,flood_step,flood_hmax,&
+     &f2py_models_getdims_flood_profundidad,shia_v1,read_float_basin,rea&
+     &d_float_basin_ncol,read_int_basin,write_float_basin,write_int_basi&
+     &n,rain_read_ascii_table,rain_read_ascii_table_separate,rain_pre_mi&
+     &t,rain_mit,rain_idw,calc_speed,sed_allocate,sed_hillslope,sed_chan&
+     &nel,slide_allocate,slide_ocurrence,slide_hill2gullie,flood_allocat&
+     &e,flood_params,flood_find_hdiff,flood_debris_flow,flood_debris_flo&
+     &w2,basin_subbasin_map2subbasin,f2pywrap_models_qsortc,f2pywrap_mod&
+     &els_partition)
       end subroutine f2pyinitmodels
 
 
