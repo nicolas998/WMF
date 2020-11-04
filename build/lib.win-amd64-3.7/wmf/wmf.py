@@ -2498,7 +2498,7 @@ class Basin:
             cax = fig.add_axes(scat_cm_loc)
             sc_cbar = pl.colorbar(scat_elem, cax = cax, orientation = scat_cm_orientation)
         else:
-            sc_bar = None
+            sc_cbar = None
         #Watershed divisory
         ax.plot(self.Polygon[0], self.Polygon[1], color = color_perimetro)
         ax.outline_patch.set_visible(False)
