@@ -65,9 +65,11 @@ real, allocatable :: h_coef(:,:) !Coeficientes de velocidades horizontales [L] [
 real, allocatable :: h_exp(:,:)  !Exponentes de velocidades horizontales, aplica en casos no lineales
 real, allocatable :: Max_capilar(:,:) !Maximo almacenamiento capilar [L] [1,Nceldas]
 real, allocatable :: Max_gravita(:,:) !Maximo almacenamiento gravitacional [L] [1,Nceldas]
+real, allocatable :: Max_aquifer(:,:) !Maximum storage at the aquifer [L] [1, Nceldas]
 real, allocatable :: Retorned(:,:) !Matriz que indica cuando en una ejecucion se dio retorno del tanque 3 al tanque 2
 real, allocatable :: EvpSerie(:) !Serie de evaporacion mediante la cual el modelo pondera el almacenamiento capilar.
-real retorno !Si es cero no se tiene en cuenta el retorno, si es 1 si.
+real retorno_gr ! Si es cero no se tiene en cuenta el retorno, si es 1 si.
+real retorno_aq ! Flag to tell the model to include or not to include the maximum storage of this tank.
 
 !Variables de control y configuracion del modelo 
 real dt !Delta del tiempo de modelacion
@@ -78,6 +80,8 @@ integer sim_floods !Simula (1) o no (0) inundaciones
 integer save_storage !Guarda (1) o no (0) almacenamiento de los tanques en cada intervalo.
 integer save_speed !Guarda (1) o no (0) las velocidades en cada intervalo
 integer save_retorno !Guarda (1) o no (0) el flujo de retorno en cada intervalo de tiempo
+integer save_vfluxes !Guarda o no los flujos verticales simulados por el modelo.
+integer save_rc !Guarda o no la variable requerida para calcular el RC al final del evento
 integer show_storage !(1)Calcula el alm medio en la cuenca para cada tanque y lo muestra en la salida. (0) no lo hace.
 integer show_speed !(1) muestra la velocidad en los puntos de control de caudales. (0) no lo hace.
 integer show_mean_speed !(1) muestra la velocidad promedio en cada uno de los 4 tanques. (0) no lo hace
@@ -88,7 +92,8 @@ integer separate_rain !Separa (1) o no (0) los flujos de acuerdo al tipo de lluv
 integer speed_type(3) !Tipo de velocidad para tanque 1, 2 y 3: 1: lineal, 2: Cinematica Potencial, de momento no hay mas implementadas 
 integer, allocatable :: control(:,:) !Celdas de la cuenca que tienen puntos de control
 integer, allocatable :: control_h(:,:) !Celdas de la cuenca que son puntos de control de humedad
-integer, allocatable :: guarda_cond(:,:) !Intervalos de tiempo en que se hace guardado de condiciones
+integer, allocatable :: guarda_cond(:) !Intervalos de tiempo en que se hace guardado de condiciones
+integer, allocatable :: guarda_vfluxes(:) !Intervalos de tiempo en que se hace guardado de los vfluxes
 integer calc_niter !Cantidad de iteraciones para la ecuacion de solucion numerica (defecto 5)
 
 !Variables de resultados globales (siempre van a estar ahi)
@@ -103,6 +108,14 @@ real, allocatable :: Storage_stra(:,:) !Almacenamiento solo lluvia stratiforme
 real, allocatable :: mean_storage(:,:) !Almacenamiento promedio en cada intervalo para toda la cuenca. (5,n_reg)
 real, allocatable :: mean_speed(:,:) !Velocidad promedio en los 4 tanques que vierten de forma hztal. (4,n_reg)
 real, allocatable :: mean_retorno(:) !Promedio de la cantidad de milimetro retornados en un intervalo de tiempo (n_reg)
+real, allocatable :: mean_vfluxes(:,:) !Promedio de los flujos pasados en la vertical (4,n_reg)
+real, allocatable :: vfluxes(:,:) !Flujo vertical simulado por el modelo para cada uno de los tanques (4,n_reg)
+real, allocatable :: rc_coef(:,:) !Cumulative variable to externally compute the RC coef of the event (2,n_cells)
+
+!Variables transbase
+integer tranvase !0 no transvase, 1 si si.
+integer, allocatable :: transvase_cel(:) !Arreglo con el tamano de la cuenca lleno de ceros y en donde hay trans, se numera de forma asce
+real, allocatable :: transvase_serie(:,:) !Series de caudal de entrada dim1: tra1,tr2,... dim2: series de cada trns
 
 !variables de sedimentos Par aalojar volumens y demas
 real sed_factor !factor para calibrar el modelo de sedimentos
@@ -173,10 +186,6 @@ real flood_step !Tamano del paso (en metros) para ir generando la mancha de inun
 real flood_hmax !profundidad maxima de inundacion
 real, allocatable :: flood_profundidad(:,:) !Diferencia en profundidad simulada en un intervalo de tiempo sobre las secciones
 
-!Variables de transbase
-real, allocatable :: httbe(:) !Serie en mm de transbase Se debe calcular teniendo en cuenta el Dx y el W.
-integer celdaTtbse !Celda dentro de la topologia donde se esta haciendo el transbase.
-
 contains
 
 
@@ -186,18 +195,19 @@ contains
 
 subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N_reg,Q,&
 	& Qsed, Qseparated, Hum, St1, St3, balance, speed, AreaControl, StoOut, ruta_storage, ruta_speed, &
-	& ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain, ruta_retorno)
+	& ruta_vfluxes, ruta_binConv, ruta_binStra, ruta_hdrConv, ruta_hdrStra, Qsep_byrain, ruta_retorno, &
+    & ruta_rc)
     
     !--------------------------------------------------------------------------
     !DECLARACION DE VARIABLES
     !--------------------------------------------------------------------------
 	!Variables de entrada
     integer, intent(in) :: N_cel,N_reg,N_cont,N_contH
-    real, intent(in) :: calib(10)
+    real, intent(in) :: calib(11)
     character*500, intent(in) :: ruta_bin, ruta_hdr
     character*500, intent(in), optional :: ruta_storage
     character*500, intent(in), optional :: ruta_binConv, ruta_hdrConv, ruta_binStra, ruta_hdrStra
-    character*500, intent(in), optional :: ruta_speed, ruta_retorno
+    character*500, intent(in), optional :: ruta_speed, ruta_retorno, ruta_vfluxes, ruta_rc
     real, intent(in), optional :: StoIn(5, N_cel)
     real, intent(in), optional :: HspeedIn(4, N_cel)
     
@@ -232,6 +242,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 	real hflux_c(4) !Flujo horizontal para separacion por tipo lluvia
 	real hflux_s(4) !Flujo horizontal para separacion por tipo lluvia
 	real Ret !Retorno del tanque 3 al 2 [mm]
+	real Ret_aq !Retorno del tanque 4 al 3 [mm]
 	real Evp_loss !Salida por evaporcion del sistema [mm]
 	real QfluxesOut(3) !Caudal que sale separado por flujos en la opcion "separate_fluxes"
 	!Variables de velocidad vertical y horizontal
@@ -239,7 +250,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 	real hspeed(4,N_cel) !Velocidad horizontal [cm/h] o [m/s]
 	real section_area !Area de la seccion resuleta en ladera o en el canal 
 	!Variables Max storage en tanques 1 y 3
-	real H(2,N_cel)
+	real H(3,N_cel)
 	!Variables sub-modelo de sedimentos
 	real Area_coef(nceldas) !Coeficiente para el calculo del lateral en cada celda del tanque 2 para calcuo de sedimentos
     real Vsal_sed(3) !Volumen de salida de cada fraccion de sedimentos [m3/seg]
@@ -259,7 +270,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 	Acum_rain = 0
 	!Establece variable de conversion
 	m3_mmHill=elem_area(1,:)/1000.0
-	m3_mmRivers=(stream_long(1,:)*stream_width(1,:))/1000.0
+	m3_mmRivers=elem_area(1,:)/1000.0 !(stream_long(1,:)*stream_width(1,:))/1000.0
 	Q=0.0
 	!Inicia variables para realizar el balance en la cuenca
 	if (StoIn(1,1) .gt. 0) then
@@ -295,12 +306,13 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 	!Calcula parametros estaticos en el tiempo
 	H(1,:)=Max_capilar(1,:)*Calib(9)
 	H(2,:)=Max_gravita(1,:)*Calib(10)
+	H(3,:)=Max_aquifer(1,:)*Calib(11)
 	
 	!--------------------------------------------------------------------------
     !PREPARACION OPCIONAL DEL MODELO 
     !--------------------------------------------------------------------------
 	!Si hay retorno aloja la matriz donde guarda cuando ocurren los retornos
-	if (retorno .eq. 1) then 
+	if (retorno_gr .eq. 1) then 
 		if (allocated(Retorned)) deallocate(Retorned)
 		allocate(Retorned(1,N_cel))
 		Retorned = 0.0
@@ -363,7 +375,62 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 		allocate(mean_speed(4,N_reg))
 		mean_speed = 0
 	endif
-	
+
+    !Prepara en caso de que se vayan a guardar condiciones, este cambio busca 
+    !que se guarden condiciones de forma especifica 
+    if (save_storage .eq. 1) then 
+        !Verifica si no esta alojada la vairable, en caso de que no no guarda condiciones
+        if (allocated(guarda_cond) .eqv. .false.) then 
+            allocate(guarda_cond(N_reg))
+            guarda_cond = 0
+        else    
+            !Si esta aojada, pero no coincide con la cantidad de registros, tampoco guarda nada
+            if (sizeof(guarda_cond) .lt. N_reg) then 
+                deallocate(guarda_cond)
+                allocate(guarda_cond(N_reg))
+                guarda_cond = 0
+            endif    
+        endif
+    endif 
+    
+    !Prepara el modelo para guardar vertical fluxes
+    if (save_vfluxes .eq. 1) then
+		!Aloja la variable de loe Vfluxes para hacer guardado en el tiempo
+		if (allocated(vfluxes)) then
+			deallocate(vfluxes)
+		endif
+		allocate(vfluxes(4,N_cel))
+		!Verifica si esta o no alojada la variable del guardado en el tiempo
+		if (allocated(guarda_vfluxes) .eqv. .false.) then
+			allocate(guarda_vfluxes(N_reg))
+			guarda_vfluxes = 0
+		else
+			!Si esta aojada, pero no coincide con la cantidad de registros, tampoco guarda nada
+			if (sizeof(guarda_vfluxes) .lt. N_reg) then 
+				deallocate(guarda_vfluxes)
+				allocate(guarda_vfluxes(N_reg))
+				guarda_vfluxes = 0
+			endif    
+		endif
+		!Set de la varible del promedio de los fluxes de cada tanque
+		if (allocated(mean_vfluxes)) deallocate(mean_vfluxes)
+		allocate(mean_vfluxes(4,N_reg))
+		mean_vfluxes = 0.0
+    endif
+
+    !Set the model to store the variables required to compute the rc coef at the
+    !end of the event
+    if (save_rc .eq. 1) then 
+        !Set the variable 
+        if (allocated(rc_coef)) then
+            deallocate(rc_coef)
+        endif
+        allocate(rc_coef(2,N_cel))
+        !set the variable equals to 0
+        rc_coef = 0
+    endif
+
+
 	!--------------------------------------------------------------------------
     !EJECUCION DEL MODELO 
     !--------------------------------------------------------------------------
@@ -398,17 +465,9 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 		!Actualiza la variable global de acumulacion de lluvia para el periodo de simulacion
 		Acum_rain(1,:) = Acum_rain(1,:) + Rain
 		
-		
 		!--------------------------------------------------------------------------
 		!Iter around the cells or hills
 		do celda=1,N_cel
-				
-			!Transbase si lo hay
-			if (allocated(httbe)) then
-				if (celda .eq. celdaTtbse) then
-					StoOut(5,celda) = StoOut(5,celda)+httbe(tiempo)
-				endif
-			endif	
 			
 			!determina el elemento objetivo y realiza balance de lluvia
 			drenaid = N_cel-drena(1,celda)+1
@@ -438,13 +497,38 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				vflux(i+1)=min(vflux(i),vspeed(i+1,celda)) ![mm]
 				StoOut(i+1,celda)=StoOut(i+1,celda)+vflux(i)-vflux(i+1) ![mm]
 			enddo
+			!Fujo de retorno del tanque 4 al tanque 3.
+			if (retorno_aq .gt. 0) then
+				Ret_aq = max(0.0 , StoOut(4,celda)-H(3,celda))
+				StoOut(3,celda) = StoOut(3,celda) + Ret_aq ![mm]
+				StoOut(4,celda) = StoOut(4,celda) - Ret_aq ![mm]
+				!Retorned(1,celda) = Retorned(1,celda) + Ret
+				!vflux(3) = vflux(3) - Ret_aq
+				!vflux(4) = vflux(3) - Ret_aq
+			endif
 			!Flujo de retorno del tanque 3 al tanque 2.
-			if (retorno .gt. 0) then
-				Ret = max(0.0 , StoOut(3,celda)+vflux(3)-vflux(4)-H(2,celda))
+			if (retorno_gr .gt. 0) then
+			    Ret = max(0.0 , StoOut(3,celda)-H(2,celda))
 				StoOut(2,celda) = StoOut(2,celda) + Ret ![mm]
 				StoOut(3,celda) = StoOut(3,celda) - Ret ![mm]
 				Retorned(1,celda) = Retorned(1,celda) + Ret
+				vflux(2) = vflux(2) + Ret
+				vflux(3) = vflux(3) - Ret
 			endif
+
+			!Record vertical flux for save it.
+			if (save_vfluxes .eq. 1) then 
+				do i = 1,4
+					vfluxes(i,celda) = vflux(i) 
+				enddo
+			endif
+
+            !Compute RC coefficient for the cell
+            if (save_rc .eq. 1) then
+                rc_coef(1,celda) = rc_coef(1,celda) + vflux(2) - vflux(3) 
+                rc_coef(2,celda) = rc_coef(2,celda) + Rain(celda)
+            endif
+
 			!---------------------------------------
 			!SEP_LLUVIA
 			!Flujos separados por tipo de lluvia 
@@ -459,7 +543,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
 				enddo
 				!Actualiza si hay retorno 
 				!if (Ret .ne. 0.0) then 
-				if (retorno .gt. 0) then
+				if (retorno_gr .gt. 0) then
 					Storage_conv(2,celda) = Storage_conv(2,celda) + Ret*Co ![mm]
 					Storage_conv(3,celda) = Storage_conv(3,celda) - Ret*Co ![mm]
 					Storage_stra(2,celda) = Storage_stra(2,celda) + Ret*St ![mm]
@@ -548,6 +632,10 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
                     Storage_stra(5,celda) = Storage_stra(5,celda)+sum(hflux_s(1:2))+hflux_s(3)*(unit_type(1,celda)-2)
                 endif
                 
+                if (transvase_cel(celda) >0) then                    
+                    StoOut(5,celda) = StoOut(5,celda) + transvase_serie(transvase_cel(celda),:)/m3_mmRivers(celda)
+                endif
+
                 !Resuelve el transporte en el canal por onda cinematica
                 call calc_speed(StoOut(5,celda)*m3_mmRivers(celda), h_coef(4,celda)*Calib(8),&
                     & h_exp(4,celda), stream_long(1,celda), hspeed(4,celda), section_area)
@@ -719,8 +807,21 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
                 
         !Guarda campo de estados del modelo 
         if (save_storage .eq. 1) then
-            call write_float_basin(ruta_storage,StoOut,tiempo,N_cel,5)
-        endif
+			if (guarda_cond(tiempo) .gt. 0) then
+				call write_float_basin(ruta_storage,StoOut,guarda_cond(tiempo),N_cel,5)
+			endif
+		endif
+		
+		!Guarda los flujos verticales del modelo 
+		if (save_vfluxes .eq. 1) then
+			!Calculate the mean _vflux
+			mean_vfluxes(:,tiempo) = sum(vfluxes,dim=2) / N_cel
+			!Saves the fluxes
+			if (guarda_vfluxes(tiempo) .gt. 0) then
+				call write_float_basin(ruta_vfluxes,vfluxes,guarda_vfluxes(tiempo),N_cel,4)
+			endif
+		endif
+
         !Guarda campo de velocidades del modelo
         if (save_speed .eq. 1) then
             call write_float_basin(ruta_speed,hspeed,tiempo,N_cel,4)
@@ -743,7 +844,7 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
         
         !Genera el promedio de retornos producidos en la cuenca
         if (show_mean_retorno .eq. 1) then 
-            mean_retorno(tiempo) = sum(Retorned)
+            mean_retorno(tiempo) = sum(Retorned) / N_cel
         endif
         
         !Actualiza Retorno si tiene que hacerlo
@@ -766,7 +867,17 @@ subroutine shia_v1(ruta_bin,ruta_hdr,calib,StoIn,HspeedIn,N_cel,N_cont,N_contH,N
     !---------------------------------------------------------------------
     !Termina de iterar tiempos
     enddo
+    
+    !Saves the values to compute the total Rc at the end of the event 
+    if (save_rc .eq. 1) then 
+        where(rc_coef(1,:) > rc_coef(2,:)) rc_coef(1,:) = rc_coef(2,:)
+        !rc_coef(3,:) = rc_coef(1,:) / rc_coef(2,:)
+        call write_float_basin(ruta_rc,rc_coef,1,N_cel,2)
+    endif
 
+    if (allocated(transvase_cel)) then
+        deallocate(transvase_cel, transvase_serie)
+    endif
 end subroutine
 
 
@@ -836,9 +947,12 @@ subroutine write_float_basin(ruta,vect,record,N_cel,N_col)
     !Escritura     
     estado='old'
     if (record.eq.1) estado='replace'
-    open(10,file=ruta,form='unformatted',status=estado,access='direct',RECL=4*N_col*N_cel)
-		write(10,rec=record) vect
-    close(10)
+    !Solo guarda condiciones si el record de guardado es mayor a cero
+    if (record.gt.0) then 
+        open(10,file=ruta,form='unformatted',status=estado,access='direct',RECL=4*N_col*N_cel)
+		    write(10,rec=record) vect
+        close(10)
+    endif 
 end subroutine
 !Lee los datos flotantes de un binario de cuenca en los records ordenados
 subroutine write_int_basin(ruta,vect,record,N_cel,N_col) 
