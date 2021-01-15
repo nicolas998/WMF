@@ -1130,20 +1130,20 @@ class Basin:
         CentXY = [np.median(x),np.median(y)]
         #Genera un diccionario con las propiedades de la cuenca
         self.GeoParameters={'Area_[km2]': Area,
-            'Pend_Cauce_[%]':Scau,
-            'Long_Cauce_[km]': Lcau,
-            'Pend_Cuenca_[%]': Scue,
-            'Long_Cuenca_[km]': Lpma,
-            'Hmax_[m]':Hmax,
-            'Hmin_[m]':Hmin,
-            'Hmean_[m]':Hmean,
-            'H_Cauce_Max_[m]':HCmax,
-            'Centro_[X]': CentXY[0],
-            'Centro_[Y]': CentXY[1],
-            'Long_tot_cauces_[km]': TotalCauces,
-            'Densidad_drenaje_[km/km2]': Densidad}
+            'MeanStream_slope_[%]':Scau,
+            'MeanStream_length_[km]': Lcau,
+            'Watershed_Slope_[%]': Scue,
+            'Watershed_length_[km]': Lpma,
+            'Height_Max_[m]':Hmax,
+            'Height_Min_[m]':Hmin,
+            'Height_Mean_[m]':Hmean,
+            'MeanStream_Height_Max_[m]':HCmax,
+            'Center_[X]': CentXY[0],
+            'Center_[Y]': CentXY[1],
+            'Streams_total_length_[km]': TotalCauces,
+            'Streams_density_[km/km2]': Densidad}
         if GetPerim:
-            self.GeoParameters.update({'Perimetro_[km]':Perim})
+            self.GeoParameters.update({'Perimeter_[km]':Perim})
         #Calcula los tiempos de concentracion
         Tiempos={}
         Tc=0.3*(Lcau/(Scue**0.25))**0.75
@@ -1169,6 +1169,10 @@ class Basin:
         # Grafica Tc si se habilita
         if plotTc is True:
             self.Plot_Tc(ruta = rutaTcPlot, figsize=figsize)
+        self.GeoParameters = pd.DataFrame.from_dict(self.GeoParameters, orient='index')
+        self.GeoParameters.rename(columns={0:'value'}, inplace=True)
+        self.travel_time = pd.DataFrame.from_dict(self.Tc, orient = 'index')
+        self.travel_time.rename(columns={0:'hours'})
     #Funcion para escribir los parametros de la cuenca en un ascii
     def __WriteGeoParam__(self,ruta):
         f=open(ruta,'w')
@@ -2436,7 +2440,7 @@ class Basin:
         gl.ylabels_left = True
         gl.ylabels_right = False
     
-    def plot_basin(self, vector_cuenca = None, ax = None,fig=None, 
+    def plot_basin(self, vector_cuenca = None, ax = None,fig=None, scat_complex = False,
         scat_df = None, scat_x = None, scat_y = None, scat_color = None, scat_size = None,
         scat_cmap = None,scat_order=4,scat_w = 4,scat_vmin=None, scat_vmax=None,
         scat_cm_loc = [0.2, 0.1, 0.4, 0.03],scat_cm_orientation = 'horizontal',
@@ -2487,16 +2491,21 @@ class Basin:
             cbar = None; longitudes = None; latitudes = None
         #If there is a dataFrame with data to plot as scatter
         if scat_df is not None:
-            scat_elem = ax.scatter(scat_df[scat_x],scat_df[scat_y], c =scat_df[scat_color], cmap = scat_cmap,
-                    vmin = scat_vmin, 
-                    vmax = scat_vmax,
-                    s = scat_size, 
-                    zorder = scat_order,
-                    lw = scat_w, 
-                    edgecolor = 'k', 
-                    transform = proj)
-            cax = fig.add_axes(scat_cm_loc)
-            sc_cbar = pl.colorbar(scat_elem, cax = cax, orientation = scat_cm_orientation)
+            if scat_complex:
+                scat_elem = ax.scatter(scat_df[scat_x],scat_df[scat_y], c =scat_df[scat_color], cmap = scat_cmap,
+                        vmin = scat_vmin, 
+                        vmax = scat_vmax,
+                        s = scat_size, 
+                        zorder = scat_order,
+                        lw = scat_w, 
+                        edgecolor = 'k', 
+                        transform = proj)
+                cax = fig.add_axes(scat_cm_loc)
+                sc_cbar = pl.colorbar(scat_elem, cax = cax, orientation = scat_cm_orientation)
+            else:
+                scat_elem = ax.scatter(scat_df[scat_x], scat_df[scat_y], c = scat_color,
+                    s = scat_size, edgecolor = 'k', transform = proj)
+                sc_bar = None
         else:
             sc_cbar = None
         #Watershed divisory
