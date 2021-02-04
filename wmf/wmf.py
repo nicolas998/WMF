@@ -3114,7 +3114,10 @@ class SimuBasin(Basin):
         self.name = gr.nombre
         self.modelType = gr.modelType#.encode()
         self.nodata = gr.noData
-        self.threshold = gr.threshold
+        try:
+            self.threshold = gr.threshold
+        except:
+            self.threshold = gr.umbral
         self.ncells = gr.ncells
         self.nhills = gr.nhills
         self.epsg = gr.epsg

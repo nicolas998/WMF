@@ -93,7 +93,13 @@ Global_EPSG = -9999
 #Process DEM 
 #-----------------------------------------------------------------------
 def dem_process(dem_path, dxp, noData):
-    '''Using pysheds obtains the dir map'''
+    '''Using pysheds obtains the dir map
+    Parameters:
+        - path to the DEM file
+        - dxp: lenght of a cell in the DEM in meters
+        - noData: missing values.
+    Results:
+        - DEM, DIR, epsg'''
     #Read the dem for wmf 
     DEM, epsg = read_map_raster(dem_path, isDEMorDIR=True, dxp = dxp, noDataP = noData)
     # Read the dem for pysheds
@@ -3108,7 +3114,10 @@ class SimuBasin(Basin):
         self.name = gr.nombre
         self.modelType = gr.modelType#.encode()
         self.nodata = gr.noData
-        self.threshold = gr.threshold
+        try:
+            self.threshold = gr.threshold
+        except:
+            self.threshold = gr.umbral
         self.ncells = gr.ncells
         self.nhills = gr.nhills
         self.epsg = gr.epsg
