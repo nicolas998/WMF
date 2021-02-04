@@ -29,6 +29,11 @@ from multiprocessing import Pool
 import matplotlib.path as mplPath
 
 try:
+    from pysheds.grid import Grid
+except:
+    print('Warning: no module pysheds, the user must give the DIR map to wmf to obtain a watershed')
+
+try:
     import cartopy.crs as ccrs
     from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
     import cartopy.io.shapereader as shpreader
@@ -85,9 +90,31 @@ import random
 Global_EPSG = -9999
 
 #-----------------------------------------------------------------------
+#Process DEM 
+#-----------------------------------------------------------------------
+def dem_process(dem_path, dxp, noData):
+    '''Using pysheds obtains the dir map
+    Parameters:
+        - path to the DEM file
+        - dxp: lenght of a cell in the DEM in meters
+        - noData: missing values.
+    Results:
+        - DEM, DIR, epsg'''
+    #Read the dem for wmf 
+    DEM, epsg = read_map_raster(dem_path, isDEMorDIR=True, dxp = dxp, noDataP = noData)
+    # Read the dem for pysheds
+    gr = Grid.from_raster(dem_path, data_name='dem')
+    gr.fill_depressions('dem', out_name='flooded_dem')
+    gr.resolve_flats('flooded_dem', out_name='inflated_dem')
+    dir_map = (8, 9,6,3,2,1,4,7)
+    gr.flowdir(data='inflated_dem', out_name='dir', dirmap=dir_map)
+    #Return the dem and the dir maps 
+    return gr.dem.T, gr.dir.T, epsg
+    
+#-----------------------------------------------------------------------
 #Ploteo de variables
 #-----------------------------------------------------------------------
-def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
+def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,path=None,
     figsize=(8,4.5),ids=None,legend=True,ax1 = None,**kwargs):
     '''ENTRADAS:
     Qs = Caudal simulado, variable tipo lista
@@ -179,14 +206,14 @@ def plot_sim_single(Qs,Qo=None,mrain=None,Dates=None,ruta=None,
     if legend == True:
         lgn1=ax1.legend(loc=loc, bbox_to_anchor=bbox_to_anchor,
             fancybox=True, shadow=True, ncol=ncol)
-    if ruta is not None:
-        pl.savefig(ruta, bbox_inches='tight')
+    if path is not None:
+        pl.savefig(path, bbox_inches='tight')
     if show == True:
         pl.show()
     return ax1, ax2
 
 def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
-    rute = None, **kwargs):
+    path = None, **kwargs):
     'Funcion: plot_mean_storage\n'\
     'Descripcion: Plotea como se encuentran los almacenamientos medios en la cuenca.\n'\
     'Parametros Obligatorios:.\n'\
@@ -195,7 +222,7 @@ def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
     'Parametros Opcionales:.\n'\
     '   -Dates: Fechas para el plot\n'\
     '   -marin: Lluvia promedio sobre la cuenca\n'\
-    '   -rute: Ruta donde se va a guardar\n'\
+    '   -path: path donde se va a guardar\n'\
     '   -kwargs: algunos argumentos de set del plot\n'\
     '       - figsize: tamano de la figura.\n'\
     '       - color: Color de los plot.\n'\
@@ -239,8 +266,8 @@ def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
             ax2AX.set_ylim(ylim)
         #Nombre de cada tanque
         ax.set_ylabel(nombres[c], size = ysize)
-    if rute is not None:
-        pl.savefig(rute, bbox_inches='tight')
+    if path is not None:
+        pl.savefig(path, bbox_inches='tight')
     if show == True:
         pl.show()
     if c == 0 and mrain  is not  None:
@@ -251,11 +278,11 @@ def plot_mean_storage(Mean_Storage, Dates = None, mrain = None,
 #-----------------------------------------------------------------------
 #Lectura de informacion y mapas
 #-----------------------------------------------------------------------
-def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = False,DIRformat = 'r.watershed'):
+def read_map_raster(path_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = False,DIRformat = 'r.watershed'):
     'Funcion: read_map\n'\
     'Descripcion: Lee un mapa raster soportado por GDAL.\n'\
     'Parametros Obligatorios:.\n'\
-    '   -ruta_map: Ruta donde se encuentra el mapa.\n'\
+    '   -path_map: path donde se encuentra el mapa.\n'\
     'Parametros Opcionales:.\n'\
     '   -isDEMorDIR: Pasa las propiedades de los mapas al modulo cuencas \n'\
     '       escrito en fortran \n'\
@@ -269,9 +296,9 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = F
     '   Si no es DEM o DIR retorna todas las propieades del elemento en un vector.\n'\
     '       En el siguiente orden: ncols,nrows,xll,yll,dx,nodata.\n'\
     '   Si es DEM o DIR le pasa las propieades a cuencas para el posterior trazado.\n'\
-    '       de cuencas y tramos.\n' \
+    '       de cuencas y link_ids.\n' \
     #Abre el mapa
-    direction=gdal.Open(ruta_map)
+    direction=gdal.Open(path_map)
     #Projection
     proj = osgeo.osr.SpatialReference(wkt=direction.GetProjection())
     EPSG_code = proj.GetAttrValue('AUTHORITY',1)
@@ -322,11 +349,11 @@ def read_map_raster(ruta_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = F
     else:
         return Mapa.T.astype(float),[ncols,nrows,xll,yll,dx,dy,noData],EPSG_code
 
-def read_map_points(ruta_map, ListAtr = None):
+def read_map_points(path_map, ListAtr = None):
     'Funcion: read_map_points\n'\
     'Descripcion: Lee un mapa vectorial de puntos soportado por GDAL.\n'\
     'Parametros Obligatorios:.\n'\
-    '   -ruta_map: Ruta donde se encuentra el mapa.\n'\
+    '   -path_map: path donde se encuentra el mapa.\n'\
     'Parametros Opcionales:.\n'\
     '   -ListAtr: Lista con los nombres de los atributos de las columnas\n'\
     '       que se quieren leer dentro de la variable Dict\n'\
@@ -334,7 +361,7 @@ def read_map_points(ruta_map, ListAtr = None):
     '   Si ListAtr == None: Retorna unicamente las coordenadas.\n'\
     '   Si ListAtr == [Nombre1, Nombre2, ...]: Retorna: Coord y diccionario con variables.\n'\
     #Obtiene el acceso
-    dr = osgeo.ogr.Open(ruta_map)
+    dr = osgeo.ogr.Open(path_map)
     l = dr.GetLayer()
     #Lee las coordenadas
     Cord = []
@@ -365,8 +392,8 @@ def read_map_points(ruta_map, ListAtr = None):
         dr.Destroy()
         return Cord
 
-def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
-    dst_filename = ruta
+def Save_Array2Raster(Array, ArrayProp, path, EPSG = 4326, Format = 'GTiff'):
+    dst_filename = path
     #Formato de condiciones del mapa
     x_pixels = Array.shape[0]  # number of pixels in x
     y_pixels = Array.shape[1]  # number of pixels in y
@@ -419,27 +446,27 @@ def Save_Array2Raster(Array, ArrayProp, ruta, EPSG = 4326, Format = 'GTiff'):
     dataset.GetRasterBand(1).WriteArray(Array.T)
     dataset.FlushCache()
 
-def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
+def Save_Points2Map(XY,ids,path,EPSG = 4326, Dict = None,
     DriverFormat='ESRI Shapefile'):
     'Funcion: Save_Points2Map\n'\
     'Descripcion: Guarda coordenadas X,Y en un mapa tipo puntos.\n'\
     'Parametros Opcionales:.\n'\
     'XY: Coordenadas de los puntos X,Y.\n'\
     'ids: Numero que representa a cada punto.\n'\
-    'ruta: Ruta de escritura de los puntos.\n'\
+    'path: path de escritura de los puntos.\n'\
     'Opcionales:.\n'\
     'EPSG : Codigo del tipo de proyeccion usada, defecto 4326 de WGS84.\n'\
     'Dict : Diccionario con prop de los puntos, Defecto: None.\n'\
     'DriverFormat : Formato del archivo vectorial, Defecto: ESRI Shapefile.\n'\
     'Retorno:.\n'\
-    '   Escribe el mapa en la ruta especificada.\n'\
+    '   Escribe el mapa en la path especificada.\n'\
     #Genera el shapefile
     spatialReference = osgeo.osr.SpatialReference()
     spatialReference.ImportFromEPSG(EPSG)
     driver = osgeo.ogr.GetDriverByName(DriverFormat)
-    if os.path.exists(ruta):
-         driver.DeleteDataSource(ruta)
-    shapeData = driver.CreateDataSource(ruta)
+    if os.path.exists(path):
+         driver.DeleteDataSource(path)
+    shapeData = driver.CreateDataSource(path)
     layer = shapeData.CreateLayer('layer1', spatialReference, osgeo.ogr.wkbPoint)
     layerDefinition = layer.GetLayerDefn()
     new_field=osgeo.ogr.FieldDefn('Estacion',osgeo.ogr.OFTReal)
@@ -499,7 +526,7 @@ def Save_Points2Map(XY,ids,ruta,EPSG = 4326, Dict = None,
         feature.Destroy()
     shapeData.Destroy()
 
-def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
+def __ListaRadarNames__(path,FechaI,FechaF,fmt,exten,string,dt):
     'Funcion: OCG_param\n'\
     'Descripcion: Obtiene una lista con los nombres para leer datos de radar.\n'\
     'Parametros:.\n'\
@@ -517,7 +544,7 @@ def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
         date+=datetime.timedelta(minutes=dt)
         Dates.append(date)
     #Mira que archivos estan en esas fechas
-    Lista=[]; L=os.listdir(ruta)
+    Lista=[]; L=os.listdir(path)
     DatesFin = []
     for i in Dates:
         try:
@@ -529,41 +556,41 @@ def __ListaRadarNames__(ruta,FechaI,FechaF,fmt,exten,string,dt):
             pass
     return Lista,DatesFin
 
-def __Add_hdr_bin_2route__(rute,storage=False):
+def __Add_hdr_bin_2route__(path,storage=False):
     if storage == False:
-        if rute.endswith('.bin') == False and rute.endswith('.hdr') == True:
-            ruteBin = rute[:-3] + 'bin'
-            ruteHdr = rute
-        elif rute.endswith('.bin') == True and rute.endswith('.hdr') == False:
-            ruteBin = rute
-            ruteHdr = rute[:-3] + 'hdr'
-        elif  rute.endswith('.bin') == False and rute.endswith('.hdr') == False:
-            ruteBin = rute + '.bin'
-            ruteHdr = rute + '.hdr'
+        if path.endswith('.bin') == False and path.endswith('.hdr') == True:
+            pathBin = path[:-3] + 'bin'
+            pathHdr = path
+        elif path.endswith('.bin') == True and path.endswith('.hdr') == False:
+            pathBin = path
+            pathHdr = path[:-3] + 'hdr'
+        elif  path.endswith('.bin') == False and path.endswith('.hdr') == False:
+            pathBin = path + '.bin'
+            pathHdr = path + '.hdr'
     else:
-        if rute.endswith('.StObin') == False and rute.endswith('.StOhdr') == True:
-            ruteBin = rute[:-6] + 'StObin'
-            ruteHdr = rute[:-6] + 'StOhdr'
-        elif rute.endswith('.StObin') == True and rute.endswith('.StOhdr') == False:
-            ruteBin = rute[:-6] + 'StObin'
-            ruteHdr = rute[:-6] + 'StOhdr'
-        elif  rute.endswith('.StObin') == False and rute.endswith('.StOhdr') == False:
-            ruteBin = rute + '.StObin'
-            ruteHdr = rute + '.StOhdr'
-        elif rute.endswith('.bin') == False and rute.endswith('.hdr') == True:
-            ruteBin = rute[:-3] + 'StObin'
-            ruteHdr = rute[:-3] + 'StOhdr'
-        elif rute.endswith('.bin') == True and rute.endswith('.hdr') == False:
-            ruteBin = rute[:-3] + 'StObin'
-            ruteHdr = rute[:-3] + 'StOhdr'
-        elif  rute.endswith('.bin') == False and rute.endswith('.hdr') == False:
-            ruteBin = rute + '.StObin'
-            ruteHdr = rute + '.StOhdr'
-    return ruteBin,ruteHdr
+        if path.endswith('.StObin') == False and path.endswith('.StOhdr') == True:
+            pathBin = path[:-6] + 'StObin'
+            pathHdr = path[:-6] + 'StOhdr'
+        elif path.endswith('.StObin') == True and path.endswith('.StOhdr') == False:
+            pathBin = path[:-6] + 'StObin'
+            pathHdr = path[:-6] + 'StOhdr'
+        elif  path.endswith('.StObin') == False and path.endswith('.StOhdr') == False:
+            pathBin = path + '.StObin'
+            pathHdr = path + '.StOhdr'
+        elif path.endswith('.bin') == False and path.endswith('.hdr') == True:
+            pathBin = path[:-3] + 'StObin'
+            pathHdr = path[:-3] + 'StOhdr'
+        elif path.endswith('.bin') == True and path.endswith('.hdr') == False:
+            pathBin = path[:-3] + 'StObin'
+            pathHdr = path[:-3] + 'StOhdr'
+        elif  path.endswith('.bin') == False and path.endswith('.hdr') == False:
+            pathBin = path + '.StObin'
+            pathHdr = path + '.StOhdr'
+    return pathBin,pathHdr
 
-def read_mean_rain(ruta,Nintervals=None,FirstInt=0):
+def read_mean_rain(path,Nintervals=None,FirstInt=0):
     #Abrey cierra el archivo plano
-    Data = np.loadtxt(ruta,skiprows=6,usecols=(2,3),delimiter=',',dtype='str')
+    Data = np.loadtxt(path,skiprows=6,usecols=(2,3),delimiter=',',dtype='str')
     Rain = np.array([float(i[0]) for i in Data])
     Dates = [datetime.datetime.strptime(i[1],' %Y-%m-%d-%H:%M  ') for i in Data]
     #Corrige pedazo para capturar
@@ -576,17 +603,17 @@ def read_mean_rain(ruta,Nintervals=None,FirstInt=0):
     Rain.index.freq = pd.infer_freq(Rain.index)
     return Rain
 
-def read_rain_struct(ruta):
-    D = pd.read_csv(ruta,skiprows=5,
+def read_rain_struct(path):
+    D = pd.read_csv(path,skiprows=5,
     index_col=2, parse_dates=True,
     infer_datetime_format=True,
     usecols = (1,2,3))
     return D
 
-def read_storage_struct(ruta):
+def read_storage_struct(path):
     '''Lee la estructura del archivo encabezado de almacenamiento'''
-    #Obtiene rutaHdr
-    PathBin, PathHdr = __Add_hdr_bin_2route__(ruta,storage=True)
+    #Obtiene pathHdr
+    PathBin, PathHdr = __Add_hdr_bin_2route__(path,storage=True)
     #Lee el archivo
     Data = pd.read_csv(PathHdr,
         skiprows=4,
@@ -594,13 +621,13 @@ def read_storage_struct(ruta):
         parse_dates=True)
     return Data
 
-def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
+def __Save_storage_hdr__(path,path_rain,Nintervals,FirstInt,cuenca,
     Mean_Storage, WhereToStore):
     '''Function to save the header file of the model storage'''
     #Lee fechas para el intervalo de tiempo
-    S = read_mean_rain(rute_rain,Nintervals,FirstInt)
+    S = read_mean_rain(path_rain,Nintervals,FirstInt)
     #Escribe el encabezado del archivo
-    f=open(rute,'w')
+    f=open(path,'w')
     f.write('Numero de celdas: %d \n' % cuenca.ncells)
     f.write('Numero de laderas: %d \n' % cuenca.nhills)
     f.write('Numero de registros: %d \n' % Nintervals)
@@ -613,12 +640,12 @@ def __Save_storage_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
             (c,sto[0],sto[1],sto[2],sto[3],sto[4],d.strftime('%Y-%m-%d-%H:%M')))
     f.close()
 
-def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
+def __Save_speed_hdr__(path,path_rain,Nintervals,FirstInt,cuenca,
     Mean_Speed = None, WhereItSave = None):
     #Lee fechas para el intervalo de tiempo
-    S = read_mean_rain(rute_rain,Nintervals,FirstInt)
+    S = read_mean_rain(path_rain,Nintervals,FirstInt)
     #Escribe el encabezado del archivo
-    f=open(rute,'w')
+    f=open(path,'w')
     f.write('Numero de celdas: %d \n' % cuenca.ncells)
     f.write('Numero de laderas: %d \n' % cuenca.nhills)
     f.write('Numero de registros: %d \n' % Nintervals)
@@ -635,12 +662,12 @@ def __Save_speed_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
         c+=1
     f.close()
 
-def __Save_retorno_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
+def __Save_retorno_hdr__(path,path_rain,Nintervals,FirstInt,cuenca,
     Mean_retorno = None):
     #Lee fechas para el intervalo de tiempo
-    S = read_mean_rain(rute_rain,Nintervals,FirstInt)
+    S = read_mean_rain(path_rain,Nintervals,FirstInt)
     #Escribe el encabezado del archivo
-    f=open(rute,'w')
+    f=open(path,'w')
     f.write('Numero de celdas: %d \n' % cuenca.ncells)
     f.write('Numero de laderas: %d \n' % cuenca.nhills)
     f.write('Numero de registros: %d \n' % Nintervals)
@@ -656,32 +683,32 @@ def __Save_retorno_hdr__(rute,rute_rain,Nintervals,FirstInt,cuenca,
         c+=1
     f.close()
 
-def map_acum_to_stream(ACUM,umbral):
+def map_acum_to_stream(ACUM,threshold):
     'Funcion: map_acum_to_stream\n'\
     'Descripcion: Calcula red hidrica a partir del area acumulada y un.\n'\
-    '   umbral.\n'\
+    '   threshold.\n'\
     'Parametros :.\n'\
     '   -ACUM: Mapa de celdas acumuladas.\n'\
-    '   -umbral: Umbral para la generacion de cauce.\n'\
+    '   -threshold: threshold para la generacion de cauce.\n'\
     'Retorno:.\n'\
     '   CAUCE: Mapa binario con los cauces: 1 cauce, 0 ladera.\n'\
     #Invoca funcion de fortran
-    CAUCE = cu.geo_acum_to_cauce(ACUM,umbral,cu.ncols,cu.nrows)
+    CAUCE = cu.geo_acum_to_cauce(ACUM,threshold,cu.ncols,cu.nrows)
     return CAUCE
 
-def SimuBains_Update_DEM_DIR(ruta_basin, rute_dem, rute_dir):
+def SimuBains_Update_DEM_DIR(path_basin, path_dem, path_dir):
     'Funcion: map_acum_to_stream\n'\
-    'Descripcion: Actualiza la ruta al DEM y al DIR de un proyecto de simulacion.\n'\
+    'Descripcion: Actualiza la path al DEM y al DIR de un proyecto de simulacion.\n'\
     'Parametros :.\n'\
-    '   -ruta_basin: ruta del proyecto de la cuenca.\n'\
-    '   -ruta_dem: Ruta al mapa dem.\n'\
-    '   -ruta_dir: Ruta al mapa dir .\n'\
+    '   -path_basin: path del proyecto de la cuenca.\n'\
+    '   -path_dem: path al mapa dem.\n'\
+    '   -path_dir: path al mapa dir .\n'\
     'Retorno:.\n'\
-    '   actualiza las rutas en el proyecto.\n'\
-    #Lee el nc y le actualiza ambas rutas
-    g = netcdf.Dataset(ruta_basin,'a')
-    g.DEM = rute_dem
-    g.DIR = rute_dir
+    '   actualiza las paths en el proyecto.\n'\
+    #Lee el nc y le actualiza ambas paths
+    g = netcdf.Dataset(path_basin,'a')
+    g.DEM = path_dem
+    g.DIR = path_dir
     g.close()
 
 #-----------------------------------------------------------------------
@@ -754,14 +781,14 @@ def __eval_q_pico__(s_o,s_s):
     return dif_qpico
 
 #Funciones para vincularse con asynch
-def __asynch_write_rvr__(DicAsynch, ruta):
-    '''Escribe el plano de asynch a partir del diccionario y de una ruta'''
-    # arregla la ruta
-    path, ext = os.path.splitext(ruta)
+def __asynch_write_rvr__(DicAsynch, path):
+    '''Escribe el plano de asynch a partir del diccionario y de una path'''
+    # arregla la path
+    path, ext = os.path.splitext(path)
     if ext != '.rvr':
-        ruta = path + '.rvr'
+        path = path + '.rvr'
     #Escribe el archivo
-    f = open(ruta,'w')
+    f = open(path,'w')
     #Numero de elementos
     f.write('%d\n\n' % len(DicAsynch))
     #Itera para escribir la topologia
@@ -776,28 +803,28 @@ def __asynch_write_rvr__(DicAsynch, ruta):
             f.write('\n\n')
     f.close()
 
-def __asynch_write_lookup__(DicAsynch, ruta):
+def __asynch_write_lookup__(DicAsynch, path):
     '''Escribe el plano de asynch con la informacion de lookup'''
-    # arregla la ruta
-    path, ext = os.path.splitext(ruta)
+    # arregla la path
+    path, ext = os.path.splitext(path)
     if ext != '.lookup':
-        ruta = path + '.lookup'
+        path = path + '.lookup'
     #hace la escritura
-    f = open(ruta, 'w')
+    f = open(path, 'w')
     f.write('Link-ID,Longitude,Latitude,HortonOrder\n')
     for k in DicAsynch.keys():
         f.write('%s,%.7f,%.7f,%.1f\n' % (k, DicAsynch[k]['x'],
             DicAsynch[k]['y'],DicAsynch[k]['order']))
     f.close()
 
-def __asynch_write_prm__(DicAsynch, ruta, extraNames = None, extraFormats = None):
+def __asynch_write_prm__(DicAsynch, path, extraNames = None, extraFormats = None):
     '''Escribe el plano de asynch con la informacion de prm'''
-    # arregla la ruta 
-    path, ext = os.path.splitext(ruta)
+    # arregla la path 
+    path, ext = os.path.splitext(path)
     if ext != '.prm':
-        ruta = path + '.prm'
+        path = path + '.prm'
     #Escritura
-    f = open(ruta, 'w')
+    f = open(path, 'w')
     f.write('%d\n\n' % len(DicAsynch))
     for k in DicAsynch.keys():
         f.write('%s\n' % k)
@@ -817,16 +844,16 @@ def __asynch_write_prm__(DicAsynch, ruta, extraNames = None, extraFormats = None
     f.close()
 
 #Funciones para mirar como es un netCDf por dentro
-def netCDf_varSumary2DataFrame(ruta, print_netCDF = False):
+def netCDf_varSumary2DataFrame(path, print_netCDF = False):
     'Funcion: netCDf_var_view\n'\
     'Descripcion: Muestra las variables que estan cargadas en el netCDF.\n'\
     'Parametros Opcionales:.\n'\
-    '   -ruta: Ruta donde se encuentra el netCDF\n'\
+    '   -path: path donde se encuentra el netCDF\n'\
     '   -print_netCDF: Imprime la info generica del netCDF.\n'\
     'Retorno:.\n'\
     '   DataFram de pandas con las variables del netCDF.\n'\
     # lectura
-    g = netcdf.Dataset(ruta)
+    g = netcdf.Dataset(path)
     Dict = {}
     for k in g.variables.keys():
         D = {'type': g.variables[k].datatype, 'dimensions': g.variables[k].dimensions}
@@ -894,7 +921,7 @@ class Basin:
     #------------------------------------------------------
     #Inicia la cuenca
     def __init__(self,lat=0,lon=0,DEM=None,DIR=None,name='NaN',stream=None,
-        umbral=1000, ruta = None, useCauceMap = None):
+        threshold=1000, path = None, useCauceMap = None):
         'Descripcion: Inicia la variable de la cuenca, y la traza \n'\
         '   obtiene las propiedades basicas de la cuenca. \n'\
         '\n'\
@@ -908,8 +935,8 @@ class Basin:
         '   que ser exactas, estas se van a corregir para ubicarse.\n'\
         '   en el punto mas cercano dentro de la corriente, este.\n'\
         '   debe ser un objeto del tipo stream.\n'\
-        'umbral : umbral minimo para la creacion de cauce (defecto =1000).\n'\
-        'ruta : Ruta donde se encuentra un archivo binario de la cuenca.\n'\
+        'threshold : threshold minimo para la creacion de cauce (defecto =1000).\n'\
+        'path : path donde se encuentra un archivo binario de la cuenca.\n'\
         'useCauceMap : Si se asigna un mapa binario donde 1 es cauce y 0 es ladera.\n'\
         '   el trazador corregira las coordenadas para que estas lleguen a una celda.\n'\
         '   tipo cauce y se trace la cuenca de forma correcta (esta opcion deshabilita \n'\
@@ -925,7 +952,7 @@ class Basin:
         if useCauceMap is not None:
             stream = None
         #Si se entrega cauce corrige coordenadas
-        if ruta == None:
+        if path == None:
             # Si se da el stream corrige por corriente
             if stream is not None:
                 error=[]
@@ -943,33 +970,33 @@ class Basin:
             self.ncells = cu.basin_find(lat,lon,DIR,
                 cu.ncols,cu.nrows)
             self.structure = cu.basin_cut(self.ncells)
-            self.umbral = umbral
+            self.threshold = threshold
             self.DEMvec = self.Transform_Map2Basin(DEM,[cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy])
             self.DIRvec = self.Transform_Map2Basin(DIR,[cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy])
         else:
-            self.__Load_BasinNc(ruta)
+            self.__Load_BasinNc(path)
             #Genera el poligono de la cuenca
 
         self.__GetBasinPolygon__()
     #Cargador de cuenca
-    def __Load_BasinNc(self,ruta,Var2Search=None):
+    def __Load_BasinNc(self,path,Var2Search=None):
         'Descripcion: Lee una cuenca posteriormente guardada\n'\
         '   La cuenca debio ser guardada con Basin.Save_Basin2nc\n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
         'self : Inicia las variables vacias.\n'\
-        'ruta : ruta donde se encuentra ubicada la cuenca guardada\n'\
+        'path : path donde se encuentra ubicada la cuenca guardada\n'\
         'Retornos\n'\
         '----------\n'\
         'self : La cuenca con sus parametros ya cargada.\n'\
         #Abre el archivo binario de la cuenca
-        self.rutaNC = ruta
-        gr = netcdf.Dataset(ruta,'a')
+        self.pathNC = path
+        gr = netcdf.Dataset(path,'a')
         #obtiene las prop de la cuenca
         self.name = gr.nombre
         self.ncells = gr.ncells
-        self.umbral = gr.umbral
+        self.threshold = gr.threshold
         #Obtiene las prop de los mapas
         cu.ncols=gr.ncols
         cu.nrows=gr.nrows
@@ -984,13 +1011,13 @@ class Basin:
         gr.close()
 
     #Guardado de de la cuenca en nc
-    def Save_Basin2nc(self,ruta,qmed=None,q233=None,q5=None,
+    def Save_Basin2nc(self,path,qmed=None,q233=None,q5=None,
         ExtraVar=None):
         'Descripcion: guarda una cuenca previamente ejecutada\n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
-        'ruta : Ruta donde la cuenca sera guardada.\n'\
+        'path : path donde la cuenca sera guardada.\n'\
         'qmed : Matriz con caudal medio estimado.\n'\
         'q233 : Matriz con caudal minimo de 2.33.\n'\
         'q5 : Matriz con caudal minimo de 5.\n'\
@@ -1004,7 +1031,7 @@ class Basin:
         Dict = {'nombre':self.name,
             'noData':cu.nodata,
             'ncells':self.ncells,
-            'umbral':self.umbral,
+            'threshold':self.threshold,
             'dxp':cu.dxp,
             'dx':cu.dx,
             'xll':cu.xll,
@@ -1012,7 +1039,7 @@ class Basin:
             'ncols':cu.ncols,
             'nrows':cu.nrows}
         #abre el archivo
-        gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
+        gr = netcdf.Dataset(path,'w',format='NETCDF4')
         #Establece tamano de las variables
         DimNcell = gr.createDimension('ncell',self.ncells)
         DimCol3 = gr.createDimension('col3',3)
@@ -1056,7 +1083,7 @@ class Basin:
         Optional:
             - ShowVars(True): Show the three of the bars in the basin'''
         #Loads netCDF
-        g = netcdf.Dataset(self.rutaNC)
+        g = netcdf.Dataset(self.pathNC)
         # No group name case
         if GroupName is None:
             print('Variable Groups in the basin file: (varName, shape, meanValue, min, max)\n')
@@ -1088,15 +1115,15 @@ class Basin:
         g.close()
 
     #Parametros Geomorfologicos
-    def GetGeo_Parameters(self,rutaParamASC=None,plotTc=False,
-        rutaTcPlot = None, figsize=(8,5), GetPerim=True):
+    def GetGeo_Parameters(self,pathParamASC=None,plotTc=False,
+        pathTcPlot = None, figsize=(8,5), GetPerim=True):
         'Descripcion: Obtiene los parametros geomorfologicos de la cuenca \n'\
         '   y los tiempos de concentracion calculados por diferentes metodologias. \n'\
         '\n'\
         'Parametros\n'\
-        '   rutaParamASC: ruta del ascii donde se escriben los param.\n'\
+        '   pathParamASC: path del ascii donde se escriben los param.\n'\
         '   plotTc: Plotea o no los tiempos de concentracion.\n'\
-        '   rutaTcPlot: Si se da se guarda la figura de tiempos de concentracion.\n'\
+        '   pathTcPlot: Si se da se guarda la figura de tiempos de concentracion.\n'\
         '----------\n'\
         '\n'\
         'Retornos\n'\
@@ -1108,7 +1135,7 @@ class Basin:
             self.DEMvec,self.DIRvec,self.ncells)
         Lpma,puntto=cu.basin_findlong(self.structure,self.ncells)
         cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(self.structure,
-            acum,self.umbral,self.ncells)
+            acum,self.threshold,self.ncells)
         ppal_nceldas,punto = cu.basin_ppalstream_find(self.structure,
             nodos,longCeld,Elev,self.ncells)
         ppal = cu.basin_ppalstream_cut(ppal_nceldas,self.ncells)
@@ -1164,18 +1191,18 @@ class Basin:
         Tiempos.update({'Temez': Tc})
         self.Tc=Tiempos
         #Si se habilita la funcion para guardar el ascii de param lo hace
-        if rutaParamASC is not None:
-            self.__WriteGeoParam__(rutaParamASC)
+        if pathParamASC is not None:
+            self.__WriteGeoParam__(pathParamASC)
         # Grafica Tc si se habilita
         if plotTc is True:
-            self.Plot_Tc(ruta = rutaTcPlot, figsize=figsize)
+            self.Plot_Tc(path = pathTcPlot, figsize=figsize)
         self.GeoParameters = pd.DataFrame.from_dict(self.GeoParameters, orient='index')
         self.GeoParameters.rename(columns={0:'value'}, inplace=True)
         self.travel_time = pd.DataFrame.from_dict(self.Tc, orient = 'index')
         self.travel_time.rename(columns={0:'hours'})
     #Funcion para escribir los parametros de la cuenca en un ascii
-    def __WriteGeoParam__(self,ruta):
-        f=open(ruta,'w')
+    def __WriteGeoParam__(self,path):
+        f=open(path,'w')
         f.write('------------------------------------------------------------ \n')
         f.write('Parametros Cuenca \n')
         f.write('------------------------------------------------------------ \n')
@@ -1258,8 +1285,8 @@ class Basin:
         self.CellSlope=S0; self.CellHeight=Elev
         #Obtiene el canal en la cuenca
         self.CellCauce = np.zeros(self.ncells)
-        self.CellCauce[self.CellAcum>self.umbral]=1
-    def GetGeo_StreamOrder(self, MajorBasins = False, umbral = 100, verbose = False, FirtsOrder = 1):
+        self.CellCauce[self.CellAcum>self.threshold]=1
+    def GetGeo_StreamOrder(self, MajorBasins = False, threshold = 100, verbose = False, FirtsOrder = 1):
         'Descripcion: Obtiene el orden de horton para cada celda de \n'\
         '   cada ladera y para las celdas de cada cauce.\n'\
         '\n'\
@@ -1269,7 +1296,7 @@ class Basin:
         'MajorBasins : Obtiene binarios con las sub-cuencas drenando.\n'\
         '   unicamente a cuencas de orden mayor (ej: todas las orden 2 que \n'\
         '   drenan a orden 3 o major).\n'\
-        'umbral: Cantidad minima de celdas para considerar canal (aplica cuando\n'\
+        'threshold: Cantidad minima de celdas para considerar canal (aplica cuando\n'\
         '   se obtienen las sub-cuencas mayores.\n'\
         'verbose: Muestra el paso de calculo de cuencas mayores.\n'\
         'FirtsOrder: Primer orden a partir dle cual se analizan ordenes mayores.\n'\
@@ -1279,7 +1306,7 @@ class Basin:
         'CellHorton_Hill : Orden de horton de cada ladera.\n'\
         'CellHorton_Stream : Orden de horton de cada elemento de cauce.\n'\
         #obtiene los parametros basicos por celdas
-        cauce,nodos_fin,n_nodos = cu.basin_subbasin_nod(self.structure,self.CellAcum,self.umbral,self.ncells)
+        cauce,nodos_fin,n_nodos = cu.basin_subbasin_nod(self.structure,self.CellAcum,self.threshold,self.ncells)
         sub_pert,sub_basin = cu.basin_subbasin_find(self.structure,nodos_fin,n_nodos,self.ncells)
         sub_basins = cu.basin_subbasin_cut(n_nodos)
         sub_horton,nod_horton = cu.basin_subbasin_horton(sub_basins,self.ncells,n_nodos)
@@ -1301,7 +1328,7 @@ class Basin:
                 cont = 1
                 for x,y in zip(X[pos[pos2[pos3]]], Y[pos[pos2[pos3]]]):
                     #Traza la cuenca
-                    cuTemp = SimuBasin(x,y, self.DEM, self.DIR, umbral=umbral)
+                    cuTemp = SimuBasin(x,y, self.DEM, self.DIR, threshold=threshold)
                     #La pega en una mascara con las cub-cuencas
                     Map, prop = cuTemp.Transform_Basin2Map(np.ones(cuTemp.ncells),)
                     Map[Map == -9999] = 0
@@ -1318,7 +1345,7 @@ class Basin:
                 if verbose:
                     print('Sub-cuencas orden '+str(Orden)+' calculadas')
             #Traza la cuenca original para no danar la estructura de guardado
-            cuTemp = SimuBasin(X[-1], Y[-1], self.DEM, self.DIR, umbral = umbral)
+            cuTemp = SimuBasin(X[-1], Y[-1], self.DEM, self.DIR, threshold = threshold)
             #Retorna el diccionario con las sub-cuencas mayore
             return DictBasins
     def GetGeo_IsoChrones(self,Tc,Niter=4):
@@ -1362,7 +1389,7 @@ class Basin:
         self.CellTravelTime=time
 
     def GetGeo_WidthFunction(self, binsC = 50, binsN = 50,
-        ruta = None, Npos = 10000, **kwargs):
+        path = None, Npos = 10000, **kwargs):
         'Descripcion: Obtiene la funcion de ancho de la cuenca  \n'\
         '   Entrega como resultado la distancia de cada elemento a la salida. \n'\
         '   y grafica la funcion de ancho. \n'\
@@ -1375,7 +1402,7 @@ class Basin:
         'Param Opcionales\n'\
         '   binsC: intervalos de clase para la cuenca.\n'\
         '   binsN: intervalos de clase para la red.\n'\
-        '   ruta: Ruta donde se guarda la figura.\n'\
+        '   path: path donde se guarda la figura.\n'\
         '   Npos: Cantidad de puntos muestreados.\n'\
         'Param Kwargs.\n'\
         '   show: Muestra o no la figura (True).\n'\
@@ -1401,8 +1428,10 @@ class Basin:
         ViajeCauce = self.CellDist2Out*self.CellCauce
         hn,bn = np.histogram(ViajeCauce[ViajeCauce>0], bins = binsN)
         #Variables del elemento
-        self.width_hits = hn
-        self.width_distances = bn[:-1]/1000.
+        self.width_hits_stream = hn
+        self.width_distances_stream = bn[:-1]/1000.
+        self.width_hits = hc
+        self.width_distances = bc[:-1]/1000.
         #Estandariza en terminos de probabilidad
         hc = hc.astype(float); hc = hc / hc.sum()
         hn = hn.astype(float); hn = hn / hn.sum()
@@ -1425,21 +1454,21 @@ class Basin:
         ax2.tick_params(labelsize = 15)
         ax2.set_ylabel('CDF', size = 16)
         #Guarda la figura
-        if ruta is not None:
-            pl.savefig(ruta, bbox_inches='tight',pad_inches = 0.25)
+        if path is not None:
+            pl.savefig(path, bbox_inches='tight',pad_inches = 0.25)
         if show:
             pl.show()
         #Retorna ejes de manipulacion
         return ax,ax2
 
-    def GetGeo_Ppal_Hipsometric(self,umbral=1000,
+    def GetGeo_Ppal_Hipsometric(self,threshold=1000,
         intervals = 30):
         'Descripcion: Calcula y grafica la curva hipsometrica de\n'\
         '   la cuenca.\n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
-        'umbral : cantidad minima de celdas para el trazado.\n'\
+        'threshold : cantidad minima de celdas para el trazado.\n'\
         'intervals: Cantidad de intervalos en los cuales se haran .\n'\
         '   los muestreos de la curva hipsometrica.\n'\
         '\n'\
@@ -1453,7 +1482,7 @@ class Basin:
         cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(
             self.structure,
             self.CellAcum,
-            umbral,
+            threshold,
             self.ncells)
         # Obtiene el cauce ppal
         ppal_nceldas,punto = cu.basin_ppalstream_find(
@@ -1494,14 +1523,14 @@ class Basin:
         slope[slope == 0] = 0.0001
         return np.log((acum*cu.dxp) / np.tan(slope))
 
-    def GetGeo_HAND_and_rDUNE(self,umbral=1000):
+    def GetGeo_HAND_and_rDUNE(self,threshold=1000):
         'Descripcion: Calcula Height Above the Nearest Drainage (HAND) \n'\
         '   y Horizontal Distance to the Nearest Drainage (HDND) (Renno, 2008). \n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
         'self : no necesita nada es autocontenido.\n'\
-        'umbral : cantidad minima de celdas para el trazado.\n'\
+        'threshold : cantidad minima de celdas para el trazado.\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -1512,7 +1541,7 @@ class Basin:
         acum,longCeld,S0,Elev=cu.basin_basics(self.structure,
             self.DEMvec,self.DIRvec,self.ncells)
         cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(
-            self.structure,acum,umbral,self.ncells)
+            self.structure,acum,threshold,self.ncells)
         hand,hdnd,hand_destiny = cu.geo_hand(self.structure,Elev,longCeld,cauce,self.ncells)
         handC=np.zeros(self.ncells)
         handC[hand<5.3]=1
@@ -1705,7 +1734,7 @@ class Basin:
                     t+=Dt/60.0
         return np.array(Tiempo),np.array(Q),HU.T
     # Funcion Tormenta de diseno
-    def GetHU_DesingStorm(self,IntTr,Dur,CN=70,plot='no',ruta=None,Tr=None,
+    def GetHU_DesingStorm(self,IntTr,Dur,CN=70,plot='no',path=None,Tr=None,
         CurvaHuff=np.array([0.18,0.47,0.65,0.74,0.80,0.85,0.89,0.92,0.94,1.0])):
         'Descripcion: Obtiene la tormenta de diseno a partir de una tormenta\n'\
         '\n'\
@@ -1765,8 +1794,8 @@ class Basin:
             ax.grid(True)
             ax.tick_params(labelsize=15)
             pl.legend(loc=0,ncol=2)
-            if ruta is not None:
-                pl.savefig(ruta,bbox_inches='tight')
+            if path is not None:
+                pl.savefig(path,bbox_inches='tight')
             pl.show()
             if CN is not None:
                 return lluviaTr,np.array(lluviaTrEfect),S
@@ -1803,7 +1832,7 @@ class Basin:
             T.append(Tlast+i*Dt)
         return np.array(Qtr), np.array(QmaxTr),np.array(T)
     #Grafica los hidrogramas sinteticos
-    def PlotHU_Synthetic(self,DictHU,ruta = None):
+    def PlotHU_Synthetic(self,DictHU,path = None):
         fig=pl.figure(edgecolor='w',facecolor='w')
         ax=fig.add_subplot(111)
         colors = ['b','r','k','g','m']
@@ -1815,8 +1844,8 @@ class Basin:
         ax.set_xlabel('Tiempo $[min]$',size=14)
         ax.set_ylabel('HU $[m^3/seg/mm]$',size=14)
         ax.legend(loc=0)
-        if ruta is not None:
-            pl.savefig(ruta,bbox_inches='tight')
+        if path is not None:
+            pl.savefig(path,bbox_inches='tight')
         pl.show()
 
     #------------------------------------------------------
@@ -1847,7 +1876,7 @@ class Basin:
             self.ncells,
             MapProp[0],MapProp[1])
         return vec
-    def Transform_Basin2Map(self, BasinVar, ruta = None, DriverFormat='GTiff',
+    def Transform_Basin2Map(self, BasinVar, path = None, DriverFormat='GTiff',
         EPSG=4326):
         'Descripcion: A partir de un vector con propiedades de la cuenca en celdas\n'\
         '   obtiene un mapa (matriz) con las propiedades del DEM, este puede ser escrito \n'\
@@ -1867,9 +1896,9 @@ class Basin:
         M,mxll,myll = cu.basin_2map(self.structure, BasinVar,
             map_ncols, map_nrows, self.ncells)
         # Si exporta el mapa lo guarda si no simplemente devuelve la matriz
-        if ruta is not None:
+        if path is not None:
             Save_Array2Raster(M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.dy,cu.nodata],
-                ruta = ruta, EPSG = EPSG, Format = DriverFormat)
+                path = path, EPSG = EPSG, Format = DriverFormat)
         return M, [map_ncols,map_nrows,mxll,myll,cu.dx,cu.dy,cu.nodata]
 
     def Transform_Hills2Basin(self,HillsMap):
@@ -1951,7 +1980,7 @@ class Basin:
                 DicPoly[str(Value)].update({str(cont):np.array(co).T})
         return DicPoly
 
-    def Transform_Basin2Asnych(self, ruta = None, lookup = False, prm = False,
+    def Transform_Basin2Asnych(self, path = None, lookup = False, prm = False,
         writeMsgLinkFile = False, DicVars = None, Names2Prm = None,
         Format2Prm = None):
         '''Tranfrom_Basin2Asynch: Convierte la topologia de la cuenca de WMF
@@ -1959,14 +1988,14 @@ class Basin:
         Parametros:
             - Toma de forma predefinida la estructura de la cuenca de hills
                 y a partir de esta obtiene la estructura de ASYNCH.
-            - [ruta]: ruta donde se guarda el archivo .rvr con la topologia
+            - [path]: path donde se guarda el archivo .rvr con la topologia
             - [lookup]: Tabla de asynch con ID, Lat, Lon, Orden
             - [prm]: Tabla de asynch con parametros: ID, Area, Pend, Long
             - writeMsgLinkFile: Escribe un archivo msg con toda la estructura de los datos
             - DicVars: Dictionary with additional variables to pass into the prm.
         Resultados:
             - self.asynch_rvr: diccionario con la forma de asynch en la cuenca.
-            - Archivo plano de texto con el archivo .rvr (si se da la ruta)
+            - Archivo plano de texto con el archivo .rvr (si se da la path)
         '''
         self.GetGeo_Cell_Basics()
         if lookup:
@@ -2021,17 +2050,17 @@ class Basin:
             DicAsynch.update(Dic)
         DataFrame = pd.DataFrame(DicAsynch).T
         # Funcion para escribir en el formato de asynch
-        if ruta is not None:
+        if path is not None:
             #Escribe los archivos de asynch
-            __asynch_write_rvr__(DicAsynch, ruta)
+            __asynch_write_rvr__(DicAsynch, path)
             if lookup:
-                __asynch_write_lookup__(DicAsynch, ruta)
+                __asynch_write_lookup__(DicAsynch, path)
             if prm:
-                __asynch_write_prm__(DicAsynch, ruta, extraNames = Names2Prm,
+                __asynch_write_prm__(DicAsynch, path, extraNames = Names2Prm,
                     extraFormats = Format2Prm)
         if writeMsgLinkFile:
             #Arregla la extension
-            name, ext = os.path.splitext(ruta)
+            name, ext = os.path.splitext(path)
             extension = '.msg'
             if ext != extension:
                 path = name + extension
@@ -2229,50 +2258,50 @@ class Basin:
     #------------------------------------------------------
     # Guardado shp de cuencas y redes hidricas
     #------------------------------------------------------
-    def Save_Net2Map(self,ruta,dx=cu.dxp,umbral=None,
+    def Save_Net2Map(self,path,dx=cu.dxp,threshold=None,
         qmed=None,Dict=None,DriverFormat='ESRI Shapefile',
-        EPSG=4326, NumTramo = True, formato = '%.2f'):
+        EPSG=4326, Numlink_id = True, formato = '%.2f'):
         'Descripcion: Guarda la red hidrica simulada de la cuenca en .shp \n'\
         '   Puede contener un diccionario con propiedades de la red hidrica. \n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
         'self : no necesita nada es autocontenido.\n'\
-        'ruta : Lugar y nombre donde se va a guardar la red hidrica.\n'\
+        'path : Lugar y nombre donde se va a guardar la red hidrica.\n'\
         'dx : Longitud de las celdas planas (Valor de Dx plano asignado a wmf.cu.dxp).\n'\
-        'umbral : cantidad de celdas necesarias para corriente (Valor del umbral asignado a self.umbral).\n'\
+        'threshold : cantidad de celdas necesarias para corriente (Valor del threshold asignado a self.threshold).\n'\
         'qmed : caudal medio calculado por alguna metodologia.\n'\
         'Dict : Diccionario con parametros de la red hidrica que se quieren imprimir.\n'\
         'DriverFormat : nombre del tipo de archivo vectorial de salida (ver OsGeo).\n'\
         'EPSG : Codigo de proyeccion utilizada para los datos, defecto WGS84.\n'\
-        'NumTramo: Poner o no el numero de tramo en cada elemento de la red.\n'\
+        'Numlink_id: Poner o no el numero de link_id en cada elemento de la red.\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
         'Escribe un archivo vectorial con la estructura de la red hidrica y sus propiedades.\n'\
-        #varia el umbral en funcion de self
-        if umbral == None:
-            umbral = self.umbral
+        #varia el threshold en funcion de self
+        if threshold == None:
+            threshold = self.threshold
         #division de la cuenca
         acum=cu.basin_acum(self.structure,self.ncells)
-        cauce,nod_f,n_nodos=cu.basin_subbasin_nod(self.structure,acum,umbral,self.ncells)
+        cauce,nod_f,n_nodos=cu.basin_subbasin_nod(self.structure,acum,threshold,self.ncells)
         sub_pert,sub_basin=cu.basin_subbasin_find(self.structure,nod_f,n_nodos,self.ncells)
         sub_basins=cu.basin_subbasin_cut(n_nodos)
         sub_horton,nod_hort=cu.basin_subbasin_horton(sub_basins,self.ncells,n_nodos)
         sub_hort=cu.basin_subbasin_find(self.structure,nod_hort,n_nodos,self.ncells)[0]
         cauceHorton=sub_hort*cauce
         #Obtiene la red en manera vectorial
-        nodos = cu.basin_stream_nod(self.structure,acum,umbral,self.ncells)[1]
+        nodos = cu.basin_stream_nod(self.structure,acum,threshold,self.ncells)[1]
         netsize = cu.basin_netxy_find(self.structure,nodos,cauceHorton,self.ncells)
         net=cu.basin_netxy_cut(netsize,self.ncells)
         #Para net con caudal medio
         if qmed is not None:
             netsize = cu.basin_netxy_find(self.structure,nodos,cauce*qmed,self.ncells)
             netQmed=cu.basin_netxy_cut(netsize,self.ncells)
-        #Para net con tramos
-        if NumTramo:
+        #Para net con link_ids
+        if Numlink_id:
             netsize2 = cu.basin_netxy_find(self.structure,nodos,sub_pert*cauce,self.ncells)
-            netTramo = cu.basin_netxy_cut(netsize2,self.ncells)
+            netlink_id = cu.basin_netxy_cut(netsize2,self.ncells)
         #Cortes
         cortes=np.where(net[0,:]==-999)
         cortes=cortes[0].tolist()
@@ -2281,9 +2310,9 @@ class Basin:
         spatialReference = osgeo.osr.SpatialReference()
         spatialReference.ImportFromEPSG(EPSG)
         driver = osgeo.ogr.GetDriverByName(DriverFormat)
-        if os.path.exists(ruta):
-             driver.DeleteDataSource(ruta)
-        shapeData = driver.CreateDataSource(ruta)
+        if os.path.exists(path):
+             driver.DeleteDataSource(path)
+        shapeData = driver.CreateDataSource(path)
         layer = shapeData.CreateLayer('layer1', spatialReference, osgeo.ogr.wkbLineString)
         layerDefinition = layer.GetLayerDefn()
         new_field=osgeo.ogr.FieldDefn('Long[km]',osgeo.ogr.OFTReal)
@@ -2291,8 +2320,8 @@ class Basin:
         new_field=osgeo.ogr.FieldDefn('Horton',osgeo.ogr.OFTInteger)
         layer.CreateField(new_field)
         #coloca los nodos
-        if NumTramo:
-            new_field=osgeo.ogr.FieldDefn('Tramo',osgeo.ogr.OFTInteger)
+        if Numlink_id:
+            new_field=osgeo.ogr.FieldDefn('link_id',osgeo.ogr.OFTInteger)
             layer.CreateField(new_field)
         if qmed is not None:
             new_field=osgeo.ogr.FieldDefn('Qmed[m3s]',osgeo.ogr.OFTReal)
@@ -2307,7 +2336,7 @@ class Basin:
                     layer.CreateField(new_field)
                     netsizeT = cu.basin_netxy_find(self.structure,nodos,cauce*Dict[k],self.ncells)
                     netDict.append(cu.basin_netxy_cut(netsizeT,self.ncells))
-        #Para cada tramo
+        #Para cada link_id
         featureFID=0
         for i,j in zip(cortes[:-1],cortes[1:]):
             line = osgeo.ogr.Geometry(osgeo.ogr.wkbLineString)
@@ -2320,8 +2349,8 @@ class Basin:
             feature.SetField('Horton',int(net[0,i+1]))
             if qmed is not None:
                 feature.SetField('Qmed[m3s]',float(netQmed[0,i+1]))
-            if NumTramo:
-                feature.SetField('Tramo',int(netTramo[0,i+1]))
+            if Numlink_id:
+                feature.SetField('link_id',int(netlink_id[0,i+1]))
             if Dict is not None:
                 if type(Dict==dict):
                     for n,k in zip(netDict,Dict.keys()):
@@ -2331,7 +2360,7 @@ class Basin:
             line.Destroy()
             feature.Destroy()
         shapeData.Destroy()
-    def Save_Basin2Map(self,ruta,dx=30.0,Param={},
+    def Save_Basin2Map(self,path,dx=30.0,Param={},
         DriverFormat='ESRI Shapefile',EPSG=4326, GeoParam = False):
         'Descripcion: Guarda un archivo vectorial de la cuenca en .shp \n'\
         '   Puede contener un diccionario con propiedades. \n'\
@@ -2339,7 +2368,7 @@ class Basin:
         'Parametros\n'\
         '----------\n'\
         'self : no necesita nada es autocontenido.\n'\
-        'ruta : Lugar y nombre donde se va a guardar la cuenca.\n'\
+        'path : Lugar y nombre donde se va a guardar la cuenca.\n'\
         'dx : Longitud de las celdas planas.\n'\
         'DriverFormat : nombre del tipo de archivo vectorial de salida (ver OsGeo).\n'\
         'EPSG : Codigo de proyeccion utilizada para los datos, defecto WGS84.\n'\
@@ -2362,9 +2391,9 @@ class Basin:
         spatialReference = osgeo.osr.SpatialReference()
         spatialReference.ImportFromEPSG(EPSG)
         driver = osgeo.ogr.GetDriverByName(DriverFormat)
-        if os.path.exists(ruta):
-             driver.DeleteDataSource(ruta)
-        shapeData = driver.CreateDataSource(ruta)
+        if os.path.exists(path):
+             driver.DeleteDataSource(path)
+        shapeData = driver.CreateDataSource(path)
         layer = shapeData.CreateLayer('layer1', spatialReference, osgeo.ogr.wkbPolygon)
         layerDefinition = layer.GetLayerDefn()
         for p in Param.keys():
@@ -2401,7 +2430,7 @@ class Basin:
     # Graficas de la cuenca
     #------------------------------------------------------
     def graficar_cuenca(self, vector_cuenca, ax = None, 
-        figsize = (10, 10), ruta_guardar = None, dpi = 100, 
+        figsize = (10, 10), path_guardar = None, dpi = 100, 
         cmap = 'viridis', fontsize = 28, titulo = '', 
         titulo_colorbar = '', ubicacion_colorbar = 'bottom', 
         norm  = None, levels = None, etiquetas_colorbar = None, 
@@ -2444,7 +2473,7 @@ class Basin:
         scat_df = None, scat_x = None, scat_y = None, scat_color = None, scat_size = None,
         scat_cmap = None,scat_order=4,scat_w = 4,scat_vmin=None, scat_vmax=None,
         scat_cm_loc = [0.2, 0.1, 0.4, 0.03],scat_cm_orientation = 'horizontal',
-        figsize = (10, 10), ruta_guardar = None, dpi = 100, 
+        figsize = (10, 10), path_guardar = None, dpi = 100, 
         cmap = pl.get_cmap('viridis'), title_size = 24, titulo = '', 
         titulo_colorbar = '', norm  = None, levels = None, vmin = None, vmax = None,
         color_perimetro = 'r',
@@ -2522,15 +2551,15 @@ class Basin:
         return ax,cbar,longitudes, latitudes, sc_cbar
 
     #Grafica de plot para montar en paginas web o presentaciones
-    def Plot_basinClean(self, vec, ruta = None, umbral = 0.0,
+    def Plot_basinClean(self, vec, path = None, threshold = 0.0,
         vmin = 0.0, vmax = None, show_cbar = False, **kwargs):
         'Funcion: Plot_basinClean\n'\
         'Descripcion: Genera un plot del mapa entregado en un lienzo limpio.\n'\
         'Parametros Obligatorios:.\n'\
         '   -vec: Vector con los valores a plotear.\n'\
         'Parametros Opcionales:.\n'\
-        '   -ruta: ruta donde se guarda el png.\n'\
-        '   -umbral: Umbral a partir del cual se plotea variable.\n'\
+        '   -path: path donde se guarda el png.\n'\
+        '   -threshold: threshold a partir del cual se plotea variable.\n'\
         '   -vmin: Valor minimo de la variable.\n'\
         '   -vmax: valor maximo de la variable.\n'\
         '   -show_cbar: muestra o no el Cbar del plot.\n'\
@@ -2557,7 +2586,7 @@ class Basin:
         show = kwargs.get('show', True)
         #Obtiene la matriz
         M,p = self.Transform_Basin2Map(vec)
-        M[(M == -9999) | (M<umbral)] = np.nan
+        M[(M == -9999) | (M<threshold)] = np.nan
         #Calcula esquinas: izquierda, derecha, abajo, arriba.
         Corners = [p[2],
         p[2]+p[0]*p[4],
@@ -2590,8 +2619,8 @@ class Basin:
             if cbar_ticklabels is not None:
                 cbar.ax.set_yticklabels(cbar_ticklabels, size = cbar_ticksize,)
         #Guarda transparente y ajustando bordes
-        if ruta is not None:
-            pl.savefig(ruta,
+        if path is not None:
+            pl.savefig(path,
                 bbox_inches = 'tight',
                 pad_inches = 0,
                 transparent = True)
@@ -2600,21 +2629,21 @@ class Basin:
                 pl.show()
         return Corners, ax
     #Grafica de variables sobre la red
-    def Plot_Net(self, vec, vec_c = None,ruta = None,
+    def Plot_Net(self, vec, vec_c = None,path = None,
         q_compare = None, show = True,
-        vmin = 0, vmax = 1, umbral = 0.1,**kwargs):
+        vmin = 0, vmax = 1, threshold = 0.1,**kwargs):
         'Descripcion: Hace un plot de lass variables sobre el cauce \n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
         'vec : Variable a ser ploteada sobre la red.\n'\
         'vec_c : Variable utilizada para darle color al plot.\n'\
-        'ruta : Lugar y nombre donde se va a guardar la cuenca.\n'\
+        'path : Lugar y nombre donde se va a guardar la cuenca.\n'\
         'q_compare : Caudal o variable de comparacion.\n'\
         'show : Mostrar o no la figura.\n'\
         'vmin : Maximo valor para plotear.\n'\
         'vmax : Minimo valor para plotear.\n'\
-        'umbral : Umbral para determinar cauce (constante o la var self.CellCauce).\n'\
+        'threshold : threshold para determinar cauce (constante o la var self.CellCauce).\n'\
         '\n'\
         'kwargs\n'\
         '----------\n'\
@@ -2652,10 +2681,10 @@ class Basin:
         cbar_ticks = kwargs.get('cbar_ticks', None)
         cbar_ticksize = kwargs.get('cbar_ticksize', 14)
         #Donde plotea
-        if type(umbral) == float or type(umbral) == int :
-            pos = np.where(vec>umbral)[0]
-        elif type(umbral) == np.ndarray and umbral.shape[0] == self.ncells:
-            pos = np.where(umbral == 1)[0]
+        if type(threshold) == float or type(threshold) == int :
+            pos = np.where(vec>threshold)[0]
+        elif type(threshold) == np.ndarray and threshold.shape[0] == self.ncells:
+            pos = np.where(threshold == 1)[0]
         x,y = cu.basin_coordxy(self.structure, self.ncells)
         #Vector para pintar si no tiene el vec_c usa vec
         if vec_c is None:
@@ -2698,8 +2727,8 @@ class Basin:
             ax.set_ylabel('Longitud', size = size)
             ax.tick_params(labelsize = ticksize)
         #Guarda transparente y ajustando bordes
-        if ruta is not None:
-            pl.savefig(ruta,
+        if path is not None:
+            pl.savefig(path,
                 bbox_inches = 'tight',
                 pad_inches = 0,
                 transparent = transparent,
@@ -2713,7 +2742,7 @@ class Basin:
 
 
     # Grafica barras de tiempos de concentracion
-    def Plot_Tc(self,ruta=None,figsize=(8,6),**kwargs):
+    def Plot_Tc(self,path=None,figsize=(8,6),**kwargs):
         keys, values = list(self.Tc.keys()),list(self.Tc.values())
         keys, values = (list(t) for t in zip(*sorted(zip(keys, values))))
         keys[1] = u'Carr Espana'
@@ -2757,16 +2786,16 @@ class Basin:
             ax.legend(loc='upper right',ncol=3,fontsize='medium')
         except:
             ax.legend(loc='upper_right',ncol='3',fontsize='medium')
-        if ruta is not None:
-            pl.savefig(ruta,bbox_inches='tight')
+        if path is not None:
+            pl.savefig(path,bbox_inches='tight')
         if show == True:
             pl.show()
     #Plot de cuace ppal
-    def PlotPpalStream(self,ruta = None, figsize = (8,6),axis=None,**kwargs):
+    def PlotPpalStream(self,path = None, figsize = (8,6),axis=None,**kwargs):
         '''GRAFICA EL PERFIL DEL CAUCE PRINCIPAL
         ===================================================================================
         ARGUMENTO  - DEFAULT               - DESCRIPCIoN                  - TIPO
-        ruta       - None                  - Ruta para guardar grafica    - str
+        path       - None                  - path para guardar grafica    - str
         figsize    - (8,6)                 - Tamano de la figura          - tuple
         axis       - None                  - Axis o entorno para graficar - matplotlib.axes
         show       - True                  - Muestra grafica              - bool
@@ -2795,17 +2824,17 @@ class Basin:
         cbar_label = kwargs.get('cbar_label',None)
         if cbar_label  is not  None:
             cb.set_label(cbar_label,fontsize=fontsize)
-        if ruta is not None:
-            pl.savefig(ruta,bbox_inches='tight')
+        if path is not None:
+            pl.savefig(path,bbox_inches='tight')
         if show == True:
             pl.show()
         return ax,cb
     #Plot de histograma de pendientes
-    def PlotSlopeHist(self,ruta=None,bins=[0,2,0.2],
+    def PlotSlopeHist(self,path=None,bins=[0,2,0.2],
         Nsize=1000, figsize = (8,6), fig = None, show = True,**kwargs):
         '''Hace un plot del histograma de distribucion de pendientes en la cuenca.
                 Requiere:
-                    - ruta: ruta de guaradado de la imagen,
+                    - path: path de guaradado de la imagen,
                     - bins: rango inferior, superior y paso para intervalos.
                     - Nsize: Cantidad de datos a usar para realizar el histograma.
                 Retorna:
@@ -2832,14 +2861,14 @@ class Basin:
         ax.tick_params(labelsize = axissize)
         ax.set_xlabel('Pendiente',size=labelsize)
         ax.set_ylabel('$pdf [\%]$',size=labelsize)
-        if ruta is not None:
-            pl.savefig(ruta,bbox_inches='tight')
+        if path is not None:
+            pl.savefig(path,bbox_inches='tight')
         if show:
             pl.show()
         return ax
 
     #Plot de histograma de tiempos de viajes en la cuenca
-    def Plot_Travell_Hist(self,ruta=None,Nint=10.0):
+    def Plot_Travell_Hist(self,path=None,Nint=10.0):
         #comparacion histogramas de tiempos de respuestas
         bins=np.arange(0,np.ceil(self.CellTravelTime.max()),
             np.ceil(self.CellTravelTime.max())/Nint)
@@ -2860,11 +2889,11 @@ class Basin:
         ax2.set_ylabel('$cdf[\%]$',size=14)
         ax.set_xticks(b_lib)
         ax.legend(loc=4)
-        if ruta is not None:
-            pl.savefig(ruta,bbox_inches='tight')
+        if path is not None:
+            pl.savefig(path,bbox_inches='tight')
         pl.show()
     #Plot de curva hipsometrica
-    def Plot_Hipsometric(self,ruta=None,ventana=10,normed=False,
+    def Plot_Hipsometric(self,path=None,ventana=10,normed=False,
         figsize = (8,6)):
         #Suaviza la elevacion en el cuace ppal
         elevPpal=pd.Series(self.hipso_ppal[1])
@@ -2893,15 +2922,15 @@ class Basin:
         elif normed==True:
             ax.set_ylabel('Elevacion $[\%]$',size=16)
         lgn1=ax.legend(loc=0)
-        if ruta is not None:
-            pl.savefig(ruta, bbox_inches='tight')
+        if path is not None:
+            pl.savefig(path, bbox_inches='tight')
             pl.close('all')
         else:
             pl.show()
 class SimuBasin(Basin):
 
-    def __init__(self,lat=None,lon=None,DEM=None,DIR=None,rute = None, name='NaN',stream=None,
-        umbral=500,useCauceMap = None,
+    def __init__(self,lat=None,lon=None,DEM=None,DIR=None,path = None, name='NaN',stream=None,
+        threshold=500,useCauceMap = None,
         noData=-999,modelType='cells',SimSed=False,SimSlides=False,dt=60,
         SaveStorage='no',SaveSpeed='no',retorno = 0,
         SeparateFluxes = 'no',SeparateRain='no',ShowStorage='no', SimFloods = 'no',
@@ -2924,7 +2953,7 @@ class SimuBasin(Basin):
         '   debe ser un objeto del tipo stream.\n'\
         'useCauceMap: Utiliza un mapa de 1 y 0 representando las celdas que.\n'\
         '   son canal, con este mapa corrige el punto de trazado de la cuenca.\n'\
-        'umbral : Cantidad minima de celdas para la creacion de cauces.\n'\
+        'threshold : Cantidad minima de celdas para la creacion de cauces.\n'\
         '   (defecto = 500 ).\n'\
         'noData : Valor correspondiente a valores sin dato (defecto = -999).\n'\
         'modelType : Tipo de modelo, por celdas o por laderas (defecto = cells).\n'\
@@ -2936,7 +2965,7 @@ class SimuBasin(Basin):
         'dt : Tamano del intervlao de tiempo en que trabaj el modelo (defecto=60seg) [secs].\n'\
         'SaveStorage : Guarda o no el almacenamiento.\n'\
         'SaveSpeed : Guarda o no mapas de velocidad.\n'\
-        'rute : por defecto es None, si se coloca la ruta, el programa no.\n'\
+        'path : por defecto es None, si se coloca la path, el programa no.\n'\
         '   hace una cuenca, si no que trata de leer una en el lugar especificado.\n'\
         '   Ojo: la cuenca debio ser guardada con la funcion: Save_SimuBasin().\n'\
         'retorno : (defecto = 0), si es cero no se considera alm maximo en .\n'\
@@ -2956,8 +2985,8 @@ class SimuBasin(Basin):
         self.radarPos = []
         self.radarMeanRain = []
         self.radarCont = 1
-        #Si no hay ruta y el global del codigo EPSG existe, traza la cuenca
-        if rute is None and int(Global_EPSG) > 0:
+        #Si no hay path y el global del codigo EPSG existe, traza la cuenca
+        if path is None and int(Global_EPSG) > 0:
             #Si se entrega cauce corrige coordenadas
             if stream is not None:
                 error=[]
@@ -2975,7 +3004,7 @@ class SimuBasin(Basin):
             self.DIR=DIR
             self.modelType=modelType
             self.nodata=noData
-            self.umbral = umbral
+            self.threshold = threshold
             self.epsg = Global_EPSG
             #Traza la cuenca
             self.ncells = cu.basin_find(lat,lon,DIR,
@@ -2988,7 +3017,7 @@ class SimuBasin(Basin):
                 [cu.ncols, cu.nrows, cu.xll, cu.yll, cu.dx, cu.dy])
             acum=cu.basin_acum(self.structure,self.ncells)
             cauce,nodos,self.nhills = cu.basin_subbasin_nod(self.structure
-                ,acum,umbral,self.ncells)
+                ,acum,threshold,self.ncells)
             self.hills_own,sub_basin = cu.basin_subbasin_find(self.structure,
                 nodos,self.nhills,self.ncells)
             self.hills = cu.basin_subbasin_cut(self.nhills)
@@ -3021,7 +3050,7 @@ class SimuBasin(Basin):
                     cauce,nodos,n_nodos = cu.basin_subbasin_nod(
                         self.structure,
                         self.CellAcum,
-                        umbral,
+                        threshold,
                         self.ncells)
                     pos = np.where(nodos!=0)[0]
                     x,y = cu.basin_coordxy(self.structure,self.ncells)
@@ -3058,19 +3087,19 @@ class SimuBasin(Basin):
             #Determina que la geomorfologia no se ha estimado
             self.isSetGeo = False
         # si hay tura lee todo lo de la cuenca
-        elif rute is not None:
-            self.__Load_SimuBasin(rute, SimSlides)
+        elif path is not None:
+            self.__Load_SimuBasin(path, SimSlides)
         # Obtiene la envolvente de la cuenca
         self.__GetBasinPolygon__()
 
-    def __Load_SimuBasin(self,ruta, sim_slides = False):
+    def __Load_SimuBasin(self,path, sim_slides = False):
         'Descripcion: Lee una cuenca posteriormente guardada\n'\
         '   La cuenca debio ser guardada con SimuBasin.save_SimuBasin\n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
         'self : Inicia las variables vacias.\n'\
-        'ruta : ruta donde se encuentra ubicada la cuenca guardada\n'\
+        'path : path donde se encuentra ubicada la cuenca guardada\n'\
         'Opcionales\n'\
         '----------\n'\
         'sim_slides : (False, True) Carga variables de modelos de deslizamientos previmaente guardadas.\n'\
@@ -3079,13 +3108,13 @@ class SimuBasin(Basin):
         '----------\n'\
         'self : La cuenca con sus parametros ya cargada.\n'\
         #Abre el archivo binario de la cuenca
-        self.rutaNC = ruta
-        gr = netcdf.Dataset(ruta,'a')
+        self.pathNC = path
+        gr = netcdf.Dataset(path,'a')
         #obtiene las prop de la cuenca
         self.name = gr.nombre
         self.modelType = gr.modelType#.encode()
         self.nodata = gr.noData
-        self.umbral = gr.umbral
+        self.threshold = gr.threshold
         self.ncells = gr.ncells
         self.nhills = gr.nhills
         self.epsg = gr.epsg
@@ -3231,7 +3260,7 @@ class SimuBasin(Basin):
         rad = rad.resample(index.freqstr).sum()
         models.evpserie = np.copy(rad.values)
 
-    def rain_interpolate_mit(self,coord,registers,ruta, umbral = 0.01):
+    def rain_interpolate_mit(self,coord,registers,path, threshold = 0.01):
         'Descripcion: Interpola la lluvia mediante una malla\n'\
         '   irregular de triangulos, genera campos que son. \n'\
         '   guardados en un binario para luego ser leido por el. \n'\
@@ -3242,9 +3271,9 @@ class SimuBasin(Basin):
         'self : .\n'\
         'coord : Array (2,Ncoord) con las coordenadas de estaciones.\n'\
         'registers : Array (Nest,Nregisters) con los registros de lluvia.\n'\
-        'ruta : Ruta con nombre en donde se guardara el binario con.\n'\
+        'path : path con nombre en donde se guardara el binario con.\n'\
         '   la informacion de lluvia.\n'\
-        'umbral: Umbral a partir del cual se considera que un campo contiene lluvia\n'\
+        'threshold: threshold a partir del cual se considera que un campo contiene lluvia\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -3306,15 +3335,15 @@ class SimuBasin(Basin):
                 TIN_mesh,
                 TIN_perte,
                 self.nhills,
-                ruta,
-                umbral,
+                path,
+                threshold,
                 maskVector,
                 self.ncells,
                 coord.shape[1],
                 TIN_mesh.shape[1],
                 reg.shape[1])
             #Guarda un archivo con informacion de la lluvia
-            f=open(ruta[:-3]+'hdr','w')
+            f=open(path[:-3]+'hdr','w')
             f.write('Numero de celdas: %d \n' % self.ncells)
             f.write('Numero de laderas: %d \n' % self.nhills)
             f.write('Numero de registros: %d \n' % reg.shape[1])
@@ -3334,7 +3363,7 @@ class SimuBasin(Basin):
             pos = np.where(TIN_perte == 0)[1]
             return xy_basin[0,pos], xy_basin[1,pos]
 
-    def rain_interpolate_idw(self,coord,registers,ruta,p=1,umbral=0.0):
+    def rain_interpolate_idw(self,coord,registers,path,p=1,threshold=0.0):
         'Descripcion: Interpola la lluvia mediante la metodologia\n'\
         '   del inverso de la distancia ponderado. \n'\
         '\n'\
@@ -3344,11 +3373,11 @@ class SimuBasin(Basin):
         'coord : Array (2,Ncoord) con las coordenadas de estaciones.\n'\
         'registers : DataFrame de pandas (Nest,Nregisters) con los registros de lluvia.\n'\
         'p :  exponente para la interpolacion de lluvia.\n'\
-        'ruta : Ruta con nombre en donde se guardara el binario con.\n'\
+        'path : path con nombre en donde se guardara el binario con.\n'\
         '   la informacion de lluvia.\n'\
-        'umbral : Umbral de suma total de lluvia bajo el cual se considera\n'\
+        'threshold : threshold de suma total de lluvia bajo el cual se considera\n'\
         '   que un intervalo tiene suficiente agua como para generar reaccion\n'\
-        '   (umbral = 0.0) a medida que incremente se generaran archivos mas\n'\
+        '   (threshold = 0.0) a medida que incremente se generaran archivos mas\n'\
         '   livianos, igualmente existe la posibilidad de borrar informacion.\n'\
         '\n'\
         'Retornos\n'\
@@ -3374,12 +3403,12 @@ class SimuBasin(Basin):
         #Interpola con idw
         if self.modelType[0] is 'h':
             meanRain,posIds = models.rain_idw(xy_basin, coord, reg, p, self.nhills,
-                ruta, umbral, self.hills_own, self.ncells, coord.shape[1],reg.shape[1])
+                path, threshold, self.hills_own, self.ncells, coord.shape[1],reg.shape[1])
         elif self.modelType[0] is 'c':
             meanRain,posIds = models.rain_idw(xy_basin, coord, reg, p, self.nhills,
-                ruta, umbral, np.ones(self.ncells), self.ncells, coord.shape[1],reg.shape[1])
+                path, threshold, np.ones(self.ncells), self.ncells, coord.shape[1],reg.shape[1])
         #Guarda un archivo con informacion de la lluvia
-        f=open(ruta[:-3]+'hdr','w')
+        f=open(path[:-3]+'hdr','w')
         f.write('Numero de celdas: %d \n' % self.ncells)
         f.write('Numero de laderas: %d \n' % self.nhills)
         f.write('Numero de registros: %d \n' % reg.shape[1])
@@ -3395,16 +3424,16 @@ class SimuBasin(Basin):
         f.close()
         return meanRain,posIds
 
-    def rain_radar2basin_from_asc(self,ruta_in,ruta_out,fechaI,fechaF,dt,
+    def rain_radar2basin_from_asc(self,path_in,path_out,fechaI,fechaF,dt,
         pre_string,post_string,fmt = '%Y%m%d%H%M',conv_factor=1.0/12.0,
-        umbral = 0.0):
+        threshold = 0.0):
         'Descripcion: Genera campos de lluvia a partir de archivos asc. \n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
         'self : .\n'\
-        'ruta_in: Ruta donde se encuentran loas .asc.\n'\
-        'ruta_out: Ruta donde escribe el binario con la lluvia.\n'\
+        'path_in: path donde se encuentran loas .asc.\n'\
+        'path_out: path donde escribe el binario con la lluvia.\n'\
         'fechaI: Fecha de inicio de registros.\n'\
         'fechaF: Fecha de finalizacion de registros.\n'\
         'dt: Intervalo de tiempo entre registros.\n'\
@@ -3418,22 +3447,22 @@ class SimuBasin(Basin):
         '----------\n'\
         'rain_interpolate_idw: interpola campos mediante la metodologia idw.\n'\
         'rain_radar2basin_from_array: Mete campos de lluvia mediante multiples arrays.\n'\
-        #Edita la ruta de salida
-        if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
-            ruta_bin = ruta_out[:-3]+'.bin'
-            ruta_hdr = ruta_out[:-3]+'.hdr'
+        #Edita la path de salida
+        if path_out.endswith('.hdr') or path_out.endswith('.bin'):
+            path_bin = path_out[:-3]+'.bin'
+            path_hdr = path_out[:-3]+'.hdr'
         else:
-            ruta_bin = ruta_out+'.bin'
-            ruta_hdr = ruta_out+'.hdr'
+            path_bin = path_out+'.bin'
+            path_hdr = path_out+'.hdr'
         #Establece la cantidad de elementos de acuerdo al tipo de cuenca
         if self.modelType[0] is 'c':
             N = self.ncells
         elif self.modelType[0] is 'h':
             N = self.nhills
         #Guarda la primera entrada como un mapa de ceros
-        models.write_int_basin(ruta_bin,np.zeros((1,N)),1,N,1)
+        models.write_int_basin(path_bin,np.zeros((1,N)),1,N,1)
         #Genera la lista de las fechas.
-        ListDates,dates = __ListaRadarNames__(ruta_in,
+        ListDates,dates = __ListaRadarNames__(path_in,
             fechaI,fechaF,
             fmt,post_string,pre_string,dt)
         #Lee los mapas y los transforma
@@ -3441,17 +3470,17 @@ class SimuBasin(Basin):
         meanRain = []
         posIds = []
         for l in ListDates:
-            Map,p = read_map_raster(ruta_in + l)
+            Map,p = read_map_raster(path_in + l)
             vec = self.Transform_Map2Basin(Map,p) * conv_factor
-            #Si el mapa tiene mas agua de un umbral
-            if vec.sum() > umbral:
+            #Si el mapa tiene mas agua de un threshold
+            if vec.sum() > threshold:
                 #Actualiza contador, lluvia media y pocisiones
                 cont +=1
                 meanRain.append(vec.mean())
                 posIds.append(cont)
                 #Guarda el vector
                 vec = vec*1000; vec = vec.astype(int)
-                models.write_int_basin(ruta_bin,np.zeros((1,N))+vec,cont,N,1)
+                models.write_int_basin(path_bin,np.zeros((1,N))+vec,cont,N,1)
             else:
                 #lluvia media y pocisiones
                 meanRain.append(0.0)
@@ -3459,7 +3488,7 @@ class SimuBasin(Basin):
         posIds = np.array(posIds)
         meanRain = np.array(meanRain)
         #Guarda un archivo con informacion de la lluvia
-        f=open(ruta_hdr[:-3]+'hdr','w')
+        f=open(path_hdr[:-3]+'hdr','w')
         f.write('Numero de celdas: %d \n' % self.ncells)
         f.write('Numero de laderas: %d \n' % self.nhills)
         f.write('Numero de registros: %d \n' % meanRain.shape[0])
@@ -3473,15 +3502,15 @@ class SimuBasin(Basin):
         f.close()
         return np.array(meanRain),np.array(posIds)
 
-    def rain_radar2basin_from_array(self,vec=None,ruta_out=None,fecha=None,dt=None,
-        status='update',umbral = 0.01, doit = False):
+    def rain_radar2basin_from_array(self,vec=None,path_out=None,fecha=None,dt=None,
+        status='update',threshold = 0.01, doit = False):
         'Descripcion: Genera campos de lluvia a partir de archivos array\n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
         'self : .\n'\
         'vec: Array en forma de la cuenca con la informacion.\n'\
-        'ruta_out: Ruta donde escribe el binario con la lluvia.\n'\
+        'path_out: path donde escribe el binario con la lluvia.\n'\
         'fecha: Fecha del registro actual.\n'\
         'dt: Intervalo de tiempo entre registros.\n'\
         'status: Estado en el cual se encuentra el binario que se va a pasar a campo.\n'\
@@ -3489,7 +3518,7 @@ class SimuBasin(Basin):
         '   old: Estado para abrir y tomar las propiedades de self.radar.. para la generacion de un binario.\n'\
         '   close: Cierra un binario que se ha generado mediante update.\n'\
         '   reset: Reinicia las condiciones de self.radar... para la creacion de un campo nuevo.\n'\
-        'doit: Independiente del umbral escribe el binario en la siguiente entrada.\n'\
+        'doit: Independiente del threshold escribe el binario en la siguiente entrada.\n'\
         'Retornos\n'\
         '----------\n'\
         'Guarda el binario, no hay retorno\n'\
@@ -3499,14 +3528,14 @@ class SimuBasin(Basin):
         '----------\n'\
         'rain_interpolate_idw: interpola campos mediante la metodologia idw.\n'\
         'rain_radar2basin_from_asc: Mete campos de lluvia mediante multiples arrays.\n'\
-        #Edita la ruta de salida
-        if ruta_out  is not  None:
-            if ruta_out.endswith('.hdr') or ruta_out.endswith('.bin'):
-                ruta_bin = ruta_out[:-4]+'.bin'
-                ruta_hdr = ruta_out[:-4]+'.hdr'
+        #Edita la path de salida
+        if path_out  is not  None:
+            if path_out.endswith('.hdr') or path_out.endswith('.bin'):
+                path_bin = path_out[:-4]+'.bin'
+                path_hdr = path_out[:-4]+'.hdr'
             else:
-                ruta_bin = ruta_out+'.bin'
-                ruta_hdr = ruta_out+'.hdr'
+                path_bin = path_out+'.bin'
+                path_hdr = path_out+'.hdr'
         #Establece la cantidad de elementos de acuerdo al tipo de cuenca
         if self.modelType[0] is 'c':
             N = self.ncells
@@ -3523,15 +3552,15 @@ class SimuBasin(Basin):
         if status == 'update':
             #Entrada 1 es la entrada de campos sin lluvia
             if len(self.radarDates) == 0:
-                models.write_int_basin(ruta_bin,np.zeros((1,N)),1,N,1)
-            if vec.mean() > umbral or doit:
+                models.write_int_basin(path_bin,np.zeros((1,N)),1,N,1)
+            if vec.mean() > threshold or doit:
                 #Actualiza contador, lluvia media y pocisiones
                 self.radarCont +=1
                 self.radarMeanRain.append(vec.mean())
                 self.radarPos.append(self.radarCont)
                 #Guarda el vector
                 vec = vec*1000; vec = vec.astype(int)
-                models.write_int_basin(ruta_bin,np.zeros((1,N))+vec,
+                models.write_int_basin(path_bin,np.zeros((1,N))+vec,
                     self.radarCont,N,1)
                 actualizo = 0
             else:
@@ -3544,7 +3573,7 @@ class SimuBasin(Basin):
             self.radarMeanRain = np.array(self.radarMeanRain)
             self.radarPos = np.array(self.radarPos)
             #Guarda un archivo con informacion de la lluvia
-            f=open(ruta_hdr[:-3]+'hdr','w')
+            f=open(path_hdr[:-3]+'hdr','w')
             f.write('Numero de celdas: %d \n' % self.ncells)
             f.write('Numero de laderas: %d \n' % self.nhills)
             f.write('Numero de registros: %d \n' % self.radarMeanRain.shape[0])
@@ -3568,13 +3597,13 @@ class SimuBasin(Basin):
             self.radarCont = 1
         elif status == 'old':
             #si es un archivo viejo, lo abre para tomar las variables y continuar en ese punto
-            f=open(ruta_hdr[:-3]+'hdr','r')
+            f=open(path_hdr[:-3]+'hdr','r')
             Lista = f.readlines()
             self.radarCont = int(Lista[3].split()[-1])
             cantidadIds = int(Lista[2].split()[-1])
             f.close()
             #Abre con numpy para simplificar las cosas
-            a = np.loadtxt(ruta_hdr,skiprows=6,dtype='str').T
+            a = np.loadtxt(path_hdr,skiprows=6,dtype='str').T
             if self.radarCont >= 1 and cantidadIds > 1:
                 self.radarPos = [int(i.split(',')[0]) for i in a[1]]
                 self.radarMeanRain = [float(i.split(',')[0]) for i in a[2]]
@@ -3590,16 +3619,16 @@ class SimuBasin(Basin):
     #------------------------------------------------------
     # Subrutinas para preparar modelo
     #------------------------------------------------------
-    def set_Geomorphology(self,umbrales=[30,500],stream_width=None):
+    def set_Geomorphology(self,thresholdes=[30,500],stream_width=None):
         'Descripcion: calcula las propiedades geomorfologicas necesarias \n'\
         '   para la simulacion. \n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
         'self : Inicia las variables vacias.\n'\
-        'umbrales : Lista con la cantidad de celdas necesarias .\n'\
+        'thresholdes : Lista con la cantidad de celdas necesarias .\n'\
         '   para que una celda sea: ladera, carcava o cauce .\n'\
-        'stream_width = Ancho del canal en cada tramo (opcional).\n'\
+        'stream_width = Ancho del canal en cada link_id (opcional).\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -3614,13 +3643,13 @@ class SimuBasin(Basin):
         '       - Celdas: Longitud de cada elemento (cu.dxp) para ortogonal y 1.43*cu.dxp para diagonal. \n'\
         '       - Laderas: Promedio de las longitudes recorridas entre una celda y la corriente de la ladera. \n'\
         '   models.hill_slope : Pendiente de cada ladera (promedio) o celda.\n'\
-        '   models.stream_long : Longitud de cada tramo de cuace. \n'\
+        '   models.stream_long : Longitud de cada link_id de cuace. \n'\
         '       - Celdas: Es cu.dxp: ortogonal, 1.42*cu.dxp: Diagonal. \n'\
         '       - Laderas: Es la Longitud de los elementos del cauce que componen la ladera. \n'\
-        '   models.stream_slope : Pendiente de cada tramo de cauce. \n'\
+        '   models.stream_slope : Pendiente de cada link_id de cauce. \n'\
         '       - Celdas: Es la pendiente estimada por self.GetGeo_Cell_Basics(). \n'\
         '       - Laderas: Pendiente promedio de las laderas. \n'\
-        '   models.stream_width : Ancho de cada tramo de cauce. \n'\
+        '   models.stream_width : Ancho de cada link_id de cauce. \n'\
         '       - Celdas: No aplica y se hacen todos iguales a la unidad. \n'\
         '       - Laderas: Es el ancho del canal calculado a partir de geomrofologia o entregado. \n'\
         '   models.elem_area : Area de cada celda (cu.dxp**2) o ladera (nceldasLadera * cu.dxp**2). \n'\
@@ -3629,7 +3658,7 @@ class SimuBasin(Basin):
             self.DEMvec,self.DIRvec,self.ncells)
         #Obtiene la pendiente y la longitud de las corrientes
         cauce,nodos,trazado,n_nodos,n_cauce = cu.basin_stream_nod(
-            self.structure,acum,umbrales[1],self.ncells)
+            self.structure,acum,thresholdes[1],self.ncells)
         stream_s,stream_l = cu.basin_stream_slope(
             self.structure,elev,hill_long,nodos,n_cauce,self.ncells)
         stream_s[np.isnan(stream_s)]=self.nodata
@@ -3650,7 +3679,7 @@ class SimuBasin(Basin):
         if self.modelType[0]=='c':
             #Obtiene el tipo de celdas
             unit_type = cu.basin_stream_type(self.structure,
-                acum,umbrales,len(umbrales),self.ncells)
+                acum,thresholdes,len(thresholdes),self.ncells)
             #Asigna variables
             models.drena = np.ones((1,self.ncells))*self.structure
             models.nceldas = self.ncells
@@ -3698,24 +3727,24 @@ class SimuBasin(Basin):
             else:
                 models.speed_type[c]=1
 
-    def set_Floods(self,var,VarName, umbral = 1000, NumCeldas = 6, Default = False):
+    def set_Floods(self,var,VarName, threshold = 1000, NumCeldas = 6, Default = False):
         'Descripcion: Aloja las variables del sub modelo de inundaciones\n'\
         '\n'\
         'Parametros\n'\
         'Mierda PUTA\n'\
         '----------\n'\
-        'var : Variable que describe la propiedad (constante, ruta, mapa o vector).\n'\
+        'var : Variable que describe la propiedad (constante, path, mapa o vector).\n'\
         'varName: Nombre de la variable a ingresar en el modelo.\n'\
         '   GammaWater : Densidad del agua (Defecto: 1000).\n'\
         '   GammaSoil : Densidad del sedimento (Defecto: 2600).\n'\
         '   VelArea: Factor conversion Velocidad - Area (Defecto: 1/200).\n'\
         '   Cmax: Maxima concentracion de sedimentos (Defecto 0.75).\n'\
         '   MaxIter: Cantidad maxima de iteraciones para obtener la mancha de inunudacion.\n'\
-        '   VelUmbral: Velocidad minima para que se de el flujo de escombros ( Defecto: 3 m/s).\n'\
+        '   Velthreshold: Velocidad minima para que se de el flujo de escombros ( Defecto: 3 m/s).\n'\
         '   Stream_W: Ancho del canal en cada celda (ncells).\n'\
         '   Stream_D50: Tamano de particula percentil 50 (ncells).\n'\
         '   HAND: Modelo de elevacion relativa de celda ladera a celda cauce (ncells), no se ponde nada.\n'\
-        '   umbral: Umbral para determinar corriente segun HAND debe coincidir con el umbral del modelo.\n'\
+        '   threshold: threshold para determinar corriente segun HAND debe coincidir con el threshold del modelo.\n'\
         '   Slope: Pendiente del canal, (no se ponde variable)\n'\
         '   Default: Poner o no parametros por defecto (False)\n'\
         'Retornos\n'\
@@ -3737,14 +3766,14 @@ class SimuBasin(Basin):
             models.flood_dsed = 2600
             models.flood_av = 1./200.0
             models.flood_cmax = 0.75
-            models.flood_umbral = 3.0
+            models.flood_threshold = 3.0
             models.flood_max_iter = 10
             models.flood_step = 1.0
         #Obtiene el vector que va a alojar en el modelo
-        if VarName != 'GammaWater' and VarName != 'GammaSoil' and VarName != 'VelArea' and VarName != 'Cmax' and VarName != 'VelUmbral':
+        if VarName != 'GammaWater' and VarName != 'GammaSoil' and VarName != 'VelArea' and VarName != 'Cmax' and VarName != 'Velthreshold':
             isVec=False
             if type(var) is str:
-                #Si es un string lee el mapa alojado en esa ruta
+                #Si es un string lee el mapa alojado en esa path
                 Map,Pp = read_map_raster(var)
                 Vec = self.Transform_Map2Basin(Map,Pp)
                 isVec=True
@@ -3761,7 +3790,7 @@ class SimuBasin(Basin):
             elif VarName is 'Stream_D50':
                 models.flood_d50 = np.ones((1,N))*Vec
             elif VarName is 'HAND':
-                self.GetGeo_HAND(umbral = umbral)
+                self.GetGeo_HAND(threshold = threshold)
                 models.flood_hand = np.ones((1,N))*np.copy(self.CellHAND)
                 models.flood_aquien = np.ones((1,N))*np.copy(self.CellHAND_drainCell)
             elif VarName is 'Slope':
@@ -3779,8 +3808,8 @@ class SimuBasin(Basin):
             models.flood_av = var
         elif VarName == 'Cmax':
             models.flood_cmax = var
-        elif VarName == 'VelUmbral':
-            models.flood_umbral = var
+        elif VarName == 'Velthreshold':
+            models.flood_threshold = var
         elif VarName == 'MaxIter':
             models.flood_max_iter = var
 
@@ -3813,7 +3842,7 @@ class SimuBasin(Basin):
         '   - capilar.\n'\
         '   - gravit.\n'\
         'var : variable que ingresa en el modelo, esta puede ser:.\n'\
-        '   - Ruta: una ruta del tipo string.\n'\
+        '   - path: una path del tipo string.\n'\
         '   - Escalar : Un valor escalar que se asignara a toda la cuenca.\n'\
         '   - Vector : Un vector con la informacion leida (1,ncells).\n'\
         'pos : Posicion de insercion, aplica para : h_coef, v_coef,.\n'\
@@ -3832,7 +3861,7 @@ class SimuBasin(Basin):
         #Obtiene el vector que va a alojar en el modelo
         isVec=False
         if type(var) is str:
-            #Si es un string lee el mapa alojado en esa ruta
+            #Si es un string lee el mapa alojado en esa path
             Map,Pp = read_map_raster(var)
             Vec = self.Transform_Map2Basin(Map,Pp)
             isVec=True
@@ -3862,12 +3891,12 @@ class SimuBasin(Basin):
     def set_Storage(self,var,pos,hour_scale=False):
         'Descripcion: \n'\
         '   Establece el almacenamiento inicial del modelo\n'\
-        '   la variable puede ser un valor, una ruta o un vector.\n'\
+        '   la variable puede ser un valor, una path o un vector.\n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
         'var : Variable con la cual se va a iniciar el almancenamiento.\n'\
-        '   - ruta : es una ruta a un archivo binario de almacenamiento.\n'\
+        '   - path : es una path a un archivo binario de almacenamiento.\n'\
         '   - escalar : valor de almacenamiento constate para toda la cuenca.\n'\
         '   - vector : Vector con valores para cadda unidad de la cuenca.\n'\
         'pos : Posicion de insercion,.\n'\
@@ -3876,7 +3905,7 @@ class SimuBasin(Basin):
         '   - 2 :  alm sub-superficial.\n'\
         '   - 3 :  alm subterraneo.\n'\
         '   - 4 :  alm cauce.\n'\
-        '   - fecha: en caso de que var sea la ruta a StOhdr:\n'\
+        '   - fecha: en caso de que var sea la path a StOhdr:\n'\
         '       - valor: puede ser un entero con la posicion.\n'\
         '       - str fecha: puede ser un srint con la fecha: YYYY-MM-DD-HH:MM :\n'\
         'hour_scale: Buscar fechas a escala horaria o minutos?.\n'\
@@ -3898,7 +3927,7 @@ class SimuBasin(Basin):
         if type(var) is str:
             var_bin,var_hdr = __Add_hdr_bin_2route__(var,storage = True)
             if type(pos) is not str:
-                #Si es un string lee el binario de almacenamiento alojado en esa ruta
+                #Si es un string lee el binario de almacenamiento alojado en esa path
                 Vec,res = models.read_float_basin_ncol(var_bin,pos+1,N,5)
             if type(pos) == str:
                 # Lee las fechas
@@ -4018,7 +4047,7 @@ class SimuBasin(Basin):
         '\n'\
         'Parametros\n'\
         '----------\n'\
-        'var : Variable que describe la propiedad (constante, ruta, mapa o vector).\n'\
+        'var : Variable que describe la propiedad (constante, path, mapa o vector).\n'\
         'varName: Nombre de la variable a ingresar en el modelo.\n'\
         '   Krus : Erosividad del suelo (RUSLE).\n'\
         '   Crus : Cobertura del suelo (RUSLE).\n'\
@@ -4044,7 +4073,7 @@ class SimuBasin(Basin):
                 #Se fija que tipo de variable es
         isVec=False
         if type(var) is str:
-            #Si es un string lee el mapa alojado en esa ruta
+            #Si es un string lee el mapa alojado en esa path
             Map,Pp = read_map_raster(var)
             Vec = self.Transform_Map2Basin(Map,Pp)
             isVec=True
@@ -4077,7 +4106,7 @@ class SimuBasin(Basin):
         '\n'\
         'Parametros\n'\
         '----------\n'\
-        'var : Variable que describe la propiedad (constante, ruta, mapa o vector).\n'\
+        'var : Variable que describe la propiedad (constante, path, mapa o vector).\n'\
         'varName: Nombre de la variable a ingresar en el modelo.\n'\
         '   Zs : Profundidad del suelo.\n'\
         '   GammaSoil: Densidad del suelo.\n'\
@@ -4101,7 +4130,7 @@ class SimuBasin(Basin):
         if VarName != 'FS':
             isVec=False
             if type(var) is str:
-                #Si es un string lee el mapa alojado en esa ruta
+                #Si es un string lee el mapa alojado en esa path
                 Map,Pp = read_map_raster(var)
                 Vec = self.Transform_Map2Basin(Map,Pp)
                 isVec=True
@@ -4132,15 +4161,15 @@ class SimuBasin(Basin):
     #------------------------------------------------------
     # Guardado y Cargado de modelos de cuencas preparados
     #------------------------------------------------------
-    def Save_SimuBasin(self,ruta,SimSlides = False,
+    def Save_SimuBasin(self,path,SimSlides = False,
         ExtraVar = None):
         'Descripcion: guarda una cuenca previamente ejecutada\n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
-        'ruta : Ruta donde la cuenca sera guardada.\n'\
-        'ruta_dem : direccion donde se aloja el DEM (se recomienda absoluta).\n'\
-        'ruta_dir : direccion donde se aloja el DIR (se recomienda absoluta).\n'\
+        'path : path donde la cuenca sera guardada.\n'\
+        'path_dem : direccion donde se aloja el DEM (se recomienda absoluta).\n'\
+        'path_dir : direccion donde se aloja el DIR (se recomienda absoluta).\n'\
         'SimSlides: indica a la funcion si va a guardar o no informacion para la simulacion.\n'\
         '   de deslizamientos.\n'\
         'ExtraVar: Variables extras de simulacion deben ir en un diccionario.\n'\
@@ -4154,7 +4183,7 @@ class SimuBasin(Basin):
         #Si esta o no set el Geomorphology, de acuerdo a eso lo estima por defecto
         if self.isSetGeo is False:
             self.set_Geomorphology()
-            print('Aviso: SE ha estimado la geomorfologia con los umbrales por defecto umbral = [30, 500]')
+            print('Aviso: SE ha estimado la geomorfologia con los thresholdes por defecto threshold = [30, 500]')
         #Guarda la cuenca
         if self.modelType[0] is 'c':
             N = self.ncells
@@ -4162,7 +4191,7 @@ class SimuBasin(Basin):
             N = self.nhills
 
         Dict = {'nombre':self.name,
-                    'modelType':self.modelType,'noData':cu.nodata,'umbral':self.umbral,
+                    'modelType':self.modelType,'noData':cu.nodata,'threshold':self.threshold,
                     'ncells':self.ncells,'nhills':self.nhills,
                     'dt':models.dt,'Nelem':N,'dxp':cu.dxp,'retorno':models.retorno_gr,
                     'storageConst' :models.storage_constant,
@@ -4176,7 +4205,7 @@ class SimuBasin(Basin):
         if SimSlides:
             Dict.update({'sl_fs':models.sl_fs, 'sl_gullie':models.sl_gullienogullie, 'sl_gammaw':models.sl_gammaw})
         #abre el archivo
-        gr = netcdf.Dataset(ruta,'w',format='NETCDF4')
+        gr = netcdf.Dataset(path,'w',format='NETCDF4')
         #Grupo base
         GrupoBase = gr.createGroup('base')
         GrupoSimHid = gr.createGroup('SimHidro')
@@ -4303,10 +4332,10 @@ class SimuBasin(Basin):
         # Ejecucion del modelo
         #------------------------------------------------------
     def run_shia(self,Calibracion,
-        rain_rute, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,ruta_storage = None, ruta_speed = None,
-        ruta_conv = None, ruta_stra = None, ruta_retorno = None,kinematicN = 5, QsimDataFrame = True, 
-        EvpVariable = 'sun', EvpSerie = None, WheretoStore = None, ruta_vfluxes = None, 
-        Dates2Save = None, FluxesDates2Save = None, ruta_rc = None):
+        rain_path, N_intervals, start_point = 1, StorageLoc = None, HspeedLoc = None,path_storage = None, path_speed = None,
+        path_conv = None, path_stra = None, path_retorno = None,kinematicN = 5, QsimDataFrame = True, 
+        EvpVariable = 'sun', EvpSerie = None, WheretoStore = None, path_vfluxes = None, 
+        Dates2Save = None, FluxesDates2Save = None, path_rc = None):
         'Descripcion: Ejecuta el modelo una ves este es preparado\n'\
         '   Antes de su ejecucion se deben tener listas todas las . \n'\
         '   variables requeridas . \n'\
@@ -4326,7 +4355,7 @@ class SimuBasin(Basin):
         '   - Max Capilar.\n'\
         '   - Max Gravitacional.\n'\
         '   - Max Aquifer.\n'\
-        'rain_rute : Ruta donde se encuentra el archivo binario de lluvia:.\n'\
+        'rain_path : path donde se encuentra el archivo binario de lluvia:.\n'\
         '   generado por rain_interpolate_* o por rain_radar2basin.\n'\
         'N_intervals : Numero de intervalos de tiempo.\n'\
         'start_point : Punto donde comienza a usar registros de lluvia.\n'\
@@ -4335,24 +4364,24 @@ class SimuBasin(Basin):
         'StorageLoc: Variable local de almacenamiento, esto es en el caso de que no se.\n'\
         '   desee usar la configuracion global de almacenamiento del modelo (5, N).\n'\
         'HspeedLoc: Variable local para setear la velocidad horizontal inicial de ejecucion.\n'\
-        'ruta_storage : Ruta donde se guardan los estados del modelo en cada intervalo.\n'\
+        'path_storage : path donde se guardan los estados del modelo en cada intervalo.\n'\
         '   de tiempo, esta es opcional, solo se guardan si esta variable es asignada.\n'\
-        'ruta_conv : Ruta al binario y hdr indicando las nubes que son convectivas.\n'\
-        'ruta_stra : Ruta al binario y hdr indicando las nubes que son estratiformes.\n'\
-        'ruta_retorno : Ruta al binario y hdr en donde escribe la serie con los milimetros retornados al tanque runoff.\n'\
-        'ruta_vfluxes : Ruta al binario y hdr en donde se escribe la serie de vflux del modelo.\n'\
-        'ruta_rc : Ruta donde se guarda el binario con el acumulado de flujo escorrentia (1) y el total de lluvia (2).\n'\
+        'path_conv : path al binario y hdr indicando las nubes que son convectivas.\n'\
+        'path_stra : path al binario y hdr indicando las nubes que son estratiformes.\n'\
+        'path_retorno : path al binario y hdr en donde escribe la serie con los milimetros retornados al tanque runoff.\n'\
+        'path_vfluxes : path al binario y hdr en donde se escribe la serie de vflux del modelo.\n'\
+        'path_rc : path donde se guarda el binario con el acumulado de flujo escorrentia (1) y el total de lluvia (2).\n'\
         'kinematicN: Cantidad de iteraciones para la solucion de la onda cinematica.\n'\
         '   De forma continua: 5 iteraciones, recomendado para cuando el modelo se\n'\
-        '       ejecuta en forma continua Ej: cu.run_shia(Calib, rain_rute, 100)\n'\
+        '       ejecuta en forma continua Ej: cu.run_shia(Calib, rain_path, 100)\n'\
         '   Por intervalos: 10 iteraciones, recomendado cuando el modelo se ejecuta\n'\
         '       por intervalos de un paso ej:\n'\
         '       for i in range(1,N)\n'\
-        '           Results = cu.run_shia(Calib, ruta_rain, 1, i)\n'\
+        '           Results = cu.run_shia(Calib, path_rain, 1, i)\n'\
         '           for c,j in enumerate(Results[''Storage'']):\n'\
         '               cu.set_Storage(j,c)\n'\
         'QsimDataFrame: Retorna un data frame con los caudales simulados indicando su id de acuerdo con el\n'\
-        '   que guarda la funcion Save_Net2Map con la opcion NumTramo = True. \n'\
+        '   que guarda la funcion Save_Net2Map con la opcion Numlink_id = True. \n'\
         'EvpVariable: (False) Asume que la evp del modelo cambia en funcion o no de la radiacion\n'\
         'EvpVariable: sun: depend on the sun position (works better for tropical watersheds)\n'\
         '   serie: is a time serie of the mean potential evaporation for the watershed.\n'\
@@ -4363,10 +4392,10 @@ class SimuBasin(Basin):
         '----------\n'\
         'Qsim : Caudal simulado en los puntos de control.\n'\
         'Hsim : Humedad simulada en los puntos de control.\n'\
-                #genera las rutas
-        rain_ruteBin,rain_ruteHdr = __Add_hdr_bin_2route__(rain_rute)
+                #genera las paths
+        rain_pathBin,rain_pathHdr = __Add_hdr_bin_2route__(rain_path)
         #Obtiene las fechas
-        Rain = read_mean_rain(rain_ruteHdr, N_intervals, start_point)
+        Rain = read_mean_rain(rain_pathHdr, N_intervals, start_point)
         # De acuerdo al tipo de modelo determina la cantidad de elementos
         if self.modelType[0] is 'c':
             N = self.ncells
@@ -4385,9 +4414,9 @@ class SimuBasin(Basin):
         else:
             NcontrolH = np.count_nonzero(models.control_h)
         #Prepara variables de guardado de almacenamiento
-        if ruta_storage is not None:
+        if path_storage is not None:
             models.save_storage = 1
-            ruta_sto_bin, ruta_sto_hdr = __Add_hdr_bin_2route__(ruta_storage,
+            path_sto_bin, path_sto_hdr = __Add_hdr_bin_2route__(path_storage,
                 storage = True)
             #Check if is going to save model states at certain dates
             if Dates2Save is not None:
@@ -4397,12 +4426,12 @@ class SimuBasin(Basin):
                 WhereItSaves = np.arange(1,N_intervals+1)
         else:
             models.save_storage = 0
-            ruta_sto_bin = 'no_guardo_nada.StObin'
-            ruta_sto_hdr = 'no_guardo_nada.StOhdr'
+            path_sto_bin = 'no_guardo_nada.StObin'
+            path_sto_hdr = 'no_guardo_nada.StOhdr'
         #Prepara variables para guardar fluxes
-        if ruta_vfluxes is not None:
+        if path_vfluxes is not None:
             models.save_vfluxes = 1
-            ruta_vflux_bin, ruta_vflux_hdr = __Add_hdr_bin_2route__(ruta_vfluxes)
+            path_vflux_bin, path_vflux_hdr = __Add_hdr_bin_2route__(path_vfluxes)
             #Check if is going to save model states at certain dates
             if FluxesDates2Save is not None:
                   FluxesWhereItSaves = self.set_vFluxesDates(Rain.index, FluxesDates2Save, N_intervals)
@@ -4411,37 +4440,37 @@ class SimuBasin(Basin):
                 FluxesWhereItSaves = np.arange(1,N_intervals+1)
         else:
             models.save_vfluxes = 0
-            ruta_vflux_bin = 'no_guardo_nada.bin'
-            ruta_vflux_hdr = 'no_guardo_nada.hdr'
+            path_vflux_bin = 'no_guardo_nada.bin'
+            path_vflux_hdr = 'no_guardo_nada.hdr'
         #prepara variable para guardado de velocidad
-        if ruta_speed  is not  None:
+        if path_speed  is not  None:
             models.save_speed = 1
-            ruta_speed_bin, ruta_speed_hdr = __Add_hdr_bin_2route__(ruta_speed,
+            path_speed_bin, path_speed_hdr = __Add_hdr_bin_2route__(path_speed,
                 storage = True)
         else:
             models.save_speed = 0
-            ruta_speed_bin = 'no_guardo_nada.bin'
-            ruta_speed_hdr = 'no_guardo_nada.hdr'
+            path_speed_bin = 'no_guardo_nada.bin'
+            path_speed_hdr = 'no_guardo_nada.hdr'
         #Prepara variables para el almacenamiento de retorno
-        if ruta_retorno is not None:
+        if path_retorno is not None:
             models.save_retorno = 1
             models.retorno_gr = 1
-            ruta_ret_bin, ruta_ret_hdr = __Add_hdr_bin_2route__(ruta_retorno)
+            path_ret_bin, path_ret_hdr = __Add_hdr_bin_2route__(path_retorno)
         else:
             models.save_retorno = 0
-            ruta_ret_bin = 'no_guardo_nada.bin'
-            ruta_ret_hdr = 'no_guardo_nada.hdr'
+            path_ret_bin = 'no_guardo_nada.bin'
+            path_ret_hdr = 'no_guardo_nada.hdr'
         #Variables de separacion de flujo por tipo de lluvia
-        if ruta_conv  is not  None and ruta_stra  is not  None:
-            ruta_binConv,ruta_hdrConv = __Add_hdr_bin_2route__(ruta_conv)
-            ruta_binStra,ruta_hdrStra = __Add_hdr_bin_2route__(ruta_stra)
+        if path_conv  is not  None and path_stra  is not  None:
+            path_binConv,path_hdrConv = __Add_hdr_bin_2route__(path_conv)
+            path_binStra,path_hdrStra = __Add_hdr_bin_2route__(path_stra)
             models.separate_rain = 1
         else:
             models.separate_rain = 0
-            ruta_binConv = 'none'
-            ruta_hdrConv = 'none'
-            ruta_binStra = 'none'
-            ruta_hdrStra = 'none'
+            path_binConv = 'none'
+            path_hdrConv = 'none'
+            path_binStra = 'none'
+            path_hdrStra = 'none'
         #Prepara la variable de almacenamiento
         if StorageLoc is not None:
             if StorageLoc.shape != (5, N):
@@ -4472,14 +4501,14 @@ class SimuBasin(Basin):
                 ToStore.loc[i] = c+1
             models.guarda_cond = np.copy(ToStore.values.T.astype(int)[0])
         # Set de las variables para guardar RC coef 
-        if ruta_rc is not None:
+        if path_rc is not None:
             models.save_rc = 1
         else:
             models.save_rc = 0
         # Ejecuta el modelo
         Qsim,Qsed,Qseparated,Humedad,St1,St3,Balance,Speed,Area,Alm,Qsep_byrain = models.shia_v1(
-            rain_ruteBin,
-            rain_ruteHdr,
+            rain_pathBin,
+            rain_pathHdr,
             Calibracion,
             #N,
             NcontrolQ,
@@ -4488,15 +4517,15 @@ class SimuBasin(Basin):
             StorageLoc,
             HspeedLoc,
             N,
-            ruta_sto_bin,
-            ruta_speed_bin,
-            ruta_vflux_bin,
-            ruta_binConv,
-            ruta_binStra,
-            ruta_hdrConv,
-            ruta_hdrStra,
-            ruta_ret_bin,
-            ruta_rc)
+            path_sto_bin,
+            path_speed_bin,
+            path_vflux_bin,
+            path_binConv,
+            path_binStra,
+            path_hdrConv,
+            path_hdrStra,
+            path_ret_bin,
+            path_rc)
         #Retorno de variables de acuerdo a lo simulado
         Retornos={'Qsim' : Qsim}
         Retornos.update({'Balance' : Balance})
@@ -4516,21 +4545,21 @@ class SimuBasin(Basin):
             Retornos.update({'Mean_Storage' : np.copy(models.mean_storage)})
         #Escribe los encabezados de los binarios de almacenamiento si se han escrito
         if models.save_storage == 1:
-            rutaStorageHdr = __Add_hdr_bin_2route__(ruta_storage)
+            pathStorageHdr = __Add_hdr_bin_2route__(path_storage)
             #Caso en el que se registra el alm medio
             if models.show_storage == 1:
-                __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
+                __Save_storage_hdr__(path_sto_hdr,rain_pathHdr,N_intervals,
                     start_point,self,
                     Mean_Storage =np.copy(models.mean_storage),
                     WhereToStore = models.guarda_cond)
             #Caso en el que no hay alm medio para cada uno de los
             else:
-                __Save_storage_hdr__(ruta_sto_hdr,rain_ruteHdr,N_intervals,
+                __Save_storage_hdr__(path_sto_hdr,rain_pathHdr,N_intervals,
                     start_point,self,Mean_Storage=np.zeros((5,N))*-9999,
                     WhereToStore = models.guarda_cond)
         #Escribe el encabezado de los binarios con los datos de los vertical fluxes
         if models.save_vfluxes == 1:
-            __Save_speed_hdr__(ruta_vflux_hdr,rain_ruteHdr,N_intervals,
+            __Save_speed_hdr__(path_vflux_hdr,rain_pathHdr,N_intervals,
                 start_point,self,models.mean_vfluxes,FluxesWhereItSaves)
         #Area de la seccion
         if models.show_area == 1:
@@ -4541,22 +4570,22 @@ class SimuBasin(Basin):
         if models.show_mean_speed == 1:
             Retornos.update({'Mean_Speed' : np.copy(models.mean_speed)})
         if models.save_speed == 1:
-            rutaSpeedHdr = __Add_hdr_bin_2route__(ruta_speed)
+            pathSpeedHdr = __Add_hdr_bin_2route__(path_speed)
             #Caso en el que hay velocidad media para todos los tanques
             if models.show_mean_speed == 1:
-                __Save_speed_hdr__(ruta_speed_hdr,rain_ruteHdr,N_intervals,
+                __Save_speed_hdr__(path_speed_hdr,rain_pathHdr,N_intervals,
                     start_point,self,Mean_Speed = np.copy(models.mean_speed))
             #Caso en el que no hay alm medio para cada uno de los
             else:
-                __Save_speed_hdr__(ruta_speed_hdr,rain_ruteHdr,N_intervals,
+                __Save_speed_hdr__(path_speed_hdr,rain_pathHdr,N_intervals,
                     start_point,self)
 
         if models.save_retorno == 1:
             if models.show_mean_retorno == 1:
-                __Save_retorno_hdr__(ruta_ret_hdr, rain_ruteHdr, N_intervals,
+                __Save_retorno_hdr__(path_ret_hdr, rain_pathHdr, N_intervals,
                     start_point, self, Mean_retorno = models.mean_retorno)
             else:
-                __Save_retorno_hdr__(ruta_ret_hdr, rain_ruteHdr, N_intervals,
+                __Save_retorno_hdr__(path_ret_hdr, rain_pathHdr, N_intervals,
                     start_point, self)
 
         #Campo de lluvia acumulado para el evento
@@ -4702,7 +4731,7 @@ class SimuBasin(Basin):
 
 
 class nsgaii_element:
-    def __init__(self, rutaLluvia, Qobs, npasos, inicio, SimuBasinElem ,evp =[0,1], infil = [1,200], perco = [1, 40],
+    def __init__(self, pathLluvia, Qobs, npasos, inicio, SimuBasinElem ,evp =[0,1], infil = [1,200], perco = [1, 40],
         losses = [0,1],velRun = [0.1, 1], velSub = [0.1, 1], velSup =[0.1, 1],
         velStream = [0.1, 1], Hu = [0.1, 1], Hg = [0.1, 1],
         probCruce = np.ones(10)*0.5, probMutacion = np.ones(10)*0.5,
@@ -4714,7 +4743,7 @@ class nsgaii_element:
         '\n'\
         'Parametros\n'\
         '----------\n'\
-        '   -rutaLluvia : Ruta donde se encuentra el archivo de lluvia binario.\n'\
+        '   -pathLluvia : path donde se encuentra el archivo de lluvia binario.\n'\
         '   -Qobs: Array numpy con el caudal observado [npasos].\n'\
         '   -npasos: Cantidad de pasos en simulacion.\n'\
         '   -inicio: Punto de inicio en la simulacion.\n'\
@@ -4736,7 +4765,7 @@ class nsgaii_element:
         #Establece propiedades para ejecucion
         self.npasos = npasos
         self.inicio = inicio
-        self.ruta_lluvia = rutaLluvia
+        self.path_lluvia = pathLluvia
         self.Qobs = Qobs
         self.simelem = SimuBasinElem
         #Propiedades de cruce y mutacion
@@ -4801,7 +4830,7 @@ class nsgaii_element:
         return [evp, infil, perco, losses, velRun, velSub, velSup, velStream, hu, hg]
 
     def __crea_ejec__(self, calibracion):
-        return [calibracion, self.ruta_lluvia, self.npasos, self.inicio, self.simelem]
+        return [calibracion, self.path_lluvia, self.npasos, self.inicio, self.simelem]
 
     def __evalfunc__(self, Qsim, f1 = __eval_nash__, f2 = __eval_q_pico__):
         E1 = f1(self.Qobs, Qsim)
@@ -4867,14 +4896,14 @@ class Stream:
     #------------------------------------------------------
     # Guardado shp de cauce
     #------------------------------------------------------
-    def Save_Stream2Map(self,ruta,DriverFormat='ESRI Shapefile',
+    def Save_Stream2Map(self,path,DriverFormat='ESRI Shapefile',
         EPSG=4326):
         'Descripcion: Guarda el cauce trazado en un mapa \n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
         'self : Inicia las variables vacias.\n'\
-        'ruta : Nombre del lugar donde se va a guardar el cauce.\n'\
+        'path : Nombre del lugar donde se va a guardar el cauce.\n'\
         'DriverFormat : Tipo de mapa vectorial.\n'\
         'EPSG : Codigo de tipo de proyeccion usada (defecto 4326).\n'\
         '\n'\
@@ -4882,14 +4911,14 @@ class Stream:
         '----------\n'\
         'Guarda el cauce en el formato especificado.\n'\
         #Escribe el shp del cauce
-        if ruta.endswith('.shp')==False:
-            ruta=ruta+'.shp'
+        if path.endswith('.shp')==False:
+            path=path+'.shp'
         spatialReference = osgeo.osr.SpatialReference()
         spatialReference.ImportFromEPSG(EPSG)
         driver = osgeo.ogr.GetDriverByName(DriverFormat)
-        if os.path.exists(ruta):
-             driver.DeleteDataSource(ruta)
-        shapeData = driver.CreateDataSource(ruta)
+        if os.path.exists(path):
+             driver.DeleteDataSource(path)
+        shapeData = driver.CreateDataSource(path)
         layer = shapeData.CreateLayer('layer1',
             spatialReference, osgeo.ogr.wkbLineString)
         layerDefinition = layer.GetLayerDefn()
@@ -4906,13 +4935,13 @@ class Stream:
     #------------------------------------------------------
     # Plot de variables
     #------------------------------------------------------
-    def Plot_Profile(self,ruta=None):
+    def Plot_Profile(self,path=None):
         'Descripcion: Grafica el perfil del cauce trazado \n'\
         '\n'\
         'Parametros\n'\
         '----------\n'\
         'self : Inicia las variables vacias.\n'\
-        'ruta : Nombre de la imagen si se va a guardar la imagen del cauce.\n'\
+        'path : Nombre de la imagen si se va a guardar la imagen del cauce.\n'\
         '\n'\
         'Retornos\n'\
         '----------\n'\
@@ -4924,7 +4953,7 @@ class Stream:
         ax.set_xlabel('Distancia $[mts]$',size=14)
         ax.set_ylabel('Elevacion $[m.s.n.m]$',size=14)
         ax.grid(True)
-        if ruta is not None:
-            pl.savefig(ruta,bbox_inches='tight')
+        if path is not None:
+            pl.savefig(path,bbox_inches='tight')
         pl.show()
-    #def Plot_Map(self,ruta=None
+    #def Plot_Map(self,path=None
