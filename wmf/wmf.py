@@ -2308,7 +2308,7 @@ class Basin:
         cortes.insert(0,0)
         #Escribe el shp de la red hidrica
         spatialReference = osgeo.osr.SpatialReference()
-        spatialReference.ImportFromEPSG(EPSG)
+        spatialReference.ImportFromEPSG(int(EPSG))
         driver = osgeo.ogr.GetDriverByName(DriverFormat)
         if os.path.exists(path):
              driver.DeleteDataSource(path)
@@ -2389,7 +2389,7 @@ class Basin:
                 DictParam.update({k[:8]: self.GeoParameters[k]})
         #Genera el shapefile
         spatialReference = osgeo.osr.SpatialReference()
-        spatialReference.ImportFromEPSG(EPSG)
+        spatialReference.ImportFromEPSG(int(EPSG))
         driver = osgeo.ogr.GetDriverByName(DriverFormat)
         if os.path.exists(path):
              driver.DeleteDataSource(path)
