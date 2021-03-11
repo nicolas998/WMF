@@ -101,13 +101,18 @@ def dem_process(dem_path, dxp, noData):
     Results:
         - DEM, DIR, epsg'''
     #Read the dem for wmf 
-    DEM, epsg = read_map_raster(dem_path, isDEMorDIR=True, dxp = dxp, noDataP = noData)
+    DEM, epsg = read_map_raster(dem_path, isDEMorDIR=True, dxp = dxp, noDataP = noData)    
     # Read the dem for pysheds
     gr = Grid.from_raster(dem_path, data_name='dem')
+    print('1. DEM raster readed')
     gr.fill_depressions('dem', out_name='flooded_dem')
+    print('2. DEM depressions filled')
     gr.resolve_flats('flooded_dem', out_name='inflated_dem')
+    print('3. DEM corrected')
     dir_map = (8, 9,6,3,2,1,4,7)
     gr.flowdir(data='inflated_dem', out_name='dir', dirmap=dir_map)
+    print('4. DIR map derived')
+    print('5. Finish!')
     #Return the dem and the dir maps 
     return gr.dem.T, gr.dir.T, epsg
     
