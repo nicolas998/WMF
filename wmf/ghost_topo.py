@@ -34,11 +34,14 @@ class ghost_preprocess():
         #Read the DEM map of the region 
         self.DEM, self.dem_prop, self.epsg = wmf.read_map_raster(path_dem)
     
-    def get_segments_topology(self):
+    def get_segments_topology(self, cor_down_elev = True, epsilon = 1):
         '''Using channel2segment obtains the topological connection 
         of the segments.
         Parameters: 
             - threshold: the minium req lenght (m) to obtain a segment.
+            - cor_down_elev: Defines if the code will correct or not the elevation of the 
+                segement downstream.
+            - epsilon: the difference between segments with same elevation.
         Returns:
             - self.river_topology: list of list describing the connections among segments.
             - self.river_centers: list with the centers size: prop -1
@@ -55,6 +58,25 @@ class ghost_preprocess():
         self.river_topology = prop
         self.__get_segments_center_length__()
         self.__get_segment_sinuosity__()
+        corrected = self.__correct_downstream_elevation__(epsilon)
+        return corrected
+    
+    def __correct_downstream_elevation__(self, epsilon):
+        '''Checks if the elevation of the segment downstream is higher or equal,
+        if yes, it corrects it by decreasing it by an epsilon'''
+        corrected = []
+        dest = np.array(self.river_topology).T[1].astype(int)
+        elev = np.array(self.river_topology).T[5]
+        for fid in range(len(self.river_topology)-1,0,-1):
+            pos = np.where(dest == fid)[0]
+            _e = elev[pos].tolist()
+            _e.append(self.river_topology[fid][5])
+            if np.min(_e) < self.river_topology[fid][5]:
+                self.river_topology[fid][5] = np.min(_e) - epsilon
+                self.river_topology[fid][4] = self.river_topology[fid][5] - 20
+                corrected.append(fid)
+                #print(fid, np.min(_e), self.river_topology[fid][5])
+        return corrected
     
     def get_mesh_river_points(self, dist = 100, clean_close_points = True, 
                               min_river2river_distance = 50):
@@ -251,19 +273,42 @@ class ghost_preprocess():
         f.close()
         if shp_path is not None:
             self.__write_mesh_shp__(shp_path)
-        
+    
+    def write_attribute_file(self, path):
+        f = open(path, 'w')
+        f.write('INDEX SOIL LC METEO LAI SS LAKE CLOSE_SEG BCns\n')
+        for c, p in enumerate(self.polygons_topology):
+            c += 1
+            f.write('%d 1 12 1 1 0 0 1 ' %c)
+            for i in range(p[3]):
+                f.write('0 ')
+            f.write('\n')
+        f.close()
+    
     def write_river_file(self, path, shp_path = None):
         prop = self.river_topology
         f = open(path, 'w')
         f.write('NUMRIV\t%d\n' % len(prop[1:]))
         f.write('INDEX	X	Y	ZMIN	ZMAX	LENGTH	DOWN	LEFT	RIGHT	SHAPE	MATRL	BC	RES	XAREA	INACT	LAKE	LRIV\n')
         prop[1][1] = -4
-        for seg,cen,lr,lriv in zip(prop[1:],self.river_center,self.river_left_right,self.river_sinuosity):
-            f.write('%d\t%.2f\t%.2f\t%.2f\t%.2f\t%d\t' % (seg[0], cen[0], cen[1], seg[4],seg[5],seg[1]))
+        for seg,cen,lr,lriv,len_riv in zip(prop[1:],self.river_center,self.river_left_right,self.river_sinuosity, self.river_length):
+            f.write('%d\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%d\t' % (seg[0], cen[0], cen[1], seg[4],seg[5],len_riv,seg[1]))
             f.write('%d\t%d\t%d\t%d\t' % (lr[0],lr[1], seg[-2], seg[-2]))
             for i in range(5):
                 f.write('0\t')
             f.write('%.2f\n' % lriv)
+        max_h = int(np.array(self.river_topology).T[-2].max())
+        f.write('SHAPE\t%d\n' % max_h)
+        f.write('INDEX\tDPTH\tOINT\tCWID\n')
+        for i in range(1,max_h+1):
+            width = i**3.3
+            width = '%d' % width
+            f.write('%d\t0.0 1 %s\n' % (i,width))
+        f.write('MATERIAL\t%d\n' % max_h)
+        f.write('INDEX\tROUGH\tCWR\tHWEIR\tKEFF\tHSED\n')
+        for i in range(1,max_h+1):
+            f.write('%d\t0.06\t0.010\t0.20\t2.00E-09\t0.1\n' % i)
+        f.write('BC\t0\nRES\t0')
         f.close()
         if shp_path is not None:
             self.__write_river_shp__(shp_path)
