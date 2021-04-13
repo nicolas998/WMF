@@ -74,6 +74,7 @@ class ghost_preprocess():
             if np.min(_e) < self.river_topology[fid][5]:
                 self.river_topology[fid][5] = np.min(_e) - epsilon
                 self.river_topology[fid][4] = self.river_topology[fid][5] - 20
+                elev = np.array(gp.river_topology).T[5]
                 corrected.append(fid)
                 #print(fid, np.min(_e), self.river_topology[fid][5])
         return corrected
