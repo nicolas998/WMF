@@ -11,9 +11,10 @@ class ghost_preprocess():
         '''Defines the class to derive the topology required by ghost (.riv and .mesh files)
         Parameters:
             - watershed: A watershed element obtained with wmf.SimuBasin            
-            - seg_threshold: minimum distance to divide channels into segments.
-            - seg_point_distance: the distance of the perpendicular points to the channel segments
-            - thre_sens: in meters, the sensitivity to transform from channels to segments
+            - seg_threshold: minimum distance to divide channels into segments [m].
+            - seg_point_distance: the distance of the perpendicular points to the channel segments [m].
+        Optional
+            - thre_sens: in meters, the sensitivity to transform from channels to segments (not need to edit) 
         Returns:
             - self.wat: a copy of the watershed element
             - self.x and self.y: the X and Y cooridnates of the watershed element
@@ -34,14 +35,13 @@ class ghost_preprocess():
         #Read the DEM map of the region 
         self.DEM, self.dem_prop, self.epsg = wmf.read_map_raster(path_dem)
     
-    def get_segments_topology(self, cor_down_elev = True, epsilon = 1):
+    def get_segments_topology(self, correct_downstream_elev = True, epsilon = 0.1):
         '''Using channel2segment obtains the topological connection 
         of the segments.
-        Parameters: 
-            - threshold: the minium req lenght (m) to obtain a segment.
-            - cor_down_elev: Defines if the code will correct or not the elevation of the 
+        Parameters:             
+            - correct_downstream_elev: Defines if the code will correct or not the elevation of the 
                 segement downstream.
-            - epsilon: the difference between segments with same elevation.
+            - epsilon: the difference between segments with same elevation [m].
         Returns:
             - self.river_topology: list of list describing the connections among segments.
             - self.river_centers: list with the centers size: prop -1
@@ -58,8 +58,9 @@ class ghost_preprocess():
         self.river_topology = prop
         self.__get_segments_center_length__()
         self.__get_segment_sinuosity__()
-        corrected = self.__correct_downstream_elevation__(epsilon)
-        return corrected
+        if correct_downstream_elev:
+            corrected = self.__correct_downstream_elevation__(epsilon)
+            return corrected
     
     def __correct_downstream_elevation__(self, epsilon):
         '''Checks if the elevation of the segment downstream is higher or equal,
@@ -74,17 +75,23 @@ class ghost_preprocess():
             if np.min(_e) < self.river_topology[fid][5]:
                 self.river_topology[fid][5] = np.min(_e) - epsilon
                 self.river_topology[fid][4] = self.river_topology[fid][5] - 20
+                elev = np.array(self.river_topology).T[5]
                 corrected.append(fid)
                 #print(fid, np.min(_e), self.river_topology[fid][5])
         return corrected
     
-    def get_mesh_river_points(self, dist = 100, clean_close_points = True, 
+    def get_mesh_river_points(self, clean_close_points = True, 
                               min_river2river_distance = 50):
         '''Obtains the two centers of the lines that are perpendicular 
-        to each river segment'''
+        to each river segment
+        Parameters:
+            - clean_close_points: if true, remove lower order points that are at a distance 
+            less than min_river2river_distance, sho.
+            -min_river2river_distance: The minimum distance between two points extracted from the segments [m].'''
+        dist = self.seg_point_distance
         if min_river2river_distance > dist:
-            print('Warning: river to river point distance is greater than points distance to river\
-                  the program will set it equal to dist*1.5')
+            print('Warning: river to river point distance is greater than segement points distance\
+                  the program will set it equal to dist*0.5')
             min_river2river_distance = dist*0.5
         Xp = []
         Yp = []
@@ -124,12 +131,15 @@ class ghost_preprocess():
                             min_dem2river_distance = 100):
         '''Obtains the X and Y coordinates for the mesh and the borders of the mesh.
         Parameters:
-            - mesh_spaces: step to take valuesin the grid given by the DEM.
+            - mesh_spaces: step to take values in the grid given by the DEM [pixels].
             - border_iter: number of times to perform the dilation that generates the 
-                border points
+                border points (Must be tested).
+            - clean_with_river: if True, it will remove mesh points that are below the 
+                min_dem2river_distance value.
+            - min_dem2river_distance: The minimum distance between grid points extracted from the DEM 
+                and the points extracted from the segements with self.get_mesh_river_points [m].
         Returns:
-            - XYm: np.array (2,Nmesh) with the coordinates of the points inside the mesh.
-            - XYb: np.array(2,Nborder) with the coordinates of the points in the border'''
+            - self.mesh_points_dem'''
         # Get the X and Y values fom the DEM mesh
         x_vect, y_vect = wmf.cu.basin_coordxy(self.wat.structure, self.wat.ncells)
         x_mask = wmf.cu.basin_float_var2map(self.wat.structure, x_vect, wmf.cu.ncols,wmf.cu.nrows, self.wat.ncells)

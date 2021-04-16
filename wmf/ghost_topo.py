@@ -60,7 +60,7 @@ class ghost_preprocess():
         self.__get_segment_sinuosity__()
         if correct_downstream_elev:
             corrected = self.__correct_downstream_elevation__(epsilon)
-        return corrected
+            return corrected
     
     def __correct_downstream_elevation__(self, epsilon):
         '''Checks if the elevation of the segment downstream is higher or equal,

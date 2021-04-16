@@ -349,6 +349,10 @@ def read_map_raster(path_map,isDEMorDIR=False,dxp=None, noDataP = None,isDIR = F
                 Mapa[Mapa<=0] = cu.nodata.astype(int)
                 Mapa = cu.dir_reclass_opentopo(Mapa.T,cu.ncols,cu.nrows)
                 return Mapa, EPSG_code
+            if DIRformat == 'arcgis':
+                Mapa[Mapa<=0] = cu.nodata.astype(int)
+                Mapa = cu.dir_reclass_arcgis(Mapa.T,cu.ncols,cu.nrows)
+                return Mapa, EPSG_code
         #retorna el mapa
         return Mapa.T.astype(float),EPSG_code
     else:

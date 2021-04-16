@@ -2251,6 +2251,23 @@ subroutine dir_reclass_opentopo(Mat_in,Mat_out,nc,nr) !reclasifica los valores d
 	where(Mat_in.eq.4) Mat_out=7
 end subroutine
 
+subroutine dir_reclass_arcgis(Mat_in,Mat_out,nc,nr) !reclasifica los valores de direccion obtenidos a partir de r.watershed de GRASS
+	!Variables de entrada
+	integer, intent(in) :: nc,nr
+	integer, intent(in) :: Mat_in(nc,nr)
+	!Variables de salida
+	integer, intent(out) :: Mat_out(nc,nr)
+	Mat_out=noData
+	where(Mat_in.eq.64) Mat_out=8
+	where(Mat_in.eq.128) Mat_out=9
+	where(Mat_in.eq.1) Mat_out=6
+	where(Mat_in.eq.2) Mat_out=3
+	where(Mat_in.eq.4) Mat_out=2
+	where(Mat_in.eq.8) Mat_out=1
+	where(Mat_in.eq.16) Mat_out=4
+	where(Mat_in.eq.32) Mat_out=7
+end subroutine
+
 !-----------------------------------------------------------------------
 !Funciones para hacer sort de algo
 !Author: Juli Rew, SCD Consulting (juliana@ucar.edu), 9/03
