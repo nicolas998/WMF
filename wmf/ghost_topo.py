@@ -349,19 +349,30 @@ class ghost_preprocess():
         if shp_path is not None:
             self.__write_mesh_shp__(shp_path)
             self.polygons_shp = geo.read_file(shp_path)
-            #try:
-            self.polygon_ee = shp2ee(shp_path, type='multiple')
-            #except:
-             #   print('Warning: self.polygon_ee not defined it seems that you dont have ee set up.')
+            try:
+                self.polygon_ee = shp2ee(shp_path, type='multiple')
+            except:
+                print('Warning: self.polygon_ee not defined it seems that you dont have ee set up.')
     
-    def write_attribute_file(self, path):
+    def write_attribute_file(self, path, name_1, name_2):
+        '''Writes the att file for ghost using the self.polygons_shp variable and 
+        its columns describing the soils texture and land use.
+        Parameters:
+            - path: out path to write the att file.
+            - name_1: name of the column with the soils.
+            - name_2: name of the column with the land use.
+        Returns:
+            - Null, it just writes the att.''''
         f = open(path, 'w')
         f.write('INDEX SOIL LC METEO LAI SS LAKE CLOSE_SEG BCns\n')
-        for c, p in enumerate(self.polygons_topology):
-            c += 1
-            f.write('%d 1 12 1 1 0 0 1 ' %c)
-            for i in range(p[3]):
-                f.write('0 ')
+        for i in self.polygons_shp.index:
+            poly = self.polygons_shp.loc[i,'polygon']
+            soil = self.polygons_shp.loc[i,name_1]
+            land = self.polygons_shp.loc[i,name_2]
+            sides = self.polygons_topology[i][3]
+            f.write('%d %d %d 1 1 0 0 1 ' % (poly,soil, land))
+            for z in range(sides):
+                    f.write('0 ')
             f.write('\n')
         f.close()
     
