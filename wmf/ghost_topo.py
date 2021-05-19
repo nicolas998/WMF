@@ -5,14 +5,14 @@ from skimage.morphology import dilation, square
 import os
 import geopandas as geo
 import osgeo
-try:
-    import ee
-    # Trigger the authentication flow.
-    ee.Authenticate()
-    # Initialize the library.
-    ee.Initialize()
-except:
-    print('Warning: ee not found in the current kernel, try to install it before using\nshp2ee')
+#try:
+import ee
+# Trigger the authentication flow.
+ee.Authenticate()
+# Initialize the library.
+ee.Initialize()
+#except:
+ #   print('Warning: ee not found in the current kernel, try to install it before using\nshp2ee')
 
 def shp2ee(path_shp, type = 'single'):
   '''Converts a shapefile to an ee Feature or collection of Features.
