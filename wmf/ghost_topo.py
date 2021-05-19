@@ -24,7 +24,7 @@ def shp2ee(path_shp, type = 'single'):
   Returns:
     - ee.Feature for type single or ee.FeatureCollection for type multiple'''
   #Read the polygon into geopandas
-  shapefile = geop.read_file(path_shp)
+  shapefile = geo.read_file(path_shp)
   shapefile.to_crs(4326, inplace = True)
   
   #If single, returns just one ee feature
@@ -341,10 +341,10 @@ class ghost_preprocess():
         if shp_path is not None:
             self.__write_mesh_shp__(shp_path)
             self.polygons_shp = geo.read_file(shp_path)
-            try:
-                self.polygon_ee = shp2ee(shp_path, type='multiple')
-            except:
-                print('Warning: self.polygon_ee not defined it seems that you dont have ee set up.')
+            #try:
+            self.polygon_ee = shp2ee(shp_path, type='multiple')
+            #except:
+             #   print('Warning: self.polygon_ee not defined it seems that you dont have ee set up.')
     
     def write_attribute_file(self, path):
         f = open(path, 'w')
