@@ -372,6 +372,7 @@
       use cu, only : geo_hand_global
       use cu, only : dir_reclass_rwatershed
       use cu, only : dir_reclass_opentopo
+      use cu, only : dir_reclass_arcgis
       use cu, only : cut_colrow_inarg
       use cu, only : dem_detect_clouds
       use cu, only : dem_correct_dem_w_dem
@@ -470,9 +471,10 @@
      &basin_subbasin_horton,basin_subbasin_find,basin_subbasin_long,basi&
      &n_subbasin_map2subbasin,basin_subbasin_stream_prop,geo_acum_to_cau&
      &ce,geo_hand,geo_hand_global,dir_reclass_rwatershed,dir_reclass_ope&
-     &ntopo,f2pywrap_cu_qsortc,f2pywrap_cu_partition,f2pywrap_cu_find_co&
-     &lrow_inarg,cut_colrow_inarg,dem_detect_clouds,dem_correct_dem_w_de&
-     &m,dem_slope,dem_find_dir,dirfix_kernel,dirfix_neighbour)
+     &ntopo,dir_reclass_arcgis,f2pywrap_cu_qsortc,f2pywrap_cu_partition,&
+     &f2pywrap_cu_find_colrow_inarg,cut_colrow_inarg,dem_detect_clouds,d&
+     &em_correct_dem_w_dem,dem_slope,dem_find_dir,dirfix_kernel,dirfix_n&
+     &eighbour)
       end subroutine f2pyinitcu
 
 

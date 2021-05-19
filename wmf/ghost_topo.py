@@ -3,7 +3,48 @@ import numpy as np
 from scipy.spatial import Voronoi, voronoi_plot_2d
 from skimage.morphology import dilation, square
 import os
+import geopandas as geo
 import osgeo
+try:
+    import ee
+    # Trigger the authentication flow.
+    ee.Authenticate()
+    # Initialize the library.
+    ee.Initialize()
+except:
+    print('Warning: ee not found in the current kernel, try to install it before using\nshp2ee')
+
+def shp2ee(path_shp, type = 'single'):
+  '''Converts a shapefile to an ee Feature or collection of Features.
+  Parameters:
+    - path_shp: path to the shapefile to convert.
+    - type:
+        - single: if the vector has only one feature.
+        - multiple: if the vector has multiple features
+  Returns:
+    - ee.Feature for type single or ee.FeatureCollection for type multiple'''
+  #Read the polygon into geopandas
+  shapefile = geop.read_file(path_shp)
+  shapefile.to_crs(4326, inplace = True)
+  
+  #If single, returns just one ee feature
+  if type == 'single':
+    return ee.Feature(eval(shapefile.iloc[0:1].to_json())['features'][0])
+  #If multiple, returns just an ee collection of features
+  elif type == 'multiple':
+    features = []
+    for i in range(shapefile.shape[0]):
+        geom = shapefile.iloc[i:i+1,:] 
+        jsonDict = eval(geom.to_json()) 
+        geojsonDict = jsonDict['features'][0] 
+        features.append(ee.Feature(geojsonDict)) 
+    return ee.FeatureCollection(features)
+
+def get_soils_data():
+    '''Obtains the soil data from OpenLandMap/SOL/SOL_TEXTURE-CLASS_USDA-TT_M/v02
+    and returns it'''
+    return ee.Image('OpenLandMap/SOL/SOL_TEXTURE-CLASS_USDA-TT_M/v02')
+
 
 class ghost_preprocess():
     
@@ -261,6 +302,22 @@ class ghost_preprocess():
                     pl.fill(*zip(*polygon2), c = 'r', alpha = 0.5)
         return cent, Z, area, len(lface), neighbors,lface, dneigh, is_border, polygon
     
+    def get_physical_prop(self, ee_data, scale = 30, prop_name = 'feature', band = 'b0'):
+        '''Extract a property from an ee Image and assign it to the mesh polygons of the object.
+        Parameters:
+            - ee_data: an ee Image with the desired property.
+            - band: name of the band in the ee Image to use.
+            - prop_name: name of the property to assign to the self.polygon_shp
+            - scale: scale of resolution of the image in m.
+        Returns:
+            - updates the self.polygon_shp with the property.'''
+        #Get the soils information for each polygon 
+        d = ee_data.reduceRegions(self.polygon_ee, reducer = ee.Reducer.mode(), scale = scale).getInfo()
+        value = []
+        for i in range(self.polygons_shp.shape[0]):
+            value.append(d['features'][i]['properties'][band])
+        self.polygon_shp[prop_name] = value
+    
     def write_mesh_file(self, path, shp_path = None):
         f = open(path,'w')
         n_points = len(self.polygons_topology)
@@ -283,6 +340,11 @@ class ghost_preprocess():
         f.close()
         if shp_path is not None:
             self.__write_mesh_shp__(shp_path)
+            self.polygons_shp = geo.read_file(shp_path)
+            try:
+                self.polygon_ee = shp2ee(shp_path, type='multiple')
+            except:
+                print('Warning: self.polygon_ee not defined it seems that you dont have ee set up.')
     
     def write_attribute_file(self, path):
         f = open(path, 'w')
