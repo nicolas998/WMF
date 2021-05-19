@@ -316,7 +316,7 @@ class ghost_preprocess():
         value = []
         for i in range(self.polygons_shp.shape[0]):
             value.append(d['features'][i]['properties'][band])
-        self.polygon_shp[prop_name] = value
+        self.polygons_shp[prop_name] = value
     
     def write_mesh_file(self, path, shp_path = None):
         f = open(path,'w')
