@@ -5,6 +5,7 @@ from skimage.morphology import dilation, square
 import os
 import geopandas as geo
 import osgeo
+import pylab as pl
 #try:
 import ee
 # Trigger the authentication flow.
@@ -362,7 +363,7 @@ class ghost_preprocess():
             - name_1: name of the column with the soils.
             - name_2: name of the column with the land use.
         Returns:
-            - Null, it just writes the att.''''
+            - Null, it just writes the att.'''
         f = open(path, 'w')
         f.write('INDEX SOIL LC METEO LAI SS LAKE CLOSE_SEG BCns\n')
         for i in self.polygons_shp.index:
