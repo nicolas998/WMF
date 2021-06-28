@@ -359,8 +359,9 @@ class ghost_preprocess():
         else:
             print('enters by division')
             shp_copy = self.polygons_shp.copy()
+            shp_copy.to_crs(4326, inplace = True)
             self.polygons_shp[prop_name] = 0
-            xslice, yslice = define_slices(get_boundaries(self.polygons_shp), xdivisions, ydivisions)
+            xslice, yslice = define_slices(get_boundaries(shp_copy), xdivisions, ydivisions)
             print(xslice)
             print(yslice)
             for x1,x2 in zip(xslice[:-1], xslice[1:]):
