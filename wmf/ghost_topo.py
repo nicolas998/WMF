@@ -357,15 +357,22 @@ class ghost_preprocess():
                 value.append(d['features'][i]['properties'][band])
             self.polygons_shp[prop_name] = value
         else:
+            print('enters by division')
+            shp_copy = self.polygons_shp.copy()
             self.polygons_shp[prop_name] = 0
             xslice, yslice = define_slices(get_boundaries(self.polygons_shp), xdivisions, ydivisions)
+            print(xslice)
+            print(yslice)
             for x1,x2 in zip(xslice[:-1], xslice[1:]):
                 for y1,y2 in zip(yslice[:-1], yslice[1:]):
                     #Obtains an slice of the vector
-                    sliced = self.polygons_shp.cx[x1:x2,y1:y2]
+                    sliced = shp_copy.cx[x1:x2,y1:y2]
+                    print('got slice')
                     ee_feature = geopandas2ee(sliced)
+                    print('converted to ee')
                     #Get the properties for that slice
                     d = ee_data.reduceRegions(ee_feature, reducer = ee.Reducer.mode(), scale = 30).getInfo()
+                    print('regions recuded')
                     value = []
                     for i in range(sliced.shape[0]):
                         value.append(d['features'][i]['properties'][band])
