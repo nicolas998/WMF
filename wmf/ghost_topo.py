@@ -311,21 +311,68 @@ class ghost_preprocess():
                     pl.fill(*zip(*polygon2), c = 'r', alpha = 0.5)
         return cent, Z, area, len(lface), neighbors,lface, dneigh, is_border, polygon
     
-    def get_physical_prop(self, ee_data, scale = 30, prop_name = 'feature', band = 'b0'):
+    def get_physical_prop(self, ee_data, scale = 30, prop_name = 'feature', band = 'b0',
+        sliced = False, xdivisions = None, ydivisions = None):
         '''Extract a property from an ee Image and assign it to the mesh polygons of the object.
         Parameters:
             - ee_data: an ee Image with the desired property.
             - band: name of the band in the ee Image to use.
             - prop_name: name of the property to assign to the self.polygon_shp
             - scale: scale of resolution of the image in m.
+            - sliced: work the watershed as a whole or split it.
+            - xdivisions: Number of divisions to make over the vector to obtain the 
+                properties, same for ydivisions
         Returns:
             - updates the self.polygon_shp with the property.'''
+        #Define functions for several tiles 
+        def get_boundaries(vector):
+            xvalues = []
+            yvalues = []
+            for geometry in vector['geometry']:
+                xvalues.append(geometry.bounds[0])
+                xvalues.append(geometry.bounds[2])
+                yvalues.append(geometry.bounds[1])
+                yvalues.append(geometry.bounds[3])
+            return (np.min(xvalues), np.max(xvalues),np.min(yvalues), np.max(yvalues))
+
+        def define_slices(boundaries, xdivisions, ydivisions):
+            xsteps = np.linspace(boundaries[0], boundaries[1],xdivisions)
+            ysteps = np.linspace(boundaries[2], boundaries[3],ydivisions)
+            return xsteps, ysteps
+
+        def geopandas2ee(geoData):
+            features = []
+            for i in range(geoData.shape[0]):
+                geom = geoData.iloc[i:i+1,:] 
+                jsonDict = eval(geom.to_json()) 
+                geojsonDict = jsonDict['features'][0] 
+                features.append(ee.Feature(geojsonDict)) 
+            return ee.FeatureCollection(features)
+        
         #Get the soils information for each polygon 
-        d = ee_data.reduceRegions(self.polygon_ee, reducer = ee.Reducer.mode(), scale = scale).getInfo()
-        value = []
-        for i in range(self.polygons_shp.shape[0]):
-            value.append(d['features'][i]['properties'][band])
-        self.polygons_shp[prop_name] = value
+        if sliced is False:
+            d = ee_data.reduceRegions(self.polygon_ee, reducer = ee.Reducer.mode(), scale = scale).getInfo()
+            value = []
+            for i in range(self.polygons_shp.shape[0]):
+                value.append(d['features'][i]['properties'][band])
+            self.polygons_shp[prop_name] = value
+        else:
+            self.polygons_shp[prop_name] = 0
+            xslice, yslice = define_slices(get_boundaries(self.polygons_shp), xdivisions, ydivisions)
+            for x1,x2 in zip(xslice[:-1], xslice[1:]):
+                for y1,y2 in zip(yslice[:-1], yslice[1:]):
+                    #Obtains an slice of the vector
+                    sliced = self.polygons_shp.cx[x1:x2,y1:y2]
+                    ee_feature = geopandas2ee(sliced)
+                    #Get the properties for that slice
+                    d = ee_data.reduceRegions(ee_feature, reducer = ee.Reducer.mode(), scale = 30).getInfo()
+                    value = []
+                    for i in range(sliced.shape[0]):
+                        value.append(d['features'][i]['properties'][band])
+                    sliced[prop_name] = value
+                    print('slice x: %.1f - %.1f and y: %.1f - %.1f done' % (x1,x2,y1,y2))
+                #Merge the properties with the global vector
+                self.polygons_shp.loc[sliced.index, prop_name] = sliced[prop_name]
     
     def write_mesh_file(self, path, shp_path = None):
         f = open(path,'w')
