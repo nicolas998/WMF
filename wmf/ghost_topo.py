@@ -218,13 +218,20 @@ class ghost_preprocess():
         xv,yv = np.meshgrid(x_steps, y_steps)
 
         # Get the xy points inside the 
+        print('Generating the points inside...')
+        out = display(progress(0, x_steps * y_steps), 
+                      display_id=True)
         XYm = []
+        cont = 0
         for i in x_steps:
             for j in y_steps:
                 if x_mask[i,j] > 0:
                     XYm.append([x_mask[i,j],y_mask[i,j]])
+                cont+=0
+                out.update(progress(cont, x_steps * y_steps))
         XYm = np.array(XYm).T
 
+        print('Creating border elements...')
         borders = []
         for j in [1,5]:
             #Increase the border n times
@@ -247,6 +254,7 @@ class ghost_preprocess():
         self.mesh_points_dem = XYm 
         self.mesh_points_boundary = borders
         if clean_with_river:
+            print('Cleaning mesh points with the points of the river network...')
             self.__clean_mesh_points__(min_dem2river_distance)
     
     def get_voronoi_polygons(self):
@@ -278,7 +286,7 @@ class ghost_preprocess():
         for count, p in enumerate(poly_prop):
             xyp.append(p[0])
             if p[1] < 0:
-                poly_prop[count][1] = np.mean([self.polygons_topology[i][1] for i in p[4] if i < self.polygons_expected_number and self.polygons_topology[i][1]>0])
+                poly_prop[count][1] = np.mean([poly_prop[i][1] for i in p[4] if i < self.polygons_expected_number and poly_prop[i][1]>0])
         self.polygons_topology = poly_prop 
         self.polygons_xy = np.array(xyp)
         # Defiunes the left and right of the river topo
