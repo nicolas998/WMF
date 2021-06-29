@@ -6,6 +6,7 @@ import os
 import geopandas as geo
 import osgeo
 import pylab as pl
+from IPython.display import HTML, display
 #try:
 import ee
 # Trigger the authentication flow.
@@ -14,6 +15,18 @@ ee.Authenticate()
 ee.Initialize()
 #except:
  #   print('Warning: ee not found in the current kernel, try to install it before using\nshp2ee')
+
+
+def progress(value, max=100):
+    return HTML("""
+        <progress
+            value='{value}'
+            max='{max}',
+            style='width: 100%'
+        >
+            {value}
+        </progress>
+    """.format(value=value, max=max))
 
 def shp2ee(path_shp, type = 'single'):
   '''Converts a shapefile to an ee Feature or collection of Features.
@@ -248,6 +261,8 @@ class ghost_preprocess():
         old_numbers = []
         cont = 1
         self.polygons_expected_number = self.vor_cat[self.vor_cat < 3].shape[0]+2
+        out = display(progress(0, self.vor.points.shape[0]), 
+                      display_id=True)
         for poly in range(self.vor.points.shape[0]):
             old_numbers.append(poly)
             if self.vor_cat[poly] < 3:                
@@ -261,10 +276,13 @@ class ghost_preprocess():
                     new_numbers.append(-9)
             else:
                 new_numbers.append(-9)
+            out.update(progress(cont-2, self.vor.points.shape[0]))
         xyp = []
         self.polygons_final_number = len(poly_prop)
-        for p in poly_prop:
+        for count, p in enumerate(poly_prop):
             xyp.append(p[0])
+            if p[1] < 0:
+                poly_prop[count][1] = np.mean([self.polygons_topology[i][1] for i in p[4] if i < self.polygons_expected_number and self.polygons_topology[i][1]>0])
         self.polygons_topology = poly_prop 
         self.polygons_xy = np.array(xyp)
         # Defiunes the left and right of the river topo
