@@ -218,18 +218,18 @@ class ghost_preprocess():
         xv,yv = np.meshgrid(x_steps, y_steps)
 
         # Get the xy points inside the 
-        print('Generating the points inside...')
-        n_steps = x_steps.size * y_steps.size
-        out = display(progress(0, n_steps), 
-                      display_id=True)
+        print('Extracting points for the mesh...')
+        #n_steps = x_steps.size * y_steps.size
+        #out = display(progress(0, n_steps), 
+         #             display_id=True)
         XYm = []
-        cont = 0
+        #cont = 0
         for i in x_steps:
             for j in y_steps:
                 if x_mask[i,j] > 0:
                     XYm.append([x_mask[i,j],y_mask[i,j]])
-                cont+=1
-                out.update(progress(cont,n_steps))
+                #cont+=1
+                #out.update(progress(cont,n_steps))
         XYm = np.array(XYm).T
 
         print('Creating border elements...')
