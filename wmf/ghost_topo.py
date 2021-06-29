@@ -257,25 +257,17 @@ class ghost_preprocess():
     
     def define_polygons_topology(self, define_left_right = True):
         poly_prop = []
-        new_numbers = []
-        old_numbers = []
         cont = 1
         self.polygons_expected_number = self.vor_cat[self.vor_cat < 3].shape[0]+2
         out = display(progress(0, self.vor.points.shape[0]), 
                       display_id=True)
         for poly in range(self.vor.points.shape[0]):
-            old_numbers.append(poly)
             if self.vor_cat[poly] < 3:                
                 _p_prop = list(self.get_polygon_prop(poly,False))
                 good_neighbors = [i for i in _p_prop[4] if i < self.polygons_expected_number]
                 if len(good_neighbors) > 0:
                     poly_prop.append(_p_prop)
-                    new_numbers.append(cont)        
-                    cont+=1
-                else:
-                    new_numbers.append(-9)
-            else:
-                new_numbers.append(-9)
+            cont+=1
             out.update(progress(cont-2, self.vor.points.shape[0]))
         xyp = []
         self.polygons_final_number = len(poly_prop)
@@ -410,6 +402,8 @@ class ghost_preprocess():
     def write_mesh_file(self, path, shp_path = None):
         f = open(path,'w')
         n_points = len(self.polygons_topology)
+        out = display(progress(0, n_points), 
+                  display_id=True)
         f.write('NUMELE\t%d\n' % n_points)
         f.write('INDEX   X   Y   Zmin    Zmax    Area    nFaces\n')
         for c, p in enumerate(self.polygons_topology):
@@ -426,12 +420,17 @@ class ghost_preprocess():
             for lf in p[6]:
                 f.write('%.2f ' % lf)
             f.write('\n') 
+            out.update(progress(c, n_points))
         f.close()
+        print('Mesh file written')
         if shp_path is not None:
+            print('writing shapefile...')
             self.__write_mesh_shp__(shp_path)
-            self.polygons_shp = geo.read_file(shp_path)
+            print('done')
+            self.polygons_shp = geo.read_file(shp_path)            
             try:
                 self.polygon_ee = shp2ee(shp_path, type='multiple')
+                print('Shapefile converted to ee FeatureCollection')
             except:
                 print('Warning: self.polygon_ee not defined it seems that you dont have ee set up.')
     
