@@ -219,7 +219,8 @@ class ghost_preprocess():
 
         # Get the xy points inside the 
         print('Generating the points inside...')
-        out = display(progress(0, x_steps * y_steps), 
+        n_steps = x_steps.size * y_steps.size
+        out = display(progress(0, n_steps), 
                       display_id=True)
         XYm = []
         cont = 0
@@ -228,7 +229,7 @@ class ghost_preprocess():
                 if x_mask[i,j] > 0:
                     XYm.append([x_mask[i,j],y_mask[i,j]])
                 cont+=0
-                out.update(progress(cont, x_steps * y_steps))
+                out.update(progress(cont,n_steps))
         XYm = np.array(XYm).T
 
         print('Creating border elements...')
