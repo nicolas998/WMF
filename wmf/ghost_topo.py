@@ -113,11 +113,15 @@ class ghost_preprocess():
         start = 0
         prop = [[0,-999,self.x[-1],self.y[-1],-999,-999,self.wat.CellHorton_Hill[-1],self.wat.ncells]]
         new_dest = [0]
+        
+        out = display(progress(0, self.wat.nhills), 
+                  display_id=True)
         for c, dest in enumerate(self.wat.hills[1][::-1]):
             d = new_dest[dest]
             p, x1, y2, start = self.__channel2segments__(c+1, start, d)
             prop.extend(p)
             new_dest.append(start)
+            out.update(progress(c, self.wat.nhills))
         self.river_topology = prop
         self.__get_segments_center_length__()
         self.__get_segment_sinuosity__()
