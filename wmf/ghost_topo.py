@@ -247,15 +247,22 @@ class ghost_preprocess():
         new_numbers = []
         old_numbers = []
         cont = 1
+        self.polygons_expected_number = self.vor_cat[self.vor_cat < 3].shape[0]+2
         for poly in range(self.vor.points.shape[0]):
             old_numbers.append(poly)
-            if self.vor_cat[poly] < 3:
-                poly_prop.append(self.get_polygon_prop(poly,False))
-                new_numbers.append(cont)        
-                cont+=1
+            if self.vor_cat[poly] < 3:                
+                _p_prop = self.get_polygon_prop(poly,False)
+                good_neighbors = [i for i in _p_prop[4] if i < self.polygons_expected_number]
+                if len(good_neighbors) > 0:
+                    poly_prop.append(_p_prop)
+                    new_numbers.append(cont)        
+                    cont+=1
+                else:
+                    new_numbers.append(-9)
             else:
                 new_numbers.append(-9)
         xyp = []
+        self.polygons_final_number = len(poly_prop)
         for p in poly_prop:
             xyp.append(p[0])
         self.polygons_topology = poly_prop 
