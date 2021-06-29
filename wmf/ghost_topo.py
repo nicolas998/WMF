@@ -228,7 +228,7 @@ class ghost_preprocess():
             for j in y_steps:
                 if x_mask[i,j] > 0:
                     XYm.append([x_mask[i,j],y_mask[i,j]])
-                cont+=0
+                cont+=1
                 out.update(progress(cont,n_steps))
         XYm = np.array(XYm).T
 
