@@ -47,11 +47,16 @@ def shp2ee(path_shp, type = 'single'):
   #If multiple, returns just an ee collection of features
   elif type == 'multiple':
     features = []
+    print('Converting shp to ee FeatureCollection...')
+    out = display(progress(0, shapefile.shape[0]), 
+                  display_id=True)
     for i in range(shapefile.shape[0]):
         geom = shapefile.iloc[i:i+1,:] 
         jsonDict = eval(geom.to_json()) 
         geojsonDict = jsonDict['features'][0] 
         features.append(ee.Feature(geojsonDict)) 
+        out.update(progress(i,shapefile.shape[0]))
+    print('Done')
     return ee.FeatureCollection(features)
 
 def get_soils_data():
@@ -219,18 +224,14 @@ class ghost_preprocess():
 
         # Get the xy points inside the 
         print('Extracting points for the mesh...')
-        #n_steps = x_steps.size * y_steps.size
-        #out = display(progress(0, n_steps), 
-         #             display_id=True)
         XYm = []
         #cont = 0
         for i in x_steps:
             for j in y_steps:
                 if x_mask[i,j] > 0:
                     XYm.append([x_mask[i,j],y_mask[i,j]])
-                #cont+=1
-                #out.update(progress(cont,n_steps))
         XYm = np.array(XYm).T
+        print('Done')
 
         print('Creating border elements...')
         borders = []
@@ -252,11 +253,13 @@ class ghost_preprocess():
             for row in border[1]:
                 y_border.append(wmf.cu.dxp*(wmf.cu.nrows - row + 0.5) + wmf.cu.yll)
             borders.append(np.vstack([x_border, y_border]))
+        print('Done')
         self.mesh_points_dem = XYm 
         self.mesh_points_boundary = borders
         if clean_with_river:
             print('Cleaning mesh points with the points of the river network...')
             self.__clean_mesh_points__(min_dem2river_distance)
+            print('Done')
     
     def get_voronoi_polygons(self):
         # Get the array with all the points for the voronoi
@@ -387,23 +390,18 @@ class ghost_preprocess():
                 value.append(d['features'][i]['properties'][band])
             self.polygons_shp[prop_name] = value
         else:
-            print('enters by division')
+            print('Will extract EE features by tiles')
             shp_copy = self.polygons_shp.copy()
             shp_copy.to_crs(4326, inplace = True)
             self.polygons_shp[prop_name] = 0
             xslice, yslice = define_slices(get_boundaries(shp_copy), xdivisions, ydivisions)
-            print(xslice)
-            print(yslice)
             for x1,x2 in zip(xslice[:-1], xslice[1:]):
                 for y1,y2 in zip(yslice[:-1], yslice[1:]):
                     #Obtains an slice of the vector
                     sliced = shp_copy.cx[x1:x2,y1:y2]
-                    print('got slice')
                     ee_feature = geopandas2ee(sliced)
-                    print('converted to ee')
                     #Get the properties for that slice
                     d = ee_data.reduceRegions(ee_feature, reducer = ee.Reducer.mode(), scale = 30).getInfo()
-                    print('regions recuded')
                     value = []
                     for i in range(sliced.shape[0]):
                         value.append(d['features'][i]['properties'][band])
@@ -439,11 +437,10 @@ class ghost_preprocess():
         if shp_path is not None:
             print('writing shapefile...')
             self.__write_mesh_shp__(shp_path)
-            print('done')
+            print('Done')
             self.polygons_shp = geo.read_file(shp_path)            
             try:
                 self.polygon_ee = shp2ee(shp_path, type='multiple')
-                print('Shapefile converted to ee FeatureCollection')
             except:
                 print('Warning: self.polygon_ee not defined it seems that you dont have ee set up.')
     
