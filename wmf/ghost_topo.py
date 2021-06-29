@@ -266,7 +266,7 @@ class ghost_preprocess():
         for poly in range(self.vor.points.shape[0]):
             old_numbers.append(poly)
             if self.vor_cat[poly] < 3:                
-                _p_prop = self.get_polygon_prop(poly,False)
+                _p_prop = list(self.get_polygon_prop(poly,False))
                 good_neighbors = [i for i in _p_prop[4] if i < self.polygons_expected_number]
                 if len(good_neighbors) > 0:
                     poly_prop.append(_p_prop)
