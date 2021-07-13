@@ -144,17 +144,17 @@ class ghost_preprocess():
         start = 0
         prop = [[0,-999,self.x[-1],self.y[-1],-999,-999,self.wat.CellHorton_Hill[-1],self.wat.ncells]]
         new_dest = [0]
-        self.focus_river = [0]
+        #self.focus_river = [0]
         
         out = display(progress(0, self.wat.nhills), 
                   display_id=True)
         for c, dest in enumerate(self.wat.hills[1][::-1]):
             d = new_dest[dest]
-            p, x1, y2, start, focus_category = self.__channel2segments__(c+1, start, d)
+            p, x1, y2, start, focus_categories = self.__channel2segments__(c+1, start, d)
             prop.extend(p)
             new_dest.append(start)
-            out.update(progress(c, self.wat.nhills))
-            self.focus_river.append(focus_category)
+            out.update(progress(c, self.wat.nhills))            
+            self.focus_river.extend(focus_categories)
         self.river_topology = prop
         self.__get_segments_center_length__()
         self.__get_segment_sinuosity__()
@@ -748,7 +748,7 @@ class ghost_preprocess():
         H = self.wat.CellHorton_Stream[pos]
 
         properties = []
-
+        focus_categories =[]
         for c, i in enumerate(np.unique(stream_cat)):
             pos2 = np.where(stream_cat == i)[0]
             prop = []
@@ -768,4 +768,7 @@ class ghost_preprocess():
             #Get the cell position of the start of the segment 
             prop.append(pos[0][pos2][0])
             properties.append(prop)
-        return properties, xt[pos2][0], yt[pos2][0], int(i+start), category
+            #Update the focus category for that segment
+            focus_categories.append(category)
+            
+        return properties, xt[pos2][0], yt[pos2][0], int(i+start), focus_categories
