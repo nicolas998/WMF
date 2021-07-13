@@ -109,7 +109,7 @@ class ghost_preprocess():
             focus, prop, epsg = wmf.read_map_raster(focus_map)
             self.focus_map = self.wat.Transform_Map2Basin(focus, prop)
             self.focus_dict = focus_dict
-            self.focus_river = []
+            self.focus_river = [0]
         else:    
             self.focus_map = focus_map
             self.focust_dict = None
@@ -188,14 +188,15 @@ class ghost_preprocess():
             - clean_close_points: if true, remove lower order points that are at a distance 
             less than min_river2river_distance, sho.
             -min_river2river_distance: The minimum distance between two points extracted from the segments [m].'''
-        dist = self.seg_point_distance
-        if min_river2river_distance > dist:
-            print('Warning: river to river point distance is greater than segement points distance\
-                  the program will set it equal to dist*0.5')
-            min_river2river_distance = dist*0.5
+        #Determines if it is going to use the focus dicst for this procedure
+        use_focus = False
+        if len(self.focus_river) == len(self.river_topology):
+            use_focus = True
+        
+        #Obtains the points adjacent to each segment
         Xp = []
         Yp = []
-        for l in range(1,len(self.river_topology)):
+        for l in range(1,len(self.river_topology)):            
             #Get the coordinates
             xo = self.river_topology[l][2]
             yo = self.river_topology[l][3]
@@ -211,11 +212,17 @@ class ghost_preprocess():
                 m = -90
             else:
                 m = -1 / ((yo-yd)/(xo-xd))
+            #Determine the distance of the points 
+            if use_focus is True:
+                focus_level = str(self.focus_river[l])
+                seg_point_distance = self.focus_dict[focus_level]['seg_point_distance']
+            else:
+                seg_point_distance = self.seg_point_distance
             #Compute the new X and Y
-            x1 = xc - self.seg_point_distance/(np.sqrt(1+m**2))
+            x1 = xc - seg_point_distance/(np.sqrt(1+m**2))
             y1 = m*(x1-xc)+yc
 
-            x2 = xc + self.seg_point_distance/(np.sqrt(1+m**2))
+            x2 = xc + seg_point_distance/(np.sqrt(1+m**2))
             y2 = m*(x2-xc)+yc
 
             Xp.append([x1,x2])
@@ -224,7 +231,15 @@ class ghost_preprocess():
         Yv = np.array(Yp).T.reshape(len(Yp)*2)
         XYr = np.vstack([Xv, Yv])
         self.mesh_points_river = XYr
+        
+        #Clean close points
         if clean_close_points:
+            #Determine the dist to erase close points
+            if min_river2river_distance > self.seg_point_distance:
+                print('Warning: river to river point distance is greater than segement points distance\
+                    the program will set it equal to dist*0.5')
+                min_river2river_distance = self.seg_point_distance*0.5
+            #Clean the close points
             self.__clean_river_points__(min_river2river_distance)
     
     def get_mesh_grid_points(self, mesh_spaces = 8, border_iter = 3,clean_with_river = True, 
