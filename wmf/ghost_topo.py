@@ -714,7 +714,7 @@ class ghost_preprocess():
         #Determines the focus group at which the link belongs 
         if self.focus_map is not None:
             group = str(int(stats.mode(self.focus_map[pos]).mode[0]))
-            threshold = self.focus_dic[group]['seg_threshold']
+            threshold = self.focus_dict[group]['seg_threshold']
         else:
             threshold = self.threshold
         
