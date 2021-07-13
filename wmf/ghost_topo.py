@@ -5,6 +5,7 @@ from skimage.morphology import dilation, square
 import os
 import geopandas as geo
 import osgeo
+from scipy import stats
 import pylab as pl
 from IPython.display import HTML, display
 #try:
@@ -75,7 +76,8 @@ def get_land_use_data(date1 = '2019-01-01', date2 = '2020-12-01'):
 
 class ghost_preprocess():
     
-    def __init__(self, watershed, path_dem, seg_threshold = 400, seg_point_distance = 100,thre_sens = 10):
+    def __init__(self, watershed, path_dem, seg_threshold = 400, seg_point_distance = 100,thre_sens = 10,
+                 focus_map = None, focus_dict = None):
         '''Defines the class to derive the topology required by ghost (.riv and .mesh files)
         Parameters:
             - watershed: A watershed element obtained with wmf.SimuBasin            
@@ -83,13 +85,36 @@ class ghost_preprocess():
             - seg_point_distance: the distance of the perpendicular points to the channel segments [m].
         Optional
             - thre_sens: in meters, the sensitivity to transform from channels to segments (not need to edit) 
+            - focus_map: load a raster map with categories that represent different levels 
+                of detail in the extraction of the stream segments and the mes0.h
+                If there is no focus map, all the behavior is set to default category: 0
+            - focus_dict: a dictionary with the categories of the focus_map, in each category it has 
+                the properties to determine the level of detail to extract the mesh. The dictionary 
+                may contain the following properties:
+                - seg_threshold (int)
+                - seg_point_dstance (int)
+                Example: {'0': {'seg_threshold':300},
+                          '1': {'seg_threshold':600},
+                          '2': {'seg_threshold':800}}
+                The properties that are not specified are obtained from the arguments given to the function 
+                and are applied for all the region regardless of the focus_map
         Returns:
             - self.wat: a copy of the watershed element
             - self.x and self.y: the X and Y cooridnates of the watershed element
             - self.links and self.links2: element that identifies where channels are'''
-        self.threshold = seg_threshold
-        self.seg_point_distance = seg_point_distance
+        #Copoy the watershed element and defines if it is going to use a focus map and a focus dict to 
+        #determine the level of detail of diferent regions in the watershed
         self.wat = watershed
+        if focus_map is not None:
+            focus, prop, epsg = wmf.read_map_raster(focus_map)
+            self.focus_map = self.wat.Transform_Map2Basin(focus, prop)
+            self.focus_dict = focus_dict
+        else:    
+            self.focus_map = focus_map
+            self.focust_dict = None
+        #Define the properties to define the size of the segments and the distance of the mesh to them
+        self.threshold = seg_threshold
+        self.seg_point_distance = seg_point_distance        
         #Get basic geomorphology 
         self.wat.GetGeo_Cell_Basics()
         #self.wat.GetGeo_StreamOrder()
@@ -686,8 +711,15 @@ class ghost_preprocess():
             pos = np.where(self.links2 == link)
             stream = self.wat.CellLong[pos]
 
+        #Determines the focus group at which the link belongs 
+        if self.focus_map is not None:
+            group = str(int(stats.mode(self.focus_map[pos]).mode[0]))
+            threshold = self.focus_dic[group]['seg_threshold']
+        else:
+            threshold = self.threshold
+        
         #Obtains the segments of the channel 
-        stream_cat = np.ceil(stream.cumsum() / self.threshold)
+        stream_cat = np.ceil(stream.cumsum() /threshold)
         last = stream_cat[-1]
         stream_cat = last+1-stream_cat
 
