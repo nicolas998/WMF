@@ -109,6 +109,7 @@ class ghost_preprocess():
             focus, prop, epsg = wmf.read_map_raster(focus_map)
             self.focus_map = self.wat.Transform_Map2Basin(focus, prop)
             self.focus_dict = focus_dict
+            self.focus_river = []
         else:    
             self.focus_map = focus_map
             self.focust_dict = None
@@ -143,15 +144,17 @@ class ghost_preprocess():
         start = 0
         prop = [[0,-999,self.x[-1],self.y[-1],-999,-999,self.wat.CellHorton_Hill[-1],self.wat.ncells]]
         new_dest = [0]
+        self.focus_river = [0]
         
         out = display(progress(0, self.wat.nhills), 
                   display_id=True)
         for c, dest in enumerate(self.wat.hills[1][::-1]):
             d = new_dest[dest]
-            p, x1, y2, start = self.__channel2segments__(c+1, start, d)
+            p, x1, y2, start, focus_category = self.__channel2segments__(c+1, start, d)
             prop.extend(p)
             new_dest.append(start)
             out.update(progress(c, self.wat.nhills))
+            self.focus_river.append(focus_category)
         self.river_topology = prop
         self.__get_segments_center_length__()
         self.__get_segment_sinuosity__()
@@ -713,10 +716,17 @@ class ghost_preprocess():
 
         #Determines the focus group at which the link belongs 
         if self.focus_map is not None:
-            group = str(int(stats.mode(self.focus_map[pos]).mode[0]))
-            threshold = self.focus_dict[group]['seg_threshold']
+            try:
+                category = int(stats.mode(self.focus_map[pos]).mode[0])
+                group = str(category)
+                threshold = self.focus_dict[group]['seg_threshold']
+            except:
+                print('Warning: it is possible that %d is not defined in self.focus_dict or' % category)
+                print(' that the property seg_threshold has not been defined')
+                print('using the default self.threshold')
         else:
             threshold = self.threshold
+            category = 0
         
         #Obtains the segments of the channel 
         stream_cat = np.ceil(stream.cumsum() /threshold)
@@ -758,4 +768,4 @@ class ghost_preprocess():
             #Get the cell position of the start of the segment 
             prop.append(pos[0][pos2][0])
             properties.append(prop)
-        return properties, xt[pos2][0], yt[pos2][0], int(i+start)
+        return properties, xt[pos2][0], yt[pos2][0], int(i+start), category
