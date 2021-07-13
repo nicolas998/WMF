@@ -215,7 +215,12 @@ class ghost_preprocess():
             #Determine the distance of the points 
             if use_focus is True:
                 focus_level = str(self.focus_river[l])
-                seg_point_distance = self.focus_dict[focus_level]['seg_point_distance']
+                try:
+                    seg_point_distance = self.focus_dict[focus_level]['seg_point_distance']
+                except:
+                    print('Warning: seg_point_distance not set in the self.focus_dict, will use ')
+                    print('the program will use the self.seg_point_distance value instead')
+                    seg_point_distance = self.seg_point_distance
             else:
                 seg_point_distance = self.seg_point_distance
             #Compute the new X and Y
@@ -456,6 +461,7 @@ class ghost_preprocess():
     def write_mesh_file(self, path, shp_path = None):
         f = open(path,'w')
         n_points = len(self.polygons_topology)
+        print('Writing mesh file...')
         out = display(progress(0, n_points), 
                   display_id=True)
         f.write('NUMELE\t%d\n' % n_points)
