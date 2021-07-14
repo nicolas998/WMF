@@ -113,6 +113,8 @@ class ghost_preprocess():
         else:    
             self.focus_map = focus_map
             self.focust_dict = None
+            self.focus_river = None
+        self.focus_mesh = None #By default there is no focus in the mesh it will get activated if the var 'mesh_spaces' is defined in the self.focus_dict
         #Define the properties to define the size of the segments and the distance of the mesh to them
         self.threshold = seg_threshold
         self.seg_point_distance = seg_point_distance        
@@ -279,7 +281,7 @@ class ghost_preprocess():
                 except:
                     print('Warning: %s category does not have a defined mesh_spaces' % k)
                     print(' will use the default value')
-                    mesh_spaces_temp = mesh_spaces
+                    mesh_spaces_temp = mesh_spaces                    
                 x_steps = np.arange(0,x_mask.shape[0],mesh_spaces_temp)
                 y_steps = np.arange(0,x_mask.shape[1],mesh_spaces_temp)
                 xv,yv = np.meshgrid(x_steps, y_steps)
@@ -287,6 +289,7 @@ class ghost_preprocess():
                     for j in y_steps:
                         if x_mask[i,j] > 0 and focus_map[i,j] == int(k):
                             XYm.append([x_mask[i,j],y_mask[i,j]])
+                            self.focus_mesh.append(k)
             XYm = np.array(XYm).T
             print('Done')
         else:
@@ -684,14 +687,31 @@ class ghost_preprocess():
         self.mesh_points_river = np.delete(self.mesh_points_river.T, drop_list, axis = 0).T
     
     def __clean_mesh_points__(self, min_dist = 100):        
-        pos = []
-        for i in self.mesh_points_river.T:
-            dist = np.linalg.norm(self.mesh_points_dem.T - i, ord = 2, axis=1)    
-            if np.min(dist) == 0:
-                dist[dist == 0] = 9999
-            if np.min(dist) < min_dist:
-                pos.append(np.argmin(dist))
-        self.mesh_points_dem = np.vstack([np.delete(self.mesh_points_dem[0], pos),np.delete(self.mesh_points_dem[1], pos)])
+        if self.focus_river is not None:
+            print('No focus definition, will proceed with %.2f distance for all the segments' % min_dist)
+            pos = []        
+            for i in self.mesh_points_river.T:
+                dist = np.linalg.norm(self.mesh_points_dem.T - i, ord = 2, axis=1)    
+                if np.min(dist) == 0:
+                    dist[dist == 0] = 9999
+                if np.min(dist) < min_dist:
+                    pos.append(np.argmin(dist))
+            self.mesh_points_dem = np.vstack([np.delete(self.mesh_points_dem[0], pos),np.delete(self.mesh_points_dem[1], pos)])
+        else:
+            print('Using focus setup, will use distance based on the config if avaiable')
+            pos = []        
+            for category, i in zip(self.focus_river, self.mesh_points_river.T):
+                #Compute the distance 
+                dist = np.linalg.norm(self.mesh_points_dem.T - i, ord = 2, axis=1)    
+                if np.min(dist) == 0:
+                    dist[dist == 0] = 9999
+                try:
+                    min_dist_temp= self.focus_dict[str(category)]['min_dem2river_distance']
+                except:
+                    min_dist_temp = min_dist
+                if np.min(dist) < min_dist_temp:
+                    pos.append(np.argmin(dist))
+            self.mesh_points_dem = np.vstack([np.delete(self.mesh_points_dem[0], pos),np.delete(self.mesh_points_dem[1], pos)])
     
     def __get_segments_center_length__(self):
         '''Obtains the X,Y centroid and the straight length of each 
