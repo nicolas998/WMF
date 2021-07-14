@@ -265,21 +265,43 @@ class ghost_preprocess():
         x_mask = wmf.cu.basin_float_var2map(self.wat.structure, x_vect, wmf.cu.ncols,wmf.cu.nrows, self.wat.ncells)
         y_mask = wmf.cu.basin_float_var2map(self.wat.structure, y_vect, wmf.cu.ncols,wmf.cu.nrows, self.wat.ncells)
 
-        #Obtain a set of points spaced in the grid
-        x_steps = np.arange(0,x_mask.shape[0],mesh_spaces)
-        y_steps = np.arange(0,x_mask.shape[1],mesh_spaces)
-        xv,yv = np.meshgrid(x_steps, y_steps)
-
-        # Get the xy points inside the 
-        print('Extracting points for the mesh...')
-        XYm = []
-        #cont = 0
-        for i in x_steps:
-            for j in y_steps:
-                if x_mask[i,j] > 0:
-                    XYm.append([x_mask[i,j],y_mask[i,j]])
-        XYm = np.array(XYm).T
-        print('Done')
+        #Apply the focus algorithm if active
+        if self.focus_map is not None:
+            print('Extracting points for the mesh by focus areas...')
+            #Obtains a map oif the focus areas following the size of the DEM
+            focus_map = wmf.cu.basin_float_var2map(self.wat.structure, 
+                                                   self.focus_map, wmf.cu.ncols,wmf.cu.nrows, self.wat.ncells)
+            #Iterate through the focus categories
+            XYm = []
+            for k in self.focus_dict.keys():
+                try:
+                    mesh_spaces_temp = self.focus_dict[k]['mesh_spaces']
+                except:
+                    print('Warning: %s category does not have a defined mesh_spaces' % k)
+                    print(' will use the default value')
+                    mesh_spaces_temp = mesh_spaces
+                x_steps = np.arange(0,x_mask.shape[0],mesh_spaces_temp)
+                y_steps = np.arange(0,x_mask.shape[1],mesh_spaces_temp)
+                xv,yv = np.meshgrid(x_steps, y_steps)
+                for i in x_steps:
+                    for j in y_steps:
+                        if x_mask[i,j] > 0 and focus_map[i,j] == int(k):
+                            XYm.append([x_mask[i,j],y_mask[i,j], int(k)])
+            XYm = np.array(XYm).T
+        else:
+            #Obtain a set of points spaced in the grid
+            x_steps = np.arange(0,x_mask.shape[0],mesh_spaces)
+            y_steps = np.arange(0,x_mask.shape[1],mesh_spaces)
+            xv,yv = np.meshgrid(x_steps, y_steps)
+            # Get the xy points inside the 
+            print('Extracting points for the mesh without focus areas...')
+            XYm = []
+            for i in x_steps:
+                for j in y_steps:
+                    if x_mask[i,j] > 0:
+                        XYm.append([x_mask[i,j],y_mask[i,j]])
+            XYm = np.array(XYm).T
+            print('Done')
 
         print('Creating border elements...')
         borders = []
