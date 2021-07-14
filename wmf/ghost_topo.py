@@ -113,8 +113,7 @@ class ghost_preprocess():
         else:    
             self.focus_map = focus_map
             self.focust_dict = None
-            self.focus_river = None
-        self.focus_mesh = None #By default there is no focus in the mesh it will get activated if the var 'mesh_spaces' is defined in the self.focus_dict
+            self.focus_river = None        
         #Define the properties to define the size of the segments and the distance of the mesh to them
         self.threshold = seg_threshold
         self.seg_point_distance = seg_point_distance        
@@ -288,8 +287,7 @@ class ghost_preprocess():
                 for i in x_steps:
                     for j in y_steps:
                         if x_mask[i,j] > 0 and focus_map[i,j] == int(k):
-                            XYm.append([x_mask[i,j],y_mask[i,j]])
-                            self.focus_mesh.append(k)
+                            XYm.append([x_mask[i,j],y_mask[i,j]])                            
             XYm = np.array(XYm).T
             print('Done')
         else:
