@@ -286,8 +286,9 @@ class ghost_preprocess():
                 for i in x_steps:
                     for j in y_steps:
                         if x_mask[i,j] > 0 and focus_map[i,j] == int(k):
-                            XYm.append([x_mask[i,j],y_mask[i,j], int(k)])
+                            XYm.append([x_mask[i,j],y_mask[i,j]])
             XYm = np.array(XYm).T
+            print('Done')
         else:
             #Obtain a set of points spaced in the grid
             x_steps = np.arange(0,x_mask.shape[0],mesh_spaces)
