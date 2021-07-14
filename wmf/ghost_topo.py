@@ -685,7 +685,7 @@ class ghost_preprocess():
         self.mesh_points_river = np.delete(self.mesh_points_river.T, drop_list, axis = 0).T
     
     def __clean_mesh_points__(self, min_dist = 100):        
-        if self.focus_river is not None:
+        if self.focus_river is None:
             print('No focus definition, will proceed with %.2f distance for all the segments' % min_dist)
             pos = []        
             for i in self.mesh_points_river.T:
