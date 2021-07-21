@@ -4,6 +4,7 @@ from scipy.spatial import Voronoi, voronoi_plot_2d
 from skimage.morphology import dilation, square
 import os
 import geopandas as geo
+import pandas as pd
 import osgeo
 from scipy import stats
 import pylab as pl
@@ -537,6 +538,7 @@ class ghost_preprocess():
             for z in range(sides):
                     f.write('0 ')
             f.write('\n')
+            #self.attr !this is for sam
         f.close()
     
     def write_river_file(self, path, shp_path = None):
@@ -834,3 +836,14 @@ class ghost_preprocess():
             focus_categories.append(category)
             
         return properties, xt[pos2][0], yt[pos2][0], int(i+start), focus_categories
+    
+    def read_attfile(self, path):
+        f = open(path,'r')
+        lines = f.readlines()
+        f.close()
+        z = [i.split()[:8] for i in lines[1:]]
+        df = pd.DataFrame(z, columns=lines[0].split(' ')[:8])
+        df.set_index('INDEX', inplace = True)
+        df.index = df.index.astype(int)
+        df = df.astype(int)
+        self.attr = df
