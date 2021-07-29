@@ -372,7 +372,7 @@ class ghost_preprocess():
             self.__get_left_right__(self.polygons_xy, self.river_center)
         # Search for polygons with elevation equal to nan and corrects them 
         zmean = [polygon[1] for polygon in self.polygons_topology if polygon[1]>1]
-        zmean = np.mean(zmean)
+        zmean = np.mean(zmean) # obtains the mean elevation
         for c, polygon in enumerate(self.polygons_topology):
             if np.isnan(polygon[1]):
                 z = []
