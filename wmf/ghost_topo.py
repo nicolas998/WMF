@@ -147,7 +147,7 @@ class ghost_preprocess():
         prop = [[0,-999,self.x[-1],self.y[-1],-999,-999,self.wat.CellHorton_Hill[-1],self.wat.ncells]]
         new_dest = [0]
         #self.focus_river = [0]
-        
+        print('Defining river segments...')
         out = display(progress(0, self.wat.nhills), 
                   display_id=True)
         for c, dest in enumerate(self.wat.hills[1][::-1]):
@@ -157,6 +157,7 @@ class ghost_preprocess():
             new_dest.append(start)
             out.update(progress(c, self.wat.nhills))            
             self.focus_river.extend(focus_categories)
+        print('Done')
         self.river_topology = prop
         self.__get_segments_center_length__()
         self.__get_segment_sinuosity__()
@@ -369,6 +370,22 @@ class ghost_preprocess():
         # Defiunes the left and right of the river topo
         if define_left_right:
             self.__get_left_right__(self.polygons_xy, self.river_center)
+        # Search for polygons with elevation equal to nan and corrects them 
+        zmean = [polygon[1] for polygon in self.polygons_topology if polygon[1]>1]
+        zmean = np.mean(zmean)
+        for c, polygon in enumerate(self.polygons_topology):
+            if np.isnan(polygon[1]):
+                z = []
+                for p in polygon[4]:
+                    try:
+                        if self.polygons_topology[p-1][1]>0:
+                            z.append(self.polygons_topology[p-1][1])
+                    except:
+                        pass
+                if len(z)>0:
+                    self.polygons_topology[c][1] = np.mean(z)
+                else:
+                    self.polygons_topology[c][1] = zmean
     
     def get_polygon_prop(self, elem, plot = False):    
         region = self.vor.regions[self.vor.point_region[elem]]
