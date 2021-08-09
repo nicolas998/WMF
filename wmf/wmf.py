@@ -2269,7 +2269,7 @@ class Basin:
     #------------------------------------------------------
     def Save_Net2Map(self,path,dx=cu.dxp,threshold=None,
         qmed=None,Dict=None,DriverFormat='ESRI Shapefile',
-        EPSG=4326, Numlink_id = True, formato = '%.2f'):
+        EPSG=int(self.epsg), Numlink_id = True, formato = '%.2f'):
         'Descripcion: Guarda la red hidrica simulada de la cuenca en .shp \n'\
         '   Puede contener un diccionario con propiedades de la red hidrica. \n'\
         '\n'\
