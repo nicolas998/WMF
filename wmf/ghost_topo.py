@@ -6,6 +6,7 @@ import os
 import geopandas as geo
 import pandas as pd
 import osgeo
+import copy
 from scipy import stats
 import pylab as pl
 from IPython.display import HTML, display
@@ -131,17 +132,22 @@ class ghost_preprocess():
         #Read the DEM map of the region 
         self.DEM, self.dem_prop, self.epsg = wmf.read_map_raster(path_dem)
     
-    def get_segments_topology(self, correct_downstream_elev = True, epsilon = 0.1):
+    def get_segments_topology(self, correct_downstream_elev = True, epsilon = 0.1,
+                              default_min_order = 1):
         '''Using channel2segment obtains the topological connection 
         of the segments.
         Parameters:             
             - correct_downstream_elev: Defines if the code will correct or not the elevation of the 
                 segement downstream.
             - epsilon: the difference between segments with same elevation [m].
+            - default_min_order (optional): Use this value to determine the minimum horton 
+                order of the channels to convert to segments when using focus. 
         Returns:
             - self.river_topology: list of list describing the connections among segments.
             - self.river_centers: list with the centers size: prop -1
             - self.river_length: list with the length size: prop -1'''
+        #Initializes the focur_river property
+        self.focus_river = []
         #Code starts
         start = 0
         prop = [[0,-999,self.x[-1],self.y[-1],-999,-999,self.wat.CellHorton_Hill[-1],self.wat.ncells]]
@@ -164,6 +170,58 @@ class ghost_preprocess():
         if correct_downstream_elev:
             corrected = self.__correct_downstream_elevation__(epsilon)
             return corrected
+        # If there is focus using the horton order
+        focus_by_order = False
+        for k in self.focus_dict.keys():  
+            if 'min_order' in self.focus_dict[k]:
+                focus_by_order = True
+        if focus_by_order:
+            self.select_segments_using_focus(default_min_order)
+    
+    def select_segments_using_focus(self, default_min_order = 1):
+        '''Function to obtain the segments that are going to be used based in the focus regions'''            
+        #Finds the segments that are above the horton order for that focus level
+        a = copy.copy(self.river_topology)
+        new_seg = [a[0]]
+        new_foc = []
+        cont = 0
+        for seg, foc in zip(a[1:], self.focus_river):
+            try:
+                min_order = self.focus_dict[str(foc)]['min_order']
+            except:
+                min_order = default_min_order
+            if seg[-2] >= min_order:
+                new_seg.append(seg)
+                new_foc.append(foc)
+            cont+=1
+
+        #Finds the segments that are orphan after erasing based in the focus areas
+        dest = np.array(new_seg).T[1].astype(int).tolist()
+        ids = np.array(new_seg).T[0].astype(int).tolist()
+        bads = []
+        new_seg2 = [new_seg[0]]
+        self.focus_river = [new_foc[0]]
+        cont = 1
+        for i,j in zip(dest[1:],ids[1:]):
+            if i not in ids or i in bads:
+                bads.append(j)
+            else:
+                new_seg2.append(new_seg[cont])
+                self.focus_river.append(new_foc[cont-1])
+            cont+=1
+
+        #Reasign the IDs of the segments now that some of them were wiped out
+        dest = np.array(new_seg2).T[1].astype(int)
+        for cont, seg in enumerate(new_seg2):
+            if seg[0] > cont:
+                for d in np.where(dest == seg[0])[0].tolist():
+                    new_seg2[d][1] = cont
+                seg[0] = cont
+        self.river_topology = new_seg2
+
+        #Compute again que properties of the segmentes 
+        self.__get_segments_center_length__()
+        self.__get_segment_sinuosity__()
     
     def __correct_downstream_elevation__(self, epsilon):
         '''Checks if the elevation of the segment downstream is higher or equal,
