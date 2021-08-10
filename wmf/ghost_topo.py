@@ -177,6 +177,7 @@ class ghost_preprocess():
                 focus_by_order = True
         if focus_by_order:
             self.select_segments_using_focus(default_min_order)
+            
     
     def select_segments_using_focus(self, default_min_order = 1):
         '''Function to obtain the segments that are going to be used based in the focus regions'''            
