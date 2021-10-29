@@ -404,7 +404,8 @@ class ghost_preprocess():
         self.vor = Voronoi(XYall)
         self.vor_cat = categories
     
-    def define_polygons_topology(self, define_left_right = True):
+    def define_polygons_topology(self, define_left_right = True, reduce_exterior_faces = False,
+                               n_exterior_faces = 14, min_exterior_distance = 50):
         poly_prop = []
         cont = 1
         self.polygons_expected_number = self.vor_cat[self.vor_cat < 3].shape[0]+2
@@ -445,6 +446,71 @@ class ghost_preprocess():
                     self.polygons_topology[c][1] = np.mean(z)
                 else:
                     self.polygons_topology[c][1] = zmean
+        #Reduces the number of exterior faces if the user wants to 
+        if reduce_exterior_faces:
+          self.decrease_num_faces(n_exterior_faces, min_exterior_distance)
+
+    def decrease_num_faces(self, n_faces = 20,min_distance = 40, verbose = False):
+    
+        #Functions to compute distances and set numbers in order to compare distances
+        def number2dec(x):
+            t = '%.3f' % x
+            return float(t)
+
+        def compute_distance(x,y):
+            d = np.sqrt((x[0]-y[0])**2 + (x[1]-y[1])**2)
+            return number2dec(d)
+
+        def multiple_distances(coor):
+            distances = []
+            for i,j in zip(coor[:-1], coor[1:]):
+                distances.append(compute_distance(i,j))
+            distances.append(compute_distance(coor[-1],coor[0]))
+            return distances
+        
+        #Main code that reduces the number of faces
+        for cont1, polygon in enumerate(self.polygons_topology):
+            #Compute neighbors
+            neighbors = (np.array(polygon[4])+1)*np.array(polygon[-2])
+            #If it is on the edge, see how many faces does it has
+            #print(polygon[3])
+            if np.min(neighbors) == 0:
+                #Evals if the polygon has more faces than the n_faces param
+                if polygon[3] >= n_faces:
+                    #print('entro')
+                    #Get the current faces lenght and centroids distances, and the coordinates
+                    d_vor = [number2dec(i) for i in polygon[5]]
+                    d_cent = polygon[6]
+                    c = polygon[-1]
+                    #Compute the distance in the order of the coordinates
+                    d_com = multiple_distances(c)
+                    #Extract the required faces
+                    new_c = []
+                    new_lenght = []
+                    new_dist = []
+                    new_neigh = []
+                    keep = []
+                    for cont, coord in enumerate(c):  
+                        idx = d_com.index(d_vor[cont])
+                        if neighbors[cont] != 0 or d_vor[cont] > min_distance:
+                            keep.append(cont)
+                            new_c.append(c[idx])
+                            new_lenght.append(d_vor[cont])
+                            new_dist.append(d_cent[cont])
+                    #Generate new arrays of the neighbors
+                    new_neigh = neighbors[keep]
+                    new_neigh[new_neigh > 0] =new_neigh[new_neigh > 0] -1 
+                    ones = np.copy(new_neigh)
+                    ones[ones>0] = 1
+                    #Update the polygon properties in the main list 
+                    self.polygons_topology[cont1][3] = len(new_neigh)
+                    self.polygons_topology[cont1][4] = new_neigh 
+                    self.polygons_topology[cont1][5] = new_lenght
+                    self.polygons_topology[cont1][6] = new_dist
+                    self.polygons_topology[cont1][-2] =  ones.tolist()
+                    if verbose:
+                        print('polygon %d' % cont1)
+                        print('reduced from %d to %d' % (polygon[3],len(new_neigh)))
     
     def get_polygon_prop(self, elem, plot = False):    
         region = self.vor.regions[self.vor.point_region[elem]]
