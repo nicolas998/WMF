@@ -406,35 +406,55 @@ class ghost_preprocess():
     
     def define_polygons_topology(self, define_left_right = True, reduce_exterior_faces = False,
                                n_exterior_faces = 14, min_exterior_distance = 50):
-        poly_prop = []
-        cont = 1
-        self.polygons_expected_number = self.vor_cat[self.vor_cat < 3].shape[0]+2
+        '''obtains self.polygons_topology and self.polygons_topology_cat after self.get_voronoi_polygons()'''
+        poly_prop = []        
+        #Estimates the number of accepted polygons
+        self.polygons_expected_number = self.vor_cat[self.vor_cat < 3].shape[0]+2 
+        #Progress bar
         out = display(progress(0, self.vor.points.shape[0]), 
                       display_id=True)
+        #Iterate through the polygons to see if they are valid
+        cont = 1
+        self.bad_polygons = 0
         for poly in range(self.vor.points.shape[0]):
+            #First check if not from the buffer
             if self.vor_cat[poly] < 3:                
+                # Get the properties of the polygon
                 _p_prop = list(self.get_polygon_prop(poly,False))
+                # determine the number of neighbors that are inside the watershed
                 good_neighbors = [i for i in _p_prop[4] if i < self.polygons_expected_number]
+                # The polygon is valid if it has at least one neighbor that is not part of the buffer
                 if len(good_neighbors) > 0:
                     poly_prop.append(_p_prop)
+                else:
+                    self.bad_polygons += 1
             cont+=1
+            #update the progress bar
             out.update(progress(cont-2, self.vor.points.shape[0]))
+        #Define and empty list to store the coorditantes of the polygons
         xyp = []
+        #Set the total number of good polygons to be stored
         self.polygons_final_number = len(poly_prop)
+        #Iterate trhoug the polygons to get the coordinates
         for count, p in enumerate(poly_prop):
+            #Get the coordinates of the polygon
             xyp.append(p[0])
+            #If the polygon has negative elevation, computes it as the mean of its neighbors
             if p[1] < 0:
                 poly_prop[count][1] = np.mean([poly_prop[i][1] for i in p[4] if i < self.polygons_expected_number and poly_prop[i][1]>0])
+        #Set the coordinates and the polygons prop as class attributes
         self.polygons_topology = poly_prop 
         self.polygons_xy = np.array(xyp)
-        # Defiunes the left and right of the river topo
+        # Defines the left and right of the river topo
         if define_left_right:
             self.__get_left_right__(self.polygons_xy, self.river_center)
         # Search for polygons with elevation equal to nan and corrects them 
         zmean = [polygon[1] for polygon in self.polygons_topology if polygon[1]>1]
         zmean = np.mean(zmean) # obtains the mean elevation
+        # Iterate to correct polygons with wrong elevation
         for c, polygon in enumerate(self.polygons_topology):
             if np.isnan(polygon[1]):
+                #Get the elevation of the neighbors
                 z = []
                 for p in polygon[4]:
                     try:
@@ -442,8 +462,10 @@ class ghost_preprocess():
                             z.append(self.polygons_topology[p-1][1])
                     except:
                         pass
+                #If the elevation of the neighbors is not nan, set the elevation of the polygon to the mean of the neighbors
                 if len(z)>0:
                     self.polygons_topology[c][1] = np.mean(z)
+                #Otherwise, set the elevation to the mean of the watershed
                 else:
                     self.polygons_topology[c][1] = zmean
         #Reduces the number of exterior faces if the user wants to 
@@ -513,42 +535,63 @@ class ghost_preprocess():
                         print('reduced from %d to %d' % (polygon[3],len(new_neigh)))
     
     def get_polygon_prop(self, elem, plot = False):    
+        '''Get the properties of a polygon, 
+        The function is called by the self.define_polygons_topology function'''
+        # Get the region from the vor element computed by the Delauney triangulation
         region = self.vor.regions[self.vor.point_region[elem]]
+        # Extract the coordinates of the polygon vertices
         polygon = [self.vor.vertices[i] for i in region]
+        #Extract the centroid of the polygon
         cent = self.vor.points[elem]        
+        #Get the elevation of the polygon (may be improved in the near future to use a kernel and the minimum value in it)
         Z = self.__get_z_from_dem__(cent[0],cent[1])
+        #compute the projected area of the polygon 
         area = self.__polygon_area__(np.array(polygon).T[0],np.array(polygon).T[1])
+        #plot the polygon if the user wants to
         if plot:
             if self.vor_cat[elem] < 3:
                 pl.fill(*zip(*polygon), zorder = 1, alpha = 0.5)
             else:
                 pl.fill(*zip(*polygon), zorder = 1, alpha = 0.5, c = 'k')
             pl.scatter(cent[0],cent[1], c = 'k', zorder = 0)
-
+        #conver the vertices of the region to a set
         list1_as_set = set(region)
+        #Get the number of points in the region
         n_points = self.vor.point_region.shape[0]
+        #Empty list to store the neighbors of the polygon
         neighbors = []
         is_border = []
         lface = []
         dneigh = []
+        #Iterate over all the elements to determine which are neighbors
         for r in range(n_points):
+            #Get a region
             region2 = self.vor.regions[self.vor.point_region[r]]
+            #See if both regions intersect
             intersection = list1_as_set.intersection(region2)
             intersection_as_list = list(intersection)
-            if len(intersection_as_list) > 1 and len(intersection_as_list)<3:
+            # Eval if the intersection is not empty
+            if len(intersection_as_list) > 1 and len(intersection_as_list)<3: #Not sure why minus three
                 if self.vor_cat[r] < 3:
+                    #Determine if the neighbor is a border
                     is_border.append(1)
                 else:
+                    #Or not
                     is_border.append(0)
+                #Append the region to the list of neighbors
                 neighbors.append(r)
+                #Get the vertices coordinates of the neighbor
                 v1 = np.array(self.vor.vertices[intersection_as_list][0])
                 v2 = np.array(self.vor.vertices[intersection_as_list][1])
+                #Get the centroid of the neighbor
                 c1 = self.vor.points[r]
+                #Get the face and centroid to centroid distance
                 lface.append(np.linalg.norm(v1- v2, ord = 2, axis=0))
                 dneigh.append(np.linalg.norm(c1- cent, ord = 2, axis=0))
+                #If users wants to plot the polygons
                 if plot:
                     pl.scatter(c1[0], c1[1],c = 'r')
-
+        #If user wants to plot the polygons
         if plot:   
             for i in neighbors:
                 region2 = self.vor.regions[self.vor.point_region[i]]
@@ -557,6 +600,7 @@ class ghost_preprocess():
                     pl.fill(*zip(*polygon2), c = 'g', alpha = 0.5)
                 else:
                     pl.fill(*zip(*polygon2), c = 'r', alpha = 0.5)
+        #returns the centroid, elevation, area, number of faces, list of neighbors, list of face lenghts, list of centroid to centroid distances
         return cent, Z, area, len(lface), neighbors,lface, dneigh, is_border, polygon
     
     def get_physical_prop(self, ee_data, scale = 30, prop_name = 'feature', band = 'b0',
@@ -626,20 +670,28 @@ class ghost_preprocess():
                 self.polygons_shp.loc[sliced.index, prop_name] = sliced[prop_name]
     
     def write_mesh_file(self, path, shp_path = None):
+        '''Writes the .mesh file for ghost, also writes the .shp file if it is given.'''
+        #Opens the file to write the mesh
         f = open(path,'w')
+        #Gets the number of polygons
         n_points = len(self.polygons_topology)
+        #Print the progress bar
         print('Writing mesh file...')
         out = display(progress(0, n_points), 
                   display_id=True)
+        #Write the header
         f.write('NUMELE\t%d\n' % n_points)
         f.write('INDEX   X   Y   Zmin    Zmax    Area    nFaces\n')
+        #Wrtites the properties for each polygon
         for c, p in enumerate(self.polygons_topology):
             f.write('%d\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%d\n' % (c+1,p[0][0],p[0][1],p[1]-20,p[1],p[2],p[3]))
+        #Writes the header information regarding the neighbors
         f.write('\n')
         f.write('INDEX   ID_Neighbors    Lenght_Face_Neighbors   Distance_to_Neighbors\n')
+        #Writes the neighbors for each polygon
         for c, p in enumerate(self.polygons_topology):
             f.write('%d ' % (c+1))
-            neighbors = (np.array(p[4])+1)*np.array(p[-2])
+            neighbors = (np.array(p[4])+1 - self.bad_polygons)*np.array(p[-2])
             for n in neighbors:
                 f.write('%d ' % n)
             for lf in p[5]:
@@ -649,11 +701,15 @@ class ghost_preprocess():
             f.write('\n') 
             out.update(progress(c, n_points))
         f.close()
+        #End of mesh file
         print('Mesh file written')
+        #If given, write the shp file
         if shp_path is not None:
             print('writing shapefile...')
+            #Function to write the shp file
             self.__write_mesh_shp__(shp_path)
             print('Done')
+            #Try to generate the ee version of the shapefile to use it in google earth engine
             self.polygons_shp = geo.read_file(shp_path)            
             try:
                 self.polygon_ee = shp2ee(shp_path, type='multiple')
@@ -756,6 +812,8 @@ class ghost_preprocess():
         shapeData.Destroy()
     
     def __write_mesh_shp__(self, path):
+        '''Wrtie the mesh to a shapefile'''
+        #osgeo setup format and other stuff
         DriverFormat='ESRI Shapefile'    
         sr = osgeo.osr.SpatialReference()
         sr.ImportFromEPSG(int(self.wat.epsg))
@@ -765,12 +823,14 @@ class ghost_preprocess():
         shapeData = driver.CreateDataSource(path)
         layer = shapeData.CreateLayer('layer1', sr, osgeo.ogr.wkbPolygon)
         layerDefinition = layer.GetLayerDefn()
+        #Fields and format to include in the shapefile
         names = ['polygon','area[m2]','z[m]','nfaces']
         fmts = [osgeo.ogr.OFTInteger,osgeo.ogr.OFTReal,osgeo.ogr.OFTReal,
               osgeo.ogr.OFTInteger]
         for name,fmt in zip(names, fmts):
             new_field=osgeo.ogr.FieldDefn(name,fmt)
             layer.CreateField(new_field)
+        #Write polygon by polygon
         featureFID = 0
         for c, p in enumerate(self.polygons_topology):
             ring = osgeo.ogr.Geometry(osgeo.ogr.wkbLinearRing)
