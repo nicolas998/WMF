@@ -405,7 +405,8 @@ class ghost_preprocess():
         self.vor_cat = categories
     
     def define_polygons_topology(self, define_left_right = True, reduce_exterior_faces = False,
-                               n_exterior_faces = 14, min_exterior_distance = 50):
+                               n_exterior_faces = 14, min_exterior_distance = 50,
+                               zmethod='mean',zpercentile=50, zkernel=5):
         '''obtains self.polygons_topology and self.polygons_topology_cat after self.get_voronoi_polygons()'''
         poly_prop = []        
         #Estimates the number of accepted polygons
@@ -420,7 +421,7 @@ class ghost_preprocess():
             #First check if not from the buffer
             if self.vor_cat[poly] < 3:                
                 # Get the properties of the polygon
-                _p_prop = list(self.get_polygon_prop(poly,False))
+                _p_prop = list(self.get_polygon_prop(poly,False,zmethod=zmethod, zpercentile=zpercentile,zkernel=zkernel))
                 # determine the number of neighbors that are inside the watershed
                 good_neighbors = [i for i in _p_prop[4] if i < self.polygons_expected_number]
                 # The polygon is valid if it has at least one neighbor that is not part of the buffer
@@ -534,7 +535,7 @@ class ghost_preprocess():
                         print('polygon %d' % cont1)
                         print('reduced from %d to %d' % (polygon[3],len(new_neigh)))
     
-    def get_polygon_prop(self, elem, plot = False):    
+    def get_polygon_prop(self, elem, plot = False,zmethod = 'mean', zpercentile=50, zkernel=5):    
         '''Get the properties of a polygon, 
         The function is called by the self.define_polygons_topology function'''
         # Get the region from the vor element computed by the Delauney triangulation
@@ -544,7 +545,7 @@ class ghost_preprocess():
         #Extract the centroid of the polygon
         cent = self.vor.points[elem]        
         #Get the elevation of the polygon (may be improved in the near future to use a kernel and the minimum value in it)
-        Z = self.__get_z_from_dem__(cent[0],cent[1])
+        Z = self.__get_z_from_dem__(cent[0],cent[1],kernel=zkernel, method=zmethod, percentile=zpercentile)
         #compute the projected area of the polygon 
         area = self.__polygon_area__(np.array(polygon).T[0],np.array(polygon).T[1])
         #plot the polygon if the user wants to
@@ -865,10 +866,20 @@ class ghost_preprocess():
         main_area = np.dot(x[:-1], y[1:]) - np.dot(y[:-1], x[1:])
         return 0.5*np.abs(main_area + correction)
 
-    def __get_z_from_dem__(self, x,y):
+    def __get_z_from_dem__(self, x,y, kernel = 3, method = 'mean', percentile = 50):
+        '''Get the elevation of a polygon based on the DEM'''
+        #Get the col and the row that correspond to the polygon centriod
         col = np.floor((x - self.dem_prop[2])/self.dem_prop[-3]) -1 
         row = self.dem_prop[1] - np.floor((y-self.dem_prop[3])/self.dem_prop[-2])+1
-        return np.percentile(self.DEM[int(col)-3:int(col)+3, int(row)-3:int(row)+3], 50)
+        #Computes the elevation using different methods
+        if method == 'mean':
+            return np.mean(self.DEM[int(col)-kernel:int(col)+kernel, int(row)-kernel:int(row)+kernel])
+        if method == 'percentile':
+            return np.percentile(self.DEM[int(col)-kernel:int(col)+kernel, int(row)-kernel:int(row)+kernel], percentile)
+        if method =='min':
+            return np.min(self.DEM[int(col)-kernel:int(col)+kernel, int(row)-kernel:int(row)+kernel])
+        if method =='max':
+            return np.max(self.DEM[int(col)-kernel:int(col)+kernel, int(row)-kernel:int(row)+kernel])
     
     def __clean_river_points__(self, min_dist = 250):
         h_orders = np.array(self.river_topology)[:,-2]
