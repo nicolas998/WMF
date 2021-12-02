@@ -473,6 +473,21 @@ class ghost_preprocess():
         if reduce_exterior_faces:
           self.decrease_num_faces(n_exterior_faces, min_exterior_distance)
 
+    def check_if_neighbors_exist(self):
+        '''Checks if any polygon has a neighbor with an ID higher than the total number of elements'''
+        #Set the number of elements and an empty list of bad polygons
+        npolygons = len(self.polygons_topology)
+        bad_neighbors = []
+        #Iterate trhough all the polygons
+        for c, polygon in enumerate(self.polygons_topology):
+            neighbors = np.array(polygon[4])
+            existing = np.array(polygon[7])
+            neighbors = neighbors * existing
+            if neighbors.max() > npolygons:
+                bad_neighbors.append([c+1, neighbors.argmax()])
+        #Returns a list that has the polygon followed by the polygon Id that is outside of the range
+        return bad_neighbors
+
     def decrease_num_faces(self, n_faces = 20,min_distance = 40, verbose = False):
     
         #Functions to compute distances and set numbers in order to compare distances
