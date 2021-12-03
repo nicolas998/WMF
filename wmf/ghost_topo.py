@@ -416,7 +416,8 @@ class ghost_preprocess():
                       display_id=True)
         #Iterate through the polygons to see if they are valid
         cont = 1
-        self.bad_polygons = 0
+        self.polygons_id = []
+        self.all_polygons_id = []
         for poly in range(self.vor.points.shape[0]):
             #First check if not from the buffer
             if self.vor_cat[poly] < 3:                
@@ -427,8 +428,8 @@ class ghost_preprocess():
                 # The polygon is valid if it has at least one neighbor that is not part of the buffer
                 if len(good_neighbors) > 0:
                     poly_prop.append(_p_prop)
-                else:
-                    self.bad_polygons += 1
+                    self.polygons_id.append(cont)
+            self.all_polygons_id.append(cont)
             cont+=1
             #update the progress bar
             out.update(progress(cont-2, self.vor.points.shape[0]))
@@ -446,6 +447,9 @@ class ghost_preprocess():
         #Set the coordinates and the polygons prop as class attributes
         self.polygons_topology = poly_prop 
         self.polygons_xy = np.array(xyp)
+        #convert the neighbors to an array 
+        self.__neighbors2array__()
+        self.__correct_numbering__()
         # Defines the left and right of the river topo
         if define_left_right:
             self.__get_left_right__(self.polygons_xy, self.river_center)
@@ -595,7 +599,7 @@ class ghost_preprocess():
                     #Or not
                     is_border.append(0)
                 #Append the region to the list of neighbors
-                neighbors.append(r)
+                neighbors.append(r+1)
                 #Get the vertices coordinates of the neighbor
                 v1 = np.array(self.vor.vertices[intersection_as_list][0])
                 v2 = np.array(self.vor.vertices[intersection_as_list][1])
@@ -699,15 +703,15 @@ class ghost_preprocess():
         f.write('NUMELE\t%d\n' % n_points)
         f.write('INDEX   X   Y   Zmin    Zmax    Area    nFaces\n')
         #Wrtites the properties for each polygon
-        for c, p in enumerate(self.polygons_topology):
-            f.write('%d\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%d\n' % (c+1,p[0][0],p[0][1],p[1]-20,p[1],p[2],p[3]))
+        for c, p in zip(self.polygons_id,self.polygons_topology):
+            f.write('%d\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%d\n' % (c,p[0][0],p[0][1],p[1]-20,p[1],p[2],p[3]))
         #Writes the header information regarding the neighbors
         f.write('\n')
         f.write('INDEX   ID_Neighbors    Lenght_Face_Neighbors   Distance_to_Neighbors\n')
         #Writes the neighbors for each polygon
         for c, p in enumerate(self.polygons_topology):
             f.write('%d ' % (c+1))
-            neighbors = (np.array(p[4])+1 - self.bad_polygons)*np.array(p[-2])
+            neighbors = self.neighbors[c] #(np.array(p[4])+1 - self.bad_polygons)*np.array(p[-2])
             for n in neighbors:
                 f.write('%d ' % n)
             for lf in p[5]:
@@ -848,7 +852,7 @@ class ghost_preprocess():
             layer.CreateField(new_field)
         #Write polygon by polygon
         featureFID = 0
-        for c, p in enumerate(self.polygons_topology):
+        for c, p in zip(self.polygons_id,self.polygons_topology):
             ring = osgeo.ogr.Geometry(osgeo.ogr.wkbLinearRing)
             for i in np.array(p[-1]):
                 ring.AddPoint(x=float(i[0]), y = float(i[1]))
@@ -857,7 +861,7 @@ class ghost_preprocess():
             feature = osgeo.ogr.Feature(layerDefinition)
             feature.SetGeometry(poly)
             feature.SetFID(0)
-            feature.SetField('polygon',int(c+1))
+            feature.SetField('polygon',int(c))
             feature.SetField('area[m2]',float(p[2]))
             feature.SetField('z[m]',float(p[1]))
             feature.SetField('nfaces',int(p[3]))
@@ -1075,3 +1079,68 @@ class ghost_preprocess():
         df.index = df.index.astype(int)
         df = df.astype(int)
         self.attr = df
+        
+    def __neighbors2array__(self):
+        '''Obtains a list with the neigbors as arrays'''
+        self.neighbors = []
+        for p in self.polygons_topology:
+            self.neighbors.append(np.array(p[4]) * np.array(p[7]))
+
+        #Eliminates neighbors that are not in the self.polygons_topology list
+        for c, n in enumerate(self.neighbors):
+            if n.max() > self.polygons_id[-1]:
+                for c2, i in enumerate(n):
+                    if i > self.polygons_id[-1]:
+                        self.neighbors[c][c2] = 0
+                        
+    def __correct_numbering__(self, verbose = False):
+        '''Corrects the ids of the polygons taking away the ids that jump'''
+        #Define the lists with the new polygons ids and their neighbors
+        new_ids = []
+        new_neighbors = copy.deepcopy(self.neighbors)
+        c = 1
+        c2 = 1
+        #Progress bar
+        print('Renumbering polygons ids ...')
+        out = display(progress(0, len(self.polygons_id)), 
+                    display_id=True)
+        #Iterates through all the polygons
+        for pid in self.polygons_id:
+            #If the polygon id is greater than the expected ID, changes it in the neighbors
+            if pid > c:
+                #Get the new id 
+                new_pid = c
+                new_ids.append(new_pid)        
+                #Prints if verbose
+                if pid >c2 and verbose:
+                    print(pid)
+                    c2 = pid
+                #Correct the number in the neighbors
+                for n1, n2 in zip(self.neighbors, new_neighbors):
+                    #Change the poly id if it is on that neighbor
+                    if n1[n1==pid].size > 0:
+                        n2[n2==pid] = new_pid
+            else:
+                new_ids.append(pid)
+            out.update(progress(c, len(self.polygons_id)))
+            c+=1
+            c2+=1      
+        #Replaces the polygons ids in self.polygon_ids and self.neighbors
+        print('Done renumbering')
+        self.neighbors = new_neighbors
+        self.polygons_id = new_ids
+                        
+    def check_if_neighbors_exist(self):
+        '''Checks if any polygon has a neighbor with an ID higher than the total number of elements'''
+        #Set the number of elements and an empty list of bad polygons
+        npolygons = len(self.polygons_topology)
+        bad_neighbors = []
+        #Iterate trhough all the polygons
+        for c, polygon in enumerate(self.polygons_topology):
+            neighbors = np.array(polygon[4])
+            existing = np.array(polygon[7])
+            neighbors = neighbors * existing
+            if neighbors.max() > npolygons:
+                bad_neighbors.append([c+1, neighbors.argmax()])
+        #Returns a list that has the polygon followed by the polygon Id that is outside of the range
+        return bad_neighbors
