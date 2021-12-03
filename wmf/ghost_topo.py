@@ -426,7 +426,7 @@ class ghost_preprocess():
                 # determine the number of neighbors that are inside the watershed
                 good_neighbors = [i for i in _p_prop[4] if i < self.polygons_expected_number]
                 # The polygon is valid if it has at least one neighbor that is not part of the buffer
-                if len(good_neighbors) > 0:
+                if len(good_neighbors) > 1:
                     poly_prop.append(_p_prop)
                     self.polygons_id.append(cont)
             self.all_polygons_id.append(cont)
