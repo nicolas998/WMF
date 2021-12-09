@@ -10,6 +10,7 @@ import copy
 from scipy import stats
 import pylab as pl
 from IPython.display import HTML, display
+from shapely.geometry import Polygon
 #try:
 import ee
 # Trigger the authentication flow.
