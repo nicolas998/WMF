@@ -491,68 +491,78 @@ class ghost_preprocess():
                 bad_neighbors.append([c+1, neighbors.argmax()])
         #Returns a list that has the polygon followed by the polygon Id that is outside of the range
         return bad_neighbors
-
-    def decrease_num_faces(self, n_faces = 20,min_distance = 40, verbose = False):
     
-        #Functions to compute distances and set numbers in order to compare distances
-        def number2dec(x):
-            t = '%.3f' % x
-            return float(t)
-
+    def decrease_num_faces(self, step = 2, minfaces = 18):
+        '''Reduces the number of faces of polygons next to border polygons. The step indicates 
+        the step taken to reduce faces (border[::step]), minfaces indicates the minimum number of faces'''
         def compute_distance(x,y):
             d = np.sqrt((x[0]-y[0])**2 + (x[1]-y[1])**2)
             return number2dec(d)
-
+        def number2dec(x):
+            t = '%.3f' % x
+            return float(t)
         def multiple_distances(coor):
             distances = []
             for i,j in zip(coor[:-1], coor[1:]):
                 distances.append(compute_distance(i,j))
-            distances.append(compute_distance(coor[-1],coor[0]))
+            distances.append(number2dec(compute_distance(coor[-1],coor[0])))
             return distances
+
+        def compute_area(coord):
+            x = []; y = []
+            for i in coord:
+                x.append(i[0])
+                y.append(i[1])
+            pgon = Polygon(zip(x, y)) # Assuming the OP's x,y coordinates
+            return pgon.area
         
-        #Main code that reduces the number of faces
-        for cont1, polygon in enumerate(self.polygons_topology):
-            #Compute neighbors
-            neighbors = (np.array(polygon[4])+1)*np.array(polygon[-2])
-            #If it is on the edge, see how many faces does it has
-            #print(polygon[3])
-            if np.min(neighbors) == 0:
-                #Evals if the polygon has more faces than the n_faces param
-                if polygon[3] >= n_faces:
-                    #print('entro')
-                    #Get the current faces lenght and centroids distances, and the coordinates
-                    d_vor = [number2dec(i) for i in polygon[5]]
-                    d_cent = polygon[6]
-                    c = polygon[-1]
-                    #Compute the distance in the order of the coordinates
-                    d_com = multiple_distances(c)
-                    #Extract the required faces
-                    new_c = []
-                    new_lenght = []
-                    new_dist = []
-                    new_neigh = []
-                    keep = []
-                    for cont, coord in enumerate(c):  
-                        idx = d_com.index(d_vor[cont])
-                        if neighbors[cont] != 0 or d_vor[cont] > min_distance:
-                            keep.append(cont)
-                            new_c.append(c[idx])
-                            new_lenght.append(d_vor[cont])
-                            new_dist.append(d_cent[cont])
-                    #Generate new arrays of the neighbors
-                    new_neigh = neighbors[keep]
-                    new_neigh[new_neigh > 0] =new_neigh[new_neigh > 0] -1 
-                    ones = np.copy(new_neigh)
-                    ones[ones>0] = 1
-                    #Update the polygon properties in the main list 
-                    self.polygons_topology[cont1][3] = len(new_neigh)
-                    self.polygons_topology[cont1][4] = new_neigh 
-                    self.polygons_topology[cont1][5] = new_lenght
-                    self.polygons_topology[cont1][6] = new_dist
-                    self.polygons_topology[cont1][-2] =  ones.tolist()
-                    if verbose:
-                        print('polygon %d' % cont1)
-                        print('reduced from %d to %d' % (polygon[3],len(new_neigh)))
+        cont = 0
+        #Iterates through all the polygons to check
+        for p,n,i in zip(self.polygons_topology ,self.neighbors, self.polygons_id):
+            if n.size > 20 and n.min() == 0:                
+                nfaces = n.size
+                print('polygon %d has %d faces' % (i, nfaces))
+                a = p        
+                n = n.tolist() #Neighbors ids
+                l = [number2dec(i) for i in a[5]] # Lenghts of the faces
+                d = a[6] #Distance between polygons
+                b = a[7] # Border neighbors
+                c = a[-1] # Coordinates of the polygon
+
+                # Find the order of the coordinates that matches the neighbors order
+                ltemp = multiple_distances(c) # Compute the distances in the order of the coordinates 
+                c2 = []
+                for i in ltemp:
+                    c2.append(c[l.index(i)])
+
+                #Find where neighbors start to become border
+                b2 = np.array(b)
+                diff = b2[:-1] - b2[1:]
+                pos = diff.tolist().index(1) +1   
+
+                while nfaces < minfaces:
+                    nn = n[:pos] + n[pos::step]
+                    nfaces = len(nn)
+                    if nfaces > minfaces:
+                        step += 1    
+                nn = n[:pos] + n[pos::step]
+                nfaces = len(nn)
+                print('N faces reduced to %d using an step of %d' % (nfaces, step))
+                #New polygon neighbors, borders, lenght, and etc...
+                nn = n[:pos] + n[pos::step]
+                ln = l[:pos] + l[pos::step]
+                bn = b[:pos] + b[pos::step]
+                cn = c2[:pos] + c2[pos::step]
+                dn = d[:pos] + d[pos::step]
+                area = compute_area(cn)
+                self.polygons_topology[cont][2] = area
+                self.polygons_topology[cont][3] = len(nn)
+                self.polygons_topology[cont][4] = nn
+                self.polygons_topology[cont][5] = ln
+                self.polygons_topology[cont][6] = dn  
+                self.polygons_topology[cont][7] = bn
+                self.neighbors[cont] = np.array(nn)
+            cont+=1
     
     def get_polygon_prop(self, elem, plot = False,zmethod = 'mean', zpercentile=50, zkernel=5):    
         '''Get the properties of a polygon, 
