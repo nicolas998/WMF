@@ -405,7 +405,7 @@ class ghost_preprocess():
         self.vor_cat = categories
     
     def define_polygons_topology(self, define_left_right = True, reduce_exterior_faces = False,
-                               n_exterior_faces = 14, min_exterior_distance = 50,
+                               n_exterior_faces = 14, faces_reduction_step = 2,
                                zmethod='mean',zpercentile=50, zkernel=5):
         '''obtains self.polygons_topology and self.polygons_topology_cat after self.get_voronoi_polygons()'''
         poly_prop = []        
@@ -475,7 +475,10 @@ class ghost_preprocess():
                     self.polygons_topology[c][1] = zmean
         #Reduces the number of exterior faces if the user wants to 
         if reduce_exterior_faces:
-          self.decrease_num_faces(n_exterior_faces, min_exterior_distance)
+          if faces_reduction_step > 4:
+              faces_reduction_step = 4
+              print('Warning: faces_reduction_step must be less than 5, set to 4')
+          self.decrease_num_faces( step = faces_reduction_step, minfaces = n_exterior_faces)
 
     def check_if_neighbors_exist(self):
         '''Checks if any polygon has a neighbor with an ID higher than the total number of elements'''
@@ -562,6 +565,8 @@ class ghost_preprocess():
                 self.polygons_topology[cont][6] = dn  
                 self.polygons_topology[cont][7] = bn
                 self.neighbors[cont] = np.array(nn)
+            else:
+                self.polygons_topology[cont][4] = n.tolist()
             cont+=1
     
     def get_polygon_prop(self, elem, plot = False,zmethod = 'mean', zpercentile=50, zkernel=5):    
