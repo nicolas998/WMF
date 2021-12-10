@@ -891,7 +891,7 @@ class ghost_preprocess():
             pos = []
             while len(pos)<2:
                 p = np.argmin(dist)
-                pos.append(p+1)
+                pos.append(self.polygons_id[p])
                 dist[p] = 9999
             left_right.append(pos)
         self.river_left_right = left_right
