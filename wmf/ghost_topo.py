@@ -837,7 +837,7 @@ class ghost_preprocess():
             feature.SetFID(0)
             feature.SetField('segment',int(prop[l][0]))
             feature.SetField('long[m]',float(self.river_length[l-1]))
-            feature.SetField('z[m]',float(prop[l-1][5]))
+            feature.SetField('z[m]',float(prop[l][5]))
             feature.SetField('down',int(d))
             feature.SetField('left',int(self.river_left_right[l-1][0]))
             feature.SetField('right',int(self.river_left_right[l-1][1]))
