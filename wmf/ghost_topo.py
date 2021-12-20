@@ -523,7 +523,7 @@ class ghost_preprocess():
         cont = 0
         #Iterates through all the polygons to check
         for p,n,i in zip(self.polygons_topology ,self.neighbors, self.polygons_id):
-            if n.size > 20 and n.min() == 0:                
+            if n.size > minfaces and n.min() == 0:                
                 nfaces = n.size
                 print('polygon %d has %d faces' % (i, nfaces))
                 a = p        
