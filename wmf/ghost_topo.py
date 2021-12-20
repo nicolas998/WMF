@@ -1161,7 +1161,7 @@ class ghost_preprocess():
         #Returns a list that has the polygon followed by the polygon Id that is outside of the range
         return bad_neighbors
 
-    def correct_seg_elevation_respect2polygons(self, method='discrete', epsilon = 0.1):    
+    def correct_seg_elevation_respect2polygons(self, method='discrete', epsilon = 0.1, verbose = False):    
         '''Corrects the elevation of the river segment taking into account the elevation of the neighbor polygons
         Params:
             method: discrete: does the correction element by element
@@ -1181,8 +1181,11 @@ class ghost_preprocess():
                 zdif = np.max([zriver-zp1, zriver-zp2])
                 #Correct only the segment if discrete
                 if method=='discrete':
-                    self.river_topology[cont][5] = zriver - zdif - 0.1
-                    self.river_topology[cont][4] = zriver - zdif - 20.1 
+                    new_z = zriver - zdif - epsilon
+                    self.river_topology[cont][5] = new_z
+                    self.river_topology[cont][4] = new_z - 20
+                    if verbose:
+                        print('Segment %d elevation %.2f corrected to %.2f' % (i[0], zriver, new_z))
                 #Stores the maximum difference used only for lumped version
                 if zdif > zmax:
                     zmax = zdif            
@@ -1190,8 +1193,11 @@ class ghost_preprocess():
         #Decrese the elevation of all the river network in the case of lumped version
         if method == 'lumped':
             for i in range(1, len(self.river_topology)):
-                self.river_topology[i][5] = zriver - zmax - 0.1
-                self.river_topology[i][4] = zriver - zmax - 20.1 
+                zriver = self.river_topology[i][5]
+                self.river_topology[i][5] = zriver - zmax - epsilon
+                self.river_topology[i][4] = zriver - zmax - 20 - epsilon 
+            if verbose:
+                print('All the river segments elevation were decreased by %.2f' % zmax)
         #Correct the downstream elevation just in case of missmatches downstream
         elif method == 'discrete':
             self.__correct_downstream_elevation__(epsilon)
