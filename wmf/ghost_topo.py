@@ -451,6 +451,8 @@ class ghost_preprocess():
         #convert the neighbors to an array 
         self.__neighbors2array__()
         self.__correct_numbering__()
+        #Erase the bad neighbors
+        self.delete_out_of_boundaries_neighbors()
         # Defines the left and right of the river topo
         if define_left_right:
             self.__get_left_right__(self.polygons_xy, self.river_center)
@@ -480,6 +482,33 @@ class ghost_preprocess():
               faces_reduction_step = 4
               print('Warning: faces_reduction_step must be less than 5, set to 4')
           self.decrease_num_faces( step = faces_reduction_step, minfaces = n_exterior_faces)
+
+    def delete_out_of_boundaries_neighbors(self):
+        '''Iterates through the list of neighbors of each polygons, and if it has a neighbor that is outside of the number of total 
+        polygons, erase it'''
+        self.nelem = len(self.neighbors)
+        for c, n in enumerate(self.neighbors):
+            for i in n:
+                if i > self.nelem:
+                    #Converts the neighbor properties into a pandas DataFrame
+                    l = self.polygons_topology[c]
+                    a = pd.DataFrame(l[4:8]).T
+                    a[0] = a[0].astype(int)
+                    a[3] = a[3].astype(int)
+                    #Identify the neighbors that are greater than the number of polygons
+                    pos = a[0][a[0] > self.nelem].index
+                    #Convert those into zero
+                    a.loc[pos,[0,3]] = 0
+                    #Sort the values to keep the zero neighbor at the end of the list
+                    a.sort_values(0,ascending=False, inplace=True)
+                    #Replace the updates values in the polygon that has the properties of the neighbors
+                    for z,j in zip(a.values.T, [4,5,6,7,8]):
+                        if j == 4 or j == 8:
+                            self.polygons_topology[c][j] = z.astype(int).tolist()
+                        else:
+                            self.polygons_topology[c][j] = z.tolist()
+                    #Replace the neighbor vector
+                    self.neighbors[c] = a.values.T[0].astype(int)
 
     def check_if_neighbors_exist(self):
         '''Checks if any polygon has a neighbor with an ID higher than the total number of elements'''
