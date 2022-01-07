@@ -451,8 +451,6 @@ class ghost_preprocess():
         #convert the neighbors to an array 
         self.__neighbors2array__()
         self.__correct_numbering__()
-        #Erase the bad neighbors
-        self.delete_out_of_boundaries_neighbors()
         # Defines the left and right of the river topo
         if define_left_right:
             self.__get_left_right__(self.polygons_xy, self.river_center)
@@ -482,6 +480,8 @@ class ghost_preprocess():
               faces_reduction_step = 4
               print('Warning: faces_reduction_step must be less than 5, set to 4')
           self.decrease_num_faces( step = faces_reduction_step, minfaces = n_exterior_faces)
+        #Erase the bad neighbors
+        self.delete_out_of_boundaries_neighbors()
 
     def delete_out_of_boundaries_neighbors(self):
         '''Iterates through the list of neighbors of each polygons, and if it has a neighbor that is outside of the number of total 
