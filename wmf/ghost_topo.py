@@ -14,6 +14,7 @@ from shapely.geometry import Polygon
 #try:
 import ee
 # Trigger the authentication flow.
+a = 0
 ee.Authenticate()
 # Initialize the library.
 ee.Initialize()
