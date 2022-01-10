@@ -70,12 +70,13 @@ def get_soils_data():
 
 def get_land_use_data(date1 = '2019-01-01', date2 = '2020-12-01'):
     '''Obtains the land use data from the USDA/NASS/CDL
-    Parameters:
+    Parameters: hello
         - date1 and date2: initial and end date of the ImageCollection, it grabs the first in the list.
     Returns:
         - ee.Image with the land use'''
     land_use = ee.ImageCollection('USDA/NASS/CDL').filterDate(date1, date2)
     return land_use.first()
+
 
 class ghost_preprocess():
     
