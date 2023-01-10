@@ -3681,7 +3681,7 @@ class SimuBasin(Basin):
         #De acuerdo a si el modelo es por laderas o por celdas agrega lass varaibeles
         if self.modelType[0]=='c':
             #Obtiene el tipo de celdas
-            unit_type = cu.basin_stream_type(self.structure,
+            unit_type = cu.basin_stream_type(self.structure[0],
                 acum,thresholdes,len(thresholdes),self.ncells)
             #Asigna variables
             models.drena = np.ones((1,self.ncells))*self.structure
