@@ -46,13 +46,17 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 try:
     import osgeo.ogr, osgeo.osr
-    import gdal
 except:
-    print('no se importa osgeo ni gdal, no es posible hacer plots de mapas ni lecturas de mapas hacia las cuencas')
-try:
+    print('no se importa osgeo, no es posible hacer plots de mapas ni lecturas de mapas hacia las cuencas')
+    
+try: 
     import gdal
-except:
-    print('no se logra importar gdal, se limitan las funciones con mapas raster')
+except ImportError:
+    try:
+        from osgeo import gdal
+    except:
+        print('no se logra importar gdal, se limitan las funciones con mapas raster')
+    
 try:
     import osgeo.ogr, osgeo.osr
 except:
