@@ -9,7 +9,7 @@ py.extension_module('wmf.models', 'wmf/modelosv2.f90')
 
 # Install your pure-Python sources (exclude the .f90 files)
 py.install_sources(
-  ['wmf/__init__.py', 'wmf/wmf.py'],
+  files('wmf/__init__.py', 'wmf/wmf.py'),
   subdir: 'wmf',
   pure: true
 )
