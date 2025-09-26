@@ -1,13 +1,6 @@
 #!/usr/bin/env python
-from setuptools import setup, Extension
-import numpy
 import os
-
-# Define Fortran extensions using numpy's f2py
-from numpy.distutils.core import Extension as NumpyExtension
-from numpy.distutils.core import setup as numpy_setup
-
-
+from numpy.distutils.core import setup, Extension
 
 ext1 = Extension(name = 'cu',
                  sources = ['wmf/cuencas.f90'])
