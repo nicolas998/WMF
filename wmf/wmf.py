@@ -16,8 +16,8 @@
 #Algo
 import matplotlib
 #matplotlib.use('Agg')
-from cu import *
-from models import *
+from .cu import *
+from .models import *
 import numpy as np
 import pylab as pl
 from scipy.spatial import Delaunay
