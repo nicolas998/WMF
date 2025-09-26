@@ -14,78 +14,78 @@
 #!You should have received a copy of the GNU General Public License
 #!along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #Algo
-import matplotlib
-#matplotlib.use('Agg')
+
 from .cu import *
 from .models import *
-import numpy as np
-import pylab as pl
-from scipy.spatial import Delaunay
-from scipy.stats import norm
-import os
-import pandas as pd
-import datetime as datetime
-from multiprocessing import Pool
-import matplotlib.path as mplPath
+# import matplotlib
+# import numpy as np
+# import pylab as pl
+# from scipy.spatial import Delaunay
+# from scipy.stats import norm
+# import os
+# import pandas as pd
+# import datetime as datetime
+# from multiprocessing import Pool
+# import matplotlib.path as mplPath
 
-try:
-    from pysheds.grid import Grid
-except:
-    print('Warning: no module pysheds, the user must give the DIR map to wmf to obtain a watershed')
+# try:
+#     from pysheds.grid import Grid
+# except:
+#     print('Warning: no module pysheds, the user must give the DIR map to wmf to obtain a watershed')
 
-try:
-    import cartopy.crs as ccrs
-    from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
-    import cartopy.io.shapereader as shpreader
-    from cartopy.io.shapereader import Reader
-    from cartopy.feature import ShapelyFeature
-except:
-    print('no cartopy')
-import matplotlib.ticker as mticker
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+# try:
+#     import cartopy.crs as ccrs
+#     from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+#     import cartopy.io.shapereader as shpreader
+#     from cartopy.io.shapereader import Reader
+#     from cartopy.feature import ShapelyFeature
+# except:
+#     print('no cartopy')
+# import matplotlib.ticker as mticker
+# from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-try:
-    import osgeo.ogr, osgeo.osr
-    import gdal
-except:
-    print('no se importa osgeo ni gdal, no es posible hacer plots de mapas ni lecturas de mapas hacia las cuencas')
-try:
-    import gdal
-except:
-    print('no se logra importar gdal, se limitan las funciones con mapas raster')
-try:
-    import osgeo.ogr, osgeo.osr
-except:
-    print('no se logra importar osgeo, se limitan las funciones con mapas vector.')
-try:
-    import netcdf as netcdf
-except:
-    try:
-        import netCDF4 as netcdf
-    except:
-        print('No netcdf en esta maquina, se desabilita la funcion SimuBasin.save_SimuBasin')
-        pass
-try:    
-    from matplotlib.patches import Polygon
-    from matplotlib.collections import PatchCollection
-except:
-    print('Unable to import Polygon and PatchCollection from matplotlib')
-    pass
-try:
-    from deap import base, creator
-    from deap import tools
-    FlagCalib_NSGAII = True
-except:
-    print('No se logra importar deap tools, por lo tanto se deshabilita SimuBasin.Calib_NSGAII')
-    FlagCalib_NSGAII = False
-try:
-    from rasterio import features as __fea__
-    FlagBasinPolygon = True
-except:
-    print('No se logra importar rasterio, se deshabilita obtencion de poligono de cuenca')
-    FlagBasinPolygon = False
+# try:
+#     import osgeo.ogr, osgeo.osr
+#     import gdal
+# except:
+#     print('no se importa osgeo ni gdal, no es posible hacer plots de mapas ni lecturas de mapas hacia las cuencas')
+# try:
+#     import gdal
+# except:
+#     print('no se logra importar gdal, se limitan las funciones con mapas raster')
+# try:
+#     import osgeo.ogr, osgeo.osr
+# except:
+#     print('no se logra importar osgeo, se limitan las funciones con mapas vector.')
+# try:
+#     import netcdf as netcdf
+# except:
+#     try:
+#         import netCDF4 as netcdf
+#     except:
+#         print('No netcdf en esta maquina, se desabilita la funcion SimuBasin.save_SimuBasin')
+#         pass
+# try:    
+#     from matplotlib.patches import Polygon
+#     from matplotlib.collections import PatchCollection
+# except:
+#     print('Unable to import Polygon and PatchCollection from matplotlib')
+#     pass
+# try:
+#     from deap import base, creator
+#     from deap import tools
+#     FlagCalib_NSGAII = True
+# except:
+#     print('No se logra importar deap tools, por lo tanto se deshabilita SimuBasin.Calib_NSGAII')
+#     FlagCalib_NSGAII = False
+# try:
+#     from rasterio import features as __fea__
+#     FlagBasinPolygon = True
+# except:
+#     print('No se logra importar rasterio, se deshabilita obtencion de poligono de cuenca')
+#     FlagBasinPolygon = False
 
-import random
+# import random
 #Variable codigo EPSG
 Global_EPSG = -9999
 
