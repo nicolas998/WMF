@@ -2776,7 +2776,7 @@ class Basin:
         Texto='%.2f' % Mediana
         ax.hlines(Mediana,-0.4,len(keys)+1-0.8,'r',lw=2,label = '$P_{50}='+Texto+'$')
         Texto='%.2f' % (Media+Desv)
-        ax.hlines(Media+Desv,-0.4,len(keys)+1-0.8,'b',lw=2,label = u'$\mu+\sigma='+Texto+'$')
+        ax.hlines(Media+Desv,-0.4,len(keys)+1-0.8,'b',lw=2,label = u'$\\mu+\sigma='+Texto+'$')
         ax.set_xticks(list(np.arange(1,len(keys)+1)-0.8))
         ax.set_xticklabels(keys,rotation=60)
         ylabel = kwargs.get('ylabel',u'Tiempo de concentracion $T_c[hrs]$')
@@ -2860,7 +2860,7 @@ class Basin:
         ax.grid(True)
         ax.tick_params(labelsize = axissize)
         ax.set_xlabel('Pendiente',size=labelsize)
-        ax.set_ylabel('$pdf [\%]$',size=labelsize)
+        ax.set_ylabel('$pdf [\\%]$',size=labelsize)
         if path is not None:
             pl.savefig(path,bbox_inches='tight')
         if show:
@@ -2885,8 +2885,8 @@ class Basin:
         ax.set_xlim(0,np.ceil(self.CellTravelTime.max()))
         ax.grid(True)
         ax.set_xlabel('Tiempo $t [hrs]$',size=14)
-        ax.set_ylabel('$pdf[\%]$',size=14)
-        ax2.set_ylabel('$cdf[\%]$',size=14)
+        ax.set_ylabel('$pdf[\\%]$',size=14)
+        ax2.set_ylabel('$cdf[\\%]$',size=14)
         ax.set_xticks(b_lib)
         ax.legend(loc=4)
         if path is not None:
@@ -2916,11 +2916,11 @@ class Basin:
         ax.plot(basin_acum,elevBasin,c='r',lw=3,label='Cuenca')
         ax.tick_params(labelsize = 14)
         ax.grid()
-        ax.set_xlabel('Porcentaje Area Acumulada $[\%]$',size=16)
+        ax.set_xlabel('Porcentaje Area Acumulada $[\\%]$',size=16)
         if normed==False:
             ax.set_ylabel('Elevacion $[m.s.n.m]$',size=16)
         elif normed==True:
-            ax.set_ylabel('Elevacion $[\%]$',size=16)
+            ax.set_ylabel('Elevacion $[\\%]$',size=16)
         lgn1=ax.legend(loc=0)
         if path is not None:
             pl.savefig(path, bbox_inches='tight')
