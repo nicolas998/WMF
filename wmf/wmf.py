@@ -4489,11 +4489,15 @@ class SimuBasin(Basin):
         else:
             HspeedLoc = np.zeros((4,N))*-9999.0
         #Implementa o no la EVP variable en funcion de la radiacion
-        if EvpVariable:
-            Rad = self.__GetEVP_Serie__(Rain.index)
-        else:
-            models.evpserie = np.ones(N_intervals)
-        #Set del vector de guardado de condiciones del modelo 
+        # if EvpVariable:
+        #     Rad = self.__GetEVP_Serie__(Rain.index)
+        # else:
+        #     models.evpserie = np.ones(N_intervals)
+        
+        if EvpSerie is not None:
+            models.evpserie = EvpSerie
+            
+            #Set del vector de guardado de condiciones del modelo 
         if WheretoStore is None:
             models.guarda_cond = np.array(range(N_intervals))+1
         else:
