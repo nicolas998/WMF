@@ -1,3 +1,6 @@
+v<1.1.0>, <2026/06/12> -- Pre-compiled wheels for Windows and Linux built
+    by GitHub Actions (cibuildwheel) and published to PyPI on tagged
+    releases, so pip install wmf needs no Fortran compiler.
 v<1.1.0>, <2026/06/12> -- Python 3.12 support: build migrated from
     numpy.distutils to meson-python (pip install .), fortran extensions
     now live inside the wmf package (wmf.cu / wmf.models), gdal imported

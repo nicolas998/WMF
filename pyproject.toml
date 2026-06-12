@@ -33,3 +33,18 @@ calib = ["deap"]
 
 [project.urls]
 Homepage = "https://github.com/nicolas998/WMF"
+
+[tool.cibuildwheel]
+# 64-bit CPython only; PyPy is not supported by the Fortran extensions
+archs = "auto64"
+skip = "*-musllinux*"
+# Light import test: the full smoke test needs GDAL, which has no PyPI
+# wheels on Windows. Run from a temp dir so the source tree never shadows
+# the installed package.
+test-command = "python -c \"from wmf import wmf, cu, models; assert hasattr(wmf, 'Basin'); print('wheel import OK')\""
+
+[tool.cibuildwheel.windows]
+# Force the MinGW toolchain (gfortran has no MSVC counterpart)
+environment = { CC = "gcc", CXX = "g++", FC = "gfortran" }
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"

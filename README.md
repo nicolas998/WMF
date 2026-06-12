@@ -6,6 +6,22 @@ WMF (Watershed Modeling Framework) is a module to design to work with hydrograph
 
 ## Installation
 
+### Pre-built wheels (no compiler needed)
+
+Pre-compiled wheels for Windows and Linux (64-bit) are built by GitHub
+Actions for every tagged release and published to PyPI, so on a supported
+platform a plain pip install works without any Fortran compiler:
+
+```bash
+pip install wmf
+```
+
+Wheels for the development branch can also be downloaded from the
+[Actions artifacts](https://github.com/nicolas998/WMF/actions/workflows/wheels.yml)
+of the `Build wheels` workflow.
+
+### Building from source
+
 Requirements:
 
 - Python >= 3.9 (tested up to 3.12)

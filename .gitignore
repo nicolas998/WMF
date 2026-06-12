@@ -11,5 +11,6 @@ venv/
 .mesonpy-*/
 build/
 dist/
+wheelhouse/
 *.pyd
 *.so
