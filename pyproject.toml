@@ -1,0 +1,35 @@
+[build-system]
+build-backend = "mesonpy"
+requires = [
+    "meson-python>=0.15.0",
+    "ninja",
+    "numpy>=1.26",
+    # f2py needs it to read Fortran sources with non-ASCII (accented) comments
+    "charset_normalizer",
+]
+
+[project]
+name = "wmf"
+version = "1.1.0"
+description = "Watershed Modelling Framework"
+readme = "README.md"
+license = { file = "LICENSE.txt" }
+authors = [
+    { name = "Nicolas Velasquez G", email = "nicolas.velasquezgiron@gmail.com" },
+]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.26",
+    "scipy",
+    "pandas",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+# Reading/writing rasters, shapefiles and netCDF basin files
+geo = ["netCDF4", "rasterio", "gdal"]
+# NSGA-II calibration support
+calib = ["deap"]
+
+[project.urls]
+Homepage = "https://github.com/nicolas998/WMF"

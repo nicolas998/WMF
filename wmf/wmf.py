@@ -16,8 +16,14 @@
 #Algo
 import matplotlib
 #matplotlib.use('Agg')
-from cu import *
-from models import *
+try:
+    #Compiled fortran extensions installed inside the wmf package (pip install .)
+    from wmf.cu import *
+    from wmf.models import *
+except ImportError:
+    #Legacy layout: extensions installed as top level modules
+    from cu import *
+    from models import *
 import numpy as np
 import pylab as pl
 from scipy.spatial import Delaunay
@@ -28,34 +34,20 @@ import datetime as datetime
 from multiprocessing import Pool
 import matplotlib.path as mplPath
 
-try:
-    from pysheds.grid import Grid
-except:
-    print('Warning: no module pysheds, the user must give the DIR map to wmf to obtain a watershed')
-
-try:
-    import cartopy.crs as ccrs
-    from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
-    import cartopy.io.shapereader as shpreader
-    from cartopy.io.shapereader import Reader
-    from cartopy.feature import ShapelyFeature
-except:
-    print('no cartopy')
-import matplotlib.ticker as mticker
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 try:
     import osgeo.ogr, osgeo.osr
-    import gdal
-except:
-    print('no se importa osgeo ni gdal, no es posible hacer plots de mapas ni lecturas de mapas hacia las cuencas')
-try:
-    import gdal
-except:
-    print('no se logra importar gdal, se limitan las funciones con mapas raster')
+    from osgeo import gdal
+except ImportError:
+    try:
+        #Legacy gdal (<3.0) installed as a top level module
+        import gdal
+    except ImportError:
+        print('no se logra importar gdal, se limitan las funciones con mapas raster')
 try:
     import osgeo.ogr, osgeo.osr
-except:
+except ImportError:
     print('no se logra importar osgeo, se limitan las funciones con mapas vector.')
 try:
     import netcdf as netcdf
@@ -89,28 +81,6 @@ import random
 #Variable codigo EPSG
 Global_EPSG = -9999
 
-#-----------------------------------------------------------------------
-#Process DEM 
-#-----------------------------------------------------------------------
-def dem_process(dem_path, dxp, noData):
-    '''Using pysheds obtains the dir map
-    Parameters:
-        - path to the DEM file
-        - dxp: lenght of a cell in the DEM in meters
-        - noData: missing values.
-    Results:
-        - DEM, DIR, epsg'''
-    #Read the dem for wmf 
-    DEM, epsg = read_map_raster(dem_path, isDEMorDIR=True, dxp = dxp, noDataP = noData)
-    # Read the dem for pysheds
-    gr = Grid.from_raster(dem_path, data_name='dem')
-    gr.fill_depressions('dem', out_name='flooded_dem')
-    gr.resolve_flats('flooded_dem', out_name='inflated_dem')
-    dir_map = (8, 9,6,3,2,1,4,7)
-    gr.flowdir(data='inflated_dem', out_name='dir', dirmap=dir_map)
-    #Return the dem and the dir maps 
-    return gr.dem.T, gr.dir.T, epsg
-    
 #-----------------------------------------------------------------------
 #Ploteo de variables
 #-----------------------------------------------------------------------
@@ -378,7 +348,7 @@ def read_map_points(path_map, ListAtr = None):
             #Busca si el atributo esta
             pos = f.GetFieldIndex(j)
             #Si esta lee la info del atributo
-            if pos is not -1:
+            if pos != -1:
                 vals = []
                 for i in range(l.GetFeatureCount()):
                     f = l.GetFeature(i)
@@ -2207,9 +2177,9 @@ class Basin:
         Qmax=[]
         for t in Tr:
             #Calcula k
-            if Dist is 'gumbel':
+            if Dist == 'gumbel':
                 k=-1*(0.45+0.78*np.log(-1*np.log(1-1/float(t))))
-            elif Dist is 'lognorm':
+            elif Dist == 'lognorm':
                 Ztr=norm.ppf(1-1/float(t))
                 k=(np.exp(Ztr*np.sqrt(np.log(1+Cv**2))-0.5*np.log(1-Cv**2))-1)/Cv
             #Calcula el caudal maximo
@@ -2246,9 +2216,9 @@ class Basin:
         Qmin=[]
         for t in Tr:
             #Calcula k
-            if Dist is 'gumbel':
+            if Dist == 'gumbel':
                 k = (-1*np.sqrt(6)/np.pi)*(0.5772+np.log(-1*np.log(1/float(t))))
-            elif Dist is 'lognorm':
+            elif Dist == 'lognorm':
                 Ztr=norm.ppf(1/float(t))
                 k = 1*(np.exp(Ztr*np.sqrt(np.log(1+Cv**2))-0.5*np.log(1-Cv**2))-1)/Cv
             #Calcula el caudal maximo
@@ -2429,127 +2399,6 @@ class Basin:
     #------------------------------------------------------
     # Graficas de la cuenca
     #------------------------------------------------------
-    def graficar_cuenca(self, vector_cuenca, ax = None, 
-        figsize = (10, 10), path_guardar = None, dpi = 100, 
-        cmap = 'viridis', fontsize = 28, titulo = '', 
-        titulo_colorbar = '', ubicacion_colorbar = 'bottom', 
-        norm  = None, levels = None, etiquetas_colorbar = None, 
-        centrar_etiquetas_colorbar = False, color_perimetro = 'r', separaciones_colorbar = None):
-        #Define the aces if not given
-        if ax == None:
-            fig = pl.figure(figsize = figsize)
-            ax = fig.add_subplot(1, 1, 1, projection = ccrs.PlateCarree())
-        
-        mapa, prop = self.Transform_Basin2Map(vector_cuenca)
-        celdas_x, celdas_y, coordenada_x_abajo_izquierda, coordenada_y_abajo_izquierda, delta_x, delta_y, nodata = prop
-        mapa[mapa == nodata] = np.nan
-        longitudes = coordenada_x_abajo_izquierda + delta_x * np.arange(celdas_x)
-        latitudes = coordenada_y_abajo_izquierda + delta_y * np.arange(celdas_y)
-        longitudes, latitudes = np.meshgrid(longitudes, latitudes)
-        
-        t = ax.set_title(titulo, fontsize = fontsize)
-        t.set_y(1.05)
-        
-        if norm != None:
-            cmap = matplotlib.colors.ListedColormap(cmap(np.arange(256))[::len(norm)])
-            norm = matplotlib.colors.BoundaryNorm(norm, cmap.N)
-        
-        cs = ax.contourf(longitudes, latitudes, mapa.T[::-1], transform = ccrs.PlateCarree(), cmap = cmap, levels = levels, norm = norm)
-        ax.plot(self.Polygon[0], self.Polygon[1], color = color_perimetro)
-        rango_longitudes = abs(longitudes.min() - longitudes.min())
-        rango_latitudes = abs(latitudes.max() - latitudes.min())
-        lon_formatter = LongitudeFormatter(zero_direction_label=True, number_format = '.2f')
-        lat_formatter = LatitudeFormatter(number_format = '.2f')
-        ax.xaxis.set_major_formatter(lon_formatter)
-        ax.yaxis.set_major_formatter(lat_formatter)
-        
-        gl = ax.gridlines(crs = ccrs.PlateCarree(), draw_labels = True, linewidth = 1, color='k', alpha=0.5, linestyle='--')
-        gl.xlabels_top = True
-        gl.xlabels_bottom = False
-        gl.ylabels_left = True
-        gl.ylabels_right = False
-    
-    def plot_basin(self, vector_cuenca = None, ax = None,fig=None, scat_complex = False,
-        scat_df = None, scat_x = None, scat_y = None, scat_color = None, scat_size = None,
-        scat_cmap = None,scat_order=4,scat_w = 4,scat_vmin=None, scat_vmax=None,
-        scat_cm_loc = [0.2, 0.1, 0.4, 0.03],scat_cm_orientation = 'horizontal',
-        figsize = (10, 10), path_guardar = None, dpi = 100, 
-        cmap = pl.get_cmap('viridis'), title_size = 24, titulo = '', 
-        titulo_colorbar = '', norm  = None, levels = None, vmin = None, vmax = None,
-        color_perimetro = 'r',
-        shape_path = None, shape_color = 'blue', shape_width = 0.5,
-        cbar_title = '', cbar_loc = [0.4, 0.8, 0.4, 0.03], cbar_ticks = None, cbar_ticklabels = None,
-        cbar_ticksize = 16, cbar_orientation = 'horizontal',cbar_title_size = 16):
-
-        #Pretty colorbar
-        if norm != None:
-            cmap = matplotlib.colors.ListedColormap(cmap(np.arange(256))[::len(norm)])
-            norm = matplotlib.colors.BoundaryNorm(norm, cmap.N)
-        #Get the projection from the watershed project.
-        try:
-            proj = ccrs.epsg(self.epsg)
-        except:
-            proj = ccrs.PlateCarree()
-        #Define the aces if not given
-        if ax == None:
-            fig = pl.figure(figsize = figsize)
-            ax = fig.add_subplot(1, 1, 1, projection = proj)
-
-        #title
-        t = ax.set_title(titulo, fontsize = title_size)
-        t.set_y(1.05)
-        #If there is a raster map to plot
-        if vector_cuenca is not None:
-            mapa, prop = self.Transform_Basin2Map(vector_cuenca)
-            celdas_x, celdas_y, coordenada_x_abajo_izquierda, coordenada_y_abajo_izquierda, delta_x, delta_y, nodata = prop
-            mapa[mapa == nodata] = np.nan
-            longitudes = coordenada_x_abajo_izquierda + delta_x * np.arange(celdas_x)
-            latitudes = coordenada_y_abajo_izquierda + delta_y * np.arange(celdas_y)
-            longitudes, latitudes = np.meshgrid(longitudes, latitudes)
-            cs = ax.contourf(longitudes, latitudes, mapa.T[::-1], transform = proj, cmap = cmap,
-                levels = levels, norm = norm, vmin = vmin, vmax = vmax)
-            cax = fig.add_axes(cbar_loc)
-            cbar = pl.colorbar(cs, cax = cax, orientation=cbar_orientation)
-            cbar.ax.tick_params(labelsize = cbar_ticksize)
-            cbar.ax.set_title(cbar_title, size = cbar_title_size)
-            if cbar_ticks is not None:
-                cbar.set_ticks(cbar_ticks)
-            if cbar_ticklabels is not None:
-                cbar.set_ticklabels(cbar_ticklabels)
-        else:
-            cbar = None; longitudes = None; latitudes = None
-        #If there is a dataFrame with data to plot as scatter
-        if scat_df is not None:
-            if scat_complex:
-                scat_elem = ax.scatter(scat_df[scat_x],scat_df[scat_y], c =scat_df[scat_color], cmap = scat_cmap,
-                        vmin = scat_vmin, 
-                        vmax = scat_vmax,
-                        s = scat_size, 
-                        zorder = scat_order,
-                        lw = scat_w, 
-                        edgecolor = 'k', 
-                        transform = proj)
-                cax = fig.add_axes(scat_cm_loc)
-                sc_cbar = pl.colorbar(scat_elem, cax = cax, orientation = scat_cm_orientation)
-            else:
-                scat_elem = ax.scatter(scat_df[scat_x], scat_df[scat_y], c = scat_color,
-                    s = scat_size, edgecolor = 'k', transform = proj)
-                sc_bar = None
-        else:
-            sc_cbar = None
-        #Watershed divisory
-        ax.plot(self.Polygon[0], self.Polygon[1], color = color_perimetro)
-        ax.outline_patch.set_visible(False)
-        #Qny shape to show.
-        if shape_path is not None:
-            #Using the add_geometry
-            ax.add_geometries(Reader(shape_path).geometries(),proj,
-                            edgecolor=shape_color,
-                            lw=shape_width,
-                            facecolor ='none')
-
-        return ax,cbar,longitudes, latitudes, sc_cbar
-
     #Grafica de plot para montar en paginas web o presentaciones
     def Plot_basinClean(self, vec, path = None, threshold = 0.0,
         vmin = 0.0, vmax = None, show_cbar = False, **kwargs):
@@ -2776,7 +2625,7 @@ class Basin:
         Texto='%.2f' % Mediana
         ax.hlines(Mediana,-0.4,len(keys)+1-0.8,'r',lw=2,label = '$P_{50}='+Texto+'$')
         Texto='%.2f' % (Media+Desv)
-        ax.hlines(Media+Desv,-0.4,len(keys)+1-0.8,'b',lw=2,label = u'$\mu+\sigma='+Texto+'$')
+        ax.hlines(Media+Desv,-0.4,len(keys)+1-0.8,'b',lw=2,label = u'$\\mu+\\sigma='+Texto+'$')
         ax.set_xticks(list(np.arange(1,len(keys)+1)-0.8))
         ax.set_xticklabels(keys,rotation=60)
         ylabel = kwargs.get('ylabel',u'Tiempo de concentracion $T_c[hrs]$')
@@ -2860,7 +2709,7 @@ class Basin:
         ax.grid(True)
         ax.tick_params(labelsize = axissize)
         ax.set_xlabel('Pendiente',size=labelsize)
-        ax.set_ylabel('$pdf [\%]$',size=labelsize)
+        ax.set_ylabel('$pdf [\\%]$',size=labelsize)
         if path is not None:
             pl.savefig(path,bbox_inches='tight')
         if show:
@@ -2885,8 +2734,8 @@ class Basin:
         ax.set_xlim(0,np.ceil(self.CellTravelTime.max()))
         ax.grid(True)
         ax.set_xlabel('Tiempo $t [hrs]$',size=14)
-        ax.set_ylabel('$pdf[\%]$',size=14)
-        ax2.set_ylabel('$cdf[\%]$',size=14)
+        ax.set_ylabel('$pdf[\\%]$',size=14)
+        ax2.set_ylabel('$cdf[\\%]$',size=14)
         ax.set_xticks(b_lib)
         ax.legend(loc=4)
         if path is not None:
@@ -2903,7 +2752,7 @@ class Basin:
             elevPpal=(elevPpal/elevPpal.max())*100.0
             elevBasin=elevBasin-elevBasin.min()
             elevBasin=(elevBasin/elevBasin.max())*100.0
-        elevPpal=pd.rolling_mean(elevPpal,ventana)
+        elevPpal=elevPpal.rolling(ventana).mean()
         ppal_acum=(self.hipso_ppal[0]/self.hipso_ppal[0,-1])*100
         basin_acum=(self.hipso_basin[0]/self.hipso_basin[0,0])*100
         #Genera el plot
@@ -2916,11 +2765,11 @@ class Basin:
         ax.plot(basin_acum,elevBasin,c='r',lw=3,label='Cuenca')
         ax.tick_params(labelsize = 14)
         ax.grid()
-        ax.set_xlabel('Porcentaje Area Acumulada $[\%]$',size=16)
+        ax.set_xlabel('Porcentaje Area Acumulada $[\\%]$',size=16)
         if normed==False:
             ax.set_ylabel('Elevacion $[m.s.n.m]$',size=16)
         elif normed==True:
-            ax.set_ylabel('Elevacion $[\%]$',size=16)
+            ax.set_ylabel('Elevacion $[\\%]$',size=16)
         lgn1=ax.legend(loc=0)
         if path is not None:
             pl.savefig(path, bbox_inches='tight')
@@ -3061,25 +2910,25 @@ class SimuBasin(Basin):
             models.control_h = np.zeros((1,N))
             #Define las simulaciones que se van a hacer
             models.sim_sediments=0
-            if SimSed is 'si':
+            if SimSed == 'si':
                 models.sim_sediments=1
             models.sim_slides=0
             if SimSlides:
                 models.sim_slides=1
             models.save_storage=0
-            if SaveStorage is 'si':
+            if SaveStorage == 'si':
                 models.save_storage=1
             models.save_speed=0
-            if SaveSpeed is 'si':
+            if SaveSpeed == 'si':
                 models.save_speed=1
             models.separate_fluxes = 0
-            if SeparateFluxes is 'si':
+            if SeparateFluxes == 'si':
                 models.separate_fluxes = 1
             models.separate_rain = 0
-            if SeparateRain is 'si':
+            if SeparateRain == 'si':
                 models.separate_rain = 1
             models.show_storage = 0
-            if ShowStorage is 'si':
+            if ShowStorage == 'si':
                 models.show_storage = 1
             if SimFloods == 'si':
                 models.sim_floods = 1
@@ -3144,9 +2993,9 @@ class SimuBasin(Basin):
         cu.dxp = gr.dxp
         cu.nodata = gr.noData
         #de acuerdo al tipo de modeloe stablece numero de elem
-        if self.modelType[0] is 'c':
+        if self.modelType[0] == 'c':
             N = self.ncells
-        elif self.modelType[0] is 'h':
+        elif self.modelType[0] == 'h':
             N = self.nhills
         #Obtiene las variables base
         GrupoBase = gr.groups['base']
@@ -3178,9 +3027,9 @@ class SimuBasin(Basin):
         models.parliac = np.ones((3,N))*GrupoSimSed.variables['PArLiAc'][:]
 
         #Variable de drena de acuerdo al tipo de modelo
-        if self.modelType[0] is 'c':
+        if self.modelType[0] == 'c':
             models.drena = np.ones((3,N)) *GrupoSimHid.variables['drena'][:]
-        elif self.modelType[0] is 'h':
+        elif self.modelType[0] == 'h':
             models.drena = np.ones((1,N)) * GrupoSimHid.variables['drena'][:]
         models.unit_type = np.ones((1,N)) * GrupoSimHid.variables['unit_type'][:]
         models.hill_long = np.ones((1,N)) * GrupoSimHid.variables['hill_long'][:]
@@ -3214,7 +3063,7 @@ class SimuBasin(Basin):
     def __GetEVP_Serie__(self, index):
         '''Descripcion: Genera una serie que pondera la evp '''
         if index.freq != 'H':
-            rng = pd.date_range(index[0], index[-1], freq = '1H')
+            rng = pd.date_range(index[0], index[-1], freq = '1h')
         else:
             rng = index
         rad=np.zeros(rng.size)
@@ -3327,9 +3176,9 @@ class SimuBasin(Basin):
         #Revisa si todas las celdas quedaron asignadas
         if len(TIN_perte[TIN_perte == 0]) == 0:
             #Selecciona si es por laderas o por celdas
-            if self.modelType[0] is 'h':
+            if self.modelType[0] == 'h':
                 maskVector = np.copy(self.hills_own)
-            elif self.modelType[0] is 'c':
+            elif self.modelType[0] == 'c':
                 maskVector = np.ones(self.ncells)
             #Interpola con tin
             meanRain,posIds = models.rain_mit(xy_basin,
@@ -3404,10 +3253,10 @@ class SimuBasin(Basin):
         x,y = cu.basin_coordxy(self.structure,self.ncells)
         xy_basin=np.vstack((x,y))
         #Interpola con idw
-        if self.modelType[0] is 'h':
+        if self.modelType[0] == 'h':
             meanRain,posIds = models.rain_idw(xy_basin, coord, reg, p, self.nhills,
                 path, threshold, self.hills_own, self.ncells, coord.shape[1],reg.shape[1])
-        elif self.modelType[0] is 'c':
+        elif self.modelType[0] == 'c':
             meanRain,posIds = models.rain_idw(xy_basin, coord, reg, p, self.nhills,
                 path, threshold, np.ones(self.ncells), self.ncells, coord.shape[1],reg.shape[1])
         #Guarda un archivo con informacion de la lluvia
@@ -3458,9 +3307,9 @@ class SimuBasin(Basin):
             path_bin = path_out+'.bin'
             path_hdr = path_out+'.hdr'
         #Establece la cantidad de elementos de acuerdo al tipo de cuenca
-        if self.modelType[0] is 'c':
+        if self.modelType[0] == 'c':
             N = self.ncells
-        elif self.modelType[0] is 'h':
+        elif self.modelType[0] == 'h':
             N = self.nhills
         #Guarda la primera entrada como un mapa de ceros
         models.write_int_basin(path_bin,np.zeros((1,N)),1,N,1)
@@ -3540,9 +3389,9 @@ class SimuBasin(Basin):
                 path_bin = path_out+'.bin'
                 path_hdr = path_out+'.hdr'
         #Establece la cantidad de elementos de acuerdo al tipo de cuenca
-        if self.modelType[0] is 'c':
+        if self.modelType[0] == 'c':
             N = self.ncells
-        elif self.modelType[0] is 'h':
+        elif self.modelType[0] == 'h':
             N = self.nhills
             try:
                 if vec.shape[0]  == self.ncells:
@@ -3788,18 +3637,18 @@ class SimuBasin(Basin):
                 isVec=True
             #finalmente mete la variable en el modelo
             N = self.ncells
-            if VarName is 'Stream_W' :
+            if VarName == 'Stream_W' :
                 models.flood_w = np.ones((1,N))*Vec
-            elif VarName is 'Stream_D50':
+            elif VarName == 'Stream_D50':
                 models.flood_d50 = np.ones((1,N))*Vec
-            elif VarName is 'HAND':
+            elif VarName == 'HAND':
                 self.GetGeo_HAND(threshold = threshold)
                 models.flood_hand = np.ones((1,N))*np.copy(self.CellHAND)
                 models.flood_aquien = np.ones((1,N))*np.copy(self.CellHAND_drainCell)
-            elif VarName is 'Slope':
+            elif VarName == 'Slope':
                 self.GetGeo_Cell_Basics()
                 models.flood_slope = np.ones((1,N))*np.sin(np.arctan(self.CellSlope))
-            elif VarName is 'Sections':
+            elif VarName == 'Sections':
                 self.GetGeo_Sections(NumCeldas = NumCeldas)
                 models.flood_sections = np.ones((NumCeldas*2+1,N)) * self.Sections
                 models.flood_sec_cells = np.ones((NumCeldas*2+1,N)) * self.Sections_Cells
@@ -3875,20 +3724,20 @@ class SimuBasin(Basin):
             Vec = var
             isVec=True
         #Si el modelo es tipo ladera agrega la variable
-        if self.modelType[0] is 'h':
+        if self.modelType[0] == 'h':
             Vec = self.Transform_Basin2Hills(Vec,mask=mask)
         #finalmente mete la variable en el modelo
-        if modelVarName is 'h_coef':
+        if modelVarName == 'h_coef':
             models.h_coef[pos] = Vec
-        elif modelVarName is 'h_exp':
+        elif modelVarName == 'h_exp':
             models.h_exp[pos] = Vec
-        elif modelVarName is 'v_coef':
+        elif modelVarName == 'v_coef':
             models.v_coef[pos] = Vec
-        elif modelVarName is 'v_exp':
+        elif modelVarName == 'v_exp':
             models.v_exp[pos] = Vec
-        elif modelVarName is 'capilar':
+        elif modelVarName == 'capilar':
             models.max_capilar[0] = Vec
-        elif modelVarName is 'gravit':
+        elif modelVarName == 'gravit':
             models.max_gravita[0] = Vec
 
     def set_Storage(self,var,pos,hour_scale=False):
@@ -3921,9 +3770,9 @@ class SimuBasin(Basin):
         '----------\n'\
         'save_storage(slef,storage).\n'\
         #Determina el tipo de unidades del modelo
-        if self.modelType[0] is 'c':
+        if self.modelType[0] == 'c':
             N = self.ncells
-        elif self.modelType[0] is 'h':
+        elif self.modelType[0] == 'h':
             N = self.nhills
         #Obtiene el vector que va a alojar en el modelo
         isVec=False
@@ -4017,18 +3866,18 @@ class SimuBasin(Basin):
         '----------\n'\
         'set_record, set_storage.\n'\
         #Obtiene los puntos donde hay coordenadas
-        if tipo is 'Q':
+        if tipo == 'Q':
             xyNew, basinPts, order = self.Points_Points2Stream(coordXY,ids)
-            if self.modelType[0] is 'c':
+            if self.modelType[0] == 'c':
                 models.control[0] = basinPts
                 IdsConvert = basinPts[basinPts!=0]
-            elif self.modelType[0] is 'h':
+            elif self.modelType[0] == 'h':
                 unitario = basinPts / basinPts
                 pos = self.hills_own * self.CellCauce * unitario
                 posGrande = self.hills_own * self.CellCauce * basinPts
                 IdsConvert = posGrande[posGrande!=0] / pos[pos!=0]
                 models.control[0][pos[pos!=0].astype(int).tolist()] = IdsConvert
-        elif tipo is 'H':
+        elif tipo == 'H':
             xyNew = coordXY
             basinPts, order = self.Points_Points2Basin(coordXY,ids)
             if self.modelType[0] == 'c':
@@ -4069,9 +3918,9 @@ class SimuBasin(Basin):
         '   wmf.models.wi.\n'\
         '   wmf.models.diametro.\n'\
                 #Determina el tipo de unidades del modelo
-        if self.modelType[0] is 'c':
+        if self.modelType[0] == 'c':
             N = self.ncells
-        elif self.modelType[0] is 'h':
+        elif self.modelType[0] == 'h':
             N = self.nhills
                 #Se fija que tipo de variable es
         isVec=False
@@ -4087,7 +3936,7 @@ class SimuBasin(Basin):
             Vec = var
             isVec=True
         #Si el modelo es tipo ladera agrega la variable
-        if self.modelType[0] is 'h':
+        if self.modelType[0] == 'h':
             Vec = self.Transform_Basin2Hills(Vec,mask=mask)
         #Inicia las variables
         if VarName == 'Krus':
@@ -4148,17 +3997,17 @@ class SimuBasin(Basin):
             return 'El modelo por laderas no simula deslizamientos.'
         #finalmente mete la variable en el modelo
         N = self.ncells
-        if VarName is 'GammaSoil' :
+        if VarName == 'GammaSoil' :
             models.sl_gammas = np.ones((1,N))*Vec
-        elif VarName is 'Cohesion':
+        elif VarName == 'Cohesion':
             models.sl_cohesion = np.ones((1,N))*Vec
-        elif VarName is 'FrictionAngle':
+        elif VarName == 'FrictionAngle':
             models.sl_frictionangle = np.ones((1,N))*np.deg2rad(Vec)
-        elif VarName is 'Zs':
+        elif VarName == 'Zs':
             models.sl_zs = np.ones((1,N))*Vec
-        elif VarName is 'FS':
+        elif VarName == 'FS':
             models.sl_fs = var
-        elif VarName is 'Slope':
+        elif VarName == 'Slope':
             models.sl_radslope = np.ones((1,N))*np.arctan(Vec)
             models.sl_radslope[models.sl_radslope == 0] = 0.01
     #------------------------------------------------------
@@ -4188,9 +4037,9 @@ class SimuBasin(Basin):
             self.set_Geomorphology()
             print('Aviso: SE ha estimado la geomorfologia con los thresholdes por defecto threshold = [30, 500]')
         #Guarda la cuenca
-        if self.modelType[0] is 'c':
+        if self.modelType[0] == 'c':
             N = self.ncells
-        elif self.modelType[0] is 'h':
+        elif self.modelType[0] == 'h':
             N = self.nhills
 
         Dict = {'nombre':self.name,
@@ -4244,9 +4093,9 @@ class SimuBasin(Basin):
         #Var_H4max = GrupoSimHid.createVariable('h4_max','f4',('Nelem',),zlib = True)
         Control = GrupoSimHid.createVariable('control','i4',('Nelem',),zlib = True)
         ControlH = GrupoSimHid.createVariable('control_h','i4',('Nelem',),zlib = True)
-        if self.modelType[0] is 'c':
+        if self.modelType[0] == 'c':
             drena = GrupoSimHid.createVariable('drena','i4',('col3','Nelem'),zlib = True)
-        elif self.modelType[0] is 'h':
+        elif self.modelType[0] == 'h':
             drena = GrupoSimHid.createVariable('drena','i4',('Nelem'),zlib = True)
         unitType = GrupoSimHid.createVariable('unit_type','i4',('Nelem',),zlib = True)
         hill_long = GrupoSimHid.createVariable('hill_long','f4',('Nelem',),zlib = True)
@@ -4400,9 +4249,9 @@ class SimuBasin(Basin):
         #Obtiene las fechas
         Rain = read_mean_rain(rain_pathHdr, N_intervals, start_point)
         # De acuerdo al tipo de modelo determina la cantidad de elementos
-        if self.modelType[0] is 'c':
+        if self.modelType[0] == 'c':
             N = self.ncells
-        elif self.modelType[0] is 'h':
+        elif self.modelType[0] == 'h':
             N = self.nhills
         #prepara variables globales
         models.rain_first_point = start_point

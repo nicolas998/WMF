@@ -1,2 +1,7 @@
+v<1.1.0>, <2026/06/12> -- Python 3.12 support: build migrated from
+    numpy.distutils to meson-python (pip install .), fortran extensions
+    now live inside the wmf package (wmf.cu / wmf.models), gdal imported
+    via osgeo, pandas/matplotlib API updates, removed the unmaintained
+    plotly/cartopy/pysheds dependencies and the code that used them.
 v<0.0.101>, <2015/06/21> -- Initial release
 

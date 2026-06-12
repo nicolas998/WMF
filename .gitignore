@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# Build artifacts
+.mesonpy-*/
+build/
+dist/
+*.pyd
+*.so

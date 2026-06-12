@@ -4,18 +4,42 @@ ___
 
 WMF (Watershed Modeling Framework) is a module to design to work with hydrographic watersheds and the execution of hydrological models. Additionally, it contains tools for data visualization, analysis of variables, and geomorphological analysis.
 
-In a Linux machine you just need you can install the module by typing:
+## Installation
 
->- sudo python3 setup.py install 
+Requirements:
 
-or 
+- Python >= 3.9 (tested up to 3.12)
+- A Fortran compiler (**gfortran**) and a C compiler
+  - Linux: `sudo apt install gfortran` (or your distro equivalent)
+  - Windows: install [MSYS2](https://www.msys2.org/) and run
+    `pacman -S mingw-w64-x86_64-gcc-fortran`, then put `C:\msys64\mingw64\bin`
+    on the `PATH` while installing
 
->- python3 setup.py install --user
+The package is built with [meson-python](https://mesonbuild.com/meson-python/)
+(the old `numpy.distutils` build no longer works on Python >= 3.12), so a
+regular pip install compiles the Fortran extensions automatically:
+
+```bash
+python -m venv .venv
+. .venv/bin/activate            # Windows: .venv\Scripts\activate
+pip install .                   # core install
+pip install .[geo,calib]        # + netCDF4/rasterio/gdal + deap
+```
+
+Note for Windows: `pip install gdal` has no official wheels; grab one from
+[cgohlke/geospatial-wheels](https://github.com/cgohlke/geospatial-wheels/releases)
+or use conda.
 
 To import the module:
 
 >- from wmf import wmf
 
+To check the installation, run the smoke test (synthetic watershed, no data
+files needed):
+
+```bash
+python tests/smoke_test.py
+```
 
 ## Modules
 ___
@@ -44,25 +68,13 @@ This module has the TETIS model (Velez, 2001) written from scratch. It also cont
 
 This is the base script that merges cuencas.f90 and modelos.f90.  It has defined several classes such as the **SimuBasin** class that could be considered the heart of WMF.  In this module, we have many functionalities done as an interface to the Fortran modules.
 
-## Requirements:
+## Dependencies
 
->- A Fortran compiler such as **gfortran**, also the user must have the python3-dev tools.
->- Python 3.6 
->- A Unix machine
->- You must have these packages.
-	- numpy
-	- glob
-	- mpl_toolkits.basemap  	
-	- netCDF4
-	- osgeo
-	- gdal
-	- scipy
-	- os
-	- pandas
-	- datetime
-	- matplotlib
+Installed automatically: numpy, scipy, pandas, matplotlib.
 
-I also have tried WMF in **Google Colab** just type:
+Optional (`pip install .[geo,calib]`):
 
-!pip install git+https://github.com/nicolas998/WMF.git
-
+- netCDF4: save/load basins (`SimuBasin.Save_SimuBasin`)
+- gdal/osgeo: read raster and vector maps
+- rasterio: basin polygon extraction
+- deap: NSGA-II calibration
